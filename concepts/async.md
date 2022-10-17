@@ -16,3 +16,4 @@ Alternatively for a dbus event or keyboard input
 >> Which other wms use dbus?
 > Sorry, formulted the previous statement a little wrong. AwesomeWM has a dbus **module** which performs fine.
 > Since, to my understanding, we are using dbus for communication with addons like taskbars, this should be good here as well i think.
+> https://awesomewm.org/doc/api/libraries/dbus.html
