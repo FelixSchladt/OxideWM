@@ -13,6 +13,6 @@ D-Bus offers queing and notification:
 -> WM waits for an dbus event and then handles each event. 
 Alternatively for a dbus event or keyboard input
 
-> This should be sufficent to handle enough events. Other WMs using dbus also perform fine.
 >> Which other wms use dbus?
-> I will have to read up on this as well
+> Sorry, formulted the previous statement a little wrong. AwesomeWM has a dbus **module** which performs fine.
+> Since, to my understanding, we are using dbus for communication with addons like taskbars, this should be good here as well i think.
