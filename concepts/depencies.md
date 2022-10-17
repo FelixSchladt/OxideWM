@@ -25,4 +25,7 @@ Rust libraries:
 
 [Comparison between different X11 libraries](https://github.com/psychon/x11rb/blob/master/doc/comparison.md)
 
+x11rb seems to offer some benefits:
+* Purely written in rust -> less _unsafe_ calls
+* Aims to be similar to the modern xcb library instead of the old xlib
 
