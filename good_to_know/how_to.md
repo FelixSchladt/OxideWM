@@ -32,6 +32,5 @@ Add dependencies by editing `Cargo.toml`.
 Add the following lines:
 ```toml
 [dependencies]
-dependency_name = "dependency version"
 somecrate = "0.2.*"
 ```
