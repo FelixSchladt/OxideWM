@@ -17,6 +17,7 @@ Official D-Bus library from the freedesktop.org foundation with good documentati
 ## X11
 **[Discussion]**
 There seem to be two main libraries offering X11 bingings for rust:
+[XCB wikipedia](https://en.wikipedia.org/wiki/XCB)
 [x11-rs](https://github.com/AltF02/x11-rs)
 [x11rb](https://github.com/psychon/x11rb)
 
