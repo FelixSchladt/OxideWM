@@ -30,9 +30,8 @@ cargo run
 ## ...add dependencies to a rust project
 Add dependencies by editing `Cargo.toml`.
 Add the following lines:
-```
-...
+```toml
 [dependencies]
-dependency_name: = "dependency version"
-somecrate: "0.2.*"
+dependency_name = "dependency version"
+somecrate = "0.2.*"
 ```
