@@ -17,6 +17,7 @@ This project idea is inspired by the DWM, leftWM and i3WM.
 * Starting and quiting applications
 * Dynamic tiling
 * Movement of applications
+* Floating/Static applications
 * Keyboard input handling
 * Window focusing
 
