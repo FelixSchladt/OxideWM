@@ -40,6 +40,7 @@ There are multiple different ways of implementing ipc on posix systems.
 * Based on unix sockets
 * Widely used in projects such as Gnome and KDE
 * Offers message queing, tow way communication and is supposed to offer a easy to use interface
+* Comparetively slow compared to FIFO or UNIX sockets
 
 ### Key Takeaways
 
@@ -55,6 +56,11 @@ There are multiple different ways of implementing ipc on posix systems.
 * D-Bus should offer a high level, easy to use ipc mechanism
 
 
+## Conclusion
+
+After a technical discussion with our team, we came to the conclusion that D-Bus is the best fit for our needs.
+The performance is deemed non critical in our use case and the ease of use will be benefitial for the project.
+None the less, the ipc interface should be created in an abstract manner allowing for a possible replacement of the underlying ipc mechanism. 
 
 
 
