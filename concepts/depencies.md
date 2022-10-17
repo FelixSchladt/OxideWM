@@ -14,6 +14,14 @@ D-Bus has been chosen as ipc mechanism.
 [Zbus documentation](https://dbus.pages.freedesktop.org/zbus/)
 Official D-Bus library from the freedesktop.org foundation with good documentation.
 
+## Serialization
+**[Discussion]**
+For IPC, possible config files etc
+Use of serde crate -> very commonly used crate
+[serde.rs doc](https://serde.rs/)
+[serde crate](https://crates.io/crates/serde)
+
+
 ## X11
 **[Discussion]**
 There seem to be two main libraries offering X11 bingings for rust:
