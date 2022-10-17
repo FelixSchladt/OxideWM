@@ -2,9 +2,21 @@
 
 ## ...install Rust
 To install Rust, use one of the following commands depending on your setup:
+
+### Arch
 ```bash
 sudo pacman -S rustup   # Arch based systems
+```
+
+### Debian
+```bash
 sudo apt install rustup # Debian based systems
+```
+
+### POSIX
+Should work on all posix compliant system. 
+The disadvantage is that the packet is not maintained and updated by your system package manager.
+```bash
 curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh  #  Use this if nothing else works
 ```
 
