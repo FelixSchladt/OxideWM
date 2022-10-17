@@ -14,4 +14,5 @@ D-Bus offers queing and notification:
 Alternatively for a dbus event or keyboard input
 
 > This should be sufficent to handle enough events. Other WMs using dbus also perform fine.
+>> Which other wms use dbus?
 > I will have to read up on this as well
