@@ -27,6 +27,7 @@ There are multiple different ways of implementing ipc on posix systems.
 
 #### D-Bus
 [D-Bus Wikipedia](https://en.wikipedia.org/wiki/D-Bus)
+[D-Bus interface for Rust](https://github.com/diwic/dbus-rs)
 
 
 
