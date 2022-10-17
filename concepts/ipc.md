@@ -1,7 +1,5 @@
 # Concept IPC
-
 ## Description
-
 An IPC mechanism for the window manager is required.
 This is neccessary for:
 
@@ -15,7 +13,6 @@ Only short messages will be exchanged between the clients. Also it is not expect
 Therefore some ipc options such as shared memory and semaphores will not be regarded as these options are not as easy to use and do not offer any significant advantages.
 
 ## Research
-
 ### Options
 There are multiple different ways of implementing ipc on posix systems.
 
@@ -58,12 +55,32 @@ There are multiple different ways of implementing ipc on posix systems.
 
 ## Conclusion
 
-After a technical discussion with our team, we came to the conclusion that D-Bus is the best fit for our needs.
-The performance is deemed non critical in our use case and the ease of use will be benefitial for the project.
-None the less, the ipc interface should be created in an abstract manner allowing for a possible replacement of the underlying ipc mechanism. 
+After a technical discussion with our team, we came to the conclusion that **D-Bus is most suitable**.
+The **performance is deemed non critical** in our use case and the ease of use will be benefitial for the project.
+None the less, the ipc interface should be **created in an abstract manner** allowing for a possible replacement of the underlying ipc mechanism.  
 
+## Implementation
+### Available Libraries
+There seem to be two main projects striving to provide dbus support for rust.
 
+[Zbus project repository](https://gitlab.freedesktop.org/dbus/zbus/-/tree/main)
+[Zbus crate](https://crates.io/crates/zbus)
+[Zbus documentation](https://dbus.pages.freedesktop.org/zbus/)
+* Official dbus rust implementation by the freedesktop.org foundation
+* Pure rust implementation
+* Extensive documentation
+* Examples
 
+[dbus-rs repository](https://github.com/diwic/dbus-rs)
+[dbus crate](https://crates.io/crates/dbus)
+* Wrapper library for libdbus -> libdbus dependency
+* Examples
 
+### Conclusion
+Zbus seems to have some advantages over dbus-rs, mainly:
+* Offical freedesktop.org library
+* Pure rust -> no ibdbus dependency
+* Extensive documentation
+* Due to being an offial library, maintance is most likely certain
 
-
+Therfore we came to the conclusion **to use zbus** as our ipc library.
