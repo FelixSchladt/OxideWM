@@ -1,10 +1,10 @@
 # Software Engeneering Project
 
 ## Group Members
-1. Antonia Pawlik
-2. Thomas Gingele
-3. Jan Schaible
-4. Felix Schladt
+1. [Antonia Pawlik](https://github.com/gungula)
+2. [Thomas Gingele](https://github.com/B1TC0R3)
+3. [Jan Schaible](https://github.com/janschaible)
+4. [Felix Schladt](https://github.com/FelixSchladt)
 
 ## Brief Project Description
 
