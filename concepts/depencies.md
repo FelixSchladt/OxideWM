@@ -28,4 +28,7 @@ Rust libraries:
 x11rb seems to offer some benefits:
 * Purely written in rust -> less _unsafe_ calls
 * Aims to be similar to the modern xcb library instead of the old xlib
+* Better documentation
+
+> I tend to use x11rb because of these reasons
 
