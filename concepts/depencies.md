@@ -30,6 +30,7 @@ There seem to be two main libraries offering X11 bingings for rust:
 Rust libraries:
 [x11-rs](https://github.com/AltF02/x11-rs)
 [x11rb](https://github.com/psychon/x11rb)
+[xcb](https://crates.io/crates/xcb)
 
 [Comparison between different X11 libraries](https://github.com/psychon/x11rb/blob/master/doc/comparison.md)
 
