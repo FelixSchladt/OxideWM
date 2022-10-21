@@ -5,6 +5,7 @@
 2. [Thomas Gingele](https://github.com/B1TC0R3)
 3. [Jan Schaible](https://github.com/janschaible)
 4. [Felix Schladt](https://github.com/FelixSchladt)
+5. [Philipp Kalinowski](https://github.com/Philipp6802)
 
 ## Brief Project Description
 
