@@ -14,7 +14,7 @@ sudo apt install rustup # Debian based systems
 ```
 
 ### POSIX
-Should work on all posix compliant system. 
+Should work on all posix compliant system.
 The disadvantage is that the packet is not maintained and updated by your system package manager.
 ```bash
 curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh  #  Use this if nothing else works
@@ -54,3 +54,6 @@ Add the following lines:
 [dependencies]
 somecrate = "0.2.*"
 ```
+
+## ...debug a rust application
+[How to use GDB with Rust](https://blog.logrocket.com/debugging-rust-apps-with-gdb/#rustgdbexample)
