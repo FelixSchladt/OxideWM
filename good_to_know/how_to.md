@@ -25,6 +25,7 @@ The rust project provides some great free documentation and trainings to get sta
 [Official: Learn Rust](https://www.rust-lang.org/learn)
 [Rust Book](https://doc.rust-lang.org/book/)
 [Rust training course](https://github.com/rust-lang/rustlings/)
+[Rust by Example](https://doc.rust-lang.org/stable/rust-by-example/)
 
 
 ## ...start a project
