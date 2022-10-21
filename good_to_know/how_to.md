@@ -20,6 +20,13 @@ The disadvantage is that the packet is not maintained and updated by your system
 curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh  #  Use this if nothing else works
 ```
 
+## ..learn rust
+The rust project provides some great free documentation and trainings to get started with rust
+[Official: Learn Rust](https://www.rust-lang.org/learn)
+[Rust Book](https://doc.rust-lang.org/book/)
+[Rust training course](https://github.com/rust-lang/rustlings/)
+
+
 ## ...start a project
 To start a rust project, run the command
 ```bash
