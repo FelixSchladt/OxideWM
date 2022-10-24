@@ -20,6 +20,12 @@ Format:
 
 ## Allgemeiner Projektablauf
 
+### Recherche zu Technologien
+
+Alle Rechercheergebnisse und Diskussionen zu in Frage kommenden Technologien
+werden in dem Verzeichnis `concepts` gespeichert.
+Die einzelnen Dokumente werden in Markdown geschrieben und haben sonst keine formatlichen Vorgaben.
+
 ### Ticketing
 
 Für jede Aufgabe wird ein Ticket im Git Project angelegt.
