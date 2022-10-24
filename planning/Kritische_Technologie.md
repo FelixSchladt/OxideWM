@@ -1,8 +1,8 @@
 # Kritische Technologien
 
 ## Programmierparadigmen
-- Client- Server-Model
-- Eventdriven, funtional, imperative, procdual, structured programming
+- Client-Server Model
+- Event driven, functional, imperative, procedural, structured programming
 
 ## Programmiersprachen
 Rust
@@ -10,11 +10,10 @@ bash/shell
 Make
 
 ## Entwicklungsumgebung
-- Linux/Unix
+- Posix
 - Xorg
 - Xephyr
-- Neovim/Vim
-- CLion
+- CLion / Vim / Visual Studio Code
 
 ## Hardware
-- Rechner
+- Personal Computer
