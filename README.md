@@ -1,4 +1,4 @@
-# Software Engeneering Project
+# Software Engineering Project
 
 ## Group Members
 1. [Antonia Pawlik](https://github.com/gungula)
