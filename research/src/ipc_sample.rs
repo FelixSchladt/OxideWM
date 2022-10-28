@@ -5,49 +5,42 @@
 //Theres a few different keywords when using others crates/files.
 //These are `mod` and `use`.
 //Here, the second one is enough.
-use zbus::{ConnectionBuilder, dbus_interface, dbus_proxy};
+use std::{error::Error, future::pending};
+use zbus::{ConnectionBuilder, dbus_interface};
 
 //Structs in rust work the same as they do in C.
 //The only thing thats different is the syntax to asign a
 //datatype to a variable.
 struct EventCounter {
-    count: usize
+    count: u64
 }
 
 //`Impl` allows to define functions for structs.
 //Think of working with the struct/impl-combo as you would of working with classes in
 //Python.
+#[dbus_interface(name = "org.zbus.EventCounter")]
 impl EventCounter {
-
-    //In rust, there are no constructors.
-    //This is solved with a common function of `impl`-blocks, the function `new`.
-    //This function should return an instance of its struct.
-    pub fn new() {
-        EventCounter{ count = 0 };
-    }
-
     //Simpilar to Python, `self` gives the funtion access to its structs data.
     //Note, that hereit is a pointer which also has to be declared mutable,
     //as is common in Rust.
     fn incr_event_count(&mut self) {
-        self::count += 1;
+        self.count += 1;
     }
 
     //As you can see, it is not necessary to write `return <x>;` to
     //return a value.
     //However, this might cause some issues if the to-be-returned value
     //is not the last statement of a scope (Just as a return statement would).
-    fn get_event_count(&mut self) -> usize{
+    fn get_event_count(&mut self) -> u64 {
         self.count
     }
 }
 
 //When using rust, it is good pratice to return a `Result<T, S>`.
 //This return type is used for error handling and other logic.
-#[async_std::stream_dbus] //asynchronicity is required for this to work
-pub fn start_capsulated_dbus_server() -> Result<(), Box<dyn Error>> {
+pub async fn start_capsulated_dbus_server() -> Result<(), Box<dyn Error>> {
     //Initialize EventCounter struct, including its functions
-    let e_counter = EventCounter::new();
+    let e_counter = EventCounter { count: 0 };
 
     //`_` will create a variable of which the value is ignored.
     //Here, it is used to create a connection with dbus and register our
@@ -62,6 +55,7 @@ pub fn start_capsulated_dbus_server() -> Result<(), Box<dyn Error>> {
             .build()
             .await?;
 
+    //wait forever
     pending::<()>().await;
 
     //This statement is a shortcut for the `Result`-type.
@@ -70,17 +64,4 @@ pub fn start_capsulated_dbus_server() -> Result<(), Box<dyn Error>> {
     //Here, the value expected for `OK()` is an empty touple as can be seen in the
     //function signature. Hence, we return it here.
     Ok(())
-}
-
-//WIP
-#[dbus_proxy(
-    interface = ""
-    default_service = ""
-    default_path = ""
-)]
-pub fn start_dbus_client() -> Result<(), Box<dyn Error>> {
-    let connection = ConnectionBuilder::session().await?;
-
-    //the following struct is created by the `dbus_proxy` module.
-    let proxy;
 }

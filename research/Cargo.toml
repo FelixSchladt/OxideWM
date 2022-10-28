@@ -7,3 +7,7 @@ edition = "2021"
 
 [dependencies]
 zbus = "*"
+
+[dependencies.async-std]
+version = "*"
+features = ["attributes"]
