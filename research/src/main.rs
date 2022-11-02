@@ -1,30 +1,17 @@
 /*
- * This file serves as pratice to use GDB to debug applications
- * 
- * things you can pratice:
- * - break at initilisation of "value_in_main"
- * - break at new value assignment of "mut_value_in_main"
- * - break at function call of "somefunc"
- * - check all arguments passed into "somefunc"
- * - view the return value of "somefunc"
- * - break at line 9 and check all assigned values
- *
- * Feel free to add code to this example
+ * Export your source code into as different file and only use this main
+ * function to call a custom init finction.
+ * This way, multiple things can be tested with the same main file.
  */
 
-fn main() {
-    let value_in_main = 10;
-    let mut mut_value_in_main = 5;
+use std::error::Error;
 
-    mut_value_in_main = 20;
+//IMPORTANT: Comment out unused `mod` statements to avoid lengthy build times
+//mod gdb_practice;
+mod ipc_sample;
 
-    let somefunc_result = somefunc(value_in_main, mut_value_in_main as u64);
-
-    println!("{}", somefunc_result);
-}
-
-fn somefunc(x: i32, y: u64) -> String {
-    let result = x + y as i32;
-
-    format!("{}", result)
+#[async_std::main]
+async fn main() -> Result<(), Box<dyn Error>>{
+    //gdb_practice::start_gdb_practice();
+    ipc_sample::start_capsulated_dbus_server().await
 }

@@ -57,3 +57,6 @@ somecrate = "0.2.*"
 
 ## ...debug a rust application
 [How to use GDB with Rust](https://blog.logrocket.com/debugging-rust-apps-with-gdb/#rustgdbexample)
+
+## ...see whether your dbus server started
+There is a tool called `qdbusviewer` for seeing all active dbus servers.
