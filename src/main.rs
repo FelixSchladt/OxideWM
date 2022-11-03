@@ -66,6 +66,8 @@ fn manage_window<C: Connection>(
     conn.map_window(win).unwrap();
     conn.map_window(frame_win).unwrap();
     conn.ungrab_server().unwrap();
+
+    
 }
 
 fn handle_map_request<C: Connection>(
@@ -73,6 +75,12 @@ fn handle_map_request<C: Connection>(
     screen_num:usize,
     event: &MapRequestEvent
 ){
+    let configure_window_aux = ConfigureWindowAux::default()
+        .height(600)
+        .width(800);
+    
+    conn.configure_window(event.window, &configure_window_aux).unwrap();
+
     manage_window(
         conn,
         screen_num,
