@@ -9,10 +9,10 @@ use x11rb::protocol::Event;
 use x11rb::protocol::ErrorKind;
 use x11rb::protocol::xproto::*;
 
-fn on_map_request<C: Connection>(
+fn on_configure_request<C: Connection>(
     manager: &C,
     screen_index: usize,
-    event: &MapRequestEvent
+    event: &ConfigureRequestEvent
 ) -> Result<(), Box<dyn Error>> {
     draw_window(
         manager,
@@ -102,9 +102,11 @@ fn handle_event<C: Connection>(
         Event::ButtonPress(_event) => println!("Ignored event!"),
         Event::MotionNotify(_event) => println!("Ignored event!"),
         Event::ButtonRelease(_event) => println!("Ignored event!"),
-        Event::ConfigureRequest(_event) => println!("Ignored event!"),
+        Event::ConfigureRequest(_event) => {
+            on_configure_request(manager, screen_index, _event).unwrap();
+        },
         Event::MapRequest(_event) => {
-            on_map_request(manager, screen_index, _event).unwrap();
+            //on_map_request(manager, screen_index, _event).unwrap();
         },
         _ => {}
     };
