@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-fn main() -> Result<(), Box<dyn Error>>{
-    println!("Please refer to the 'examples' directory.");
-
-    Ok(())
-=======
 use std::process::exit;
 
 use x11rb::connection::Connection;
@@ -11,7 +5,7 @@ use x11rb::protocol::Event;
 use x11rb::protocol::xproto::*;
 
 use x11rb::protocol::ErrorKind;
-use x11rb::errors::{ReplyError};
+use x11rb::errors::ReplyError;
 use x11rb::COPY_DEPTH_FROM_PARENT;
 
 fn become_wm<C: Connection>(conn: &C, screen: &Screen) -> Result<(), ReplyError> {
@@ -130,5 +124,4 @@ fn main() {
             event_option = conn.poll_for_event().unwrap();
         }
     }
->>>>>>> feature/ISSUE8-full-screen
 }
