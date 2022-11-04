@@ -35,3 +35,13 @@ pub fn create_example(
         println!("Event: {:?}", connection.wait_for_event().unwrap());
     }
 }
+
+fn main() -> Result<(), Box<dyn Error>> {
+    create_example(
+        0,   //x
+        0,   //y
+        100, //width
+        100, //height
+        10,  //border_width
+    )
+}
