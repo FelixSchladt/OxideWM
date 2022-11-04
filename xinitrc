@@ -1,1 +1,1 @@
-./target/debug/examples/window
+./target/debug/examples/window_with_frame
