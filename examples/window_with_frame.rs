@@ -48,7 +48,9 @@ fn draw_window<C: Connection>(
 
     let window_aux = ConfigureWindowAux::default()
                      .width(window_width)
-                     .height(window_height);
+                     .height(window_height)
+                     .x(border_width as i32)
+                     .y((border_width + titlebar_height) as i32);
 
     manager.create_window(
         COPY_DEPTH_FROM_PARENT,
@@ -78,8 +80,8 @@ fn draw_window<C: Connection>(
         &CreateWindowAux::new().background_pixel(screen.white_pixel),
     )?;
 
-    manager.configure_window(window, &window_aux)?;
     manager.reparent_window(window, frame_id, 0, 0)?;
+    manager.configure_window(window, &window_aux)?;
 
     manager.map_window(frame_id)?;
     manager.map_window(titlebar_id)?;
