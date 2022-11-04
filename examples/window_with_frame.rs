@@ -20,8 +20,8 @@ fn on_configure_request<C: Connection>(
         event.window,
         20,
         20,
-        300,
-        400,
+        600,
+        700,
         10,
         5,
     )
