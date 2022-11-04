@@ -7,16 +7,7 @@ use x11rb::rust_connection::RustConnection;
 use x11rb::errors::ReplyError;
 use x11rb::protocol::Event;
 use x11rb::protocol::ErrorKind;
-use x11rb::protocol::xproto::{
-    ChangeWindowAttributesAux,
-    CreateWindowAux,
-    MapRequestEvent,
-    ConnectionExt,
-    WindowClass,
-    EventMask,
-    Window,
-    Screen,
-};
+use x11rb::protocol::xproto::*;
 
 fn on_map_request<C: Connection>(
     manager: &C,
@@ -48,19 +39,16 @@ fn draw_window<C: Connection>(
     titlebar_height: u16,
     ) -> Result<(), Box<dyn Error>> {
 
+    let window_width: u32 = (width - 2*border_width) as u32;
+    let window_height: u32 = (height - 2*border_width - titlebar_height) as u32;
+
     let frame_id = manager.generate_id()?;
     let titlebar_id = manager.generate_id()?;
     let window_id = manager.generate_id()?;
 
-    let window_aux = CreateWindowAux::new()
-                     .event_mask(
-                         EventMask::EXPOSURE            |
-                         EventMask::SUBSTRUCTURE_NOTIFY |
-                         EventMask::BUTTON_PRESS        |
-                         EventMask::BUTTON_RELEASE      |
-                         EventMask::POINTER_MOTION      |
-                         EventMask::ENTER_WINDOW)
-                     .background_pixel(screen.black_pixel);
+    let window_aux = ConfigureWindowAux::default()
+                     .width(window_width)
+                     .height(window_height);
 
     manager.create_window(
         COPY_DEPTH_FROM_PARENT,
@@ -90,19 +78,8 @@ fn draw_window<C: Connection>(
         &CreateWindowAux::new().background_pixel(screen.white_pixel),
     )?;
 
-    manager.create_window(
-        COPY_DEPTH_FROM_PARENT,
-        window,
-        frame_id,
-        x + border_width as i16,
-        y + (border_width + titlebar_height) as i16,
-        width - 2*border_width,
-        height - 2*border_width - titlebar_height,
-        0,
-        WindowClass::INPUT_OUTPUT,
-        0,
-        &window_aux,
-    )?;
+    manager.configure_window(window, &window_aux)?;
+    manager.reparent_window(window, frame_id, 0, 0)?;
 
     manager.map_window(frame_id)?;
     manager.map_window(titlebar_id)?;
