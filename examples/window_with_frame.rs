@@ -9,10 +9,10 @@ use x11rb::protocol::Event;
 use x11rb::protocol::ErrorKind;
 use x11rb::protocol::xproto::*;
 
-fn on_configure_request<C: Connection>(
+fn on_map_request<C: Connection>(
     manager: &C,
     screen_index: usize,
-    event: &ConfigureRequestEvent
+    event: &MapRequestEvent
 ) -> Result<(), Box<dyn Error>> {
     draw_window(
         manager,
@@ -22,8 +22,8 @@ fn on_configure_request<C: Connection>(
         20,
         600,
         700,
-        10,
         5,
+        15,
     )
 }
 
@@ -44,7 +44,6 @@ fn draw_window<C: Connection>(
 
     let frame_id = manager.generate_id()?;
     let titlebar_id = manager.generate_id()?;
-    let window_id = manager.generate_id()?;
 
     let window_aux = ConfigureWindowAux::default()
                      .width(window_width)
@@ -83,10 +82,14 @@ fn draw_window<C: Connection>(
     manager.reparent_window(window, frame_id, 0, 0)?;
     manager.configure_window(window, &window_aux)?;
 
+    manager.grab_server()?;
+
     manager.map_window(frame_id)?;
     manager.map_window(titlebar_id)?;
-    manager.map_window(window_id)?;
+    manager.map_window(window)?;
     manager.flush()?;
+
+    manager.ungrab_server()?;
 
     Ok(())
 }
@@ -104,11 +107,9 @@ fn handle_event<C: Connection>(
         Event::ButtonPress(_event) => println!("Ignored event!"),
         Event::MotionNotify(_event) => println!("Ignored event!"),
         Event::ButtonRelease(_event) => println!("Ignored event!"),
-        Event::ConfigureRequest(_event) => {
-            on_configure_request(manager, screen_index, _event).unwrap();
-        },
+        Event::ConfigureRequest(_event) => println!("Ignored event!"),
         Event::MapRequest(_event) => {
-            //on_map_request(manager, screen_index, _event).unwrap();
+            on_map_request(manager, screen_index, _event).unwrap();
         },
         _ => {}
     };
