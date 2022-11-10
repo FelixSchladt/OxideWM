@@ -10,24 +10,27 @@ use x11rb::protocol::ErrorKind;
 use x11rb::protocol::xproto::*;
 use std::process::Command;
 use std::collections::HashMap;
+use std::io;
 
+//This does not seem to work in the Xephyr environment
 fn keycodes_map() -> HashMap<u16, String> {
     let output = Command::new("xmodmap")
         .arg("-pke")
         .output()
         .expect("xmodmap failed tor run")
         .stdout;
+    println!("HERE");
     let m = String::from_utf8(output).unwrap();
     let mut keycodes_map: HashMap<u16, String> = HashMap::new();
     for line in m.lines() {
-            //println!("{}",element);
             let words: Vec<&str> = line.split_whitespace().collect();
             if words.len() > 3 {
-                //println!("Code: {}, Name: {}", words[1], words[3]);
+//                println!("Code: {}, Name: {}", words[1], words[3]);
                 keycodes_map.insert(words[1].parse().unwrap(), words[3].to_string());
             }
         }
-    //println!("{:?}", keycodes_map);
+//    println!("{:?}", keycodes_map);
+    println!("Keycodes map created");
     return keycodes_map; 
 }
 
@@ -64,6 +67,34 @@ fn on_map_request<C: Connection>(
 */
 
 
+fn grab_key<C: Connection>(
+    manager: &C,
+    screen: &Screen,
+    ) {
+    let modifier = u16::from(ModMask::CONTROL);
+    println!("Modifier: {}", modifier);
+    let mask = u16::try_from(u32::from(EventMask::BUTTON_PRESS | EventMask::BUTTON_RELEASE | EventMask::BUTTON_MOTION)).unwrap();
+    println!("Mask: {}", mask);
+
+    let keycodes_map = keycodes_map();
+    let keycodes = keycodes_map.keys();
+    println!("Keycodes: {:?}", keycodes);
+
+    /*
+    for keycode in keycodes {
+        println!("Keycode: {}", keycode);
+        manager.grab_key(
+            false,
+            screen.root,
+            modifier,
+            *keycode,
+            GrabMode::ASYNC,
+            GrabMode::ASYNC
+        );
+        grab_key.send_request(manager).unwrap();
+    }
+*/
+}
 
 
 fn draw_window<C: Connection>(
@@ -129,6 +160,7 @@ fn draw_window<C: Connection>(
     manager.flush()?;
 
     manager.ungrab_server()?;
+    grab_key(manager, screen);
 
     Ok(())
 }

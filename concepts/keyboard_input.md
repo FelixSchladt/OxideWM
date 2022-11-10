@@ -30,3 +30,12 @@ According to this [stackoverflow post](https://stackoverflow.com/questions/71131
 ButtonPress mask can be only be registered by one client at a time on a particular window.
 
 Further investigation is needed.
+
+### Grab key
+
+This seems to be the metho utilized by penrose
+
+https://docs.rs/x11rb/0.4.1/x11rb/generated/xproto/fn.grab_key.html
+https://github.com/sminez/penrose/blob/154b29ff4c3c931ff28f99afd7ae4dd6654ec1ea/src/x11rb/mod.rs#L279
+https://tronche.com/gui/x/xlib/input/XGrabKey.html
+
