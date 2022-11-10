@@ -8,6 +8,28 @@ use x11rb::errors::ReplyError;
 use x11rb::protocol::Event;
 use x11rb::protocol::ErrorKind;
 use x11rb::protocol::xproto::*;
+use std::process::Command;
+use std::collections::HashMap;
+
+fn keycodes_map() -> HashMap<u16, String> {
+    let output = Command::new("xmodmap")
+        .arg("-pke")
+        .output()
+        .expect("xmodmap failed tor run")
+        .stdout;
+    let m = String::from_utf8(output).unwrap();
+    let mut keycodes_map: HashMap<u16, String> = HashMap::new();
+    for line in m.lines() {
+            //println!("{}",element);
+            let words: Vec<&str> = line.split_whitespace().collect();
+            if words.len() > 3 {
+                //println!("Code: {}, Name: {}", words[1], words[3]);
+                keycodes_map.insert(words[1].parse().unwrap(), words[3].to_string());
+            }
+        }
+    //println!("{:?}", keycodes_map);
+    return keycodes_map; 
+}
 
 fn on_map_request<C: Connection>(
     manager: &C,
@@ -26,6 +48,23 @@ fn on_map_request<C: Connection>(
         15,
     )
 }
+
+/*
+ * required to catch key events
+.event_mask(
+                        EventMask::EXPOSURE |
+                        EventMask::STRUCTURE_NOTIFY |
+                        EventMask::BUTTON_PRESS |
+                        EventMask::BUTTON_RELEASE |
+                        EventMask::POINTER_MOTION |
+                        EventMask::ENTER_WINDOW |
+                        EventMask::KEY_PRESS |
+                        EventMask::KEY_RELEASE
+                        );
+*/
+
+
+
 
 fn draw_window<C: Connection>(
     manager: &C,
@@ -49,18 +88,8 @@ fn draw_window<C: Connection>(
                      .width(window_width)
                      .height(window_height)
                      .x(border_width as i32)
-                     .y((border_width + titlebar_height) as i32)
-                     .event_mask(
-                        EventMask::EXPOSURE |
-                        EventMask::STRUCTURE_NOTIFY |
-                        EventMask::BUTTON_PRESS |
-                        EventMask::BUTTON_RELEASE |
-                        EventMask::POINTER_MOTION |
-                        EventMask::ENTER_WINDOW |
-                        EventMask::KEY_PRESS |
-                        EventMask::KEY_RELEASE
-                        );
-
+                     .y((border_width + titlebar_height) as i32);
+    
     manager.create_window(
         COPY_DEPTH_FROM_PARENT,
         frame_id,
