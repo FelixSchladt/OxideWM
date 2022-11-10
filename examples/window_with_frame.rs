@@ -49,7 +49,17 @@ fn draw_window<C: Connection>(
                      .width(window_width)
                      .height(window_height)
                      .x(border_width as i32)
-                     .y((border_width + titlebar_height) as i32);
+                     .y((border_width + titlebar_height) as i32)
+                     .event_mask(
+                        EventMask::EXPOSURE |
+                        EventMask::STRUCTURE_NOTIFY |
+                        EventMask::BUTTON_PRESS |
+                        EventMask::BUTTON_RELEASE |
+                        EventMask::POINTER_MOTION |
+                        EventMask::ENTER_WINDOW |
+                        EventMask::KEY_PRESS |
+                        EventMask::KEY_RELEASE
+                        );
 
     manager.create_window(
         COPY_DEPTH_FROM_PARENT,
