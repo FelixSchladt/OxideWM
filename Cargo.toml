@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 x11rb = "0.10.*"
+yaml-rust = "*"
