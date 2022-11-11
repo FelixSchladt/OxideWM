@@ -1,3 +1,3 @@
-kitty &
+xterm &
 
 ./target/debug/examples/window_with_frame
