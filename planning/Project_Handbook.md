@@ -20,50 +20,47 @@ Format:
 
 ## General project schedule
 
-### Recherche zu Technologien
+### Researching technologies
 
-Alle Rechercheergebnisse und Diskussionen zu in Frage kommenden Technologien
-werden in dem Verzeichnis `concepts` gespeichert.
-Die einzelnen Dokumente werden in Markdown geschrieben und haben sonst keine form∑atlichen Vorgaben.
+All research results and discussions will be stored in the `concepts` folder.
+All documents will be written in markdown - there are no other formal restrictions.
 
 ### Ticketing
 
-Für jede Aufgabe wird ein Ticket im Git Project angelegt.
-Der Status des Tickets wird für die folgenden Stati aktuell gehalten:
+Every Task will be documented with an Git Issue.
+The current Status will be kept updated for the following states:
 
 - TODO
-- In Bearbeitung
-- Im Review
+- In progress
+- Open for review
 - Done
 
 ## Branching
 
-Für jedes Feature wird ein Branch erstellt.
-Das Format für den Branchnamen ist:
+Every feature will get its one branch.
+This branch will be named after the following guideline:
 ```
 Feature/ISSUE<ISSUENUMBER>-<Featurename>
 ```
+The feature branches can freely be branched for testing purposes
+These sub-branches can be mergerd back into to top-branch without any pull requests.
 
-Die einzelnen Featurebranches können zu z.B. Testzwecken frei ausgebrancht werden.
-Diese kleinen Branches können ohne Pullrequests auf ihren entsprechenden Featurebranch zurückgemergt werden.
+Crossbranching between feature branches is prohibited.
 
-Crossbranching zwischen Featurebranches soll nicht stattfinden.
-
-Für jeden Merge auf `main` soll eine Pullrequest mit Review eines Zweiten stattfinden.
-Es soll kein Rebase auf `main` stattfinden.
-Für die Arbeit auf den einzelnen Featurebranches bleibt das dem Entwickler freigestellt.
+Every merge into the `main` branch has to be accepted and reviewed throgh a pull request.
+There should not be any rebase onto `main`.
+Working methods on the feature branches are open to developer.
 
 ## Testing
 
-Alle Testlogs sollen in dem Unterverzeichnis `test_logs` gespeichert werden.
-Diese werden nicht auf Git gepusht.
-Für einen aufgetretenen Fehler soll eine Git-Issue erstellt werden.
-Diese hat das Format:
+All test logs are to be stored in the subdirectory `test_logs`.
+Those will not be published oon GitHub.
+Upcoming issues should be documented with Git-Issues with the following format: 
 
 ```
-Titel: Fehler-Code
+Titel: Error-Code
 
-Beschreibung des Fehlers
+Error description
 
 \```
 Stackstrace
@@ -73,25 +70,26 @@ Stackstrace
 
 ### Unittest
 
-Unittestlogs sollen ein dem Unterverzeichnis `test_logs/unittests` gespeichert werden.
-Am Ende des Projekts sollen alle Unittestlogs in einem Commit auf Git gepusht werden.
+Logs from unittests are to be stored in `test_logs/unittests`.
+At the end of the project all logs should be pushed to GitHub with one commit.
+Unittests can be documented with their source code.
+The Output has to be logged and saved.
 
-Unittests können können direkt mit ihrem Source-Code dokumentiert werden.
-Der Output von Unittests soll gelogt und gespeichert werden.
+### Manuel tests
 
-### Manuelle Tests
+Manuel tests are stored in `test_logs/manual`.
+At the end the logs should be commitet like the unittest logs.
+These logs are formated like the folowing:
 
-Manuelle Testlogs sollen ein dem Unterverzeichnis `test_logs/manual` gespeichert werden.
-Am Ende des Projekts sollen alle Unittestlogs in einem Commit auf Git gepusht werden.
-Manuelle Tests haben folgendes Format:
 ```markdown
-# Testname_Testdatum
+# Testname_Testdate
 
-## Textumfang
-... Was wurde getestet? ...
+## Content
 
-## Testerfolg
-... Welche Fehler wurden gefunden, was hat funktioniert? ...
+... What was tested? ...
+
+## Test results
+... Wich errors occured, wich functions worked? ...
 ```
 
 ## Logging
@@ -104,5 +102,5 @@ Logging should work with the following Levels:
 
 ## Scrum
 
-Sprintdauer: *1*
-Sprint-Meeting: *Montags, nach letzer Vorlesung*
+Sprint duration: *1* week
+Sprint-Meeting: *Monday, after the last lecture*
