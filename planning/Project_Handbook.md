@@ -1,30 +1,30 @@
-# Projekthandbuch
+# Project Handbook
 
 ## Dokumentation
 
-Eine Aufnahme des Backlogs erfolgt mit Zeitstempeln.
-Die zu verwendende Sprache dafür ist **Latex**.
-Das das finale Log soll als **PDF** verfügbar.
+In order to document the backlog timestamps will be used.
+**Latex** is the language to be used for this.
+The final log should be available as a **PDF**.
 
 Format:
 ```latex
-\textbf{Ticketüberschrift}
+\textbf{Ticket Heding}
 
-\textit{Bearbeitungsbeginn:} ...
-\textit{Berabeitungsende:} ...
+\textit{Start of processing:} ...
+\textit{End of processing:} ...
 
-\textit{Anmerkungen:} ...
+\textit{Notes:} ...
 
-...Ticketbeschreibung...
+...Ticket description...
 ```
 
-## Allgemeiner Projektablauf
+## General project schedule
 
 ### Recherche zu Technologien
 
 Alle Rechercheergebnisse und Diskussionen zu in Frage kommenden Technologien
 werden in dem Verzeichnis `concepts` gespeichert.
-Die einzelnen Dokumente werden in Markdown geschrieben und haben sonst keine formatlichen Vorgaben.
+Die einzelnen Dokumente werden in Markdown geschrieben und haben sonst keine form∑atlichen Vorgaben.
 
 ### Ticketing
 
