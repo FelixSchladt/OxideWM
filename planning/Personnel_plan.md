@@ -3,8 +3,8 @@
 ## Project Manager
 1. [Antonia Pawlik](https://github.com/gungula)
 
-## Entwickler
-Diese Aufgabe beinhaltet auch das Testen und Dokumentieren von Software
+## Developer
+This Position includes the testing and documentiung of software.
 
 2. [Thomas Gingele](https://github.com/B1TC0R3)
 3. [Jan Schaible](https://github.com/janschaible)
