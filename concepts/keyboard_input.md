@@ -39,3 +39,17 @@ https://docs.rs/x11rb/0.4.1/x11rb/generated/xproto/fn.grab_key.html
 https://github.com/sminez/penrose/blob/154b29ff4c3c931ff28f99afd7ae4dd6654ec1ea/src/x11rb/mod.rs#L279
 https://tronche.com/gui/x/xlib/input/XGrabKey.html
 
+### Modifier key
+the keyboard seems to differentiate upon modifiers
+https://unix.stackexchange.com/questions/328400/how-to-remap-super-keys
+
+I do not know currently how this works
+
+
+### Keycodes
+https://renenyffenegger.ch/notes/hardware/keyboard
+
+####Keycode
+* Device dependent
+* 
+
