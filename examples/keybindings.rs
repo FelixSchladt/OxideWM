@@ -1,5 +1,7 @@
 use std::collections::HashMap;
+use std::process::Command;
 
+/*
 pub enum ModifierKey {
     Ctrl,
     Alt,
@@ -13,7 +15,7 @@ pub struct KeyCode {
     /// The key code that was held
     pub code: KeyCodeValue,
 }
-
+*/
 
 //This does not seem to work in the Xephyr environment
 fn keycodes_map() -> HashMap<String, u16> {
@@ -36,10 +38,11 @@ fn keycodes_map() -> HashMap<String, u16> {
     return keycodes_map; 
 }
 
-fn keyname_to_keycode(keyname: &str) -> u16 {
+fn keyname_to_keycode(keyname: &str, keymap: &HashMap<String, u16>) -> u16 {
+    return *keymap.get(keyname).unwrap_or_else(|| panic!("Key {} has no corresponding keysym", keyname));
+}
+
+fn main() {
     let keycodes = keycodes_map();
-    println!("{:?}", keycodes);
-    let keycode:&u16 = keycodes.get(keyname).unwrap();
-    println!("{:?}", keycodes.keys());
-    return keycode.clone();
+    println!("Keyname to keycode: {}", keyname_to_keycode("a", &keycodes));
 }
