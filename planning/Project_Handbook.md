@@ -7,6 +7,7 @@ In order to document the backlog timestamps will be used.
 The final log should be available as a **PDF**.
 
 Format:
+
 ```latex
 \textbf{Ticket Heding}
 
@@ -39,9 +40,11 @@ The current Status will be kept updated for the following states:
 
 Every feature will get its one branch.
 This branch will be named after the following guideline:
+
 ```
 Feature/ISSUE<ISSUENUMBER>-<Featurename>
 ```
+
 The feature branches can freely be branched for testing purposes
 These sub-branches can be mergerd back into to top-branch without any pull requests.
 
@@ -55,9 +58,9 @@ Working methods on the feature branches are open to developer.
 
 All test logs are to be stored in the subdirectory `test_logs`.
 Those will not be published oon GitHub.
-Upcoming issues should be documented with Git-Issues with the following format: 
+Upcoming issues should be documented with Git-Issues with the following format:
 
-```
+````
 Titel: Error-Code
 
 Error description
@@ -66,7 +69,7 @@ Error description
 Stackstrace
 \```
 
-```
+````
 
 ### Unittest
 
@@ -89,6 +92,7 @@ These logs are formated like the folowing:
 ... What was tested? ...
 
 ## Test results
+
 ... Wich errors occured, wich functions worked? ...
 ```
 
@@ -102,5 +106,5 @@ Logging should work with the following Levels:
 
 ## Scrum
 
-Sprint duration: *1* week
-Sprint-Meeting: *Monday, after the last lecture*
+Sprint duration: _1_ week
+Sprint-Meeting: _Monday, after the last lecture_
