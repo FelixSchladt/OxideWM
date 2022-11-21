@@ -6,24 +6,21 @@ use x11rb::protocol::Event;
 use x11rb::protocol::ErrorKind;
 use x11rb::connection::Connection;
 
-//mod keybindings;
 use crate::keybindings::KeyEvent;
 
 pub fn keypress<C: Connection>(
     manager: &C,
     event: &KeyReleaseEvent,
-    keyevent: HashMap<u8, KeyEvent>,
+    keyevent: HashMap<u8, Vec<KeyEvent>>,
     ) {
-    /*
-    for keyevent in keyevent.iter() {
-        if event.detail == keyevent.keycode.code {
-            println!("Code: {:?}", keyevent.keycode.code);
-            println!("mask: {:?}", keyevent.keycode.mask);
+    //println!("Key pressed: {:?}", event);
+    let keys = keyevent.get(&event.detail).expect("Registered key not found");
+    //println!("Key: {:?}", keys);
+    for key in keys {
+        if event.state == key.keycode.mask || event.state == key.keycode.mask | u16::from(ModMask::M2) {
+            println!("Key: {:?}", key);
+            (key.event)(key.args.clone());
         }
-    }*/
-    println!("Key pressed: {:?}", event);
-    let key = keyevent.get(&event.detail).expect("Registered key not found");
-    println!("Key: {:?}", key);
-    (key.event)(key.args.clone());
+    }
     
 }

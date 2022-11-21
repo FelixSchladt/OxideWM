@@ -33,30 +33,16 @@ fn on_map_request<C: Connection>(
     )
 }
 
-/*
- * required to catch key events
-.event_mask(
-                        EventMask::EXPOSURE |
-                        EventMask::STRUCTURE_NOTIFY |
-                        EventMask::BUTTON_PRESS |
-                        EventMask::BUTTON_RELEASE |
-                        EventMask::POINTER_MOTION |
-                        EventMask::ENTER_WINDOW |
-                        EventMask::KEY_PRESS |
-                        EventMask::KEY_RELEASE
-                        );
-*/
-
 fn grab_keys<C: Connection>(
     manager: &C,
     screen: &Screen,
-    keyevent: HashMap<u8, keybindings::KeyEvent>,
     ) -> Result<(), Box<dyn Error>> {
-    //It seems like Numlock is also considered a modifier key, so we need to grab it
-   // println!("Modifier: {:?}", modifier);
+    //It Numlock is also considered a modifier key, so we need to grab register each key combo with
+    //numlock and without
+    let keyevents = keybindings::get_keyevents_vec();
 
     for modifier in [0, u16::from(ModMask::M2)] {
-        for (v, keyevent) in keyevent.iter() {
+        for keyevent in keyevents.iter() {
             manager.grab_key(
                 false,
                 screen.root,
@@ -65,7 +51,6 @@ fn grab_keys<C: Connection>(
                 GrabMode::ASYNC,
                 GrabMode::ASYNC,
             )?;
-            println!("Grabbed key: {:?}", keyevent);
         }
         manager.flush()?;
     }
@@ -137,10 +122,6 @@ fn draw_window<C: Connection>(
 
     manager.ungrab_server()?;
     manager.flush()?;
-    let keybindings = keybindings::get_keyevents();
-    grab_keys(manager, screen, keybindings)?;
-    //grab_key(manager, screen);
-    //println!("keyname: s; keycode: {}", keyname_to_keycode("s"));
 
     Ok(())
 }
@@ -149,7 +130,7 @@ fn handle_event<C: Connection>(
     manager: &C,
     screen_index: usize,
     event: &Event) {
-    println!("Event: {:?}", event);
+    //println!("Event: {:?}", event);
     
     //TODO: Move this into a struct and call this just once
     let keybindings = keybindings::get_keyevents();
@@ -199,6 +180,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     become_wm(&manager, screen)?;
 
     let mut event;
+    grab_keys(&manager, screen)?;
     loop {
         manager.flush()?;
 

@@ -46,24 +46,24 @@ fn simulate_config() -> Config {
         cmds: Vec::new(),
     };
     config.cmds.push(WmCommand {
-        keys: vec!['S', 'q'],
+        keys: vec!['A', 'r'],
         command: WmCommands::Quit,
-        args: Some("TestArgs".to_string()),
+        args: Some("1".to_string()),
     });
     config.cmds.push(WmCommand {
         keys: vec!['C', 'r'],
         command: WmCommands::Restart,
-        args: None,
+        args: Some("2".to_string()),
     });
     config.cmds.push(WmCommand {
-        keys: vec!['S', 'A', 'm'],
+        keys: vec!['S', 'A', 'r'],
         command: WmCommands::Move,
-        args: Some("TestArgs".to_string()),
+        args: Some("3".to_string()),
     });
     config.cmds.push(WmCommand {
         keys: vec!['M', 'r'],
         command: WmCommands::Resize,
-        args: None,
+        args: Some("4".to_string()),
     });
 
     return config;
@@ -161,17 +161,13 @@ fn placeholder(args: Option<String>) -> (Option<String>, Option<String>) {
     return (None, None);
 }
 
-pub fn get_keyevents() -> HashMap<u8, KeyEvent> {
-    let keycodes = keycodes_map();
+pub fn get_keyevents_vec() -> Vec<KeyEvent> {
+    let mut keyevents: Vec<KeyEvent> = Vec::new();
+    let keymap = keycodes_map();
     let config = simulate_config();
-    //let mut key_events: Vec<KeyEvent> = Vec::new();
-    let mut key_events: HashMap<u8, KeyEvent> = HashMap::new();
-
     for cmd in config.cmds {
-        let mut keys = cmd.keys.clone();
-        let keycode = convert_to_keycode(&mut keys, &keycodes);
-        println!("Parse: {:?}\n", keycode);
-        key_events.insert(keycode.code, KeyEvent {
+        let keycode = convert_to_keycode(&mut cmd.keys.clone(), &keymap);
+        keyevents.push(KeyEvent {
             keycode: keycode,
             args: cmd.args,
             event: match cmd.command {
@@ -179,19 +175,20 @@ pub fn get_keyevents() -> HashMap<u8, KeyEvent> {
                 WmCommands::Restart => placeholder,
                 WmCommands::Move => placeholder,
                 WmCommands::Resize => placeholder,
-                _ => panic!("Invalid command in config"),
-        }});
+                WmCommands::MoveToWorkspace => placeholder,
+                WmCommands::GoToWorkspace => placeholder,
+                WmCommands::MoveToWorkspaceAndFollow => placeholder,
+            },
+        });
     }
-    return key_events;
+    return keyevents;
 }
 
-
-
-/*
-fn main() {
-    let key_events = parse_keycodes();
-    println!("{:?}", key_events);
-    for event in key_events {
-        (event.event)(event.args);
+pub fn get_keyevents() -> HashMap<u8, Vec<KeyEvent>> {
+    let mut keyevents: HashMap<u8, Vec<KeyEvent>> = HashMap::new();
+    for keyevent in get_keyevents_vec() {
+        let keyevents_vec = keyevents.entry(keyevent.keycode.code).or_insert(Vec::new());
+        keyevents_vec.push(keyevent);
     }
-}*/
+    return keyevents;
+}

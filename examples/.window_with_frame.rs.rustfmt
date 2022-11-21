@@ -8,6 +8,12 @@ use x11rb::errors::ReplyError;
 use x11rb::protocol::Event;
 use x11rb::protocol::ErrorKind;
 use x11rb::protocol::xproto::*;
+use std::process::Command;
+use std::collections::HashMap;
+
+mod event_handler;
+mod keybindings;
+
 
 fn on_map_request<C: Connection>(
     manager: &C,
@@ -26,6 +32,32 @@ fn on_map_request<C: Connection>(
         15,
     )
 }
+
+fn grab_keys<C: Connection>(
+    manager: &C,
+    screen: &Screen,
+    ) -> Result<(), Box<dyn Error>> {
+    //It Numlock is also considered a modifier key, so we need to grab register each key combo with
+    //numlock and without
+    let keyevents = keybindings::get_keyevents_vec();
+
+    for modifier in [0, u16::from(ModMask::M2)] {
+        for keyevent in keyevents.iter() {
+            manager.grab_key(
+                false,
+                screen.root,
+                keyevent.keycode.mask | modifier,
+                keyevent.keycode.code,
+                GrabMode::ASYNC,
+                GrabMode::ASYNC,
+            )?;
+        }
+        manager.flush()?;
+    }
+    Ok(())
+
+}
+
 
 fn draw_window<C: Connection>(
     manager: &C,
@@ -49,17 +81,8 @@ fn draw_window<C: Connection>(
                      .width(window_width)
                      .height(window_height)
                      .x(border_width as i32)
-                     .y((border_width + titlebar_height) as i32)
-                     .event_mask(
-                         EventMask::EXPOSURE |
-                             EventMask::STRUCTURE_NOTIFY |
-                             EventMask::BUTTON_PRESS |
-                             EventMask::BUTTON_RELEASE |
-                             EventMask::POINTER_MOTION |
-                             EventMask::ENTER_WINDOW |
-                             EventMask::KEY_PRESS |
-                             EventMask::KEY_RELEASE);
-
+                     .y((border_width + titlebar_height) as i32);
+    
     manager.create_window(
         COPY_DEPTH_FROM_PARENT,
         frame_id,
@@ -96,9 +119,9 @@ fn draw_window<C: Connection>(
     manager.map_window(frame_id)?;
     manager.map_window(titlebar_id)?;
     manager.map_window(window)?;
-    manager.flush()?;
 
     manager.ungrab_server()?;
+    manager.flush()?;
 
     Ok(())
 }
@@ -107,7 +130,10 @@ fn handle_event<C: Connection>(
     manager: &C,
     screen_index: usize,
     event: &Event) {
-    println!("Event: {:?}", event);
+    //println!("Event: {:?}", event);
+    
+    //TODO: Move this into a struct and call this just once
+    let keybindings = keybindings::get_keyevents();
 
     match event {
         Event::Expose(_event) => println!("Ignored event!"),
@@ -120,6 +146,7 @@ fn handle_event<C: Connection>(
         Event::MapRequest(_event) => {
             on_map_request(manager, screen_index, _event).unwrap();
         },
+        Event::KeyPress(_event) => event_handler::keypress(manager, _event, keybindings),
         _ => {}
     };
 }
@@ -153,6 +180,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     become_wm(&manager, screen)?;
 
     let mut event;
+    grab_keys(&manager, screen)?;
     loop {
         manager.flush()?;
 
