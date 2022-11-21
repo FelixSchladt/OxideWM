@@ -1,9 +1,11 @@
 [package]
-name = "dhbwm"
+name = "dhbWM"
 version = "0.1.0"
 edition = "2021"
+include = ["src/**/*", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-x11rb = "0.10.1"
+x11rb = "0.10.*"
+thiserror = "1.0.*"

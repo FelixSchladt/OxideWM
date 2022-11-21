@@ -16,7 +16,7 @@ enum WmCommands {
 struct WmCommand {
     keys: Vec<char>,
     command: WmCommands,
-    args: String,
+    args: Option<String>,
 }
 
 #[derive(Debug)]
@@ -48,22 +48,22 @@ fn simulate_config() -> Config {
     config.cmds.push(WmCommand {
         keys: vec!['S', 'q'],
         command: WmCommands::Quit,
-        args: String::new(),
+        args: Some("TestArgs".to_string()),
     });
     config.cmds.push(WmCommand {
         keys: vec!['C', 'r'],
         command: WmCommands::Restart,
-        args: String::new(),
+        args: None,
     });
     config.cmds.push(WmCommand {
         keys: vec!['A', 'm'],
         command: WmCommands::Move,
-        args: String::new(),
+        args: Some("TestArgs".to_string()),
     });
     config.cmds.push(WmCommand {
         keys: vec!['M', 'r'],
         command: WmCommands::Resize,
-        args: String::new(),
+        args: None,
     });
 
     return config;
@@ -103,8 +103,16 @@ impl TryFrom<char> for ModifierKey {
 
 #[derive(Debug)]
 pub struct KeyCode {
-    mask: u16,
-    code: u8,
+    pub mask: u16,
+    pub code: u8,
+}
+
+
+#[derive(Debug)]
+pub struct KeyEvent {
+    pub keycode: KeyCode,
+    pub args: Option<String>,
+    pub event: fn(Option<String>)->(Option<String>, Option<String>),
 }
 
 fn keycodes_map() -> HashMap<String, u8> {
@@ -145,13 +153,45 @@ fn convert_to_keycode(keys: &mut Vec<char>, keymap: &HashMap<String, u8>) -> Key
     };
 }
 
-fn main() {
+fn placeholder(args: Option<String>) -> (Option<String>, Option<String>) {
+    match args {
+        Some(args) => println!("Placeholder function called with args: {}", args),
+        None => println!("Placeholder function called without args"),
+    }
+    return (None, None);
+}
+
+pub fn get_keyevents() -> HashMap<u8, KeyEvent> {
     let keycodes = keycodes_map();
     let config = simulate_config();
+    //let mut key_events: Vec<KeyEvent> = Vec::new();
+    let mut key_events: HashMap<u8, KeyEvent> = HashMap::new();
 
     for cmd in config.cmds {
         let mut keys = cmd.keys.clone();
-        let parse = convert_to_keycode(&mut keys, &keycodes);
-        println!("Parse: {:?}\n", parse);
+        let keycode = convert_to_keycode(&mut keys, &keycodes);
+        println!("Parse: {:?}\n", keycode);
+        key_events.insert(keycode.code, KeyEvent {
+            keycode: keycode,
+            args: cmd.args,
+            event: match cmd.command {
+                WmCommands::Quit => placeholder,
+                WmCommands::Restart => placeholder,
+                WmCommands::Move => placeholder,
+                WmCommands::Resize => placeholder,
+                _ => panic!("Invalid command in config"),
+        }});
     }
+    return key_events;
 }
+
+
+
+/*
+fn main() {
+    let key_events = parse_keycodes();
+    println!("{:?}", key_events);
+    for event in key_events {
+        (event.event)(event.args);
+    }
+}*/

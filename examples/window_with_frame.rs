@@ -9,6 +9,10 @@ use x11rb::protocol::Event;
 use x11rb::protocol::ErrorKind;
 use x11rb::protocol::xproto::*;
 use std::process::Command;
+use std::collections::HashMap;
+
+mod event_handler;
+mod keybindings;
 
 
 fn on_map_request<C: Connection>(
@@ -43,35 +47,31 @@ fn on_map_request<C: Connection>(
                         );
 */
 
-/*
-fn grab_key<C: Connection>(
+fn grab_keys<C: Connection>(
     manager: &C,
     screen: &Screen,
-    ) {
-    let modifier = u16::from(ModMask::CONTROL);
-    println!("Modifier: {}", modifier);
-    let mask = u16::try_from(u32::from(EventMask::BUTTON_PRESS | EventMask::BUTTON_RELEASE | EventMask::BUTTON_MOTION)).unwrap();
-    println!("Mask: {}", mask);
+    keyevent: HashMap<u8, keybindings::KeyEvent>,
+    ) -> Result<(), Box<dyn Error>> {
+    //It seems like Numlock is also considered a modifier key, so we need to grab it
+   // println!("Modifier: {:?}", modifier);
 
-    manager.flush().unwrap();
-    let keycodes_map = keycodes_map();
-    let keycodes: Vec<_> = keycodes_map.keys().copied().collect();
-    //println!("Keycodes: {:?}", keycodes);
+    for modifier in [0, u16::from(ModMask::M2)] {
+        for (v, keyevent) in keyevent.iter() {
+            manager.grab_key(
+                false,
+                screen.root,
+                keyevent.keycode.mask | modifier,
+                keyevent.keycode.code,
+                GrabMode::ASYNC,
+                GrabMode::ASYNC,
+            )?;
+            println!("Grabbed key: {:?}", keyevent);
+        }
+        manager.flush()?;
+    }
+    Ok(())
 
-    
-    for keycode in keycodes.iter() {
-        println!("Keycode: {}", keycode);
-        manager.grab_key(
-            false,
-            screen.root,
-            modifier,
-            keycode,
-            GrabMode::ASYNC,
-            GrabMode::ASYNC
-        );
-        grab_key.send_request(manager).unwrap();
-    }*/
-//}
+}
 
 
 fn draw_window<C: Connection>(
@@ -137,6 +137,8 @@ fn draw_window<C: Connection>(
 
     manager.ungrab_server()?;
     manager.flush()?;
+    let keybindings = keybindings::get_keyevents();
+    grab_keys(manager, screen, keybindings)?;
     //grab_key(manager, screen);
     //println!("keyname: s; keycode: {}", keyname_to_keycode("s"));
 
@@ -148,6 +150,9 @@ fn handle_event<C: Connection>(
     screen_index: usize,
     event: &Event) {
     println!("Event: {:?}", event);
+    
+    //TODO: Move this into a struct and call this just once
+    let keybindings = keybindings::get_keyevents();
 
     match event {
         Event::Expose(_event) => println!("Ignored event!"),
@@ -160,6 +165,7 @@ fn handle_event<C: Connection>(
         Event::MapRequest(_event) => {
             on_map_request(manager, screen_index, _event).unwrap();
         },
+        Event::KeyPress(_event) => event_handler::keypress(manager, _event, keybindings),
         _ => {}
     };
 }
