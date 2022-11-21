@@ -56,7 +56,7 @@ fn simulate_config() -> Config {
         args: None,
     });
     config.cmds.push(WmCommand {
-        keys: vec!['A', 'm'],
+        keys: vec!['S', 'A', 'm'],
         command: WmCommands::Move,
         args: Some("TestArgs".to_string()),
     });
