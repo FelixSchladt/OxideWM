@@ -1,3 +1,3 @@
 kitty &
 
-./target/debug/examples/window_with_frame
+./target/debug/examples/keybindings_window
