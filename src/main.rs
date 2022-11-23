@@ -16,6 +16,7 @@ struct WindowState {
     width: u16,
     height: u16,
     titlebar_height: u16,
+}
 
 
 struct Workspace {
