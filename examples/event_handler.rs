@@ -17,7 +17,8 @@ pub fn keypress<C: Connection>(
     let keys = keyevent.get(&event.detail).expect("Registered key not found");
     //println!("Key: {:?}", keys);
     for key in keys {
-        if event.state == key.keycode.mask || event.state == key.keycode.mask | u16::from(ModMask::M2) {
+        let state = u16::from(event.state);
+        if state == key.keycode.mask || state == key.keycode.mask | u16::from(ModMask::M2) {
             println!("Key: {:?}", key);
             (key.event)(key.args.clone());
         }
