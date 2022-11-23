@@ -153,6 +153,7 @@ fn convert_to_keycode(keys: &mut Vec<char>, keymap: &HashMap<String, u8>) -> Key
     };
 }
 
+//Example function for even calling
 fn placeholder(args: Option<String>) -> (Option<String>, Option<String>) {
     match args {
         Some(args) => println!("Placeholder function called with args: {}", args),
@@ -160,6 +161,7 @@ fn placeholder(args: Option<String>) -> (Option<String>, Option<String>) {
     }
     return (None, None);
 }
+
 
 pub fn get_keyevents_vec() -> Vec<KeyEvent> {
     let mut keyevents: Vec<KeyEvent> = Vec::new();
@@ -171,6 +173,7 @@ pub fn get_keyevents_vec() -> Vec<KeyEvent> {
             keycode: keycode,
             args: cmd.args,
             event: match cmd.command {
+                //TODO: Replace placeholder with actual functions
                 WmCommands::Quit => placeholder,
                 WmCommands::Restart => placeholder,
                 WmCommands::Move => placeholder,
@@ -184,6 +187,7 @@ pub fn get_keyevents_vec() -> Vec<KeyEvent> {
     return keyevents;
 }
 
+//TODO: maybe return a struct with hashmap and vec to prevent calling the xmodmap command twice...
 pub fn get_keyevents() -> HashMap<u8, Vec<KeyEvent>> {
     let mut keyevents: HashMap<u8, Vec<KeyEvent>> = HashMap::new();
     for keyevent in get_keyevents_vec() {
