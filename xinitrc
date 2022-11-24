@@ -1,3 +1,3 @@
 xterm &
 
-./target/debug/examples/window_with_frame
+./target/debug/oxidewm
