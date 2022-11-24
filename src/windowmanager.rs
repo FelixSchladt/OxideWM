@@ -43,7 +43,7 @@ impl WindowManager {
                           .setup()
                           .roots
                           .iter() {
-            println!("Attempting to update event mask of: {} -> ", screen.root);
+            print!("Attempting to update event mask of: {} -> ", screen.root);
             self.set_mask(screen, mask).unwrap();
         }
     }
@@ -60,12 +60,11 @@ impl WindowManager {
 
         if let Err(ReplyError::X11Error(ref error)) = update_result {
             if error.error_kind == ErrorKind::Access {
-                eprintln!("\x1b[31m\x1b[1mError:\x1b0m Access to X11 Client Api denied!");
+                eprintln!("\x1b[31m\x1b[1mError:\x1b[0m Access to X11 Client Api denied!");
                 exit(1);
             }
         }
 
-        #[cfg(debug_assertion)]
         match update_result {
              Ok(_) => println!("\x1b[32mSuccess\x1b[0m"),
              Err(_) => println!("\x1b[31mFailed\x1b[0m"),

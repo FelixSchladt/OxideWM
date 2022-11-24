@@ -3,21 +3,14 @@ pub mod workspace;
 pub mod windowstate;
 
 use windowmanager::WindowManager;
-
 use std::error::Error;
-use std::process::exit;
-
 use x11rb::connection::Connection;
-use x11rb::rust_connection::RustConnection;
-use x11rb::errors::ReplyError;
 use x11rb::protocol::Event;
-use x11rb::protocol::ErrorKind;
-use x11rb::protocol::xproto::*;
 
 fn handle_event(
-    manager: &WindowManager,
     event: &Event) {
 
+    print!("Received Event: ");
     match event {
         Event::Expose(_event) => println!("Expose"),
         Event::UnmapNotify(_event) => println!("UnmapNotify"),
@@ -27,7 +20,7 @@ fn handle_event(
         Event::ButtonRelease(_event) => println!("ButtonRelease"),
         Event::ConfigureRequest(_event) => println!("ConfigureRequest"),
         Event::MapRequest(_event) => println!("MapRequest"),
-        _ => println!("-> \x1b[33mUnknown Event\x1b[0m"),
+        _ => println!("\x1b[33mUnknown\x1b[0m"),
     };
 }
 
@@ -40,7 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         event = manager.connection.wait_for_event();
         match event {
-            Ok(event) => handle_event(&manager, &event),
+            Ok(event) => handle_event(&event),
             Err(error) => {
                 eprintln!("\x1b[31m\x1b[1mError:\x1b[0m {}", error);
                 break;
