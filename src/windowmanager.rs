@@ -43,7 +43,8 @@ impl WindowManager {
                           .setup()
                           .roots
                           .iter() {
-            print!("Attempting to update event mask of: {} -> ", screen.root);
+            #[cfg(debug_assertion)]
+            println!("Attempting to update event mask of: {} -> ", screen.root);
             self.set_mask(screen, mask).unwrap();
         }
     }
@@ -65,6 +66,7 @@ impl WindowManager {
             }
         }
 
+        #[cfg(debug_assertion)]
         match update_result {
              Ok(_) => println!("\x1b[32mSuccess\x1b[0m"),
              Err(_) => println!("\x1b[31mFailed\x1b[0m"),
