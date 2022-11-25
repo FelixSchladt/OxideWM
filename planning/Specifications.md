@@ -6,54 +6,54 @@
 
 ## Fundamental
 
-- Starting and quiting applications
-- Dynamic tiling
-- Movement of applications
-- Floating/Static applications
-- Keyboard input handling
-- Window focusing
+- starting and quiting applications
+- dynamic tiling
+- movement of applications
+- floating/Static applications
+- keyboard input handling
+- window focusing
 
 ## Basic
 
-- Multiple workspaces
-- Multiple monitors
-- Configuration
-- Autostarting of Applications
-- Taskbar support
+- multiple workspaces
+- multiple monitors
+- configuration
+- autostarting of Applications
+- taskbar support
 - Drun/Rofi/eww support
 
 ### 1.2. Desired criteria
 
 - ipc
-- Taskbar
-- Config file
-- Power managment (Screenlocking after timeout)
-- Animations
-- Multi Monitor Support
+- taskbar
+- config file
+- power management (screenlocking after timeout)
+- animations
+- multi monitor support
 
 ### 1.3. Demarcation criteria
 
-- No compositing
-- No floating functions
-- No got plugging on monitor devices
-- No automatic monitor configuration
+- no compositing
+- no floating functions
+- no got plugging on monitor devices
+- no automatic monitor configuration
 
 ## 2. Product Usage
 
 ### 2.1. Applications
 
-- Daily use on desktop computers
+- daily use on desktop computers
 
 ### 2.2. Target group
 
-- power user with advanced Linux knowlede
+- power user with advanced Linux knowledge
 
 ### 2.3 Service conditions
 
 - personal computer
 - posix system with Xorg
 - usage is not limited
-- monitoring the running system is not necessary^
+- monitoring the running system is not necessary
 
 ## 3. Product overview
 
@@ -65,16 +65,16 @@
 
 ## 5. Data relevant for the user
 
-- Application will be running locally thus has to be downloaded by the user
-- Configuration files will be sotred locally
+- application will be running locally, needs to be downloaded by the user
+- configuration files will be stored locally
 
-## 6. Product Performance - Requirements
+## 6. Product performance - requirements
 
 - no dely between key inputs
 - if possible: visible taks should be performed in under a 24th of a second
 - this is not possible for opening application windows
 
-## 7. Quality Requirements
+## 7. Quality requirements
 
 - should not crash randomly
 - default override if configurations are invalid
@@ -82,8 +82,8 @@
 
 ## 8. User Interface
 
-- Keyboard will be used to controll the window manager
-- Mouse can be used to focus on individal frames and interact with application interfaces like webbrowsers
+- keyboard will be used to control the window manager
+- mouse can be used to focus on individal frames and interact with application interfaces like webbrowsers
 
 ## 9. Non-functional Requirements
 
@@ -105,7 +105,7 @@
 
 ### 10.3 Organisational framework
 
-- since our code is licesed with GPL v3 there are not conflicts with GPL licensed libraries
+- since our code is licensed with GPL v3 there are no conflicts with GPL licensed libraries
 
 ### 10.4 Product Interface
 
