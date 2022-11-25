@@ -1,5 +1,6 @@
 use std::process::exit;
 use std::error::Error;
+use workspace::Workspace;
 
 use x11rb::rust_connection::RustConnection;
 use x11rb::connection::Connection;
@@ -17,6 +18,7 @@ use x11rb::protocol::xproto::{
 
 pub struct WindowManager {
     pub connection: RustConnection,
+    pub monitors: HashMap<u16, Vec<Workspaces>>,
     //config: Config,
 }
 
