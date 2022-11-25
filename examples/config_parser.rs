@@ -1,3 +1,4 @@
+use std::fs::File;
 use serde::{Deserialize, Serialize};
 use serde_yaml::{self};
 
@@ -27,46 +28,64 @@ struct UserCommand {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Config {
+    #[serde(default = "default_cmds")]
     cmds: Vec<WmCommand>,
+    #[serde(default = "default_user_cmds")]
     user_cmds: Vec<UserCommand>,
+    #[serde(default = "default_exec")]
     exec: Vec<String>,
+    #[serde(default = "default_exec_always")]
     exec_always: Vec<String>,
+    #[serde(default = "default_border_with")]
     border_with: u8,
+    #[serde(default = "default_border_color")]
     border_color: String,
+    #[serde(default = "default_border_focus_color")]
     border_focus_color: String,
+    #[serde(default = "default_titlebar")]
     titlebar: bool,
+    #[serde(default = "default_gap")]
     gap: u8,
 }
 
+// Defining default values
+fn default_cmds() -> Vec<WmCommand> {
+    vec![WmCommand{
+        keys: vec!['H', 'A'], 
+        command: WmCommands::Move, 
+        args: "1".to_string()
+    }]
+
+}
+
+fn default_user_cmds() -> Vec<UserCommand> {
+    vec![UserCommand {
+        keys: vec!['A', 'B'],
+        command: "S".to_string()
+    }]
+
+}
+
+fn default_exec() -> Vec<String> { 
+    vec!["L".to_string(), "O".to_string(), "L".to_string()]
+}
+
+fn default_exec_always() -> Vec<String> {
+    vec!["H".to_string(), "I".to_string()]
+}
+
+fn default_border_with() -> u8 { 3 }
+fn default_border_color() -> String { "white".to_string() }
+fn default_border_focus_color() -> String { "black".to_string() }
+fn default_titlebar() -> bool { false }
+fn default_gap() -> u8 { 3 }
+
+
 fn main() {
-    
-    // Setting default values
-    let default_config = Config {
-        cmds: vec![WmCommand{
-            keys: vec!['H', 'A'], 
-            command: WmCommands::Move, 
-            args: "1".to_string()
-        }],
 
-        user_cmds: vec![UserCommand {
-            keys: vec!['A', 'B'],
-            command: "S".to_string()
-        }],
-        
-        exec : vec!["H".to_string(), "I".to_string()],
-        exec_always : vec!["L".to_string(), "O".to_string(), "L".to_string()],
-        border_with : 5,
-        border_color : "black".to_string(),
-        border_focus_color : "white".to_string(),
-        titlebar : false,
-        gap : 9,
-    };
+    let f = File::open("./examples/config.yml").expect("Could not open file.");
+    let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
 
-    println!("{:?}", default_config);
-
-    let f = std::fs::File::open("./examples/config.yml").expect("Could not open file.");
-    let scrape_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
-
-    println!("{:?}", scrape_config);
+    println!("{:?}", user_config);
 
 }
