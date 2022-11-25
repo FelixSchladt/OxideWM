@@ -21,6 +21,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+<<<<<<< HEAD
 name = "dhbWM"
 version = "0.1.0"
 dependencies = [
@@ -28,6 +29,8 @@ dependencies = [
 ]
 
 [[package]]
+=======
+>>>>>>> feature/ISSUE25-dynamic-window-remapping
 name = "gethostname"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -63,6 +66,13 @@ dependencies = [
  "cfg-if",
  "libc",
  "memoffset",
+]
+
+[[package]]
+name = "oxidewm"
+version = "0.1.0"
+dependencies = [
+ "x11rb",
 ]
 
 [[package]]

@@ -1,3 +1,3 @@
-kitty &
+xterm &
 
-./target/debug/examples/keybindings_window
+./target/debug/oxidewm

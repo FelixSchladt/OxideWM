@@ -1,5 +1,5 @@
 [package]
-name = "dhbWM"
+name = "oxidewm"
 version = "0.1.0"
 edition = "2021"
 include = ["src/**/*", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE"]
