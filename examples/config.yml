@@ -3,6 +3,7 @@
 # Please keep in mind that you have to configure every valuie properly for the WM to run.
 # Otherwise the programm will crash.
 
+modifier: "N"
 cmds:
   - keys: ["S", "R"]
     command: Move

@@ -28,6 +28,7 @@ struct UserCommand {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Config {
+    modifier: char,
     #[serde(default = "default_cmds")]
     cmds: Vec<WmCommand>,
     #[serde(default = "default_user_cmds")]
@@ -49,6 +50,7 @@ struct Config {
 }
 
 // Defining default values
+fn default_modifier() -> char {'M'}
 fn default_cmds() -> Vec<WmCommand> {
     vec![WmCommand{
         keys: vec!['H', 'A'], 
@@ -79,6 +81,10 @@ fn default_border_color() -> String { "white".to_string() }
 fn default_border_focus_color() -> String { "black".to_string() }
 fn default_titlebar() -> bool { false }
 fn default_gap() -> u8 { 3 }
+
+// fn load_config()
+
+fn load_default_config()
 
 
 fn main() {
