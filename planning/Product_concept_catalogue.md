@@ -7,37 +7,37 @@ Development of a working window manager.
 
 ## Traget group
 
-User of different tiling-windowmanager.
+User of different tiling-windowmanagers.
 Experienced linux user.
 
 ## Product functions
 
 ### Fundamental
 
-- Starting and quiting applications
-- Dynamic tiling
-- Movement of applications
-- Floating/Static applications
-- Keyboard input handling
-- Window focusing
+- starting and quiting applications
+- dynamic tiling
+- movement of applications
+- floating/Static applications
+- keyboard input handling
+- window focussing
 
 ### Basic
 
-- Multiple workspaces
-- Multiple monitors
-- Configuration
-- Autostarting of Applications
-- Taskbar support
+- multiple workspaces
+- multiple monitors
+- configuration
+- autostarting of Applications
+- taskbar support
 - Drun/Rofi/eww support
 
 ### Optional
 
 - ipc
 - Taskbar
-- Config file
-- Power managment (Screenlocking after timeout)
-- Animations
+- config file
+- power management (Screenlocking after timeout)
+- animations
 
 ### Documentation
 
-- Keep Track of tickets with timestamps (pref. as PDF)
+- keep track of tickets with timestamps (pref. as PDF)
