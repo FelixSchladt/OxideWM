@@ -46,7 +46,7 @@ fn grab_keys<C: Connection>(
             manager.grab_key(
                 false,
                 screen.root,
-                keyevent.keycode.mask | modifier,
+                (keyevent.keycode.mask | modifier).into(),
                 keyevent.keycode.code,
                 GrabMode::ASYNC,
                 GrabMode::ASYNC,

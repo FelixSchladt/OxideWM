@@ -1,19 +1,23 @@
-# Kritische Technologien
+# Critical Technologies
 
-## Programmierparadigmen
-- Client-Server Model
+## Programming paradigms
+
+- Client-Server model
 - Event driven, functional, imperative, procedural, structured programming
 
-## Programmiersprachen
-Rust
-bash/shell
-Make
+## Programming languages
 
-## Entwicklungsumgebung
+- Rust
+- bash/shell
+- Make
+
+## Development Environment
+
 - Posix
 - Xorg
 - Xephyr
 - CLion / Vim / Visual Studio Code
 
 ## Hardware
+
 - Personal Computer
