@@ -1,3 +1,4 @@
-xterm &
+kitty &
+kitty &
 
 ./target/debug/oxidewm
