@@ -1,14 +1,10 @@
 use super::windowstate::WindowState;
-use x11rb::COPY_DEPTH_FROM_PARENT;
 use x11rb::connection::Connection;
 use x11rb::rust_connection::RustConnection;
-use x11rb::errors::ReplyError;
-use x11rb::protocol::Event;
-use x11rb::protocol::ErrorKind;
 use x11rb::protocol::xproto::*;
-use std::process::Command;
 use std::collections::HashMap;
 
+use std::{cell::RefCell, rc::Rc};
 
 
 #[derive(Debug)]
@@ -19,6 +15,7 @@ pub enum Layout {
 
 #[derive(Debug)]
 pub struct Workspace {
+    pub connection:  Rc<RefCell<RustConnection>>,
     pub name: String,
     pub index: u16,
     pub visible: bool,
@@ -27,20 +24,33 @@ pub struct Workspace {
     pub windows: HashMap<u32, WindowState>,
     pub order: Vec<u32>,
     pub layout: Layout,
+    //this makes sense because if we have a bar we need have a different workspace size compared to
+    //screen size. Additionally we will need to adjust the coordinates depending on the start of
+    //the workspace or we map the bar as part of the workspace but i think this would be
+    //unnecessary and not very efficient.
+    pub x: i32,
+    pub y: i32,
+    pub height: u32,
+    pub width: u32,
 }
 
 
 impl Workspace {
-    pub fn new(index: u16) -> Workspace {
+    pub fn new(index: u16, connection: Rc<RefCell<RustConnection>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
         Workspace {
+            connection: connection,
             name: index.to_string(),
-            index: index,
+            index,
             visible: false,
             focused: false,
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
             layout: Layout::TILING,
+            x, 
+            y,
+            height,
+            width,
         }
     }
 
@@ -48,17 +58,13 @@ impl Workspace {
         self.name = name;
     }
 
-    fn find_winid(&self, winid: &u32) -> bool {
-        self.order.contains(&winid)
-    }
-    
     pub fn add_window(&mut self, win: WindowState) {
         self.order.push(win.window.clone());
         self.windows.insert(win.window, win);
     }
 
-    pub fn new_window(&mut self, connection: &RustConnection, window: Window) {
-        let windowstruct = WindowState::new(connection, window);
+    pub fn new_window(&mut self, window: Window) {
+        let windowstruct = WindowState::new(self.connection.clone(), window);
         self.add_window(windowstruct);
     }
 
@@ -73,7 +79,7 @@ impl Workspace {
         panic!("Not implemented");
     }
 
-    pub fn remap_windows(&mut self, connection: &RustConnection) {
+    pub fn remap_windows(&mut self) {
         match self.layout {
             Layout::TILING => self.tiling_layout(),
         }
@@ -85,44 +91,30 @@ impl Workspace {
                 .y(win.y)
                 .width(win.width)
                 .height(win.height);
-            connection.configure_window(win.window, &winaux).unwrap();
+            let conn = self.connection.borrow();
+            conn.configure_window(win.window, &winaux).unwrap();
 
-            connection.grab_server().unwrap();
-            connection.map_window(win.window).unwrap();
-            connection.ungrab_server().unwrap();
-            connection.flush().unwrap();
+            conn.grab_server().unwrap();
+            conn.map_window(win.window).unwrap();
+            conn.ungrab_server().unwrap();
+            conn.flush().unwrap();
         }
     }
 
     fn tiling_layout(&mut self) {
         let amount = self.order.len();
         println!("\n\nAmount of windows: {}", amount);
-        /*
-        for (i, window) in self.windows.iter_mut().enumerate() {
-            window.x = (i * self.width / amount) as u16;
-            window.y = 0;
-            window.width = (self.width / amount) as u16;
-            window.height = self.height as u16;
-        }*/
-        /*
-        if amount==1 {
-            for id in self.order.iter() {
-                let curwin = self.windows.get_mut(id).unwrap();
-                curwin.x = 0;
-                curwin.y = 0;
-                //TODO: Get screen size
-                curwin.width = 1000;
-                curwin.height = 1000;
-            }
-        } */
+
+        
         //TODO: Implement tiling layout
-        //TODO: GET ACTUAL SCREEN SIZE
         for (i, id) in self.order.iter().enumerate() {
             let curwin = self.windows.get_mut(id).unwrap();
-            curwin.x = (i * 1000 / amount) as i32;
-            curwin.y = 0;
-            curwin.width = 1000/ amount as u32;
-            curwin.height = 1000;
+            //TODO How are we implementing the area the workspace filled?
+            //The bar could be on the top or bottem, or maybey even on the side
+            curwin.x = (i * self.width as usize / amount) as i32;
+            curwin.y = self.y;
+            curwin.width = (self.width as usize / amount) as u32;
+            curwin.height = self.height;
         }
     }
 }

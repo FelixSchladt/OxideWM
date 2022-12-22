@@ -1,15 +1,10 @@
 use std::process::exit;
-use std::error::Error;
 use std::collections::HashMap;
 use x11rb::protocol::xproto::*;
 use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::Event;
 use x11rb::connection::Connection;
 use x11rb::protocol::ErrorKind;
-use x11rb::errors::{
-    ReplyError,
-    ConnectionError,
-};
 use x11rb::protocol::xproto::{
     ConnectionExt,
     Screen,
@@ -17,10 +12,13 @@ use x11rb::protocol::xproto::{
     EventMask,
 };
 use crate::workspace::Workspace;
-
+use x11rb::rust_connection::ReplyError;
+use std::{cell::RefCell, rc::Rc};
 
 #[derive(Debug)]
 pub struct ScreenInfo {
+    pub connection: Rc<RefCell<RustConnection>>,
+    pub id: u32,
     pub workspaces: Vec<Workspace>,
     pub active_workspace: usize,
     pub width: u16,
@@ -28,38 +26,37 @@ pub struct ScreenInfo {
 }
 
 impl ScreenInfo {
-    pub fn window_exists(&self, winid: u32) -> bool {
-        for workspace in &self.workspaces {
-            if workspace.windows.contains_key(&winid) {
-                return true;
-            }
+    pub fn new(connection: Rc<RefCell<RustConnection>>, id: u32, height: u16, width: u16) -> ScreenInfo {
+        let active_workspace = 0;
+        let workspaces = Vec::new();
+        ScreenInfo {
+            connection,
+            id,
+            workspaces,
+            active_workspace,
+            width,
+            height,
         }
-        false
-    }
+    }   
 
-    pub fn map_request(&mut self, connection: &RustConnection, event: &MapRequestEvent) {
+    pub fn map_request(&mut self, event: &MapRequestEvent) {
         println!("WINMAN: MapRequestEvent: {:?}", event);
-        let mut workspace = &mut self.workspaces[self.active_workspace.clone()];
-        //TODO: Check if window is already in workspace
-        /*
-        if self.window_exists(event.window) {
-            workspace.new_window(connection, event.window);
-        }*/
-        workspace.new_window(connection, event.window);
-        workspace.remap_windows(connection);
+        let workspace = &mut self.workspaces[self.active_workspace.clone()];
+        workspace.new_window(event.window);
+        workspace.remap_windows();
     }
 }
 
 #[derive(Debug)]
 pub struct WindowManager {
-    pub connection: RustConnection,
+    pub connection: Rc<RefCell<RustConnection>>,
     pub screeninfo: HashMap<u32, ScreenInfo>,
     //config: Config,
 }
 
 impl WindowManager {
     pub fn new () -> WindowManager {
-        let (connection, screen_index) = RustConnection::connect(None).unwrap();
+        let connection = Rc::new(RefCell::new(RustConnection::connect(None).unwrap().0));
         let screeninfo = HashMap::new();
         let mut manager = WindowManager {
             connection,
@@ -84,7 +81,7 @@ impl WindowManager {
             Event::ConfigureRequest(_event) => println!("ConfigureRequest"),
             Event::MapRequest(_event) => {
                 println!("MapRequest");
-                self.screeninfo.get_mut(&_event.parent).unwrap().map_request(&self.connection, _event);
+                self.screeninfo.get_mut(&_event.parent).unwrap().map_request(_event);
             },
             _ => println!("\x1b[33mUnknown\x1b[0m"),
         };
@@ -92,14 +89,19 @@ impl WindowManager {
 
     fn setup_screens(&mut self) {
         //TODO remove unneccessar multicall on this function
-        for screen in self.connection.setup().roots.iter() {
-            let mut screenstruct = ScreenInfo {
-                workspaces: Vec::new(),
-                active_workspace: 0,
-                width: screen.width_in_pixels,
-                height: screen.height_in_pixels,
-            };
-            screenstruct.workspaces.push(Workspace::new(0));
+        for screen in self.connection.borrow().setup().roots.iter() {
+            let mut screenstruct = ScreenInfo::new(self.connection.clone(), 
+                                                   screen.root,
+                                                   screen.width_in_pixels,
+                                                   screen.height_in_pixels,
+                                                   );
+            screenstruct.workspaces.push(Workspace::new(0, 
+                                                        self.connection.clone(), 
+                                                        0,
+                                                        0,
+                                                        screen.width_in_pixels as u32,
+                                                        screen.height_in_pixels as u32,
+                                                        ));
             self.screeninfo.insert(screen.root, screenstruct);
         }
     }
@@ -111,10 +113,7 @@ impl WindowManager {
                         EventMask::SUBSTRUCTURE_NOTIFY
                     );
 
-        for screen in self.connection
-                          .setup()
-                          .roots
-                          .iter() {
+        for screen in self.connection.borrow().setup().roots.iter() {
             #[cfg(debug_assertion)]
             println!("Attempting to update event mask of: {} -> ", screen.root);
             self.set_mask(screen, mask).unwrap();
@@ -127,7 +126,7 @@ impl WindowManager {
         screen: &Screen,
         mask: ChangeWindowAttributesAux
     ) -> Result<(), ReplyError> {
-        let update_result = self.connection.change_window_attributes(
+        let update_result = self.connection.borrow().change_window_attributes(
                                 screen.root,
                                 &mask
                             )?.check();

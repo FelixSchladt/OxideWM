@@ -5,8 +5,6 @@ pub mod windowstate;
 use windowmanager::WindowManager;
 use std::error::Error;
 use x11rb::connection::Connection;
-use x11rb::protocol::Event;
-
 
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -16,9 +14,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("WindorManager: {:?}", manager.screeninfo);
 
     loop {
-        manager.connection.flush()?;
-
-        event = manager.connection.wait_for_event();
+        manager.connection.borrow_mut().flush()?;
+        event = manager.connection.borrow_mut().wait_for_event();
         match event {
             Ok(event) =>  {println!("event: {:?}", event); manager.handle_event(&event);},
             Err(error) => {
