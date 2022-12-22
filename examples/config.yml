@@ -1,0 +1,12 @@
+update_frequency_sec: 120
+num_threads: 1
+data_sources:
+  - name: Google News
+    url: news.google.com
+    source_type: news
+  - name: Yahoo Finance
+    url: finance.yahoo.com
+    source_type: financial news
+  - name: Microsoft News
+    url: www.msn.com
+    source_type: news
