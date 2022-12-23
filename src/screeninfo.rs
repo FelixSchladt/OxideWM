@@ -40,7 +40,7 @@ impl ScreenInfo {
         }
     }   
 
-    pub fn map_request(&mut self, event: &MapRequestEvent) {
+    pub fn on_map_request(&mut self, event: &MapRequestEvent) {
         println!("WINMAN: MapRequestEvent: {:?}", event);
         let workspace = &mut self.workspaces[self.active_workspace.clone()];
         workspace.new_window(event.window);
