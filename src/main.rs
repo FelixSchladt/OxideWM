@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("WindorManager: {:?}", manager.screeninfo);
 
     loop {
-        manager.connection.borrow_mut().flush()?;
+        //manager.connection.borrow_mut().flush()?;
         event = manager.connection.borrow_mut().wait_for_event();
         match event {
             Ok(event) =>  {println!("event: {:?}", event); manager.handle_event(&event);},
