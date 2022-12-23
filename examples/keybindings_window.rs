@@ -37,7 +37,7 @@ fn grab_keys<C: Connection>(
     manager: &C,
     screen: &Screen,
     ) -> Result<(), Box<dyn Error>> {
-    //It Numlock is also considered a modifier key, so we need to grab register each key combo with
+    //Numlock is also considered a modifier key, so we need to grab register each key combo with
     //numlock and without
     let keyevents = keybindings::get_keyevents_vec();
 
