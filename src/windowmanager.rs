@@ -16,8 +16,6 @@ use crate::workspace::Workspace;
 use x11rb::rust_connection::ReplyError;
 use std::{cell::RefCell, rc::Rc};
 
-
-
 #[derive(Debug)]
 pub struct WindowManager {
     pub connection: Rc<RefCell<RustConnection>>,
@@ -35,11 +33,11 @@ impl WindowManager {
         };
 
         manager.setup_screens();
-
         manager.update_root_window_event_masks();
 
         manager
     }
+
     pub fn handle_event(&mut self, event: &Event) {
         print!("Received Event: ");
         match event {
@@ -52,22 +50,22 @@ impl WindowManager {
             Event::ConfigureRequest(_event) => println!("ConfigureRequest"),
             Event::MapRequest(_event) => {
                 println!("MapRequest");
-                self.screeninfo.get_mut(&_event.parent).unwrap().map_request(_event);
+                self.screeninfo.get_mut(&_event.parent).unwrap().on_map_request(_event);
             },
             _ => println!("\x1b[33mUnknown\x1b[0m"),
         };
-}
+    }
 
     fn setup_screens(&mut self) {
         //TODO remove unneccessar multicall on this function
         for screen in self.connection.borrow().setup().roots.iter() {
-            let mut screenstruct = ScreenInfo::new(self.connection.clone(), 
+            let mut screenstruct = ScreenInfo::new(self.connection.clone(),
                                                    screen.root,
                                                    screen.width_in_pixels,
                                                    screen.height_in_pixels,
                                                    );
-            screenstruct.workspaces.push(Workspace::new(0, 
-                                                        self.connection.clone(), 
+            screenstruct.workspaces.push(Workspace::new(0,
+                                                        self.connection.clone(),
                                                         0,
                                                         0,
                                                         screen.width_in_pixels as u32,

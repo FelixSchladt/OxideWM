@@ -14,7 +14,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut event;
 
     loop {
-        manager.connection.borrow_mut().flush()?;
         event = manager.connection.borrow_mut().wait_for_event();
         match event {
             Ok(event) =>  {println!("event: {:?}", event); manager.handle_event(&event);},
@@ -23,6 +22,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 break;
             }
         }
+
+        manager.connection.borrow_mut().flush()?;
     }
 
     Ok(())
