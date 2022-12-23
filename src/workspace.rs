@@ -24,11 +24,7 @@ pub struct Workspace {
     pub windows: HashMap<u32, WindowState>,
     pub order: Vec<u32>,
     pub layout: Layout,
-    //this makes sense because if we have a bar we need have a different workspace size compared to
-    //screen size. Additionally we will need to adjust the coordinates depending on the start of
-    //the workspace or we map the bar as part of the workspace but i think this would be
-    //unnecessary and not very efficient.
-    pub x: i32,
+    pub x: i32,         //Used to resize the entire workspace, e.g. to make room for taskbars
     pub y: i32,
     pub height: u32,
     pub width: u32,
@@ -47,7 +43,7 @@ impl Workspace {
             windows: HashMap::new(),
             order: Vec::new(),
             layout: Layout::TILING,
-            x, 
+            x,
             y,
             height,
             width,
@@ -59,6 +55,7 @@ impl Workspace {
     }
 
     pub fn add_window(&mut self, win: WindowState) {
+        //TODO Why is the entire Window cloned into a primitive datatype?
         self.order.push(win.window.clone());
         self.windows.insert(win.window, win);
     }
@@ -105,7 +102,7 @@ impl Workspace {
         let amount = self.order.len();
         println!("\n\nAmount of windows: {}", amount);
 
-        
+
         //TODO: Implement tiling layout
         for (i, id) in self.order.iter().enumerate() {
             let curwin = self.windows.get_mut(id).unwrap();

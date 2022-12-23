@@ -64,11 +64,11 @@ impl WindowManager {
         };
 
         manager.setup_screens();
-
         manager.update_root_window_event_masks();
 
         manager
     }
+
     pub fn handle_event(&mut self, event: &Event) {
         print!("Received Event: ");
         match event {
@@ -85,7 +85,7 @@ impl WindowManager {
             },
             _ => println!("\x1b[33mUnknown\x1b[0m"),
         };
-}
+    }
 
     fn setup_screens(&mut self) {
         //TODO remove unneccessar multicall on this function
