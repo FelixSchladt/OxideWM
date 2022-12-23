@@ -37,9 +37,9 @@ impl ScreenInfo {
             width,
             height,
         }
-    }   
+    }
 
-    pub fn map_request(&mut self, event: &MapRequestEvent) {
+    pub fn on_map_request(&mut self, event: &MapRequestEvent) {
         println!("WINMAN: MapRequestEvent: {:?}", event);
         let workspace = &mut self.workspaces[self.active_workspace.clone()];
         workspace.new_window(event.window);
@@ -81,7 +81,7 @@ impl WindowManager {
             Event::ConfigureRequest(_event) => println!("ConfigureRequest"),
             Event::MapRequest(_event) => {
                 println!("MapRequest");
-                self.screeninfo.get_mut(&_event.parent).unwrap().map_request(_event);
+                self.screeninfo.get_mut(&_event.parent).unwrap().on_map_request(_event);
             },
             _ => println!("\x1b[33mUnknown\x1b[0m"),
         };
@@ -90,13 +90,13 @@ impl WindowManager {
     fn setup_screens(&mut self) {
         //TODO remove unneccessar multicall on this function
         for screen in self.connection.borrow().setup().roots.iter() {
-            let mut screenstruct = ScreenInfo::new(self.connection.clone(), 
+            let mut screenstruct = ScreenInfo::new(self.connection.clone(),
                                                    screen.root,
                                                    screen.width_in_pixels,
                                                    screen.height_in_pixels,
                                                    );
-            screenstruct.workspaces.push(Workspace::new(0, 
-                                                        self.connection.clone(), 
+            screenstruct.workspaces.push(Workspace::new(0,
+                                                        self.connection.clone(),
                                                         0,
                                                         0,
                                                         screen.width_in_pixels as u32,
