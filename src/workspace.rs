@@ -59,7 +59,7 @@ impl Workspace {
     }
 
     pub fn add_window(&mut self, win: WindowState) {
-        self.order.push(win.window.clone());
+        self.order.push(win.window);
         self.windows.insert(win.window, win);
     }
 

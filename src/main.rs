@@ -1,6 +1,7 @@
 pub mod windowmanager;
 pub mod workspace;
 pub mod windowstate;
+pub mod screeninfo;
 
 use windowmanager::WindowManager;
 use std::error::Error;
@@ -11,7 +12,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut manager = WindowManager::new();
 
     let mut event;
-    println!("WindorManager: {:?}", manager.screeninfo);
 
     loop {
         manager.connection.borrow_mut().flush()?;
