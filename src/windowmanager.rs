@@ -1,7 +1,10 @@
 use std::process::exit;
 use std::error::Error;
-use workspace::Workspace;
 
+use super::workspace::Workspace;
+use super::windowstate::WindowState;
+
+use x11rb::COPY_DEPTH_FROM_PARENT;
 use x11rb::rust_connection::RustConnection;
 use x11rb::connection::Connection;
 use x11rb::protocol::ErrorKind;
@@ -12,13 +15,17 @@ use x11rb::errors::{
 use x11rb::protocol::xproto::{
     ConnectionExt,
     Screen,
+    Window,
     ChangeWindowAttributesAux,
+    ConfigureWindowAux,
+    CreateWindowAux,
     EventMask,
 };
 
 pub struct WindowManager {
     pub connection: RustConnection,
-    pub monitors: HashMap<u16, Vec<Workspaces>>,
+    active_monitor_id: u16,
+    //pub monitors: HashMap<u16, Vec<Workspace>>,
     //config: Config,
 }
 
@@ -32,6 +39,14 @@ impl WindowManager {
         manager.update_root_window_event_masks();
 
         manager
+    }
+
+    pub fn map_window(window: Window, monitor_id: u16, workspace_id: u16) {
+         
+    }
+
+    pub fn remap(monitor_id: u16, workspace_id: u16) {
+        //TODO implement method parameters
     }
 
     fn update_root_window_event_masks(&self) {
@@ -75,5 +90,38 @@ impl WindowManager {
         }
 
         update_result
+    }
+
+    fn create_windowstate(&self) -> Result<WindowState, Box<dyn Error>> {
+        let frame_id = self.connection.generate_id()?;
+        let titlebar_id = self.connection.generate_id()?;
+
+        let window_aux = ConfigureWindowAux::default()
+                         .width(100)
+                         .height(100)
+                         .x(10)
+                         .y(10);
+
+        self.connection.create_window(
+            COPY_DEPTH_FROM_PARENT,
+            frame_id,
+            self.,
+            x,
+            y,
+            width,
+            height,
+            0,
+            WindowClass::INPUT_OUTPUT,
+            0,
+            &CreateWindowAux::new().background_pixel(screen.white_pixel),
+        )?;
+
+        Ok(WindowState {
+            title: format!("{}", frame_id),
+            visible: true,
+            focused: true,
+            urgent: false,
+            titlebar_height: 0,
+        })
     }
 }

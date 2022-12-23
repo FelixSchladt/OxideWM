@@ -18,16 +18,4 @@ pub struct Workspace {
 impl Workspace {
     pub fn show() { panic!("Not implemented"); }
     pub fn hide() { panic!("Not implemented"); }
-
-    pub fn open_window(executable: String) {
-        panic!("Not implemented");
-    }
-
-    pub fn close_window(executable: String) {
-        panic!("Not implemented");
-    }
-
-    fn remap_windows() {
-        panic!("Not implemented");
-    }
 }
