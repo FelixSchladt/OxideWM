@@ -1,6 +1,5 @@
 use std::process::exit;
 use std::collections::HashMap;
-use x11rb::protocol::xproto::*;
 use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::Event;
 use x11rb::connection::Connection;
@@ -11,15 +10,18 @@ use x11rb::protocol::xproto::{
     ChangeWindowAttributesAux,
     EventMask,
 };
-use crate::screeninfo::ScreenInfo;
-use crate::workspace::Workspace;
 use x11rb::rust_connection::ReplyError;
 use std::{cell::RefCell, rc::Rc};
+
+use crate::screeninfo::ScreenInfo;
+use crate::workspace::Workspace;
+use crate::config::Config;
 
 #[derive(Debug)]
 pub struct WindowManager {
     pub connection: Rc<RefCell<RustConnection>>,
     pub screeninfo: HashMap<u32, ScreenInfo>,
+    pub config: Rc<RefCell<Config>>,
     //config: Config,
 }
 
@@ -27,9 +29,11 @@ impl WindowManager {
     pub fn new () -> WindowManager {
         let connection = Rc::new(RefCell::new(RustConnection::connect(None).unwrap().0));
         let screeninfo = HashMap::new();
+        let config = Rc::new(RefCell::new(Config::new()));
         let mut manager = WindowManager {
             connection,
             screeninfo,
+            config,
         };
 
         manager.setup_screens();

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::process::Command;
 
 #[derive(Debug)]
-enum WmCommands {
+pub enum WmCommands {
     Move,
     Resize,
     Quit,
@@ -13,21 +13,21 @@ enum WmCommands {
 }
 
 #[derive(Debug)]
-struct WmCommand {
+pub struct WmCommand {
     keys: Vec<char>,
     command: WmCommands,
     args: Option<String>,
 }
 
 #[derive(Debug)]
-struct UserCommand {
+pub struct UserCommand {
     keys: Vec<char>,
     command: String,
 }
 
 #[derive(Debug)]
-struct Config {
-    cmds: Vec<WmCommand>,
+pub struct Config {
+    pub cmds: Vec<WmCommand>,
     /*
     user_cmds: Vec<UserCommand>,
     exec: Vec<String>,
@@ -38,6 +38,12 @@ struct Config {
     titlebar: bool,
     gap: u8,
     */
+}
+
+impl Config {
+    pub fn new() -> Config {
+        simulate_config()
+    }
 }
 
 
