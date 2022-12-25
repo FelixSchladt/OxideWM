@@ -72,7 +72,8 @@ impl WindowManager {
                 println!("MapRequest");
                 self.screeninfo.get_mut(&_event.parent).unwrap().on_map_request(_event);
             },
-            Event::KeyPress(_event) | Event::KeyRelease(_event) => {
+            Event::KeyPress(_event) => println!("KeyPress"),
+            Event::KeyRelease(_event) => {
                 println!("KeyPress");
                 self.handle_keypress(_event);
             },
@@ -160,6 +161,4 @@ impl WindowManager {
         }
     Ok(())
     }
-
-
 }

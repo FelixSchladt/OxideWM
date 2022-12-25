@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use crate::config::{Config, WmCommands};
 
@@ -95,7 +95,33 @@ pub fn placeholder(args: Option<String>) -> (Option<String>, Option<String>) {
         Some(args) => println!("Placeholder function called with args: {}", args),
         None => println!("Placeholder function called without args"),
     }
+    //TODO decide if tuple return is necessary 
+    //Why did I implement it this way??? Well IDK
     return (None, None);
+}
+
+pub fn exec_user_command(args: Option<String>) -> (Option<String>, Option<String>) {
+    match args {
+        Some(args) => {
+            let mut args = args.split_whitespace();
+            let command = args.next().unwrap();
+            let args = args.collect::<Vec<&str>>().join(" ");
+            if args.is_empty() {
+                Command::new(command)
+                    .stdout(Stdio::null())
+                    .stderr(Stdio::null())
+                    .spawn()
+            } else {
+                Command::new(command)
+                    .arg(args)
+                    .stdout(Stdio::null())
+                    .stderr(Stdio::null())
+                    .spawn()
+            }.unwrap();
+            return (None, None);
+        },
+        None => panic!("User command called without args"),
+    }
 }
 
 #[derive(Debug)]
@@ -112,6 +138,8 @@ impl KeyBindings {
         };
         
         let keymap = keycodes_map();
+
+        //add wm commands
         for cmd in &config.cmds {
             let keycode = convert_to_keycode(&mut cmd.keys.clone(), &keymap);
             let kevent = KeyEvent {
@@ -134,6 +162,22 @@ impl KeyBindings {
                 .or_insert(Vec::new())
                 .push(kevent);
         }
+        
+        //add user commands
+        for ucmd in &config.user_cmds {
+            let keycode = convert_to_keycode(&mut ucmd.keys.clone(), &keymap);
+            let kevent = KeyEvent {
+                keycode: keycode.clone(),
+                args: Some(ucmd.args.clone()),
+                event: exec_user_command,
+            };
+            keybindings.events_vec.push(kevent.clone());
+            keybindings.events_map
+                .entry(keycode.code)
+                .or_insert(Vec::new())
+                .push(kevent);
+        }
+
         keybindings
     }
 }
