@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-use std::process::Command;
 
 #[derive(Debug)]
+#[derive(Clone)]
 pub enum WmCommands {
     Move,
     Resize,
@@ -12,17 +11,18 @@ pub enum WmCommands {
     MoveToWorkspaceAndFollow,
 }
 
+#[derive(Clone)]
 #[derive(Debug)]
 pub struct WmCommand {
-    keys: Vec<char>,
-    command: WmCommands,
-    args: Option<String>,
+    pub keys: Vec<char>,
+    pub command: WmCommands,
+    pub args: Option<String>,
 }
 
 #[derive(Debug)]
 pub struct UserCommand {
-    keys: Vec<char>,
-    command: String,
+    pub keys: Vec<char>,
+    pub command: String,
 }
 
 #[derive(Debug)]
@@ -75,6 +75,7 @@ fn simulate_config() -> Config {
     return config;
 }
 
+/*
 #[derive(Debug)]
 pub enum ModifierKey {
     Ctrl,
@@ -202,3 +203,4 @@ pub fn get_keyevents() -> HashMap<u8, Vec<KeyEvent>> {
     }
     return keyevents;
 }
+*/

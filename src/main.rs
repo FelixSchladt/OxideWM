@@ -3,6 +3,7 @@ pub mod workspace;
 pub mod windowstate;
 pub mod screeninfo;
 pub mod config;
+pub mod keybindings;
 
 use windowmanager::WindowManager;
 use std::error::Error;

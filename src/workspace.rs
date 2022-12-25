@@ -67,11 +67,11 @@ impl Workspace {
     pub fn show() { panic!("Not implemented"); }
     pub fn hide() { panic!("Not implemented"); }
 
-    pub fn open_window(executable: String) {
+    pub fn open_window(_executable: String) {
         panic!("Not implemented");
     }
 
-    pub fn close_window(executable: String) {
+    pub fn close_window(_executable: String) {
         panic!("Not implemented");
     }
 
