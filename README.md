@@ -15,26 +15,26 @@ This project idea is inspired by the DWM, leftWM and i3WM.
 ## Projected Features
 
 ### Fundamental
-* Starting and quiting applications
-* Dynamic tiling
-* Movement of applications
-* Floating/Static applications
-* Keyboard input handling
-* Window focusing
+* starting and quiting applications
+* dynamic tiling
+* movement of applications
+* floating/static applications
+* keyboard input handling
+* window focusing
 
 ### Basic
-* Multiple workspaces
-* Multiple monitors
-* Configuration
-* Autostarting of Applications
-* Taskbar support
+* multiple workspaces
+* multiple monitors
+* configuration
+* autostarting of applications
+* taskbar support
 * Drun/Rofi/eww support
 
 ### Optional
 * ipc
-* Taskbar
-* Config file
-* Power managment (Screenlocking after timeout)
-* Animations
+* taskbar
+* config file
+* power management (screenlocking after timeout)
+* animations
 
 

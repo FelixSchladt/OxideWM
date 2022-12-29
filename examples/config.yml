@@ -1,0 +1,20 @@
+# This is the config file for OxideWM.
+# Here you can freely configure your window manager.
+# Please keep in mind that you have to configure every valuie properly for the WM to run.
+# Otherwise the programm will crash.
+
+modifier: "N"
+cmds:
+  - keys: ["S", "R"]
+    command: Move
+    args: "3"
+user_cmds:
+  - keys: ["L", "O"]
+    command: Bruh idk
+exec: ["B", "R", "O"]
+exec_always: ["I", "D", "K"]
+border_with: 8
+border_color: "green"
+border_focus_color: "yellow"
+titlebar: true
+gap: 8

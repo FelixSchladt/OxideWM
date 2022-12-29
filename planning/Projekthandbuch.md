@@ -41,7 +41,7 @@ Der Status des Tickets wird für die folgenden Stati aktuell gehalten:
 Für jedes Feature wird ein Branch erstellt.
 Das Format für den Branchnamen ist:
 ```
-Feature/<Featurename>
+Feature/ISSUE<ISSUENUMBER>-<Featurename>
 ```
 
 Die einzelnen Featurebranches können zu z.B. Testzwecken frei ausgebrancht werden.

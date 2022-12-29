@@ -4,7 +4,7 @@ pub mod windowstate;
 
 use windowmanager::WindowManager;
 use std::error::Error;
-use x11rb::connection::Connection;
+
 use x11rb::protocol::Event;
 
 fn handle_event(manager: &WindowManager, event: &Event) {
@@ -27,20 +27,22 @@ fn handle_event(manager: &WindowManager, event: &Event) {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let manager = WindowManager::new();
+    let mut manager = WindowManager::new();
 
     let mut event;
-    loop {
-        manager.connection.flush()?;
+    println!("WindorManager: {:?}", manager.screeninfo);
 
-        event = manager.connection.wait_for_event();
+    loop {
+        event = manager.connection.borrow_mut().wait_for_event();
         match event {
-            Ok(event) => handle_event(&manager, &event),
+            Ok(event) =>  {println!("event: {:?}", event); manager.handle_event(&event);},
             Err(error) => {
                 eprintln!("\x1b[31m\x1b[1mError:\x1b[0m {}", error);
                 break;
             }
         }
+
+        manager.connection.borrow_mut().flush()?;
     }
 
     Ok(())
