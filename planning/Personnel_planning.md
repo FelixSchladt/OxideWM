@@ -1,6 +1,6 @@
-# Personalplanung
+# Personnel planning
 
-## Project Manager
+## Project manager
 
 1. [Antonia Pawlik](https://github.com/gungula)
 
