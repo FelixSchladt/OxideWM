@@ -50,8 +50,7 @@ impl WindowManager {
         for key in keys {
             let state = u16::from(event.state);
             if state == key.keycode.mask 
-                || state == key.keycode.mask | u16::from(ModMask::M2) 
-                {
+            || state == key.keycode.mask | u16::from(ModMask::M2) {
                 println!("Key: {:?}", key);
                 (key.event)(key.args.clone());
             }
