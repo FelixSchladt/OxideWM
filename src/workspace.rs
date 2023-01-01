@@ -77,6 +77,10 @@ impl Workspace {
         panic!("Not implemented");
     }
 
+    pub fn set_layout(&mut self, layout: Layout) {
+        self.layout = layout;
+    }
+
     pub fn remap_windows(&mut self) {
         match self.layout {
             Layout::TILED => {},
