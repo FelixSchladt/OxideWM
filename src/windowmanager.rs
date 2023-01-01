@@ -21,6 +21,7 @@ pub struct WindowManager {
     pub screeninfo: HashMap<u32, ScreenInfo>,
     pub config: Rc<RefCell<Config>>,
     pub keybindings: KeyBindings,
+    pub focused_screen: u32,
     //config: Config,
 }
 
@@ -31,21 +32,27 @@ impl WindowManager {
         let config = Rc::new(RefCell::new(Config::new()));
         let keybindings = KeyBindings::new(&config.borrow());
 
+        let focused_screen = 0; //TODO: Get focused screen from X11
+
         let mut manager = WindowManager {
             connection,
             screeninfo,
             config,
             keybindings,
+            focused_screen,
         };
 
         manager.setup_screens();
         manager.update_root_window_event_masks();
         manager.grab_keys().unwrap();
 
+        get_cursor_position(&manager);
+
         manager
     }
 
     fn handle_keypress(&mut self, event: &KeyPressEvent) {
+        //how do we make sure a spawned window is spawned on the correct screen/workspace?
         let keys = self.keybindings.events_map.get(&event.detail).expect("Registered key not found");
         for key in keys {
             let state = u16::from(event.state);
@@ -160,4 +167,18 @@ impl WindowManager {
         }
     Ok(())
     }
+}
+
+pub struct Coordinates {
+    x: i16,
+    y: i16,
+}
+
+pub fn get_cursor_position(winman: &WindowManager) -> Result<Coordinates, Box<dyn Error>> {
+    for screen in winman.connection.borrow().setup().roots.iter() {
+        let reply = winman.connection.borrow().query_pointer(screen.root)?.reply()?;
+        println!("Reply: {:?}", reply);
+    }
+    //println!("Cursor: {} {}", reply.root_x, reply.root_y);
+    Ok(Coordinates { x: 0, y: 0 })
 }

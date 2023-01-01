@@ -90,6 +90,7 @@ fn convert_to_keycode(keys: &mut Vec<char>, keymap: &HashMap<String, u8>) -> Key
     };
 }
 
+//TODO Maybe move this to a separate file
 pub fn placeholder(args: Option<String>) -> (Option<String>, Option<String>) {
     match args {
         Some(args) => println!("Placeholder function called with args: {}", args),
@@ -100,6 +101,7 @@ pub fn placeholder(args: Option<String>) -> (Option<String>, Option<String>) {
     return (None, None);
 }
 
+//TODO Maybe move this to a separate file
 pub fn exec_user_command(args: Option<String>) -> (Option<String>, Option<String>) {
     match args {
         Some(args) => {

@@ -51,6 +51,8 @@ impl Workspace {
     }
 
     pub fn rename(&mut self, name: String) {
+        //TODO: Check if name is already taken
+        //TODO: Check if name is valid (not too long, etc.)
         self.name = name;
     }
 
