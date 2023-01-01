@@ -3,6 +3,7 @@ pub mod workspace;
 pub mod windowstate;
 pub mod screeninfo;
 pub mod config;
+pub mod keybindings;
 
 use std::sync::mpsc::{channel, Sender};
 use std::error::Error;
