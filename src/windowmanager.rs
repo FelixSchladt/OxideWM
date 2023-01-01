@@ -1,8 +1,10 @@
 use std::process::exit;
 use std::collections::HashMap;
+use std::error::Error;
 use std::{cell::RefCell, rc::Rc};
 
 use x11rb::connection::Connection;
+use x11rb::protocol::xproto::*;
 use x11rb::protocol::{
     Event,
     ErrorKind
@@ -10,12 +12,6 @@ use x11rb::protocol::{
 use x11rb::rust_connection::{
     RustConnection,
     ReplyError
-};
-use x11rb::protocol::xproto::{
-    ConnectionExt,
-    Screen,
-    ChangeWindowAttributesAux,
-    EventMask,
 };
 
 use crate::screeninfo::ScreenInfo;

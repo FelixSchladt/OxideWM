@@ -37,10 +37,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     });
 
     loop {
-        /*
-        while let Some(event) = manager.connection.borrow().poll_for_event()? {
-            manager.handle_event(&event);
-        }*/
         let event = manager.connection.borrow_mut().poll_for_event().unwrap();
         match event {
             Some(event) => manager.handle_event(&event),
@@ -54,20 +50,4 @@ fn main() -> Result<(), Box<dyn Error>> {
             Err(_) => (),
         }
     }
-
-    /*
-    let mut event;
-
-    loop {
-        event = manager.connection.borrow_mut().wait_for_event();
-        match event {
-            Ok(event) =>  {println!("event: {:?}", event); manager.handle_event(&event);},
-            Err(error) => {
-                eprintln!("\x1b[31m\x1b[1mError:\x1b[0m {}", error);
-                break;
-            }
-        }
-
-        manager.connection.borrow_mut().flush()?;
-    }*/
 }
