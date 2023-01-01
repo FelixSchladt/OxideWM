@@ -4,13 +4,13 @@ pub mod windowstate;
 pub mod screeninfo;
 pub mod config;
 
-use windowmanager::WindowManager;
-use std::error::Error;
-use x11rb::connection::Connection;
 use std::sync::mpsc::{channel, Sender};
+use std::error::Error;
 use std::thread;
-use x11rb::rust_connection::RustConnection;
-use x11rb::protocol::Event;
+
+use x11rb::connection::Connection;
+
+use windowmanager::WindowManager;
 
 #[derive(Debug)]
 struct IpcEvent {
@@ -69,6 +69,4 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         manager.connection.borrow_mut().flush()?;
     }*/
-
-    Ok(())
 }

@@ -1,17 +1,22 @@
 use std::process::exit;
 use std::collections::HashMap;
-use x11rb::rust_connection::RustConnection;
-use x11rb::protocol::Event;
+use std::{cell::RefCell, rc::Rc};
+
 use x11rb::connection::Connection;
-use x11rb::protocol::ErrorKind;
+use x11rb::protocol::{
+    Event,
+    ErrorKind
+};
+use x11rb::rust_connection::{
+    RustConnection,
+    ReplyError
+};
 use x11rb::protocol::xproto::{
     ConnectionExt,
     Screen,
     ChangeWindowAttributesAux,
     EventMask,
 };
-use x11rb::rust_connection::ReplyError;
-use std::{cell::RefCell, rc::Rc};
 
 use crate::screeninfo::ScreenInfo;
 use crate::workspace::Workspace;
