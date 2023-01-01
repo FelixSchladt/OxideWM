@@ -1,19 +1,21 @@
 use std::process::exit;
 use std::collections::HashMap;
+use std::error::Error;
+use std::{cell::RefCell, rc::Rc};
+
+use x11rb::rust_connection::RustConnection;
+use x11rb::connection::Connection;
+use x11rb::protocol::xproto::*;
+use x11rb::rust_connection::ReplyError;
+use x11rb::protocol::{
+    Event,
+    ErrorKind
+};
 
 use crate::screeninfo::ScreenInfo;
 use crate::workspace::Workspace;
 use crate::config::Config;
 use crate::keybindings::KeyBindings;
-
-use x11rb::rust_connection::RustConnection;
-use x11rb::protocol::Event;
-use x11rb::connection::Connection;
-use x11rb::protocol::ErrorKind;
-use x11rb::protocol::xproto::*;
-use x11rb::rust_connection::ReplyError;
-use std::{cell::RefCell, rc::Rc};
-use std::error::Error;
 
 #[derive(Debug)]
 pub struct WindowManager {
