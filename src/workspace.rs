@@ -20,6 +20,7 @@ pub struct Workspace {
     pub connection:  Rc<RefCell<RustConnection>>,
     pub name: String,
     pub index: u16,
+    pub root_window_index: u16,
     pub visible: bool,
     pub focused: bool,
     pub urgent: bool,
@@ -39,6 +40,7 @@ impl Workspace {
             connection: connection,
             name: index.to_string(),
             index,
+            root_window_index: 0,  //TODO get root window index from windowmanager
             visible: false,
             focused: false,
             urgent: false,
@@ -79,6 +81,7 @@ impl Workspace {
 
     pub fn set_layout(&mut self, layout: Layout) {
         self.layout = layout;
+        self.remap_windows();
     }
 
     pub fn remap_windows(&mut self) {
