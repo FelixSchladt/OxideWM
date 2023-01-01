@@ -87,6 +87,9 @@ impl WindowManager {
                 println!("KeyPress");
                 self.handle_keypress(_event);
             },
+            Event::DestroyNotify(_event) => println!("DestroyNotify"),
+            Event::EnterNotify(_event) => println!("EnterNotify"),
+            Event::MotionNotify(_event) => println!("MotionNotify"),
             _ => println!("\x1b[33mUnknown\x1b[0m"),
         };
     }
