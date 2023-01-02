@@ -29,6 +29,15 @@ impl WindowState {
         let width = 0;
         let height = 0;
         let titlebar_height = 0;
+
+        let mask = ChangeWindowAttributesAux::default()
+            .event_mask(EventMask::ENTER_WINDOW | EventMask::LEAVE_WINDOW );
+        let res = connection.borrow().change_window_attributes(window, &mask).unwrap().check();
+        if let Err(e) = res {
+            println!("Error couldn change mask: {:?}", e);
+            panic!("Error couldnt change mask");
+        }
+
         WindowState {
             connection,
             window,

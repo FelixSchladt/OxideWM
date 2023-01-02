@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::process::{Command, Stdio};
+use std::process::Command;
 
 use crate::config::{Config, WmCommands};
 
@@ -48,7 +48,7 @@ pub struct KeyCode {
 pub struct KeyEvent {
     pub keycode: KeyCode,
     pub args: Option<String>,
-    pub event: fn(Option<String>)->(Option<String>, Option<String>),
+    pub event: WmCommands,
 }
 
 
@@ -90,42 +90,6 @@ fn convert_to_keycode(keys: &mut Vec<char>, keymap: &HashMap<String, u8>) -> Key
     };
 }
 
-//TODO Maybe move this to a separate file
-pub fn placeholder(args: Option<String>) -> (Option<String>, Option<String>) {
-    match args {
-        Some(args) => println!("Placeholder function called with args: {}", args),
-        None => println!("Placeholder function called without args"),
-    }
-    //TODO decide if tuple return is necessary 
-    //Why did I implement it this way??? Well IDK
-    return (None, None);
-}
-
-//TODO Maybe move this to a separate file
-pub fn exec_user_command(args: Option<String>) -> (Option<String>, Option<String>) {
-    match args {
-        Some(args) => {
-            let mut args = args.split_whitespace();
-            let command = args.next().unwrap();
-            let args = args.collect::<Vec<&str>>().join(" ");
-            if args.is_empty() {
-                Command::new(command)
-                    .stdout(Stdio::null())
-                    .stderr(Stdio::null())
-                    .spawn()
-            } else {
-                Command::new(command)
-                    .arg(args)
-                    .stdout(Stdio::null())
-                    .stderr(Stdio::null())
-                    .spawn()
-            }.unwrap();
-            return (None, None);
-        },
-        None => panic!("User command called without args"),
-    }
-}
-
 #[derive(Debug)]
 pub struct KeyBindings {
     pub events_map: HashMap<u8, Vec<KeyEvent>>,
@@ -147,16 +111,7 @@ impl KeyBindings {
             let kevent = KeyEvent {
                 keycode: keycode.clone(),
                 args: cmd.args.clone(),
-                event: match cmd.command {
-                    //TODO: Replace placeholder with actual functions
-                    WmCommands::Quit => placeholder,
-                    WmCommands::Restart => placeholder,
-                    WmCommands::Move => placeholder,
-                    WmCommands::Resize => placeholder,
-                    WmCommands::MoveToWorkspace => placeholder,
-                    WmCommands::GoToWorkspace => placeholder,
-                    WmCommands::MoveToWorkspaceAndFollow => placeholder,
-                },
+                event: cmd.command.clone(),
             };
             keybindings.events_vec.push(kevent.clone());
             keybindings.events_map
@@ -164,22 +119,6 @@ impl KeyBindings {
                 .or_insert(Vec::new())
                 .push(kevent);
         }
-        
-        //add user commands
-        for ucmd in &config.user_cmds {
-            let keycode = convert_to_keycode(&mut ucmd.keys.clone(), &keymap);
-            let kevent = KeyEvent {
-                keycode: keycode.clone(),
-                args: Some(ucmd.args.clone()),
-                event: exec_user_command,
-            };
-            keybindings.events_vec.push(kevent.clone());
-            keybindings.events_map
-                .entry(keycode.code)
-                .or_insert(Vec::new())
-                .push(kevent);
-        }
-
         keybindings
     }
 }
