@@ -22,14 +22,14 @@ impl From<ModifierKey> for u16 {
     }
 }
 
-impl TryFrom<char> for ModifierKey {
+impl TryFrom<&str> for ModifierKey {
     type Error = &'static str;
-    fn try_from(key: char) -> Result<Self, Self::Error> {
+    fn try_from(key: &str) -> Result<Self, Self::Error> {
         match key {
-            'C'     => Ok(ModifierKey::Ctrl),
-            'A'     => Ok(ModifierKey::Alt),
-            'S'     => Ok(ModifierKey::Shift),
-            'M'     => Ok(ModifierKey::Meta),
+            "C"     => Ok(ModifierKey::Ctrl),
+            "A"     => Ok(ModifierKey::Alt),
+            "S"     => Ok(ModifierKey::Shift),
+            "M"     => Ok(ModifierKey::Meta),
             _       => Err("Invalid modifier key"),
         }
     }
@@ -74,14 +74,14 @@ fn keyname_to_keycode(keyname: &str, keymap: &HashMap<String, u8>) -> u8 {
 }
 
 //TODO ERROR handling
-fn convert_to_keycode(keys: &mut Vec<char>, keymap: &HashMap<String, u8>) -> KeyCode {
+fn convert_to_keycode(keys: &mut Vec<String>, keymap: &HashMap<String, u8>) -> KeyCode {
     let mut mask: u16 = 0;
-    let keyname = keys.pop().unwrap();
+    let keyname = keys.pop().unwrap(); //Only one not modifier key is accepted
     let code = keyname_to_keycode(&keyname.to_string(), keymap);
 
     //Accepts multiple modifiers but only one key
     for modifier in keys {
-        mask = mask | u16::from(ModifierKey::try_from(*modifier).unwrap());
+        mask = mask | u16::from(ModifierKey::try_from(modifier.as_str()).unwrap());
     }
 
     return KeyCode {

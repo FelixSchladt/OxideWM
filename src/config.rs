@@ -16,7 +16,7 @@ pub enum WmCommands {
 #[derive(Clone)]
 #[derive(Debug)]
 pub struct WmCommand {
-    pub keys: Vec<char>,
+    pub keys: Vec<String>,
     pub command: WmCommands,
     pub args: Option<String>,
 }
@@ -47,22 +47,22 @@ fn simulate_config() -> Config {
         cmds: Vec::new(),
     };
     config.cmds.push(WmCommand {
-        keys: vec!['A', 'S', 'e'],
+        keys: vec!["A".to_string(), "S".to_string(), "e".to_string()],
         command: WmCommands::Quit,
         args: None,
     });
     config.cmds.push(WmCommand {
-        keys: vec!['A', 'S', 'r'],
+        keys: vec!["A".to_string(), "S".to_string(), "r".to_string()],
         command: WmCommands::Restart,
         args: None,
     });
     config.cmds.push(WmCommand {
-        keys: vec!['A', 'S', 'q'],
+        keys: vec!["A".to_string(), "S".to_string(), "q".to_string()],
         command: WmCommands::Kill,
         args: None,
     });
     config.cmds.push(WmCommand {
-        keys: vec!['A', 't'],
+        keys: vec!["A".to_string(), "t".to_string()],
         command: WmCommands::Exec,
         args: Some("kitty".to_string()),
     });
