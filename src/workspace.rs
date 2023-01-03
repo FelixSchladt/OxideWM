@@ -100,7 +100,7 @@ impl Workspace {
 
     pub fn move_window(&mut self, mov: Movement) -> Option<u32> {
         let len = self.order.len();
-        let mut move_occured: Option<u32> = None;
+        let mut move_occured: Option<u32> = None; //Its hacky but works good
         if let Some(focused_win) = self.get_focused_window() {
             if len > 1 {
                 let pos = self.order.iter().position(|&x| x == focused_win).unwrap();
@@ -129,10 +129,6 @@ impl Workspace {
                     },
                 }
                 self.remap_windows();
-                //FIXME: Currently the old window is focused after the swap
-                //       This is triggered by the EnterNoitify event from the mouse.
-                //       One fix would be to ignore EnterNotify event after a swap
-                //self.focus_window(focused_win);
             }
         }
         return move_occured;
