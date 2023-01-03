@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::process::{Command, Stdio};
+use std::process::Command;
 
 use crate::config::{Config, WmCommands};
 
@@ -22,14 +22,14 @@ impl From<ModifierKey> for u16 {
     }
 }
 
-impl TryFrom<char> for ModifierKey {
+impl TryFrom<String> for ModifierKey {
     type Error = &'static str;
-    fn try_from(key: char) -> Result<Self, Self::Error> {
-        match key {
-            'C'     => Ok(ModifierKey::Ctrl),
-            'A'     => Ok(ModifierKey::Alt),
-            'S'     => Ok(ModifierKey::Shift),
-            'M'     => Ok(ModifierKey::Meta),
+    fn try_from(key: String) -> Result<Self, Self::Error> {
+        match key.as_str() {
+            "C"     => Ok(ModifierKey::Ctrl),
+            "A"     => Ok(ModifierKey::Alt),
+            "S"     => Ok(ModifierKey::Shift),
+            "M"     => Ok(ModifierKey::Meta),
             _       => Err("Invalid modifier key"),
         }
     }
@@ -48,7 +48,7 @@ pub struct KeyCode {
 pub struct KeyEvent {
     pub keycode: KeyCode,
     pub args: Option<String>,
-    pub event: fn(Option<String>)->(Option<String>, Option<String>),
+    pub event: WmCommands,
 }
 
 
@@ -74,54 +74,20 @@ fn keyname_to_keycode(keyname: &str, keymap: &HashMap<String, u8>) -> u8 {
 }
 
 //TODO ERROR handling
-fn convert_to_keycode(keys: &mut Vec<char>, keymap: &HashMap<String, u8>) -> KeyCode {
+fn convert_to_keycode(keys: &mut Vec<String>, keymap: &HashMap<String, u8>) -> KeyCode {
     let mut mask: u16 = 0;
-    let keyname = keys.pop().unwrap();
+    let keyname = keys.pop().unwrap(); //Only one not modifier key is accepted
     let code = keyname_to_keycode(&keyname.to_string(), keymap);
 
     //Accepts multiple modifiers but only one key
     for modifier in keys {
-        mask = mask | u16::from(ModifierKey::try_from(*modifier).unwrap());
+        mask = mask | u16::from(ModifierKey::try_from(modifier.clone()).unwrap());
     }
 
     return KeyCode {
         mask: mask, //bitmask of the modifiers
         code: code, //keycode
     };
-}
-
-pub fn placeholder(args: Option<String>) -> (Option<String>, Option<String>) {
-    match args {
-        Some(args) => println!("Placeholder function called with args: {}", args),
-        None => println!("Placeholder function called without args"),
-    }
-    //TODO decide if tuple return is necessary 
-    //Why did I implement it this way??? Well IDK
-    return (None, None);
-}
-
-pub fn exec_user_command(args: Option<String>) -> (Option<String>, Option<String>) {
-    match args {
-        Some(args) => {
-            let mut args = args.split_whitespace();
-            let command = args.next().unwrap();
-            let args = args.collect::<Vec<&str>>().join(" ");
-            if args.is_empty() {
-                Command::new(command)
-                    .stdout(Stdio::null())
-                    .stderr(Stdio::null())
-                    .spawn()
-            } else {
-                Command::new(command)
-                    .arg(args)
-                    .stdout(Stdio::null())
-                    .stderr(Stdio::null())
-                    .spawn()
-            }.unwrap();
-            return (None, None);
-        },
-        None => panic!("User command called without args"),
-    }
 }
 
 #[derive(Debug)]
@@ -145,16 +111,7 @@ impl KeyBindings {
             let kevent = KeyEvent {
                 keycode: keycode.clone(),
                 args: cmd.args.clone(),
-                event: match cmd.command {
-                    //TODO: Replace placeholder with actual functions
-                    WmCommands::Quit => placeholder,
-                    WmCommands::Restart => placeholder,
-                    WmCommands::Move => placeholder,
-                    WmCommands::Resize => placeholder,
-                    WmCommands::MoveToWorkspace => placeholder,
-                    WmCommands::GoToWorkspace => placeholder,
-                    WmCommands::MoveToWorkspaceAndFollow => placeholder,
-                },
+                event: cmd.command.clone(),
             };
             keybindings.events_vec.push(kevent.clone());
             keybindings.events_map
@@ -162,22 +119,6 @@ impl KeyBindings {
                 .or_insert(Vec::new())
                 .push(kevent);
         }
-        
-        //add user commands
-        for ucmd in &config.user_cmds {
-            let keycode = convert_to_keycode(&mut ucmd.keys.clone(), &keymap);
-            let kevent = KeyEvent {
-                keycode: keycode.clone(),
-                args: Some(ucmd.args.clone()),
-                event: exec_user_command,
-            };
-            keybindings.events_vec.push(kevent.clone());
-            keybindings.events_map
-                .entry(keycode.code)
-                .or_insert(Vec::new())
-                .push(kevent);
-        }
-
         keybindings
     }
 }

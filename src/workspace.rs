@@ -2,6 +2,7 @@ use super::windowstate::WindowState;
 use x11rb::connection::Connection;
 use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::xproto::*;
+use x11rb::CURRENT_TIME;
 use std::collections::HashMap;
 
 use std::{cell::RefCell, rc::Rc};
@@ -54,7 +55,18 @@ impl Workspace {
         }
     }
 
+    pub fn get_focused_window(&self) -> Option<u32> {
+        for (_, window) in self.windows.iter() {
+            if window.focused {
+                return Some(window.window);
+            }
+        }
+        None
+    }
+
     pub fn rename(&mut self, name: String) {
+        //TODO: Check if name is already taken
+        //TODO: Check if name is valid (not too long, etc.)
         self.name = name;
     }
 
@@ -63,20 +75,45 @@ impl Workspace {
         self.windows.insert(win.window, win);
     }
 
+    pub fn kill_window(&mut self, winid: &u32) {
+        //TODO implement soft kill via client message over x
+        //(Tell window to close itself)
+        //https://github.com/DHBW-FN/OxideWM/issues/46
+        self.connection.borrow().kill_client(*winid).expect("Could not kill client");
+        self.connection.borrow().flush().unwrap();
+        self.remove_window(winid);
+    }
+
+    pub fn remove_window(&mut self, win_id: &u32) {
+        self.windows.remove(&win_id);
+        self.order.retain(|&x| x != *win_id);
+        self.remap_windows();
+    }
+
     pub fn new_window(&mut self, window: Window) {
         let windowstruct = WindowState::new(self.connection.clone(), window);
         self.add_window(windowstruct);
     }
 
+    //TODO: What is supposed to happen here?
+    // if an window is hidden how does the user know it exists?
+    // and does this make much sense in an window manager?
+    // the user could just move an not wanted window to a different workspace
     pub fn show() { panic!("Not implemented"); }
     pub fn hide() { panic!("Not implemented"); }
 
-    pub fn open_window(_executable: String) {
-        panic!("Not implemented");
+    pub fn focus_window(&mut self, winid: u32) {
+        self.connection.borrow().set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
+        self.windows.get_mut(&winid).unwrap().focused = true;
+        //TODO: Chagnge color of border to focus color
+        //
     }
 
-    pub fn close_window(_executable: String) {
-        panic!("Not implemented");
+    pub fn unfocus_window(&mut self, winid: u32) {
+        if let Some(win) = self.windows.get_mut(&winid) {
+            win.focused = false;
+        }
+        //TODO: Change color of border to unfocus color
     }
 
     pub fn set_layout(&mut self, layout: Layout) {
