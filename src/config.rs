@@ -1,6 +1,8 @@
+use std::fs::File;
+use serde::{Deserialize, Serialize};
+use serde_yaml::{self};
 
-#[derive(Debug)]
-#[derive(Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum WmCommands {
     Move, //args: left, up, right, down
     Focus,
@@ -14,83 +16,70 @@ pub enum WmCommands {
     Exec,
 }
 
-#[derive(Clone)]
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct WmCommand {
     pub keys: Vec<String>,
     pub command: WmCommands,
     pub args: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    #[serde(default = "default_cmds")]
     pub cmds: Vec<WmCommand>,
-    /*
-    exec: Vec<String>,
-    exec_always: Vec<String>,
-    border_with: u8,
-    border_color: String,
-    border_focus_color: String,
-    titlebar: bool,
-    gap: u8,
-    */
+
+    #[serde(default = "default_exec")]
+    pub exec: Vec<String>,
+
+    #[serde(default = "default_exec_always")]
+    pub exec_always: Vec<String>,
+
+    #[serde(default = "default_border_width")]
+    pub border_width: u8,
+    
+    #[serde(default = "default_border_color")]
+    pub border_color: String,
+    
+    #[serde(default = "default_border_focus_color")]
+    pub border_focus_color: String,
+
+    #[serde(default = "default_gap")]
+    pub gap: u8,
 }
 
 impl Config {
     pub fn new() -> Config {
-        simulate_config()
+        //simulate_config()
+        // Opens the config.yaml file.
+        let f = File::open("./config.yml").expect("Could not open file.");
+        // Reads the Values from the 'config' struct in config.yml 
+        let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
+        println!("{:?}", user_config);
+        user_config
     }
+} 
+
+// Defining default values
+fn default_cmds() -> Vec<WmCommand> {
+    vec![WmCommand{
+        keys: vec!["A".to_string(), "t".to_string()], 
+        command: WmCommands::Exec, 
+        args: Some("kitty".to_string())
+    }]
 }
 
-
-fn simulate_config() -> Config {
-    let mut config = Config {
-        cmds: Vec::new(),
-    };
-    config.cmds.push(WmCommand {
-        keys: vec!["A".to_string(), "S".to_string(), "e".to_string()],
-        command: WmCommands::Quit,
-        args: None,
-    });
-    config.cmds.push(WmCommand {
-        keys: vec!["A".to_string(), "S".to_string(), "r".to_string()],
-        command: WmCommands::Restart,
-        args: None,
-    });
-    config.cmds.push(WmCommand {
-        keys: vec!["A".to_string(), "S".to_string(), "q".to_string()],
-        command: WmCommands::Kill,
-        args: None,
-    });
-    config.cmds.push(WmCommand {
-        keys: vec!["A".to_string(), "t".to_string()],
-        command: WmCommands::Exec,
-        args: Some("kitty".to_string()),
-    });
-    //right
-    config.cmds.push(WmCommand {
-        keys: vec!["A".to_string(), "l".to_string()],
-        command: WmCommands::Focus,
-        args: Some("right".to_string()),
-    });
-    config.cmds.push(WmCommand {
-        keys: vec!["A".to_string(), "S".to_string(), "l".to_string()],
-        command: WmCommands::Move,
-        args: Some("right".to_string()),
-    });
-    //left
-    config.cmds.push(WmCommand {
-        keys: vec!["A".to_string(), "S".to_string(), "h".to_string()],
-        command: WmCommands::Move,
-        args: Some("left".to_string()),
-    });
-    config.cmds.push(WmCommand {
-        keys: vec!["A".to_string(), "h".to_string()],
-        command: WmCommands::Focus,
-        args: Some("left".to_string()),
-    });
-    //TODO: up and down are not implemented currently 
-    // blocked by issue https://github.com/DHBW-FN/OxideWM/issues/25
-
-    return config;
+fn default_exec() -> Vec<String> {
+    vec!["L".to_string(), "O".to_string(), "L".to_string()]
 }
+
+fn default_exec_always() -> Vec<String> {
+    vec!["H".to_string(), "I".to_string()]
+}
+
+fn default_border_width() -> u8 { 3 }
+fn default_border_color() -> String { "white".to_string() }
+fn default_border_focus_color() -> String { "black".to_string() }
+fn default_gap() -> u8 { 3 }
+
+
+
