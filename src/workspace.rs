@@ -21,7 +21,7 @@ pub struct Workspace {
     pub connection:  Rc<RefCell<RustConnection>>,
     pub name: String,
     pub index: u16,
-    pub root_window_index: u16,
+    pub root_window: u16,
     pub visible: bool,
     pub focused: bool,
     pub urgent: bool,
@@ -41,7 +41,7 @@ impl Workspace {
             connection: connection,
             name: index.to_string(),
             index,
-            root_window_index: 0,  //TODO get root window index from windowmanager
+            root_window: 0,  //TODO get root window index from windowmanager
             visible: false,
             focused: false,
             urgent: false,
