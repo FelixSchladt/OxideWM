@@ -10,9 +10,9 @@ use std::{cell::RefCell, rc::Rc};
 
 #[derive(Debug)]
 pub enum Layout {
-    TILED,
-    VERTICAL_STRIPED,   //  |
-    HORIZONTAL_STRIPED, // ---
+    Tiled,
+    VerticalStriped,   //  |
+    HorizontalStriped, // ---
     //Different layout modes and better names wanted C:
 }
 
@@ -47,7 +47,7 @@ impl Workspace {
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
-            layout: Layout::HORIZONTAL_STRIPED,
+            layout: Layout::HorizontalStriped,
             x,
             y,
             height,
@@ -106,7 +106,6 @@ impl Workspace {
         self.connection.borrow().set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
         self.windows.get_mut(&winid).unwrap().focused = true;
         //TODO: Chagnge color of border to focus color
-        //
     }
 
     pub fn unfocus_window(&mut self, winid: u32) {
@@ -123,9 +122,9 @@ impl Workspace {
 
     pub fn remap_windows(&mut self) {
         match self.layout {
-            Layout::TILED => {},
-            Layout::VERTICAL_STRIPED => self.map_vertical_striped(),
-            Layout::HORIZONTAL_STRIPED => self.map_horizontal_striped(),
+            Layout::Tiled => {},
+            Layout::VerticalStriped => self.map_vertical_striped(),
+            Layout::HorizontalStriped => self.map_horizontal_striped(),
 
         }
         for id in self.order.iter() {
