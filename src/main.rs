@@ -21,7 +21,7 @@ struct IpcEvent {
 
 fn dbus_ipc_loop(sender: Sender<IpcEvent>) {
     loop {
-        sender.send(IpcEvent { test: "test".to_string() }).unwrap();
+        //sender.send(IpcEvent { test: "test".to_string() }).unwrap();
         thread::sleep(std::time::Duration::from_millis(1000));
     }
 }
@@ -42,6 +42,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             Some(event) => manager.handle_event(&event),
             None => (),
         }
+        //get_cursor_position(&manager);
 
 
         let ipc_event = receiver.try_recv();

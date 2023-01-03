@@ -4,33 +4,26 @@
 pub enum WmCommands {
     Move,
     Resize,
-    Quit,
-    Restart,
+    Quit, // Quit the window manager
+    Kill, // Kill the focused window
+    Restart, // Restart the window manager
     MoveToWorkspace,
     GoToWorkspace,
     MoveToWorkspaceAndFollow,
+    Exec,
 }
 
 #[derive(Clone)]
 #[derive(Debug)]
 pub struct WmCommand {
-    pub keys: Vec<char>,
+    pub keys: Vec<String>,
     pub command: WmCommands,
     pub args: Option<String>,
 }
 
 #[derive(Debug)]
-pub struct UserCommand {
-    pub keys: Vec<char>,
-    //arg fiels is the command executed by the shell
-    //TODO: Maybe rename this field to something more descriptive
-    pub args: String,
-}
-
-#[derive(Debug)]
 pub struct Config {
     pub cmds: Vec<WmCommand>,
-    pub user_cmds: Vec<UserCommand>,
     /*
     exec: Vec<String>,
     exec_always: Vec<String>,
@@ -52,31 +45,26 @@ impl Config {
 fn simulate_config() -> Config {
     let mut config = Config {
         cmds: Vec::new(),
-        user_cmds: Vec::new(),
     };
     config.cmds.push(WmCommand {
-        keys: vec!['A', 'r'],
+        keys: vec!["A".to_string(), "S".to_string(), "e".to_string()],
         command: WmCommands::Quit,
-        args: Some("1".to_string()),
+        args: None,
     });
     config.cmds.push(WmCommand {
-        keys: vec!['C', 'r'],
+        keys: vec!["A".to_string(), "S".to_string(), "r".to_string()],
         command: WmCommands::Restart,
-        args: Some("2".to_string()),
+        args: None,
     });
     config.cmds.push(WmCommand {
-        keys: vec!['S', 'A', 'r'],
-        command: WmCommands::Move,
-        args: Some("3".to_string()),
+        keys: vec!["A".to_string(), "S".to_string(), "q".to_string()],
+        command: WmCommands::Kill,
+        args: None,
     });
     config.cmds.push(WmCommand {
-        keys: vec!['M', 'r'],
-        command: WmCommands::Resize,
-        args: Some("4".to_string()),
-    });
-    config.user_cmds.push(UserCommand {
-        keys: vec!['A', 't'],
-        args: "kitty".to_string(),
+        keys: vec!["A".to_string(), "t".to_string()],
+        command: WmCommands::Exec,
+        args: Some("kitty".to_string()),
     });
 
     return config;
