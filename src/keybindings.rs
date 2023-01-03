@@ -22,9 +22,9 @@ impl From<ModifierKey> for u16 {
     }
 }
 
-impl TryFrom<&str> for ModifierKey {
+impl TryFrom<String> for ModifierKey {
     type Error = &'static str;
-    fn try_from(key: &str) -> Result<Self, Self::Error> {
+    fn try_from(key: String) -> Result<Self, Self::Error> {
         match key {
             "C"     => Ok(ModifierKey::Ctrl),
             "A"     => Ok(ModifierKey::Alt),
@@ -81,7 +81,7 @@ fn convert_to_keycode(keys: &mut Vec<String>, keymap: &HashMap<String, u8>) -> K
 
     //Accepts multiple modifiers but only one key
     for modifier in keys {
-        mask = mask | u16::from(ModifierKey::try_from(modifier.as_str()).unwrap());
+        mask = mask | u16::from(ModifierKey::try_from(modifier.clone()).unwrap());
     }
 
     return KeyCode {
