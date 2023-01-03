@@ -27,6 +27,28 @@ pub struct WindowManager {
     pub config: Rc<RefCell<Config>>,
     pub keybindings: KeyBindings,
     pub focused_screen: u32,
+    pub moved_window: Option<u32>,
+}
+
+#[derive(Debug)]
+pub enum Movement {
+    Left,
+    Right,
+    Up,
+    Down,
+}
+
+impl TryFrom<&str> for Movement {
+    type Error = String;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value.to_lowercase().as_str() {
+            "left" => Ok(Movement::Left),
+            "right" => Ok(Movement::Right),
+            "up" => Ok(Movement::Up),
+            "down" => Ok(Movement::Down),
+            _ => Err(format!("{} is not a valid movement", value)),
+        }
+    }
 }
 
 impl WindowManager {
@@ -47,6 +69,7 @@ impl WindowManager {
             config,
             keybindings,
             focused_screen,
+            moved_window: None,
         };
 
         manager.setup_screens();
@@ -57,17 +80,43 @@ impl WindowManager {
 
         manager
     }
-    
-    fn handle_keypress_kill(&mut self) {
-        let active_workspace = self.screeninfo
-            .get(&self.focused_screen)
-            .unwrap().active_workspace;
-        let current_window = self.screeninfo
+
+    fn get_active_workspace(&self) -> usize {
+        return self.screeninfo.get(&self.focused_screen).unwrap().active_workspace;    
+    }
+
+    fn get_focused_window(&self) -> (usize, Option<u32>) {
+        let active_workspace = self.get_active_workspace();
+        let focused_window = self.screeninfo
             .get(&self.focused_screen)
             .unwrap().workspaces[active_workspace]
             .get_focused_window();
-        println!("Current window: {:?}", current_window);
-        if let Some(winid) = current_window {
+        return (active_workspace, focused_window);
+    }
+
+
+    fn handle_keypress_focus(&mut self, args: Option<String>) {
+        let args = args.expect("No move arguments for focus");
+        let active_workspace = self.get_active_workspace();
+        self.screeninfo.get_mut(&self.focused_screen)
+            .unwrap()
+            .workspaces[active_workspace]
+            .move_focus(Movement::try_from(args.as_str()).unwrap());
+    }
+
+    fn handle_keypress_move(&mut self, args: Option<String>) {
+        let args = args.expect("No move arguments for move");
+        let active_workspace = self.get_active_workspace();
+        self.moved_window = self.screeninfo.get_mut(&self.focused_screen)
+            .unwrap()
+            .workspaces[active_workspace]
+            .move_window(Movement::try_from(args.as_str()).unwrap());
+    }
+    
+    fn handle_keypress_kill(&mut self) {
+        let (active_workspace, focused_window) = self.get_focused_window();
+        println!("Focused window: {:?}", focused_window);
+        if let Some(winid) = focused_window {
             self.screeninfo
                 .get_mut(&self.focused_screen)
                 .unwrap().workspaces[active_workspace]
@@ -98,6 +147,11 @@ impl WindowManager {
                 match key.event {
                     WmCommands::Move => {
                         println!("Move");
+                        self.handle_keypress_move(key.args.clone());
+                    },
+                    WmCommands::Focus => {
+                        println!("Focus");
+                        self.handle_keypress_focus(key.args.clone());
                     },
                     WmCommands::Resize => {
                         println!("Resize");
@@ -194,21 +248,22 @@ impl WindowManager {
 
     fn handle_event_enter_notify(&mut self, event: &EnterNotifyEvent) {
         self.focused_screen = event.root;
-        let workspace_id = self.screeninfo
-            .get(&event.root)
-            .unwrap()
-            .active_workspace;
+        let workspace_id = self.get_active_workspace();
+        let mut winid = event.event;
+        if self.moved_window.is_some() {
+            winid =  self.moved_window.unwrap();
+            self.moved_window = None;
+        }
+
         self.screeninfo
             .get_mut(&event.root)
             .unwrap()
             .workspaces[workspace_id]
-            .focus_window(event.event);
+            .focus_window(winid);
     }
 
     fn handle_event_leave_notify(&mut self, event: &LeaveNotifyEvent) {
-        let workspace_id = self.screeninfo
-            .get(&event.root)
-            .unwrap().active_workspace;
+        let workspace_id = self.get_active_workspace();
         self.screeninfo
             .get_mut(&event.root)
             .unwrap().workspaces[workspace_id]
@@ -251,11 +306,11 @@ impl WindowManager {
             Event::DestroyNotify(_event) => println!("DestroyNotify"),
             Event::PropertyNotify(_event) => println!("PropertyNotify"),
             Event::EnterNotify(_event) => {
-                //println!("EnterNotify!!!");
+                println!("EnterNotify!!!");
                 self.handle_event_enter_notify(_event);
            },
             Event::LeaveNotify(_event) => {
-                //println!("LeaveNotify");
+                println!("LeaveNotify");
                 self.handle_event_leave_notify(_event);
             },
             Event::FocusIn(_event) => println!("FocusIn"),
