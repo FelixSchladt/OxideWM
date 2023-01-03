@@ -39,7 +39,7 @@ impl WindowManager {
         let config = Rc::new(RefCell::new(Config::new()));
         let keybindings = KeyBindings::new(&config.borrow());
 
-        let focused_screen = 0; 
+        let focused_screen = 0;
         //TODO: Get focused screen from X11
         // Currently the screen setup last is taken as active.
         // We should discuss if this default behaviour is ok or not.
@@ -94,7 +94,7 @@ impl WindowManager {
 
         for key in keys.clone() {
             let state = u16::from(event.state);
-            if state == key.keycode.mask 
+            if state == key.keycode.mask
             || state == key.keycode.mask | u16::from(ModMask::M2) {
                 println!("Key: {:?}", key);
                 match key.event {
@@ -154,7 +154,7 @@ impl WindowManager {
                         EventMask::FOCUS_CHANGE |
                         //EventMask::ENTER_WINDOW |
                         //EventMask::LEAVE_WINDOW | //this applies only to the rootwin
-                        EventMask::PROPERTY_CHANGE 
+                        EventMask::PROPERTY_CHANGE
                     );
 
         for screen in self.connection.borrow().setup().roots.iter() {

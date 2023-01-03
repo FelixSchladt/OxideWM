@@ -47,7 +47,7 @@ impl Workspace {
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
-            layout: Layout::TILED,
+            layout: Layout::HORIZONTAL_STRIPED,
             x,
             y,
             height,
