@@ -57,14 +57,40 @@ impl WindowManager {
 
         manager
     }
+    
+    fn handle_keypress_kill(&mut self) {
+        let active_workspace = self.screeninfo
+            .get(&self.focused_screen)
+            .unwrap().active_workspace;
+        let current_window = self.screeninfo
+            .get(&self.focused_screen)
+            .unwrap().workspaces[active_workspace]
+            .get_focused_window();
+        println!("Current window: {:?}", current_window);
+        if let Some(winid) = current_window {
+            self.screeninfo
+                .get_mut(&self.focused_screen)
+                .unwrap().workspaces[active_workspace]
+                .kill_window(&winid);
+        } else {
+            println!("ERROR: No window to kill \nShould only happen on an empty screen");
+        }
+    }
+
 
     fn handle_keypress(&mut self, event: &KeyPressEvent) {
         //TODO make sure a spawned window is spawned on the correct screen/workspace?
         let keys = self.keybindings.events_map
             .get(&event.detail)
-            .expect("ERROR: Key not found in keybindings -> THIS SHOULD NOT HAPPEN");
+            .expect("ERROR: Key not found in keybindings -> THIS MUST NOT HAPPEN");
+        //NOTE: IF you get the error above, this is probably cause by an inconsistency
+        // in the Connection. Most likely you did something with the connection that
+        // left it in a weird state. This **must not be** directly connected to this
+        // function. Maybe a flush helps but check if there is something else wrong
+        // with your changes. I experienced this a couple of times and it always was
+        // quite strange and hard to find. Ask for help if you can't find the problem.
 
-        for key in keys {
+        for key in keys.clone() {
             let state = u16::from(event.state);
             if state == key.keycode.mask 
             || state == key.keycode.mask | u16::from(ModMask::M2) {
@@ -81,22 +107,7 @@ impl WindowManager {
                     },
                     WmCommands::Kill => {
                         println!("Kill");
-                        let active_workspace = self.screeninfo
-                            .get(&self.focused_screen)
-                            .unwrap().active_workspace;
-                        let current_window = self.screeninfo
-                            .get(&self.focused_screen)
-                            .unwrap().workspaces[active_workspace]
-                            .get_focused_window();
-                        println!("Current window: {:?}", current_window);
-                        if let Some(winid) = current_window {
-                            self.screeninfo
-                                .get_mut(&self.focused_screen)
-                                .unwrap().workspaces[active_workspace]
-                                .kill_window(&winid);
-                        } else {
-                            println!("ERROR: No window to kill \nShould only happen on an empty screen" );
-                        }
+                        self.handle_keypress_kill();
                     },
                     WmCommands::Restart => {
                         println!("Restart");
@@ -104,7 +115,6 @@ impl WindowManager {
                     WmCommands::Exec => {
                         println!("Exec");
                         exec_user_command(&key.args);
-
                     },
                     _ => {
                         println!("Unimplemented");
@@ -182,21 +192,49 @@ impl WindowManager {
         update_result
     }
 
+    fn handle_event_enter_notify(&mut self, event: &EnterNotifyEvent) {
+        self.focused_screen = event.root;
+        let workspace_id = self.screeninfo
+            .get(&event.root)
+            .unwrap()
+            .active_workspace;
+        self.screeninfo
+            .get_mut(&event.root)
+            .unwrap()
+            .workspaces[workspace_id]
+            .focus_window(event.event);
+    }
+
+    fn handle_event_leave_notify(&mut self, event: &LeaveNotifyEvent) {
+        let workspace_id = self.screeninfo
+            .get(&event.root)
+            .unwrap().active_workspace;
+        self.screeninfo
+            .get_mut(&event.root)
+            .unwrap().workspaces[workspace_id]
+            .unfocus_window(event.event);
+    }
+
+
+    fn handle_event_unmap_notify(&mut self, event: &UnmapNotifyEvent) {
+        let workspace_id = self.screeninfo
+            .get(&event.event)
+            .unwrap().active_workspace;
+        self.screeninfo
+            .get_mut(&event.event)
+            .unwrap().workspaces[workspace_id]
+            .remove_window(&event.window);
+    }
+
     pub fn handle_event(&mut self, event: &Event) {
         //TODO: move the events into seperate functions
         print!("Received Event: ");
         match event {
             Event::Expose(_event) => println!("Expose"),
             Event::UnmapNotify(_event) => {
-                println!("UnmapNotify {:?}", _event);
-                let workspace_id = self.screeninfo
-                    .get(&_event.event)
-                    .unwrap().active_workspace;
-                self.screeninfo
-                    .get_mut(&_event.event)
-                    .unwrap().workspaces[workspace_id]
-                    .remove_window(&_event.window);
-            },
+                println!("UnmapNotify");
+                self.handle_event_unmap_notify(_event);
+           },
             Event::ButtonPress(_event) => println!("ButtonPress"),
             Event::MotionNotify(_event) => println!("MotionNotify"),
             Event::ButtonRelease(_event) => println!("ButtonRelease"),
@@ -214,28 +252,12 @@ impl WindowManager {
             Event::PropertyNotify(_event) => println!("PropertyNotify"),
             Event::EnterNotify(_event) => {
                 //println!("EnterNotify!!!");
-                self.focused_screen = _event.root;
-                let workspace_id = self.screeninfo
-                    .get(&_event.root)
-                    .unwrap()
-                    .active_workspace;
-                self.screeninfo
-                    .get_mut(&_event.root)
-                    .unwrap()
-                    .workspaces[workspace_id]
-                    .focus_window(_event.event);
-            },
+                self.handle_event_enter_notify(_event);
+           },
             Event::LeaveNotify(_event) => {
                 //println!("LeaveNotify");
-                let workspace_id = self.screeninfo
-                    .get(&_event.root)
-                    .unwrap().active_workspace;
-                self.screeninfo
-                    .get_mut(&_event.root)
-                    .unwrap().workspaces[workspace_id]
-                    .unfocus_window(_event.event);
+                self.handle_event_leave_notify(_event);
             },
-            Event::MotionNotify(_event) => println!("MotionNotify"),
             Event::FocusIn(_event) => println!("FocusIn"),
             Event::FocusOut(_event) => println!("FocusOut"),
             _ => println!("\x1b[33mUnknown\x1b[0m {:?}", event),
