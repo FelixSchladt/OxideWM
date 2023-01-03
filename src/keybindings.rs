@@ -25,7 +25,7 @@ impl From<ModifierKey> for u16 {
 impl TryFrom<String> for ModifierKey {
     type Error = &'static str;
     fn try_from(key: String) -> Result<Self, Self::Error> {
-        match key {
+        match key.as_str() {
             "C"     => Ok(ModifierKey::Ctrl),
             "A"     => Ok(ModifierKey::Alt),
             "S"     => Ok(ModifierKey::Shift),
