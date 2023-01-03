@@ -7,6 +7,8 @@ use std::collections::HashMap;
 
 use std::{cell::RefCell, rc::Rc};
 
+use crate::windowmanager::Movement;
+
 
 #[derive(Debug)]
 pub enum Layout {
@@ -60,6 +62,78 @@ impl Workspace {
         None
     }
 
+    pub fn move_focus(&mut self, mov: Movement) {
+        let len = self.order.len();
+        if let Some(focused_win) = self.get_focused_window() {
+            if len > 1 {
+                let pos = self.order.iter().position(|&x| x == focused_win).unwrap();
+                match mov {
+                    Movement::Left => {
+                        if pos == 0 {
+                            self.focus_window(self.order[len - 1]);
+                        } else {
+                            self.focus_window(self.order[pos - 1]);
+                        }
+                    },
+                    Movement::Right => {
+                        if pos == len - 1 {
+                            self.focus_window(self.order[0]);
+                        } else {
+                            self.focus_window(self.order[pos + 1]);
+                        }
+                    },
+                    Movement::Up => {
+                        //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
+                    },
+                    Movement::Down => {
+                        //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
+                    },
+                }
+            }
+        } else {
+            //Shouldnt really happen but just in case
+            if len > 0 {
+                self.focus_window(self.order[0]);
+            }
+        }
+    }
+
+    pub fn move_window(&mut self, mov: Movement) -> Option<u32> {
+        let len = self.order.len();
+        let mut move_occured: Option<u32> = None; //Its hacky but works good
+        if let Some(focused_win) = self.get_focused_window() {
+            if len > 1 {
+                let pos = self.order.iter().position(|&x| x == focused_win).unwrap();
+                match mov {
+                    Movement::Left => {
+                        if pos == 0 {
+                            self.order.swap(pos, len - 1);
+                        } else {
+                            self.order.swap(pos, pos - 1);
+                        }
+                        move_occured = Some(focused_win);
+                    },
+                    Movement::Right => {
+                        if pos == self.order.len() - 1 {
+                            self.order.swap(pos, 0);
+                        } else {
+                            self.order.swap(pos, pos + 1);
+                        }
+                        move_occured = Some(focused_win);
+                    },
+                    Movement::Up => {
+                        //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
+                    },
+                    Movement::Down => {
+                        //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
+                    },
+                }
+                self.remap_windows();
+            }
+        }
+        return move_occured;
+    }
+
     pub fn rename(&mut self, name: String) {
         //TODO: Check if name is already taken
         //TODO: Check if name is valid (not too long, etc.)
@@ -99,10 +173,12 @@ impl Workspace {
     pub fn hide() { panic!("Not implemented"); }
 
     pub fn focus_window(&mut self, winid: u32) {
+        for window in self.windows.values_mut() {
+            window.focused = false;
+        }
         self.connection.borrow().set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
         self.windows.get_mut(&winid).unwrap().focused = true;
         //TODO: Chagnge color of border to focus color
-        //
     }
 
     pub fn unfocus_window(&mut self, winid: u32) {
