@@ -7,7 +7,9 @@ const SRC_DIR : &str = "src/";
 /// The class diagramm is generated from the source path into the destionation path
 fn generate_class_diagramm(src: &Path, dest: &Path){
     println!("generating class diagrams");
-    let results = rs2dot(src);
+    let unescaped_results = rs2dot(src);
+    let results = escape_results(&unescaped_results);
+    
 
     let mut target_name = PathBuf::new();
     target_name.push(Path::new("target/docs/diagrams/class-diagram")
@@ -27,6 +29,21 @@ fn generate_class_diagramm(src: &Path, dest: &Path){
             println!("{:?}", e);
         }
     }
+}
+
+fn escape_results(results:&String)->String{
+    let mut escaped_str = "".to_string();
+    let lines = results.split_inclusive("\n");
+    for result in lines {
+        let mut splits  = result.split_inclusive("label");
+        escaped_str = escaped_str + splits.next().unwrap();
+        for split in splits{
+            let escaped = split.replace("<", "\\<")
+                .replace(">", "\\>");
+            escaped_str = escaped_str + &escaped;
+        }
+    }
+    return escaped_str;
 }
 
 fn main() {
