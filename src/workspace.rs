@@ -12,7 +12,9 @@ use crate::windowmanager::Movement;
 
 #[derive(Debug)]
 pub enum Layout {
-    TILING,
+    Tiled,
+    VerticalStriped,   //  |
+    HorizontalStriped, // ---
     //Different layout modes and better names wanted C:
 }
 
@@ -21,6 +23,7 @@ pub struct Workspace {
     pub connection:  Rc<RefCell<RustConnection>>,
     pub name: String,
     pub index: u16,
+    pub root_window: u16,
     pub visible: bool,
     pub focused: bool,
     pub urgent: bool,
@@ -40,12 +43,13 @@ impl Workspace {
             connection: connection,
             name: index.to_string(),
             index,
+            root_window: 0,  //TODO get root window index from windowmanager
             visible: false,
             focused: false,
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
-            layout: Layout::TILING,
+            layout: Layout::HorizontalStriped,
             x,
             y,
             height,
@@ -65,30 +69,31 @@ impl Workspace {
     pub fn move_focus(&mut self, mov: Movement) {
         let len = self.order.len();
         if let Some(focused_win) = self.get_focused_window() {
-            if len > 1 {
-                let pos = self.order.iter().position(|&x| x == focused_win).unwrap();
-                match mov {
-                    Movement::Left => {
-                        if pos == 0 {
-                            self.focus_window(self.order[len - 1]);
-                        } else {
-                            self.focus_window(self.order[pos - 1]);
-                        }
-                    },
-                    Movement::Right => {
-                        if pos == len - 1 {
-                            self.focus_window(self.order[0]);
-                        } else {
-                            self.focus_window(self.order[pos + 1]);
-                        }
-                    },
-                    Movement::Up => {
-                        //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                    },
-                    Movement::Down => {
-                        //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                    },
-                }
+            if len < 2 {
+                return;
+            }
+            let pos = self.order.iter().position(|&x| x == focused_win).unwrap();
+            match mov {
+                Movement::Left => {
+                    if pos == 0 {
+                        self.focus_window(self.order[len - 1]);
+                    } else {
+                        self.focus_window(self.order[pos - 1]);
+                    }
+                },
+                Movement::Right => {
+                    if pos == len - 1 {
+                        self.focus_window(self.order[0]);
+                    } else {
+                        self.focus_window(self.order[pos + 1]);
+                    }
+                },
+                Movement::Up => {
+                    //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
+                },
+                Movement::Down => {
+                    //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
+                },
             }
         } else {
             //Shouldnt really happen but just in case
@@ -102,34 +107,35 @@ impl Workspace {
         let len = self.order.len();
         let mut move_occured: Option<u32> = None; //Its hacky but works good
         if let Some(focused_win) = self.get_focused_window() {
-            if len > 1 {
-                let pos = self.order.iter().position(|&x| x == focused_win).unwrap();
-                match mov {
-                    Movement::Left => {
-                        if pos == 0 {
-                            self.order.swap(pos, len - 1);
-                        } else {
-                            self.order.swap(pos, pos - 1);
-                        }
-                        move_occured = Some(focused_win);
-                    },
-                    Movement::Right => {
-                        if pos == self.order.len() - 1 {
-                            self.order.swap(pos, 0);
-                        } else {
-                            self.order.swap(pos, pos + 1);
-                        }
-                        move_occured = Some(focused_win);
-                    },
-                    Movement::Up => {
-                        //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                    },
-                    Movement::Down => {
-                        //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                    },
-                }
-                self.remap_windows();
+            if len < 2 {
+                return move_occured;
             }
+            let pos = self.order.iter().position(|&x| x == focused_win).unwrap();
+            match mov {
+                Movement::Left => {
+                    if pos == 0 {
+                        self.order.swap(pos, len - 1);
+                    } else {
+                        self.order.swap(pos, pos - 1);
+                    }
+                    move_occured = Some(focused_win);
+                },
+                Movement::Right => {
+                    if pos == self.order.len() - 1 {
+                        self.order.swap(pos, 0);
+                    } else {
+                        self.order.swap(pos, pos + 1);
+                    }
+                    move_occured = Some(focused_win);
+                },
+                Movement::Up => {
+                    //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
+                },
+                Movement::Down => {
+                    //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
+                }
+            }
+            self.remap_windows();
         }
         return move_occured;
     }
@@ -146,7 +152,7 @@ impl Workspace {
     }
 
     pub fn kill_window(&mut self, winid: &u32) {
-        //TODO implement soft kill via client message over x 
+        //TODO implement soft kill via client message over x
         //(Tell window to close itself)
         //https://github.com/DHBW-FN/OxideWM/issues/46
         self.connection.borrow().kill_client(*winid).expect("Could not kill client");
@@ -188,9 +194,17 @@ impl Workspace {
         //TODO: Change color of border to unfocus color
     }
 
+    pub fn set_layout(&mut self, layout: Layout) {
+        self.layout = layout;
+        self.remap_windows();
+    }
+
     pub fn remap_windows(&mut self) {
         match self.layout {
-            Layout::TILING => self.tiling_layout(),
+            Layout::Tiled => {},
+            Layout::VerticalStriped => self.map_vertical_striped(),
+            Layout::HorizontalStriped => self.map_horizontal_striped(),
+
         }
         for id in self.order.iter() {
             //TODO Add titlebar and Frame
@@ -210,20 +224,33 @@ impl Workspace {
         }
     }
 
-    fn tiling_layout(&mut self) {
+    fn map_vertical_striped(&mut self) {
         let amount = self.order.len();
-        println!("\n\nAmount of windows: {}", amount);
+        println!("\n\nMapping {} windows with vertical striped layout.", amount);
 
-
-        //TODO: Implement tiling layout
         for (i, id) in self.order.iter().enumerate() {
-            let curwin = self.windows.get_mut(id).unwrap();
-            //TODO How are we implementing the area the workspace filled?
-            //The bar could be on the top or bottem, or maybey even on the side
-            curwin.x = (i * self.width as usize / amount) as i32;
-            curwin.y = self.y;
-            curwin.width = (self.width as usize / amount) as u32;
-            curwin.height = self.height;
+            let current_window = self.windows.get_mut(id).unwrap();
+
+            current_window.x = (i * self.width as usize / amount) as i32;
+            current_window.y = self.y;
+
+            current_window.width  = (self.width as usize / amount) as u32;
+            current_window.height = self.height;
+        }
+    }
+
+    fn map_horizontal_striped(&mut self) {
+        let amount = self.order.len();
+        println!("\n\nMapping {} windows with horizontal striped layout.", amount);
+
+        for (i, id) in self.order.iter().enumerate() {
+            let current_window = self.windows.get_mut(id).unwrap();
+
+            current_window.x = self.x;
+            current_window.y = (i * self.height as usize / amount) as i32;
+
+            current_window.width  = self.width;
+            current_window.height = (self.height as usize / amount) as u32;
         }
     }
 }
