@@ -92,6 +92,8 @@ impl WindowManager {
     fn get_focused_window(&self) -> (usize, Option<u32>) {
         let active_workspace = self.get_active_workspace();
         let focused_window = self.screeninfo
+        return (active_workspace, focused_window);
+      
 
     fn handle_keypress_kill(&mut self) {
         let active_workspace = self.screeninfo
@@ -101,7 +103,6 @@ impl WindowManager {
             .get(&self.focused_screen)
             .unwrap().workspaces[active_workspace]
             .get_focused_window();
-        return (active_workspace, focused_window);
     }
 
 
