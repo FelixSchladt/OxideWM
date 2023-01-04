@@ -128,7 +128,6 @@ impl WindowManager {
 
 
     fn handle_keypress(&mut self, event: &KeyPressEvent) {
-        //TODO make sure a spawned window is spawned on the correct screen/workspace?
         let keys = self.keybindings.events_map
             .get(&event.detail)
             .expect("ERROR: Key not found in keybindings -> THIS MUST NOT HAPPEN");
@@ -212,7 +211,6 @@ impl WindowManager {
                     );
 
         for screen in self.connection.borrow().setup().roots.iter() {
-            //TODO check if the the screen iterations should be merged
             #[cfg(debug_assertion)]
             println!("Attempting to update event mask of: {} -> ", screen.root);
             self.set_mask(screen, mask).unwrap();
@@ -282,7 +280,6 @@ impl WindowManager {
     }
 
     pub fn handle_event(&mut self, event: &Event) {
-        //TODO: move the events into seperate functions
         print!("Received Event: ");
         match event {
             Event::Expose(_event) => println!("Expose"),
@@ -320,8 +317,8 @@ impl WindowManager {
     }
 
     fn grab_keys(&self) -> Result<(), Box<dyn Error>> {
+        //TODO check if the the screen iterations should be merged
         for screen in self.connection.borrow().setup().roots.iter() {
-            //TODO check if the the screen iterations should be merged
             for modifier in [0, u16::from(ModMask::M2)] {
                 for keyevent in self.keybindings.events_vec.iter() {
                     self.connection.borrow().grab_key(
