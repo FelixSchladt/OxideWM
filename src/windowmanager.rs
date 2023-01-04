@@ -1,7 +1,11 @@
-use std::process::exit;
 use std::collections::HashMap;
 use std::error::Error;
 use std::{cell::RefCell, rc::Rc};
+use std::process::{
+    Command,
+    Stdio,
+    exit
+};
 
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
@@ -13,7 +17,6 @@ use x11rb::rust_connection::{
     RustConnection,
     ReplyError
 };
-use std::process::{Command, Stdio};
 
 use crate::screeninfo::ScreenInfo;
 use crate::workspace::Workspace;
@@ -30,13 +33,13 @@ pub struct WindowManager {
 }
 
 impl WindowManager {
-    pub fn new () -> WindowManager {
+    pub fn new() -> WindowManager {
         let connection = Rc::new(RefCell::new(RustConnection::connect(None).unwrap().0));
         let screeninfo = HashMap::new();
         let config = Rc::new(RefCell::new(Config::new()));
         let keybindings = KeyBindings::new(&config.borrow());
 
-        let focused_screen = 0; 
+        let focused_screen = 0;
         //TODO: Get focused screen from X11
         // Currently the screen setup last is taken as active.
         // We should discuss if this default behaviour is ok or not.
@@ -57,7 +60,7 @@ impl WindowManager {
 
         manager
     }
-    
+
     fn handle_keypress_kill(&mut self) {
         let active_workspace = self.screeninfo
             .get(&self.focused_screen)
@@ -77,7 +80,6 @@ impl WindowManager {
         }
     }
 
-
     fn handle_keypress(&mut self, event: &KeyPressEvent) {
         //TODO make sure a spawned window is spawned on the correct screen/workspace?
         let keys = self.keybindings.events_map
@@ -92,7 +94,7 @@ impl WindowManager {
 
         for key in keys.clone() {
             let state = u16::from(event.state);
-            if state == key.keycode.mask 
+            if state == key.keycode.mask
             || state == key.keycode.mask | u16::from(ModMask::M2) {
                 println!("Key: {:?}", key);
                 match key.event {
@@ -125,8 +127,6 @@ impl WindowManager {
     }
 
     fn setup_screens(&mut self) {
-        //TODO remove unneccessar multicall on this function
-        //check if the the screen iterations should be merged
         for screen in self.connection.borrow().setup().roots.iter() {
             let mut screenstruct = ScreenInfo::new(self.connection.clone(),
                                                    screen.root,
@@ -154,14 +154,16 @@ impl WindowManager {
                         EventMask::FOCUS_CHANGE |
                         //EventMask::ENTER_WINDOW |
                         //EventMask::LEAVE_WINDOW | //this applies only to the rootwin
-                        EventMask::PROPERTY_CHANGE 
+                        EventMask::PROPERTY_CHANGE
                     );
 
         for screen in self.connection.borrow().setup().roots.iter() {
-            //TODO check if the the screen iterations should be merged
             #[cfg(debug_assertion)]
             println!("Attempting to update event mask of: {} -> ", screen.root);
+
             self.set_mask(screen, mask).unwrap();
+
+            #[cfg(debug_assertion)]
             println!("Screen: {} -> {}", screen.root, screen.width_in_pixels);
         }
     }
@@ -266,7 +268,6 @@ impl WindowManager {
 
     fn grab_keys(&self) -> Result<(), Box<dyn Error>> {
         for screen in self.connection.borrow().setup().roots.iter() {
-            //TODO check if the the screen iterations should be merged
             for modifier in [0, u16::from(ModMask::M2)] {
                 for keyevent in self.keybindings.events_vec.iter() {
                     self.connection.borrow().grab_key(
