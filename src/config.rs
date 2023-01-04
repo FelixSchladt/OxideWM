@@ -2,7 +2,8 @@
 #[derive(Debug)]
 #[derive(Clone)]
 pub enum WmCommands {
-    Move,
+    Move, //args: left, up, right, down
+    Focus,
     Resize,
     Quit, // Quit the window manager
     Kill, // Kill the focused window
@@ -66,6 +67,30 @@ fn simulate_config() -> Config {
         command: WmCommands::Exec,
         args: Some("kitty".to_string()),
     });
+    //right
+    config.cmds.push(WmCommand {
+        keys: vec!["A".to_string(), "l".to_string()],
+        command: WmCommands::Focus,
+        args: Some("right".to_string()),
+    });
+    config.cmds.push(WmCommand {
+        keys: vec!["A".to_string(), "S".to_string(), "l".to_string()],
+        command: WmCommands::Move,
+        args: Some("right".to_string()),
+    });
+    //left
+    config.cmds.push(WmCommand {
+        keys: vec!["A".to_string(), "S".to_string(), "h".to_string()],
+        command: WmCommands::Move,
+        args: Some("left".to_string()),
+    });
+    config.cmds.push(WmCommand {
+        keys: vec!["A".to_string(), "h".to_string()],
+        command: WmCommands::Focus,
+        args: Some("left".to_string()),
+    });
+    //TODO: up and down are not implemented currently 
+    // blocked by issue https://github.com/DHBW-FN/OxideWM/issues/25
 
     return config;
 }
