@@ -65,30 +65,31 @@ impl Workspace {
     pub fn move_focus(&mut self, mov: Movement) {
         let len = self.order.len();
         if let Some(focused_win) = self.get_focused_window() {
-            if len > 1 {
-                let pos = self.order.iter().position(|&x| x == focused_win).unwrap();
-                match mov {
-                    Movement::Left => {
-                        if pos == 0 {
-                            self.focus_window(self.order[len - 1]);
-                        } else {
-                            self.focus_window(self.order[pos - 1]);
-                        }
-                    },
-                    Movement::Right => {
-                        if pos == len - 1 {
-                            self.focus_window(self.order[0]);
-                        } else {
-                            self.focus_window(self.order[pos + 1]);
-                        }
-                    },
-                    Movement::Up => {
-                        //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                    },
-                    Movement::Down => {
-                        //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                    },
-                }
+            if len < 2 {
+                return;
+            }
+            let pos = self.order.iter().position(|&x| x == focused_win).unwrap();
+            match mov {
+                Movement::Left => {
+                    if pos == 0 {
+                        self.focus_window(self.order[len - 1]);
+                    } else {
+                        self.focus_window(self.order[pos - 1]);
+                    }
+                },
+                Movement::Right => {
+                    if pos == len - 1 {
+                        self.focus_window(self.order[0]);
+                    } else {
+                        self.focus_window(self.order[pos + 1]);
+                    }
+                },
+                Movement::Up => {
+                    //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
+                },
+                Movement::Down => {
+                    //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
+                },
             }
         } else {
             //Shouldnt really happen but just in case
@@ -102,34 +103,35 @@ impl Workspace {
         let len = self.order.len();
         let mut move_occured: Option<u32> = None; //Its hacky but works good
         if let Some(focused_win) = self.get_focused_window() {
-            if len > 1 {
-                let pos = self.order.iter().position(|&x| x == focused_win).unwrap();
-                match mov {
-                    Movement::Left => {
-                        if pos == 0 {
-                            self.order.swap(pos, len - 1);
-                        } else {
-                            self.order.swap(pos, pos - 1);
-                        }
-                        move_occured = Some(focused_win);
-                    },
-                    Movement::Right => {
-                        if pos == self.order.len() - 1 {
-                            self.order.swap(pos, 0);
-                        } else {
-                            self.order.swap(pos, pos + 1);
-                        }
-                        move_occured = Some(focused_win);
-                    },
-                    Movement::Up => {
-                        //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                    },
-                    Movement::Down => {
-                        //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                    },
-                }
-                self.remap_windows();
+            if len < 2 {
+                return move_occured;
             }
+            let pos = self.order.iter().position(|&x| x == focused_win).unwrap();
+            match mov {
+                Movement::Left => {
+                    if pos == 0 {
+                        self.order.swap(pos, len - 1);
+                    } else {
+                        self.order.swap(pos, pos - 1);
+                    }
+                    move_occured = Some(focused_win);
+                },
+                Movement::Right => {
+                    if pos == self.order.len() - 1 {
+                        self.order.swap(pos, 0);
+                    } else {
+                        self.order.swap(pos, pos + 1);
+                    }
+                    move_occured = Some(focused_win);
+                },
+                Movement::Up => {
+                    //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
+                },
+                Movement::Down => {
+                    //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
+                }
+            }
+            self.remap_windows();
         }
         return move_occured;
     }
