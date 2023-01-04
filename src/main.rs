@@ -4,7 +4,7 @@ pub mod windowstate;
 pub mod screeninfo;
 pub mod config;
 pub mod keybindings;
-pub mod util;
+pub mod auxiliary;
 
 use std::sync::mpsc::{channel, Sender};
 use std::error::Error;

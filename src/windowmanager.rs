@@ -22,7 +22,7 @@ use crate::screeninfo::ScreenInfo;
 use crate::workspace::Workspace;
 use crate::config::{Config, WmCommands};
 use crate::keybindings::KeyBindings;
-use crate::util::exec_user_command;
+use crate::auxiliary::exec_user_command;
 
 #[derive(Debug)]
 pub struct WindowManager {
@@ -92,20 +92,12 @@ impl WindowManager {
     fn get_focused_window(&self) -> (usize, Option<u32>) {
         let active_workspace = self.get_active_workspace();
         let focused_window = self.screeninfo
-        return (active_workspace, focused_window);
-      
-
-    fn handle_keypress_kill(&mut self) {
-        let active_workspace = self.screeninfo
-            .get(&self.focused_screen)
-            .unwrap().active_workspace;
-        let current_window = self.screeninfo
             .get(&self.focused_screen)
             .unwrap().workspaces[active_workspace]
             .get_focused_window();
+        return (active_workspace, focused_window);
     }
-
-
+      
     fn handle_keypress_focus(&mut self, args: Option<String>) {
         let args = args.expect("No move arguments for focus");
         let active_workspace = self.get_active_workspace();
@@ -297,7 +289,7 @@ impl WindowManager {
             Event::UnmapNotify(_event) => {
                 println!("UnmapNotify");
                 self.handle_event_unmap_notify(_event);
-           },
+            },
             Event::ButtonPress(_event) => println!("ButtonPress"),
             Event::MotionNotify(_event) => println!("MotionNotify"),
             Event::ButtonRelease(_event) => println!("ButtonRelease"),
@@ -316,7 +308,7 @@ impl WindowManager {
             Event::EnterNotify(_event) => {
                 println!("EnterNotify!!!");
                 self.handle_event_enter_notify(_event);
-           },
+            },
             Event::LeaveNotify(_event) => {
                 println!("LeaveNotify");
                 self.handle_event_leave_notify(_event);
