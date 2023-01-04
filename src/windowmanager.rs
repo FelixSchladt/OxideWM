@@ -13,12 +13,12 @@ use x11rb::rust_connection::{
     RustConnection,
     ReplyError
 };
-use std::process::{Command, Stdio};
 
 use crate::screeninfo::ScreenInfo;
 use crate::workspace::Workspace;
 use crate::config::{Config, WmCommands};
 use crate::keybindings::KeyBindings;
+use crate::util::exec_user_command;
 
 #[derive(Debug)]
 pub struct WindowManager {
@@ -339,26 +339,4 @@ impl WindowManager {
     }
 }
 
-///TODO Maybe move this to a separate file
-pub fn exec_user_command(args: &Option<String>) {
-    match args {
-        Some(args) => {
-            let mut args = args.split_whitespace();
-            let command = args.next().unwrap();
-            let args = args.collect::<Vec<&str>>().join(" ");
-            if args.is_empty() {
-                Command::new(command)
-                    .stdout(Stdio::null())
-                    .stderr(Stdio::null())
-                    .spawn()
-            } else {
-                Command::new(command)
-                    .arg(args)
-                    .stdout(Stdio::null())
-                    .stderr(Stdio::null())
-                    .spawn()
-            }.unwrap();
-        },
-        None => panic!("User command called without args"),
-    }
-}
+
