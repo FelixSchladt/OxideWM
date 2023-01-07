@@ -2,8 +2,6 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::{cell::RefCell, rc::Rc};
 use std::process::{
-    Command,
-    Stdio,
     exit
 };
 

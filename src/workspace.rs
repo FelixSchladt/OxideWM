@@ -26,6 +26,7 @@ pub struct Workspace {
     pub root_window: u16,
     pub visible: bool,
     pub focused: bool,
+    pub focused_window: Option<u32>,
     pub urgent: bool,
     pub windows: HashMap<u32, WindowState>,
     pub order: Vec<u32>,
@@ -46,6 +47,7 @@ impl Workspace {
             root_window: 0,  //TODO get root window index from windowmanager
             visible: false,
             focused: false,
+            focused_window: None,
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
@@ -58,12 +60,7 @@ impl Workspace {
     }
 
     pub fn get_focused_window(&self) -> Option<u32> {
-        for (_, window) in self.windows.iter() {
-            if window.focused {
-                return Some(window.window);
-            }
-        }
-        None
+        return self.focused_window;
     }
 
     pub fn move_focus(&mut self, mov: Movement) {
@@ -179,18 +176,13 @@ impl Workspace {
     pub fn hide() { panic!("Not implemented"); }
 
     pub fn focus_window(&mut self, winid: u32) {
-        for window in self.windows.values_mut() {
-            window.focused = false;
-        }
+        self.focused_window = Some(winid);
         self.connection.borrow().set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
-        self.windows.get_mut(&winid).unwrap().focused = true;
         //TODO: Chagnge color of border to focus color
     }
 
     pub fn unfocus_window(&mut self, winid: u32) {
-        if let Some(win) = self.windows.get_mut(&winid) {
-            win.focused = false;
-        }
+        self.focused_window = None;
         //TODO: Change color of border to unfocus color
     }
 
