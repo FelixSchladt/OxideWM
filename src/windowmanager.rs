@@ -187,6 +187,9 @@ impl WindowManager {
                     WmCommands::Restart => {
                         println!("Restart");
                     },
+                    WmCommands::GoToWorkspace =>{
+                        println!("go to workspace");
+                    },
                     WmCommands::Exec => {
                         println!("Exec");
                         exec_user_command(&key.args);
@@ -320,7 +323,7 @@ impl WindowManager {
             },
             Event::KeyPress(_event) => println!("KeyPress"),
             Event::KeyRelease(_event) => {
-                println!("KeyPress");
+                println!("KeyRelease");
                 self.handle_keypress(_event);
             },
             Event::DestroyNotify(_event) => println!("DestroyNotify"),

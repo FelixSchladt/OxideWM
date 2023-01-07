@@ -14,9 +14,9 @@ pub enum WmCommands {
     Kill, // Kill the focused window
     Restart, // Restart the window manager
     Layout, //args: horizontal, vertical
-    MoveToWorkspace,
-    GoToWorkspace,
-    MoveToWorkspaceAndFollow,
+    MoveToWorkspace, // Moves the current Window to the new Workspace
+    GoToWorkspace, // Changes the Workspace on the current screen
+    MoveToWorkspaceAndFollow, // Moves the current Window to the new Workspace and keeps focus on window
     Exec,
 }
 

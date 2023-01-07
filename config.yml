@@ -6,40 +6,61 @@
 cmds:
   - keys: ["A", "t"]
     command: Exec
-    args: "kitty"
+    args: "xterm"
+
   - keys: ["A", "S", "e"]
     command: Quit
     args: None
+
   - keys: ["A", "S", "r"]
     command: Restart
     args: None
+
   - keys: ["A", "S", "q"]
     command: Kill
     args: None
+
   - keys: ["A", "l"]
     command: Focus
     args: "right"
+
   - keys: ["A", "S", "l"]
     command: Move
     args: "right"
+
   - keys: ["A", "S", "h"]
     command: Move
     args: "left"
+
   - keys: ["A", "h"]
     command: Focus
     args: "left"
+
   - keys: ["A", "u"]
     command: Layout
     args: None
+
   - keys: ["A", "i"]
     command: Layout
     args: "Vertical"
+
   - keys: ["A", "S", "i"]
     command: Layout
     args: "horizontal"
+
   - keys: ["A", "d"]
     command: Exec
     args: "dmenu_run"
+  
+  #Workspace keys configuration
+  - keys: ["C","A", "Left"]
+    command: GoToWorkspace
+    args: "left"
+
+  - keys: ["C","A", "Right"]
+    command: GoToWorkspace
+    args: "right"
+
 exec: ["B", "R", "O"]
 exec_always: ["I", "D", "K"]
 border_with: 8
