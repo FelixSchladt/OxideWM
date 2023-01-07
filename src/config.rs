@@ -1,5 +1,5 @@
 use std::fs::File;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -10,16 +10,32 @@ pub enum WmCommands {
     Quit, // Quit the window manager
     Kill, // Kill the focused window
     Restart, // Restart the window manager
+    Layout, //args: horizontal, vertical
     MoveToWorkspace,
     GoToWorkspace,
     MoveToWorkspaceAndFollow,
     Exec,
 }
 
+fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let args = Option::<String>::deserialize(deserializer)?;
+    let args = args.unwrap_or("".to_string());
+    if args.is_empty() || args == "None" {
+        Ok(None)
+    } else {
+        Ok(Some(args))
+    }
+    
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct WmCommand {
     pub keys: Vec<String>,
     pub command: WmCommands,
+    #[serde(deserialize_with = "deserialize_optional_string")]
     pub args: Option<String>,
 }
 

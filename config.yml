@@ -28,7 +28,15 @@ cmds:
   - keys: ["A", "h"]
     command: Focus
     args: "left"
-exec: ["B", "R", "O"]
+  - keys: ["A", "u"]
+    command: Layout
+    args: None
+  - keys: ["A", "i"]
+    command: Layout
+    args: "Vertical"
+  - keys: ["A", "S", "i"]
+    command: Layout
+    args: "horizontal"
 exec_always: ["I", "D", "K"]
 border_with: 8
 border_color: "green"

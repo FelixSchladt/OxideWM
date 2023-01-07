@@ -12,10 +12,21 @@ use crate::windowmanager::Movement;
 
 #[derive(Debug)]
 pub enum Layout {
-    Tiled,
+    //Tiled, //blocked by https://github.com/DHBW-FN/OxideWM/issues/70
     VerticalStriped,   //  |
     HorizontalStriped, // ---
     //Different layout modes and better names wanted C:
+}
+
+impl TryFrom<&str> for Layout {
+    type Error = String;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value.to_lowercase().as_str() {
+            "vertical" => Ok(Layout::VerticalStriped),
+            "horizontal" => Ok(Layout::HorizontalStriped),
+            _ => Err(format!("{} is not a valid layout", value)),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -199,9 +210,17 @@ impl Workspace {
         self.remap_windows();
     }
 
+    pub fn next_layout(&mut self) {
+        match self.layout {
+            Layout::HorizontalStriped => self.set_layout(Layout::VerticalStriped),
+            Layout::VerticalStriped => self.set_layout(Layout::HorizontalStriped),
+        }
+        self.remap_windows();
+    }
+
     pub fn remap_windows(&mut self) {
         match self.layout {
-            Layout::Tiled => {},
+            //Layout::Tiled => {},
             Layout::VerticalStriped => self.map_vertical_striped(),
             Layout::HorizontalStriped => self.map_horizontal_striped(),
 
