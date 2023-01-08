@@ -37,6 +37,10 @@ cmds:
   - keys: ["A", "S", "i"]
     command: Layout
     args: "horizontal"
+  - keys: ["A", "d"]
+    command: Exec
+    args: "dmenu_run"
+exec: ["B", "R", "O"]
 exec_always: ["I", "D", "K"]
 border_with: 8
 border_color: "green"
