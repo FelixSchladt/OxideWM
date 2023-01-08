@@ -1,6 +1,9 @@
 use std::fs::File;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
+use std::process;
+use std::path::Path;
+
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum WmCommands {
@@ -65,9 +68,19 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Config {
-        //simulate_config()
-        // Opens the config.yaml file.
-        let f = File::open("./config.yml").expect("Could not open file.");
+        let f: File;
+        let path_a = Path::new("./config.yml");
+        let path_b = Path::new("~/.config/oxidewm/config.yml");
+        let path_c = Path::new("/etc/oxidewm/config.yml");
+        if path_a.exists() {
+            f = File::open(path_a).unwrap();
+        } else if path_b.exists() {
+            f = File::open(path_b).unwrap();
+        } else if path_c.exists() {
+            f = File::open(path_c).unwrap();
+        } else {
+            process::exit(-1);
+        }
         // Reads the Values from the 'config' struct in config.yml 
         let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
         println!("{:?}", user_config);
