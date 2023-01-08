@@ -336,7 +336,7 @@ impl WindowManager {
         self.screeninfo
             .get_mut(&event.root)
             .unwrap().workspaces[workspace_id]
-            .unfocus_window(event.event);
+            .unfocus_window();
     }
 
 

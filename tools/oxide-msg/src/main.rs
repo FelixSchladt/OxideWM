@@ -2,7 +2,6 @@ use zbus::{Connection, Result, dbus_proxy};
 
 use clap::Parser;
 
-use oxidewm::config::WmCommands;
 use oxidewm::windowmanager::WmActionEvent;
 
 #[dbus_proxy(

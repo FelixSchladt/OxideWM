@@ -1,7 +1,7 @@
 use std::fs::File;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
-use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
+use zbus::zvariant::Type;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[derive(Type)]
