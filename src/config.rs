@@ -68,23 +68,22 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Config {
-        let f: File;
-        let path_a = Path::new("./config.yml");
-        let path_b = Path::new("~/.config/oxidewm/config.yml");
-        let path_c = Path::new("/etc/oxidewm/config.yml");
-        if path_a.exists() {
-            f = File::open(path_a).unwrap();
-        } else if path_b.exists() {
-            f = File::open(path_b).unwrap();
-        } else if path_c.exists() {
-            f = File::open(path_c).unwrap();
-        } else {
-            process::exit(-1);
+        let mut f: Option<File> = None;
+        let paths = vec!["./config.yml", "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+        for path in paths {
+            if Path::new(path).exists() {
+                f = Some(File::open(path).unwrap());
+            }
         }
-        // Reads the Values from the 'config' struct in config.yml 
-        let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
-        println!("{:?}", user_config);
-        user_config
+        match f {
+            Some(f) => {
+                // Reads the Values from the 'config' struct in config.yml 
+                let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
+                println!("{:?}", user_config);
+                user_config
+            },
+            None => process::exit(-1),
+        }
     }
 } 
 
