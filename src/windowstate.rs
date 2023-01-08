@@ -8,7 +8,6 @@ pub struct WindowState {
     pub window: Window,
     pub title: String,
     pub visible: bool,
-    pub focused: bool,
     pub urgent: bool,
     pub x: i32,
     pub y: i32,
@@ -22,7 +21,6 @@ impl WindowState {
         let title = connection.borrow().get_property(false, window, AtomEnum::WM_NAME, AtomEnum::STRING, 0, 1024).unwrap().reply().unwrap().value;
         let title = String::from_utf8(title).unwrap();
         let visible = true;
-        let focused = false;
         let urgent = false;
         let x = 0;
         let y = 0;
@@ -43,7 +41,6 @@ impl WindowState {
             window,
             title,
             visible,
-            focused,
             urgent,
             x,
             y,
