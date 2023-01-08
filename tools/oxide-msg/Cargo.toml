@@ -1,0 +1,11 @@
+[package]
+name = "oxide-msg"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+oxidewm = { version = "0.1.*", path = "../../" }
+zbus = { version = "3", default-features = false, features = ["tokio"] }
+async-std = { version = "1", features = ["attributes", "tokio1"] }
