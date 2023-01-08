@@ -1,5 +1,7 @@
 use zbus::{Connection, Result, dbus_proxy};
 
+use clap::Parser;
+
 use oxidewm::config::WmCommands;
 use oxidewm::windowmanager::WmActionEvent;
 
@@ -14,9 +16,23 @@ trait WmInterface {
 }
 
 
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+   #[arg(short, long)]
+   command: String,
+
+   #[arg(short, long, default_value = None)]
+   args: Option<String>,
+}
+
+
+
 // Although we use `async-std` here, you can use any async runtime of choice.
 #[async_std::main]
 async fn main() -> Result<()> {
+    let args = Args::parse();
+
     let connection = Connection::session().await?;
 
     // `dbus_proxy` macro creates `MyGreaterProxy` based on `Notifications` trait.
@@ -24,7 +40,7 @@ async fn main() -> Result<()> {
     let reply = proxy.get_status().await?;
     println!("{reply}");
 
-    let ipc_command = WmActionEvent::new("exec", Some("kitty".to_string()));
+    let ipc_command = WmActionEvent::new(args.command.as_str(), args.args);
 
     proxy.event(ipc_command).await?;
 

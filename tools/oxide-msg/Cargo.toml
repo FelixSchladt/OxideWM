@@ -9,3 +9,4 @@ edition = "2021"
 oxidewm = { version = "0.1.*", path = "../../" }
 zbus = { version = "3", default-features = false, features = ["tokio"] }
 async-std = { version = "1", features = ["attributes", "tokio1"] }
+clap = { version = "4.0.*", features = ["derive"] }
