@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 use std::process::Command;
 
-use crate::config::{Config, WmCommands};
+use crate::{
+    config::Config,
+    eventhandler::commands::WmCommands
+};
 
 #[derive(Debug)]
 pub enum ModifierKey {

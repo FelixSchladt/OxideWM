@@ -1,4 +1,5 @@
 pub mod windowmanager;
+pub mod eventhandler;
 pub mod workspace;
 pub mod windowstate;
 pub mod screeninfo;
@@ -6,13 +7,28 @@ pub mod config;
 pub mod keybindings;
 pub mod auxiliary;
 
+use std::borrow::BorrowMut;
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::mpsc::{channel, Sender};
 use std::error::Error;
-use std::thread;
+use std::{thread, result};
 
-use x11rb::connection::Connection;
+use config::Config;
+use x11rb::{
+    connection::Connection,
+    protocol::xproto::{
+        ModMask,
+        ConnectionExt,
+        GrabMode,
+    },
+};
 
-use windowmanager::WindowManager;
+use crate::{
+    windowmanager::WindowManager,
+    eventhandler::EventHandler,
+    keybindings::KeyBindings
+};
 
 #[derive(Debug)]
 struct IpcEvent {
@@ -28,8 +44,36 @@ fn dbus_ipc_loop(sender: Sender<IpcEvent>) {
 }
 
 
+fn grab_keys(windowmanager: &mut WindowManager,keybindings: &KeyBindings) -> Result<(), Box<dyn Error>> {
+    //TODO check if the the screen iterations should be merged
+    for screen in windowmanager.connection.borrow().setup().roots.iter() {
+        for modifier in [0, u16::from(ModMask::M2)] {
+            for keyevent in keybindings.events_vec.iter() {
+                windowmanager.connection.borrow().grab_key(
+                    false,
+                    screen.root,
+                    (keyevent.keycode.mask | modifier).into(),
+                    keyevent.keycode.code,
+                    GrabMode::ASYNC,
+                    GrabMode::ASYNC,
+                )?;
+            }
+        }
+    }
+    windowmanager.connection.borrow().flush().expect("failed to flush rust connection");
+Ok(())
+}
+
+
 fn main() -> Result<(), Box<dyn Error>> {
+    let config = Rc::new(RefCell::new(Config::new()));
+    let keybindings = KeyBindings::new(&config.borrow());
+    
     let mut manager = WindowManager::new();
+    let mut eventhandler = EventHandler::new(&mut manager, &keybindings);
+    
+    grab_keys(eventhandler.window_manager,&keybindings).expect("failed to grab keys");
+
 
     let (sender, receiver) = channel();
 
@@ -38,13 +82,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     });
 
     loop {
-        let event = manager.connection.borrow_mut().poll_for_event().unwrap();
-        match event {
-            Some(event) => manager.handle_event(&event),
-            None => (),
+        let result = eventhandler.window_manager.poll_for_event();
+        if(!result.is_err()){
+            let event = result.unwrap();
+            match event {
+                Some(event) => eventhandler.handle_event(&event),
+                None => (),
+            }
         }
-        //get_cursor_position(&manager);
-
 
         let ipc_event = receiver.try_recv();
         match ipc_event {

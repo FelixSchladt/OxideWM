@@ -6,7 +6,7 @@
 cmds:
   - keys: ["A", "t"]
     command: Exec
-    args: "kitty"
+    args: "xterm"
   - keys: ["A", "S", "e"]
     command: Quit
     args: None
