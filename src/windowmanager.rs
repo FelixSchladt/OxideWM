@@ -19,7 +19,7 @@ use x11rb::rust_connection::{
 };
 
 use crate::screeninfo::ScreenInfo;
-use crate::workspace::Workspace;
+use crate::workspace::{Workspace, Layout};
 use crate::config::{Config, WmCommands};
 use crate::keybindings::KeyBindings;
 use crate::auxiliary::exec_user_command;
@@ -129,6 +129,24 @@ impl WindowManager {
         }
     }
 
+    fn handle_keypress_layout(&mut self, args: Option<String>) {    
+        let active_workspace = self.get_active_workspace();
+        match args {
+            Some(args) => {
+                self.screeninfo.get_mut(&self.focused_screen)
+                    .unwrap()
+                    .workspaces[active_workspace]
+                    .set_layout(Layout::try_from(args.as_str()).unwrap());
+            },
+            None => {
+                self.screeninfo.get_mut(&self.focused_screen)
+                    .unwrap()
+                    .workspaces[active_workspace]
+                    .next_layout();
+            }
+        }
+    }
+
     fn handle_keypress(&mut self, event: &KeyPressEvent) {
         let keys = self.keybindings.events_map
             .get(&event.detail)
@@ -163,6 +181,10 @@ impl WindowManager {
                     WmCommands::Kill => {
                         println!("Kill");
                         self.handle_keypress_kill();
+                    },
+                    WmCommands::Layout => {
+                        println!("Layout");
+                        self.handle_keypress_layout(key.args.clone());
                     },
                     WmCommands::Restart => {
                         println!("Restart");

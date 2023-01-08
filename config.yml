@@ -28,6 +28,15 @@ cmds:
   - keys: ["A", "h"]
     command: Focus
     args: "left"
+  - keys: ["A", "u"]
+    command: Layout
+    args: None
+  - keys: ["A", "i"]
+    command: Layout
+    args: "Vertical"
+  - keys: ["A", "S", "i"]
+    command: Layout
+    args: "horizontal"
   - keys: ["A", "d"]
     command: Exec
     args: "dmenu_run"
