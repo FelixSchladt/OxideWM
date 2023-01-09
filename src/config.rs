@@ -69,10 +69,13 @@ pub struct Config {
 impl Config {
     pub fn new() -> Config {
         let mut f: Option<File> = None;
-        let paths = vec!["./config.yml", "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+        let mut paths = vec![ "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+        #[cfg(debug_assertions)]
+        paths.insert(0, "./config.yml");
         for path in paths {
             if Path::new(path).exists() {
                 f = Some(File::open(path).unwrap());
+                break;
             }
         }
         match f {
@@ -82,7 +85,10 @@ impl Config {
                 println!("{:?}", user_config);
                 user_config
             },
-            None => process::exit(-1),
+            None => {
+                eprintln!("Error: Could not complete task");
+                process::exit(-1);
+            }
         }
     }
 } 
