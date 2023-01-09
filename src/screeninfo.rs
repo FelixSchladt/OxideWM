@@ -1,11 +1,14 @@
 use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::xproto::MapRequestEvent;
+use serde::Serialize;
+
 use crate::workspace::Workspace;
 use std::{cell::RefCell, rc::Rc};
 
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ScreenInfo {
+    #[serde(skip_serializing)]
     pub connection: Rc<RefCell<RustConnection>>,
     pub id: u32,
     pub workspaces: Vec<Workspace>,

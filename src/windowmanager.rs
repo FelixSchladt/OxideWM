@@ -15,6 +15,7 @@ use x11rb::rust_connection::{
     RustConnection,
     ReplyError
 };
+use serde::Serialize;
 
 use crate::screeninfo::ScreenInfo;
 use crate::workspace::{Workspace, Layout};
@@ -24,17 +25,21 @@ use crate::auxiliary::exec_user_command;
 
 use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct WindowManager {
+    #[serde(skip_serializing)]
     pub connection: Rc<RefCell<RustConnection>>,
     pub screeninfo: HashMap<u32, ScreenInfo>,
+    #[serde(skip_serializing)]
     pub config: Rc<RefCell<Config>>,
+    #[serde(skip_serializing)]
     pub keybindings: KeyBindings,
     pub focused_screen: u32,
+    #[serde(skip_serializing)]
     pub moved_window: Option<u32>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub enum Movement {
     Left,
     Right,
@@ -74,14 +79,14 @@ impl WmActionEvent {
 #[derive(DeserializeDict, SerializeDict, Type, Debug)]
 #[zvariant(signature = "dict")]
 pub struct IpcEvent {
-    pub status: Option<String>,
+    pub status: bool,
     pub event: Option<WmActionEvent>,
 }
 
 impl From<WmActionEvent> for IpcEvent {
     fn from(command: WmActionEvent) -> Self {
         IpcEvent {
-            status: None,
+            status: false,
             event: Some(command),
         }
     }

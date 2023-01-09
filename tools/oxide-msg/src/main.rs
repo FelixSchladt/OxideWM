@@ -36,12 +36,14 @@ async fn main() -> Result<()> {
 
     // `dbus_proxy` macro creates `MyGreaterProxy` based on `Notifications` trait.
     let proxy = WmInterfaceProxy::new(&connection).await?;
-    let reply = proxy.get_status().await?;
-    println!("{reply}");
+    if args.command == "state"  {
+        let state = proxy.get_status().await?;
+        println!("{}", state);
+    } else {
+        let ipc_command = WmActionEvent::new(args.command.as_str(), args.args);
+        proxy.event(ipc_command).await?;
+    }
 
-    let ipc_command = WmActionEvent::new(args.command.as_str(), args.args);
-
-    proxy.event(ipc_command).await?;
 
     Ok(())
 }
