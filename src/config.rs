@@ -97,5 +97,22 @@ fn default_border_color() -> String { "white".to_string() }
 fn default_border_focus_color() -> String { "black".to_string() }
 fn default_gap() -> u8 { 3 }
 
+/* // Trying to convert the given string value of border_color and border_focus_color to their
+// coresponging hexadecimal value
+// For the beginning only the most common colors should be converted, if the user wants a specific
+// color, he should use the hexadecimal value.
+fn convert_color_to_hex() -> i32 {
+    let f = File::open("./config.yml").expect("Could not open file.");
+    let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
 
-
+    match user_config.border_color.as_str() {
+        "white" => 0xffffff,
+        "black" => 0x000000,
+        "red" => 0xFF0000,
+        "blue" => 0x0000FF,
+        "green" => 0x008000,
+        "yellow" => 0xFFFF00,
+        _ => 0x000000,
+        
+    }
+} */
