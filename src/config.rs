@@ -72,6 +72,7 @@ impl Config {
         let mut paths = vec![ "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
         #[cfg(debug_assertions)]
         paths.insert(0, "./config.yml");
+        let path_copy = paths.clone();
         for path in paths {
             if Path::new(path).exists() {
                 f = Some(File::open(path).unwrap());
@@ -86,7 +87,7 @@ impl Config {
                 user_config
             },
             None => {
-                eprintln!("Error: Could not complete task");
+                eprintln!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", path_copy);
                 process::exit(-1);
             }
         }
