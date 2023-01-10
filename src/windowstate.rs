@@ -3,7 +3,7 @@ use x11rb::rust_connection::RustConnection;
 use serde::Serialize;
 use std::{cell::RefCell, rc::Rc};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct WindowState {
     #[serde(skip_serializing)]
     pub connection: Rc<RefCell<RustConnection>>,

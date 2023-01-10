@@ -6,7 +6,7 @@ use crate::workspace::Workspace;
 use std::{cell::RefCell, rc::Rc};
 
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ScreenInfo {
     #[serde(skip_serializing)]
     pub connection: Rc<RefCell<RustConnection>>,

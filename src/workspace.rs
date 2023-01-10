@@ -11,7 +11,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::windowmanager::Movement;
 
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Layout {
     //Tiled, //blocked by https://github.com/DHBW-FN/OxideWM/issues/70
     VerticalStriped,   //  |
@@ -30,7 +30,7 @@ impl TryFrom<&str> for Layout {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
     #[serde(skip_serializing)]
     pub connection:  Rc<RefCell<RustConnection>>,

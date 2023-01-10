@@ -25,19 +25,36 @@ use crate::auxiliary::exec_user_command;
 
 use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct WindowManager {
-    #[serde(skip_serializing)]
     pub connection: Rc<RefCell<RustConnection>>,
     pub screeninfo: HashMap<u32, ScreenInfo>,
-    #[serde(skip_serializing)]
     pub config: Rc<RefCell<Config>>,
-    #[serde(skip_serializing)]
     pub keybindings: KeyBindings,
     pub focused_screen: u32,
-    #[serde(skip_serializing)]
     pub moved_window: Option<u32>,
 }
+
+#[derive(Debug, Serialize)]
+pub struct WindowManagerState {
+    pub screeninfo: HashMap<u32, ScreenInfo>,
+    pub config: Config,
+    pub focused_screen: u32,
+}
+
+impl TryFrom<&WindowManager> for WindowManagerState {
+    type Error = Box<dyn Error>;
+    fn try_from(wm: &WindowManager) -> Result<Self, Self::Error> {
+        let config = wm.config.borrow();
+        Ok(WindowManagerState {
+            screeninfo: wm.screeninfo.clone(),
+            config: config.clone(),
+            focused_screen: wm.focused_screen.clone(),
+        })
+    }
+}
+
+
 
 #[derive(Debug, Serialize)]
 pub enum Movement {

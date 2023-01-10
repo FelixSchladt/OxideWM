@@ -17,7 +17,7 @@ use x11rb::connection::Connection;
 
 use std::sync::{Arc, Mutex};
 
-use crate::windowmanager::{WindowManager, IpcEvent};
+use crate::windowmanager::{WindowManager, IpcEvent, WindowManagerState};
 use ipc::zbus_serve;
 
 fn main() -> Result<()> {
@@ -43,7 +43,8 @@ fn main() -> Result<()> {
         match ipc_event {
             Ok(event) => {
                 if event.status {
-                    let j = serde_json::to_string(&manager)?;
+                    let wm_state = WindowManagerState::try_from(&manager).unwrap();
+                    let j = serde_json::to_string(&wm_state)?;
                     println!("IPC status request");
                     wm_sender.send(j).unwrap();
                  } else {

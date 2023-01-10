@@ -61,7 +61,7 @@ pub struct WmCommand {
     pub args: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     #[serde(default = "default_cmds")]
     pub cmds: Vec<WmCommand>,
