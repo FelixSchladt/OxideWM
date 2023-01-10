@@ -70,7 +70,7 @@ impl Config {
     pub fn new() -> Config {
         let mut f: Option<File> = None;
         let mut paths = vec![ "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
-        #[cfg(debug_assertions)]
+        #[cfg(not(release))]
         paths.insert(0, "./config.yml");
         let path_copy = paths.clone();
         for path in paths {
