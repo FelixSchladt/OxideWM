@@ -15,7 +15,6 @@ pub enum Layout {
     //Tiled, //blocked by https://github.com/DHBW-FN/OxideWM/issues/70
     VerticalStriped,   //  |
     HorizontalStriped, // ---
-    //Different layout modes and better names wanted C:
 }
 
 impl TryFrom<&str> for Layout {
@@ -34,7 +33,7 @@ pub struct Workspace {
     pub connection:  Rc<RefCell<RustConnection>>,
     pub name: String,
     pub index: u16,
-    pub root_window: u16,
+    pub root_screen: Rc<RefCell<Screen>>,
     pub visible: bool,
     pub focused: bool,
     pub focused_window: Option<u32>,
@@ -42,7 +41,7 @@ pub struct Workspace {
     pub windows: HashMap<u32, WindowState>,
     pub order: Vec<u32>,
     pub layout: Layout,
-    pub x: i32,         //Used to resize the entire workspace, e.g. to make room for taskbars
+    pub x: i32,
     pub y: i32,
     pub height: u32,
     pub width: u32,
@@ -50,12 +49,12 @@ pub struct Workspace {
 
 
 impl Workspace {
-    pub fn new(index: u16, connection: Rc<RefCell<RustConnection>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
+    pub fn new(index: u16, connection: Rc<RefCell<RustConnection>>, root_screen: Rc<RefCell<Screen>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
         Workspace {
-            connection: connection,
+            connection,
             name: index.to_string(),
             index,
-            root_window: 0,  //TODO get root window index from windowmanager
+            root_screen,
             visible: false,
             focused: false,
             focused_window: None,
@@ -179,17 +178,13 @@ impl Workspace {
         self.add_window(windowstruct);
     }
 
-    //TODO: What is supposed to happen here?
-    // if an window is hidden how does the user know it exists?
-    // and does this make much sense in an window manager?
-    // the user could just move an not wanted window to a different workspace
     pub fn show() { panic!("Not implemented"); }
     pub fn hide() { panic!("Not implemented"); }
 
     pub fn focus_window(&mut self, winid: u32) {
         self.focused_window = Some(winid);
         self.connection.borrow().set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
-        //TODO: Chagnge color of border to focus color
+        //TODO: Change color of border to focus color
     }
 
     pub fn unfocus_window(&mut self, winid: u32) {
