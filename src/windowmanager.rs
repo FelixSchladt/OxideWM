@@ -175,6 +175,7 @@ impl WindowManager {
                     },
                     WmCommands::Quit => {
                         println!("Quit");
+                        std::process::exit(0);
                     },
                     WmCommands::Kill => {
                         println!("Kill");
