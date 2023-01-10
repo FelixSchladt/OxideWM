@@ -11,7 +11,7 @@ use oxidewm::windowmanager::WmActionEvent;
 )]
 trait WmInterface {
     async fn get_status(&self) -> Result<String>;
-    async fn event(&self, event: WmActionEvent) -> Result<()>;
+    async fn sent_event(&self, event: WmActionEvent) -> Result<()>;
 }
 
 
@@ -41,7 +41,7 @@ async fn main() -> Result<()> {
         println!("{}", state);
     } else {
         let ipc_command = WmActionEvent::new(args.command.as_str(), args.args);
-        proxy.event(ipc_command).await?;
+        proxy.sent_event(ipc_command).await?;
     }
 
 

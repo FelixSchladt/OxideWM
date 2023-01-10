@@ -17,16 +17,18 @@ struct WmInterface {
 #[dbus_interface(name = "org.oxide.interface")]
 impl WmInterface {
     fn get_status(&mut self) -> String {
+        //send state request to wm manager via channel
         self.sender.lock().unwrap().send(IpcEvent { status: true, event: None }).unwrap();
+        //block om receiving channel until state has been sent by the wm
         self.receiver.lock().unwrap().recv().unwrap()
     }
 
-    fn event(&mut self, event: WmActionEvent) {
+    fn sent_event(&mut self, event: WmActionEvent) {
+        //sent event to wm manager via channel
         self.sender.lock().unwrap().send(IpcEvent::from(event)).unwrap();
     }
 }
 
-// Although we use `async-std` here, you can use any async runtime of choice.
 pub async fn zbus_serve(sender: Arc<Mutex<Sender<IpcEvent>>>, receiver: Arc<Mutex<Receiver<String>>>) -> Result<(), Box<dyn Error>> {
     let interface = WmInterface { 
         sender: sender,
@@ -38,7 +40,6 @@ pub async fn zbus_serve(sender: Arc<Mutex<Sender<IpcEvent>>>, receiver: Arc<Mute
         .build()
         .await?;
 
-    // Do other things or go to wait forever
     pending::<()>().await;
 
     Ok(())
