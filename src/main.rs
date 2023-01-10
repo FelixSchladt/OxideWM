@@ -1,3 +1,5 @@
+#![deny(clippy::pedantic)]
+
 pub mod windowmanager;
 pub mod workspace;
 pub mod windowstate;
