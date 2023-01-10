@@ -43,6 +43,6 @@ cmds:
 exec: ["B", "R", "O"]
 exec_always: ["I", "D", "K"]
 border_with: 8
-border_color: "green"
-border_focus_color: "yellow"
+border_color: 0x008000 # yellow
+border_focus_color: 0xFFFF00 # green
 gap: 8
