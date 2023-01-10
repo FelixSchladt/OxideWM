@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::error::Error;
 use std::{cell::RefCell, rc::Rc};
 use std::process::{
     exit
@@ -18,6 +19,7 @@ use x11rb::{
 };
 
 use crate::{
+    keybindings::KeyBindings,
     screeninfo::ScreenInfo,
     workspace::Workspace,
 };
@@ -52,7 +54,7 @@ impl TryFrom<&str> for Movement {
 }
 
 impl WindowManager {
-    pub fn new() -> WindowManager {
+    pub fn new(keybindings: &KeyBindings) -> WindowManager {
         let connection = Rc::new(RefCell::new(RustConnection::connect(None).unwrap().0));
         let screeninfo = HashMap::new();
 
@@ -70,9 +72,30 @@ impl WindowManager {
 
         manager.setup_screens();
         manager.update_root_window_event_masks();
+        manager.grab_keys(keybindings).expect("Failed to grab Keys");
         manager.connection.borrow_mut().flush().unwrap();
 
         manager
+    }
+
+    fn grab_keys(&self,keybindings: &KeyBindings) -> Result<(), Box<dyn Error>> {
+        println!("grabbing keys");
+        //TODO check if the the screen iterations should be merged
+        for screen in self.connection.borrow().setup().roots.iter() {
+            for modifier in [0, u16::from(ModMask::M2)] {
+                for keyevent in keybindings.events_vec.iter() {
+                    self.connection.borrow().grab_key(
+                        false,
+                        screen.root,
+                        (keyevent.keycode.mask | modifier).into(),
+                        keyevent.keycode.code,
+                        GrabMode::ASYNC,
+                        GrabMode::ASYNC,
+                    )?;
+                }
+            }
+        }
+        Ok(())
     }
 
     fn get_active_workspace(&self) -> usize {

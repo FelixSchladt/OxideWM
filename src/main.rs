@@ -44,37 +44,13 @@ fn dbus_ipc_loop(sender: Sender<IpcEvent>) {
 }
 
 
-fn grab_keys(windowmanager: &mut WindowManager,keybindings: &KeyBindings) -> Result<(), Box<dyn Error>> {
-    //TODO check if the the screen iterations should be merged
-    for screen in windowmanager.connection.borrow().setup().roots.iter() {
-        for modifier in [0, u16::from(ModMask::M2)] {
-            for keyevent in keybindings.events_vec.iter() {
-                windowmanager.connection.borrow().grab_key(
-                    false,
-                    screen.root,
-                    (keyevent.keycode.mask | modifier).into(),
-                    keyevent.keycode.code,
-                    GrabMode::ASYNC,
-                    GrabMode::ASYNC,
-                )?;
-            }
-        }
-    }
-    windowmanager.connection.borrow().flush().expect("failed to flush rust connection");
-Ok(())
-}
-
-
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Rc::new(RefCell::new(Config::new()));
     let keybindings = KeyBindings::new(&config.borrow());
     
-    let mut manager = WindowManager::new();
+    let mut manager = WindowManager::new(&keybindings);
     let mut eventhandler = EventHandler::new(&mut manager, &keybindings);
     
-    grab_keys(eventhandler.window_manager,&keybindings).expect("failed to grab keys");
-
-
     let (sender, receiver) = channel();
 
     thread::spawn(move || {
