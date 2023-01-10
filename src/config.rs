@@ -93,6 +93,11 @@ fn default_exec_always() -> Vec<String> {
 }
 
 fn default_border_width() -> u8 { 3 }
-fn default_border_color() -> i32 { 0xFFFFFF }
-fn default_border_focus_color() -> i32 { 0x000000 }
+fn default_border_color() -> i32 { 0xFFFFFF } // white
+fn default_border_focus_color() -> i32 { 0x000000 } // black
 fn default_gap() -> u8 { 3 }
+
+/* fn convert_colors() {
+    let border_color = Color::from_hex(user_config::border_color).unwrap();
+    let border_focus_color = Color::from_hex(user_config::border_color).unwrap();
+} */
