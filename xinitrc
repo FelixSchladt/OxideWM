@@ -1,1 +1,1 @@
-./target/debug/oxidewm
+RUST_LOG=debug ./target/debug/oxidewm

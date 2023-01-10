@@ -55,11 +55,11 @@ cmds:
   #Workspace keys configuration
   - keys: ["C","A", "Left"]
     command: GoToWorkspace
-    args: "left"
+    args: "next"
 
   - keys: ["C","A", "Right"]
     command: GoToWorkspace
-    args: "right"
+    args: "previous"
 
 exec: ["B", "R", "O"]
 exec_always: ["I", "D", "K"]

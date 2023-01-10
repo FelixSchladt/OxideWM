@@ -12,9 +12,13 @@ use std::sync::mpsc::{channel, Sender};
 use std::error::Error;
 use std::thread;
 
+use log::debug;
 use x11rb::connection::Connection;
 
 use windowmanager::WindowManager;
+
+#[macro_use]
+extern crate log;
 
 #[derive(Debug)]
 struct IpcEvent {
@@ -31,6 +35,8 @@ fn dbus_ipc_loop(sender: Sender<IpcEvent>) {
 
 
 fn main() -> Result<(), Box<dyn Error>> {
+    env_logger::init();
+
     let mut manager = WindowManager::new();
 
     let (sender, receiver) = channel();

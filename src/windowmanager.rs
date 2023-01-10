@@ -1,3 +1,4 @@
+use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::error::Error;
 use std::{cell::RefCell, rc::Rc};
@@ -5,6 +6,7 @@ use std::process::{
     exit
 };
 
+use log::{warn, debug};
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
 use x11rb::protocol::{
@@ -17,7 +19,7 @@ use x11rb::rust_connection::{
 };
 
 use crate::screeninfo::ScreenInfo;
-use crate::workspace::{Workspace, Layout};
+use crate::workspace::{Workspace, Layout, GoToWorkspace};
 use crate::config::{Config, WmCommands};
 use crate::keybindings::KeyBindings;
 use crate::auxiliary::exec_user_command;
@@ -78,7 +80,7 @@ impl WindowManager {
         manager.update_root_window_event_masks();
         manager.grab_keys().unwrap();
 
-        manager.connection.borrow_mut().flush().unwrap();
+        manager.connection.borrow().flush().unwrap();
 
         manager
     }
@@ -145,59 +147,71 @@ impl WindowManager {
         }
     }
 
-    fn handle_keypress(&mut self, event: &KeyPressEvent) {
-        let keys = self.keybindings.events_map
-            .get(&event.detail)
-            .expect("ERROR: Key not found in keybindings -> THIS MUST NOT HAPPEN");
-        //NOTE: IF you get the error above, this is probably cause by an inconsistency
-        // in the Connection. Most likely you did something with the connection that
-        // left it in a weird state. This **must not be** directly connected to this
-        // function. Maybe a flush helps but check if there is something else wrong
-        // with your changes. I experienced this a couple of times and it always was
-        // quite strange and hard to find. Ask for help if you can't find the problem.
+    fn handle_keypress_go_to_workspace(&mut self, args: Option<String>){
+        let screen_option = self.screeninfo
+            .get_mut(&self.focused_screen);
+        if screen_option.is_none() {
+            warn!("Could not switch workspace, no screen was focused");
+            return;
+        }
 
-        for key in keys.clone() {
-            let state = u16::from(event.state);
-            if state == key.keycode.mask
-            || state == key.keycode.mask | u16::from(ModMask::M2) {
-                println!("Key: {:?}", key);
-                match key.event {
-                    WmCommands::Move => {
-                        println!("Move");
-                        self.handle_keypress_move(key.args.clone());
-                    },
-                    WmCommands::Focus => {
-                        println!("Focus");
-                        self.handle_keypress_focus(key.args.clone());
-                    },
-                    WmCommands::Resize => {
-                        println!("Resize");
-                    },
-                    WmCommands::Quit => {
-                        println!("Quit");
-                    },
-                    WmCommands::Kill => {
-                        println!("Kill");
-                        self.handle_keypress_kill();
-                    },
-                    WmCommands::Layout => {
-                        println!("Layout");
-                        self.handle_keypress_layout(key.args.clone());
-                    },
-                    WmCommands::Restart => {
-                        println!("Restart");
-                    },
-                    WmCommands::GoToWorkspace =>{
-                        println!("go to workspace");
-                    },
-                    WmCommands::Exec => {
-                        println!("Exec");
-                        exec_user_command(&key.args);
-                    },
-                    _ => {
-                        println!("Unimplemented");
-                    }
-                }
+        let arg = GoToWorkspace::try_from(args);
+        if arg.is_none() {
+            warn!("No argument for key binding go to workspace");
+            return;
+        }
+        let screen= screen_option.unwrap();
+        
+        let max_workspace = screen.get_workspace_count() - 1;
+        let active_workspace = screen.active_workspace;
+        let new_workspace = arg.unwrap().calculate_new_workspace(active_workspace, max_workspace);
+        screen.set_workspace(new_workspace);
+    }
+
+    fn handle_keypress(&mut self, key_press_event: &KeyPressEvent) {
+        let event_option = self.keybindings.retreive_cmd(key_press_event);
+        if event_option.is_none() {
+            debug!("No WmCommand found for event {}", key_press_event.detail);
+            return;
+        }
+
+        let key_event = event_option.unwrap();
+
+        match key_event.event {
+            WmCommands::Move => {
+                println!("Move");
+                self.handle_keypress_move(key_event.args.clone());
+            },
+            WmCommands::Focus => {
+                println!("Focus");
+                self.handle_keypress_focus(key_event.args.clone());
+            },
+            WmCommands::Resize => {
+                println!("Resize");
+            },
+            WmCommands::Quit => {
+                println!("Quit");
+            },
+            WmCommands::Kill => {
+                println!("Kill");
+                self.handle_keypress_kill();
+            },
+            WmCommands::Layout => {
+                println!("Layout");
+                self.handle_keypress_layout(key_event.args.clone());
+            },
+            WmCommands::Restart => {
+                println!("Restart");
+            },
+            WmCommands::GoToWorkspace =>{
+                self.handle_keypress_go_to_workspace(key_event.args.clone());
+            },
+            WmCommands::Exec => {
+                println!("Exec");
+                exec_user_command(&key_event.args);
+            },
+            _ => {
+                println!("Unimplemented");
             }
         }
     }
@@ -206,8 +220,8 @@ impl WindowManager {
         for screen in self.connection.borrow().setup().roots.iter() {
             let mut screenstruct = ScreenInfo::new(self.connection.clone(),
                                                    screen.root,
-                                                   screen.width_in_pixels,
-                                                   screen.height_in_pixels,
+                                                   screen.width_in_pixels as u32,
+                                                   screen.height_in_pixels as u32,
                                                    );
             screenstruct.workspaces.push(Workspace::new(0,
                                                         self.connection.clone(),

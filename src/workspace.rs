@@ -1,4 +1,5 @@
 use super::windowstate::WindowState;
+use log::{debug, error};
 use x11rb::connection::Connection;
 use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::xproto::*;
@@ -25,6 +26,38 @@ impl TryFrom<&str> for Layout {
             "vertical" => Ok(Layout::VerticalStriped),
             "horizontal" => Ok(Layout::HorizontalStriped),
             _ => Err(format!("{} is not a valid layout", value)),
+        }
+    }
+}
+
+pub enum GoToWorkspace {
+    Next,
+    Previous,
+}
+
+impl GoToWorkspace {
+    pub fn try_from(value:Option<String>)->Option<GoToWorkspace>{
+        if value.is_none() {
+            return None;
+        }        
+
+        return match value.unwrap().to_lowercase().as_str() {
+            "next" => Some(GoToWorkspace::Next),
+            "previous" => Some(GoToWorkspace::Previous),
+            _ => None,
+        }
+    }
+
+    pub fn calculate_new_workspace(&self, active_workspace:usize, max_workspace:usize) -> usize {
+        match self {
+            GoToWorkspace::Next => (active_workspace + 1) % (max_workspace + 1),
+            GoToWorkspace::Previous => {
+                if active_workspace == 0 {
+                    max_workspace
+                }else{
+                    active_workspace - 1
+                }
+            }
         }
     }
 }
@@ -187,6 +220,7 @@ impl Workspace {
     pub fn hide() { panic!("Not implemented"); }
 
     pub fn focus_window(&mut self, winid: u32) {
+        debug!("focus_window");
         self.focused_window = Some(winid);
         self.connection.borrow().set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
         //TODO: Chagnge color of border to focus color
@@ -210,6 +244,21 @@ impl Workspace {
         self.remap_windows();
     }
 
+    pub fn unmap_windows(&mut self){
+        debug!("Unmapping Windows from workspace {}", self.name);
+        let conn = self.connection.borrow();
+        conn.grab_server().unwrap();
+        for id in self.order.iter() {
+            let win = self.windows.get(id).unwrap();
+            let resp = &conn.unmap_window(win.window);
+            if resp.is_err() {
+                error!("An error occured while trying to unmap window");
+            }
+        }
+        conn.ungrab_server().unwrap();
+        conn.flush().unwrap();
+    }
+
     pub fn remap_windows(&mut self) {
         match self.layout {
             //Layout::Tiled => {},
@@ -217,6 +266,8 @@ impl Workspace {
             Layout::HorizontalStriped => self.map_horizontal_striped(),
 
         }
+
+        let conn = self.connection.borrow();
         for id in self.order.iter() {
             //TODO Add titlebar and Frame
             let win = self.windows.get(id).unwrap();
@@ -225,7 +276,6 @@ impl Workspace {
                 .y(win.y)
                 .width(win.width)
                 .height(win.height);
-            let conn = self.connection.borrow();
             conn.configure_window(win.window, &winaux).unwrap();
 
             conn.grab_server().unwrap();
