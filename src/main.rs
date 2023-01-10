@@ -7,14 +7,14 @@ pub mod config;
 pub mod keybindings;
 pub mod auxiliary;
 
-use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::mpsc::{channel, Sender};
 use std::error::Error;
-use std::{thread, result};
+use std::{thread};
 
 use config::Config;
+use log::error;
 use x11rb::{
     connection::Connection,
     protocol::xproto::{
@@ -89,6 +89,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 Some(event) => eventhandler.handle_event(&event),
                 None => (),
             }
+        }else {
+            error!("Error retreiving Event from Window manager {}", result.err().unwrap());
         }
 
         let ipc_event = receiver.try_recv();
