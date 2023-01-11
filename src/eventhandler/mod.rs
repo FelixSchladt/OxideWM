@@ -6,6 +6,7 @@ use crate::{
     eventhandler::commands::WmCommands,
 };
 
+use log::info;
 use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
 
 pub struct EventHandler<'a>{
@@ -61,16 +62,16 @@ impl EventHandler<'_> {
 
     fn handle_keypress(&mut self, event: &KeyPressEvent) {
         let keys = self.keybindings.events_map
-            .get(&event.detail)
-            .expect("ERROR: Key not found in keybindings -> THIS MUST NOT HAPPEN");
-        //NOTE: IF you get the error above, this is probably cause by an inconsistency
-        // in the Connection. Most likely you did something with the connection that
-        // left it in a weird state. This **must not be** directly connected to this
-        // function. Maybe a flush helps but check if there is something else wrong
-        // with your changes. I experienced this a couple of times and it always was
-        // quite strange and hard to find. Ask for help if you can't find the problem.
+            .get(&event.detail);
+        if keys.is_none() {
+            // the keys are empty, when a keybinding [alt, t] for example exists.
+            // if the user then holds t and only then presses alt, the event.details, are for the alt key
+            // since we search for the bindings by the details, and check the mask later, the binding is not found. 
+            info!("No keybinding found grabbed keybinding, will not be handled");
+            return;
+        }
 
-        for key in keys.clone() {
+        for key in keys.unwrap().clone() {
             let state = u16::from(event.state);
             if state == key.keycode.mask || state == key.keycode.mask | u16::from(ModMask::M2) {
                 println!("Key: {:?}", key);
