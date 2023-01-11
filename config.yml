@@ -1,6 +1,6 @@
 # This is the config file for OxideWM.
 # Here you can freely configure your window manager.
-# Please keep in mind that you have to configure every valuie properly for the WM to run.
+# Please keep in mind that you have to configure every value properly for the WM to run.
 # Otherwise the programm will crash.
 
 cmds:
