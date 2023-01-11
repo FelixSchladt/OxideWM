@@ -1,5 +1,6 @@
 #![deny(clippy::pedantic)]
 
+pub mod eventhandler;
 pub mod windowmanager;
 pub mod workspace;
 pub mod windowstate;
@@ -7,50 +8,70 @@ pub mod screeninfo;
 pub mod config;
 pub mod keybindings;
 pub mod auxiliary;
+pub mod ipc;
 
-use std::sync::mpsc::{channel, Sender};
-use std::error::Error;
+use std::sync::{Arc, Mutex};
+
+use std::sync::mpsc::channel;
 use std::thread;
 use std::{cell::RefCell, rc::Rc};
 
-use x11rb::connection::Connection;
-use x11rb::rust_connection::RustConnection;
+use config::Config;
+use log::error;
+use serde_json::Result;
 
-use windowmanager::WindowManager;
-
-#[derive(Debug)]
-struct IpcEvent {
-    test: String,
-}
-
-
-fn dbus_ipc_loop(sender: Sender<IpcEvent>) {
-    loop {
-        //sender.send(IpcEvent { test: "test".to_string() }).unwrap();
-        thread::sleep(std::time::Duration::from_millis(1000));
-    }
-}
+use crate::{
+    windowmanager::{WindowManager, IpcEvent},
+    eventhandler::{EventHandler, RestartWm},
+    keybindings::KeyBindings,
+    ipc::zbus_serve,
+};
 
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let mut manager = WindowManager::new();
-    let (sender, receiver) = channel();
+fn main() -> Result<()> {
+    let mut config = Rc::new(RefCell::new(Config::new()));
+    let mut keybindings = KeyBindings::new(&config.borrow());
+    
+    let mut manager = WindowManager::new(&keybindings, config.clone());
+    let mut eventhandler = EventHandler::new(&mut manager, &keybindings);
+    
+    let (ipc_sender, wm_receiver) = channel::<IpcEvent>();
+    let (wm_sender, ipc_receiver) = channel::<String>(); 
+
+
+    let ipc_sender_mutex = Arc::new(Mutex::new(ipc_sender));
+    let ipc_receiver_mutex = Arc::new(Mutex::new(ipc_receiver));
 
     thread::spawn(move || {
-        dbus_ipc_loop(sender);
+        async_std::task::block_on(zbus_serve(ipc_sender_mutex, ipc_receiver_mutex)).unwrap();
     });
 
     loop {
-        let event = manager.connection.borrow_mut().poll_for_event().unwrap();
-        match event {
-            Some(event) => manager.handle_event(&event),
-            None => (),
+        let result = eventhandler.window_manager.poll_for_event();
+        let mut restart: RestartWm = false;
+        if let Ok(Some(event)) = result {
+            restart = eventhandler.handle_event(&event)
+        } else {
+            error!("Error retreiving Event from Window manager {}", result.err().unwrap());
         }
 
-        let ipc_event = receiver.try_recv();
-        match ipc_event {
-            Ok(event) => println!("Received IPC Event: {:?}", event),
-            Err(_) => (),
+        if let Ok(event) = wm_receiver.try_recv() {
+            if event.status {
+                let wm_state = eventhandler.window_manager.get_state();
+                let j = serde_json::to_string(&wm_state)?;
+                println!("IPC status request");
+                wm_sender.send(j).unwrap();
+            } else {
+                restart = eventhandler.handle_ipc_event(event);
+            }
+        }
+
+        if restart {
+            config = Rc::new(RefCell::new(Config::new()));
+            keybindings = KeyBindings::new(&config.borrow());
+    
+            eventhandler = EventHandler::new(&mut manager, &keybindings);
+            eventhandler.window_manager.restart_wm(&keybindings, config.clone());
         }
     }
 }
