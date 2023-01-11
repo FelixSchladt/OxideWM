@@ -1,4 +1,5 @@
 // This file exists so oxide-msg can import from oxidewm
+pub mod eventhandler;
 pub mod windowmanager;
 pub mod workspace;
 pub mod screeninfo;

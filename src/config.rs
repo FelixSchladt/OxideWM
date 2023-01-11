@@ -1,46 +1,8 @@
 use std::fs::File;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
-use zbus::zvariant::Type;
-use std::process;
-use std::path::Path;
 
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[derive(Type)]
-pub enum WmCommands {
-    Move, //args: left, up, right, down
-    Focus,
-    Resize,
-    Quit, // Quit the window manager
-    Kill, // Kill the focused window
-    Restart, // Restart the window manager
-    Layout, //args: horizontal, vertical
-    MoveToWorkspace,
-    GoToWorkspace,
-    MoveToWorkspaceAndFollow,
-    Exec,
-}
-impl TryFrom<&str> for WmCommands {
-    type Error = String;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value.to_lowercase().as_str() {
-            "move" => Ok(WmCommands::Move),
-            "focus" => Ok(WmCommands::Focus),
-            "resize" => Ok(WmCommands::Resize),
-            "quit" => Ok(WmCommands::Quit),
-            "kill" => Ok(WmCommands::Kill),
-            "restart" => Ok(WmCommands::Restart),
-            "layout" => Ok(WmCommands::Layout),
-            "movetoworkspace" => Ok(WmCommands::MoveToWorkspace),
-            "gotoworkspace" => Ok(WmCommands::GoToWorkspace),
-            "movetoworkspaceandfollow" => Ok(WmCommands::MoveToWorkspaceAndFollow),
-            "exec" => Ok(WmCommands::Exec),
-            _ => Err(format!("{} is not a valid command", value)),
-        }
-    }
-}
-
+use crate::eventhandler::commands::WmCommands;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where
@@ -142,3 +104,4 @@ fn default_gap() -> u8 { 3 }
     let border_color = Color::from_hex(user_config::border_color).unwrap();
     let border_focus_color = Color::from_hex(user_config::border_color).unwrap();
 } */
+
