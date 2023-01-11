@@ -6,7 +6,6 @@ use std::error::Error;
 use crate::windowmanager::{IpcEvent, WmActionEvent};
 
 
-use std::future::pending;
 use zbus::{ConnectionBuilder, dbus_interface};
 
 struct WmInterface {
