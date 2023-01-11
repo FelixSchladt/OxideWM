@@ -6,7 +6,6 @@ use std::error::Error;
 use crate::windowmanager::{IpcEvent, WmActionEvent};
 
 
-use std::future::pending;
 use zbus::{ConnectionBuilder, dbus_interface};
 
 struct WmInterface {
@@ -39,8 +38,6 @@ pub async fn zbus_serve(sender: Arc<Mutex<Sender<IpcEvent>>>, receiver: Arc<Mute
         .serve_at("/org/oxide/interface", interface)?
         .build()
         .await?;
-
-    pending::<()>().await;
 
     Ok(())
 }

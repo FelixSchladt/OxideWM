@@ -1,3 +1,5 @@
+#![deny(clippy::pedantic)]
+
 pub mod eventhandler;
 pub mod windowmanager;
 pub mod workspace;
