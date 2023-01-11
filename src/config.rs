@@ -1,11 +1,13 @@
 use std::fs::File;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
+use zbus::zvariant::Type;
 use std::process;
 use std::path::Path;
 
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Type)]
 pub enum WmCommands {
     Move, //args: left, up, right, down
     Focus,
@@ -19,6 +21,26 @@ pub enum WmCommands {
     MoveToWorkspaceAndFollow,
     Exec,
 }
+impl TryFrom<&str> for WmCommands {
+    type Error = String;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value.to_lowercase().as_str() {
+            "move" => Ok(WmCommands::Move),
+            "focus" => Ok(WmCommands::Focus),
+            "resize" => Ok(WmCommands::Resize),
+            "quit" => Ok(WmCommands::Quit),
+            "kill" => Ok(WmCommands::Kill),
+            "restart" => Ok(WmCommands::Restart),
+            "layout" => Ok(WmCommands::Layout),
+            "movetoworkspace" => Ok(WmCommands::MoveToWorkspace),
+            "gotoworkspace" => Ok(WmCommands::GoToWorkspace),
+            "movetoworkspaceandfollow" => Ok(WmCommands::MoveToWorkspaceAndFollow),
+            "exec" => Ok(WmCommands::Exec),
+            _ => Err(format!("{} is not a valid command", value)),
+        }
+    }
+}
+
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where
@@ -42,7 +64,7 @@ pub struct WmCommand {
     pub args: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     #[serde(default = "default_cmds")]
     pub cmds: Vec<WmCommand>,

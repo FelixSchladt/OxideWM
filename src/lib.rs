@@ -1,0 +1,8 @@
+// This file exists so oxide-msg can import from oxidewm
+pub mod windowmanager;
+pub mod workspace;
+pub mod screeninfo;
+pub mod keybindings;
+pub mod config;
+pub mod windowstate;
+pub mod auxiliary;

@@ -7,36 +7,32 @@ pub mod screeninfo;
 pub mod config;
 pub mod keybindings;
 pub mod auxiliary;
+pub mod ipc;
 
-use std::sync::mpsc::{channel, Sender};
-use std::error::Error;
+use std::sync::mpsc::channel;
+
 use std::thread;
+
+use serde_json::Result;
 
 use x11rb::connection::Connection;
 
-use windowmanager::WindowManager;
+use std::sync::{Arc, Mutex};
 
-#[derive(Debug)]
-struct IpcEvent {
-    test: String,
-}
+use crate::windowmanager::{WindowManager, IpcEvent, WindowManagerState};
+use ipc::zbus_serve;
 
-
-fn dbus_ipc_loop(sender: Sender<IpcEvent>) {
-    loop {
-        //sender.send(IpcEvent { test: "test".to_string() }).unwrap();
-        thread::sleep(std::time::Duration::from_millis(1000));
-    }
-}
-
-
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<()> {
     let mut manager = WindowManager::new();
 
-    let (sender, receiver) = channel();
+    let (ipc_sender, wm_receiver) = channel::<IpcEvent>();
+    let (wm_sender, ipc_receiver) = channel::<String>(); 
+
+    let ipc_sender_mutex = Arc::new(Mutex::new(ipc_sender));
+    let ipc_receiver_mutex = Arc::new(Mutex::new(ipc_receiver));
 
     thread::spawn(move || {
-        dbus_ipc_loop(sender);
+        async_std::task::block_on(zbus_serve(ipc_sender_mutex, ipc_receiver_mutex)).unwrap();
     });
 
     loop {
@@ -45,12 +41,18 @@ fn main() -> Result<(), Box<dyn Error>> {
             Some(event) => manager.handle_event(&event),
             None => (),
         }
-        //get_cursor_position(&manager);
-
-
-        let ipc_event = receiver.try_recv();
+        let ipc_event = wm_receiver.try_recv();
         match ipc_event {
-            Ok(event) => println!("Received IPC Event: {:?}", event),
+            Ok(event) => {
+                if event.status {
+                    let wm_state = WindowManagerState::try_from(&manager).unwrap();
+                    let j = serde_json::to_string(&wm_state)?;
+                    println!("IPC status request");
+                    wm_sender.send(j).unwrap();
+                 } else {
+                    manager.handle_ipc_event(event);
+                }
+            },
             Err(_) => (),
         }
     }

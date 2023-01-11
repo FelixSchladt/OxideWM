@@ -15,12 +15,15 @@ use x11rb::rust_connection::{
     RustConnection,
     ReplyError
 };
+use serde::Serialize;
 
 use crate::screeninfo::ScreenInfo;
 use crate::workspace::{Workspace, Layout};
 use crate::config::{Config, WmCommands};
 use crate::keybindings::KeyBindings;
 use crate::auxiliary::exec_user_command;
+
+use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
 
 #[derive(Debug)]
 pub struct WindowManager {
@@ -32,7 +35,28 @@ pub struct WindowManager {
     pub moved_window: Option<u32>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
+pub struct WindowManagerState {
+    pub screeninfo: HashMap<u32, ScreenInfo>,
+    pub config: Config,
+    pub focused_screen: u32,
+}
+
+impl TryFrom<&WindowManager> for WindowManagerState {
+    type Error = Box<dyn Error>;
+    fn try_from(wm: &WindowManager) -> Result<Self, Self::Error> {
+        let config = wm.config.borrow();
+        Ok(WindowManagerState {
+            screeninfo: wm.screeninfo.clone(),
+            config: config.clone(),
+            focused_screen: wm.focused_screen.clone(),
+        })
+    }
+}
+
+
+
+#[derive(Debug, Serialize)]
 pub enum Movement {
     Left,
     Right,
@@ -49,6 +73,38 @@ impl TryFrom<&str> for Movement {
             "up" => Ok(Movement::Up),
             "down" => Ok(Movement::Down),
             _ => Err(format!("{} is not a valid movement", value)),
+        }
+    }
+}
+
+#[derive(Type, DeserializeDict, SerializeDict, Debug)]
+#[zvariant(signature = "dict")]
+pub struct WmActionEvent {
+    pub command: WmCommands,
+    pub args: Option<String>,
+}
+
+impl WmActionEvent {
+    pub fn new(command: &str, args: Option<String>) -> Self {
+        WmActionEvent {
+            command: WmCommands::try_from(command).unwrap(),
+            args,
+        }
+    }
+}
+
+#[derive(DeserializeDict, SerializeDict, Type, Debug)]
+#[zvariant(signature = "dict")]
+pub struct IpcEvent {
+    pub status: bool,
+    pub event: Option<WmActionEvent>,
+}
+
+impl From<WmActionEvent> for IpcEvent {
+    fn from(command: WmActionEvent) -> Self {
+        IpcEvent {
+            status: false,
+            event: Some(command),
         }
     }
 }
@@ -145,6 +201,43 @@ impl WindowManager {
         }
     }
 
+    fn handle_wm_command(&mut self, command: WmActionEvent) {
+         match command.command {
+            WmCommands::Move => {
+                println!("Move");
+                self.handle_keypress_move(command.args.clone());
+            },
+            WmCommands::Focus => {
+                println!("Focus");
+                self.handle_keypress_focus(command.args.clone());
+            },
+            WmCommands::Resize => {
+                println!("Resize");
+            },
+            WmCommands::Quit => {
+                 println!("Quit");
+            },
+            WmCommands::Kill => {
+                println!("Kill");
+                self.handle_keypress_kill();
+            },
+            WmCommands::Layout => {
+                println!("Layout");
+                self.handle_keypress_layout(command.args.clone());
+            },
+            WmCommands::Restart => {
+                println!("Restart");
+            },
+            WmCommands::Exec => {
+                println!("Exec");
+                exec_user_command(&command.args);
+            },
+            _ => {
+                println!("Unimplemented");
+            }
+        }
+    }
+
     fn handle_keypress(&mut self, event: &KeyPressEvent) {
         let keys = self.keybindings.events_map
             .get(&event.detail)
@@ -161,42 +254,18 @@ impl WindowManager {
             if state == key.keycode.mask
             || state == key.keycode.mask | u16::from(ModMask::M2) {
                 println!("Key: {:?}", key);
-                match key.event {
-                    WmCommands::Move => {
-                        println!("Move");
-                        self.handle_keypress_move(key.args.clone());
-                    },
-                    WmCommands::Focus => {
-                        println!("Focus");
-                        self.handle_keypress_focus(key.args.clone());
-                    },
-                    WmCommands::Resize => {
-                        println!("Resize");
-                    },
-                    WmCommands::Quit => {
-                        println!("Quit");
-                        std::process::exit(0);
-                    },
-                    WmCommands::Kill => {
-                        println!("Kill");
-                        self.handle_keypress_kill();
-                    },
-                    WmCommands::Layout => {
-                        println!("Layout");
-                        self.handle_keypress_layout(key.args.clone());
-                    },
-                    WmCommands::Restart => {
-                        println!("Restart");
-                    },
-                    WmCommands::Exec => {
-                        println!("Exec");
-                        exec_user_command(&key.args);
-                    },
-                    _ => {
-                        println!("Unimplemented");
-                    }
-                }
+                self.handle_wm_command(WmActionEvent {
+                    command: key.event,
+                    args: key.args.clone(),
+                });
             }
+        }
+    }
+
+    pub fn handle_ipc_event(&mut self, event: IpcEvent) {
+        println!("IpcEvent: {:?}", event);
+        if let Some(command) = event.event {
+            self.handle_wm_command(command);
         }
     }
 
@@ -289,7 +358,7 @@ impl WindowManager {
         self.screeninfo
             .get_mut(&event.root)
             .unwrap().workspaces[workspace_id]
-            .unfocus_window(event.event);
+            .unfocus_window();
     }
 
 
