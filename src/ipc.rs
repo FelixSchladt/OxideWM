@@ -40,7 +40,5 @@ pub async fn zbus_serve(sender: Arc<Mutex<Sender<IpcEvent>>>, receiver: Arc<Mute
         .build()
         .await?;
 
-    pending::<()>().await;
-
     Ok(())
 }
