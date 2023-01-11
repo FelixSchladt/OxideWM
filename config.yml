@@ -40,9 +40,8 @@ cmds:
   - keys: ["A", "d"]
     command: Exec
     args: "dmenu_run"
-exec:
-  - "kitty"
-exec_always: ["kitty"]
+exec: []
+exec_always: [] 
 border_with: 8
 border_color: 0x008000 # yellow
 border_focus_color: 0xFFFF00 # green
