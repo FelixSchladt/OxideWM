@@ -12,7 +12,6 @@ use std::sync::mpsc::{channel, Sender};
 use std::error::Error;
 use std::thread;
 
-use log::debug;
 use x11rb::connection::Connection;
 
 use windowmanager::WindowManager;
@@ -22,11 +21,11 @@ extern crate log;
 
 #[derive(Debug)]
 struct IpcEvent {
-    test: String,
+    _test: String,
 }
 
 
-fn dbus_ipc_loop(sender: Sender<IpcEvent>) {
+fn dbus_ipc_loop(_sender: Sender<IpcEvent>) {
     loop {
         //sender.send(IpcEvent { test: "test".to_string() }).unwrap();
         thread::sleep(std::time::Duration::from_millis(1000));

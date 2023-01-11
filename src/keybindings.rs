@@ -4,7 +4,7 @@ use std::process::Command;
 use log::debug;
 use x11rb::protocol::xproto::{KeyPressEvent, ModMask};
 
-use crate::config::{Config, WmCommands, WmCommand};
+use crate::config::{Config, WmCommands};
 
 #[derive(Debug)]
 pub enum ModifierKey {

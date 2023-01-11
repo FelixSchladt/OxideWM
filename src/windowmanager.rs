@@ -1,4 +1,3 @@
-use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::error::Error;
 use std::{cell::RefCell, rc::Rc};
@@ -85,65 +84,106 @@ impl WindowManager {
         manager
     }
 
-    fn get_active_workspace(&self) -> usize {
+    fn get_active_workspace_id(&self) -> usize {
         return self.screeninfo.get(&self.focused_screen).unwrap().active_workspace;    
     }
 
-    fn get_focused_window(&self) -> (usize, Option<u32>) {
-        let active_workspace = self.get_active_workspace();
-        let focused_window = self.screeninfo
-            .get(&self.focused_screen)
-            .unwrap().workspaces[active_workspace]
-            .get_focused_window();
-        return (active_workspace, focused_window);
-    }
-      
-    fn handle_keypress_focus(&mut self, args: Option<String>) {
-        let args = args.expect("No move arguments for focus");
-        let active_workspace = self.get_active_workspace();
-        self.screeninfo.get_mut(&self.focused_screen)
+    fn get_active_workspace(&mut self) -> Option<&mut Workspace> {
+        let active_workspace_id = self.get_active_workspace_id();
+        return self.screeninfo.get_mut(&self.focused_screen)
             .unwrap()
-            .workspaces[active_workspace]
-            .move_focus(Movement::try_from(args.as_str()).unwrap());
+            .get_workspace(active_workspace_id);
     }
 
-    fn handle_keypress_move(&mut self, args: Option<String>) {
-        let args = args.expect("No move arguments for move");
+    fn get_focused_window(&mut self) -> (Option<usize>, Option<u32>) {
+        let workspace_option = self.get_active_workspace();
+        return match workspace_option {
+            Some(workspace) => {
+                let focused_window = workspace.get_focused_window();
+                (Some(workspace.index), focused_window)
+            },
+            None => (None, None),
+        }
+    }
+      
+    fn handle_keypress_focus(&mut self, args_option: Option<String>) {
+        if args_option.is_none(){
+            warn!("Argument must be provided");
+            return;
+        }
+        let args = args_option.unwrap();
+        
+        let movement = Movement::try_from(args.as_str());
+        if movement.is_err() {
+            warn!("Could not parse movement from argument {}", args);
+            return;
+        }
+
         let active_workspace = self.get_active_workspace();
-        self.moved_window = self.screeninfo.get_mut(&self.focused_screen)
-            .unwrap()
-            .workspaces[active_workspace]
-            .move_window(Movement::try_from(args.as_str()).unwrap());
+        match active_workspace {
+            Some(workspace) => workspace.move_focus(movement.unwrap()),
+            None => warn!("No workspace is currently active"),
+        }
+    }
+
+    fn handle_keypress_move(&mut self, args_option: Option<String>) {
+        if args_option.is_none(){
+            warn!("Argument must be provided");
+            return;
+        }
+        let args = args_option.unwrap();
+
+        let movement = Movement::try_from(args.as_str());
+        if movement.is_err() {
+            warn!("Could not parse movement from argument {}",args);
+            return;
+        }
+
+        let active_workspace = self.get_active_workspace();
+        match active_workspace {
+            Some(workspace) => {
+                workspace.move_window(movement.unwrap());
+            },
+            None => warn!("No workspace is currently active"),
+        }
     }
     
     fn handle_keypress_kill(&mut self) {
-        let (active_workspace, focused_window) = self.get_focused_window();
+        let (_, focused_window) = self.get_focused_window();
         println!("Focused window: {:?}", focused_window);
         if let Some(winid) = focused_window {
-            self.screeninfo
-                .get_mut(&self.focused_screen)
-                .unwrap().workspaces[active_workspace]
-                .kill_window(&winid);
+            if let Some(workspace) = self.get_active_workspace(){
+                workspace.kill_window(&winid);
+            }else{
+                warn!("No workspace currently selected")
+            }
         } else {
-            println!("ERROR: No window to kill \nShould only happen on an empty screen");
+            error!("ERROR: No window to kill \nShould only happen on an empty screen");
         }
     }
 
     fn handle_keypress_layout(&mut self, args: Option<String>) {    
-        let active_workspace = self.get_active_workspace();
+        if args.is_none() {
+            warn!("No argument provided");
+            return;
+        }
+
+        let active_workspace_option = self.get_active_workspace();
+        if active_workspace_option.is_none(){
+            warn!("No workspace currently selected");
+            return;
+        }
+        let active_workspace = active_workspace_option.unwrap();
+
         match args {
             Some(args) => {
-                self.screeninfo.get_mut(&self.focused_screen)
-                    .unwrap()
-                    .workspaces[active_workspace]
-                    .set_layout(Layout::try_from(args.as_str()).unwrap());
+                let layout = Layout::try_from(args.as_str());
+                if layout.is_err(){
+                    warn!("Layout could not be parsed from argument {}", args);
+                }
+                active_workspace.set_layout(layout.unwrap());
             },
-            None => {
-                self.screeninfo.get_mut(&self.focused_screen)
-                    .unwrap()
-                    .workspaces[active_workspace]
-                    .next_layout();
-            }
+            None => active_workspace.next_layout()
         }
     }
 
@@ -223,13 +263,8 @@ impl WindowManager {
                                                    screen.width_in_pixels as u32,
                                                    screen.height_in_pixels as u32,
                                                    );
-            screenstruct.workspaces.push(Workspace::new(0,
-                                                        self.connection.clone(),
-                                                        0,
-                                                        0,
-                                                        screen.width_in_pixels as u32,
-                                                        screen.height_in_pixels as u32,
-                                                        ));
+            screenstruct.create_new_workspace();
+            screenstruct.create_new_workspace();
             self.screeninfo.insert(screen.root, screenstruct);
             self.focused_screen = screen.root;
         }
@@ -285,74 +320,71 @@ impl WindowManager {
     }
 
     fn handle_event_enter_notify(&mut self, event: &EnterNotifyEvent) {
-        self.focused_screen = event.root;
-        let workspace_id = self.get_active_workspace();
         let mut winid = event.event;
         if self.moved_window.is_some() {
             winid =  self.moved_window.unwrap();
             self.moved_window = None;
         }
 
-        self.screeninfo
-            .get_mut(&event.root)
-            .unwrap()
-            .workspaces[workspace_id]
-            .focus_window(winid);
+        let active_workspace = self.get_active_workspace();
+        match active_workspace{
+            Some(workspace) => workspace.focus_window(winid),
+            None=>warn!("No workspace currently selected")
+        }
     }
 
     fn handle_event_leave_notify(&mut self, event: &LeaveNotifyEvent) {
-        let workspace_id = self.get_active_workspace();
-        self.screeninfo
-            .get_mut(&event.root)
-            .unwrap().workspaces[workspace_id]
-            .unfocus_window(event.event);
+        let winid = event.event;
+        let active_workspace = self.get_active_workspace();
+        match active_workspace{
+            Some(workspace) => workspace.unfocus_window(winid),
+            None=>warn!("No workspace currently selected")
+        }
     }
 
 
     fn handle_event_unmap_notify(&mut self, event: &UnmapNotifyEvent) {
-        let workspace_id = self.screeninfo
-            .get(&event.event)
-            .unwrap().active_workspace;
-        self.screeninfo
-            .get_mut(&event.event)
-            .unwrap().workspaces[workspace_id]
-            .remove_window(&event.window);
+        let active_workspace = self.get_active_workspace();
+        match active_workspace{
+            Some(workspace) => workspace.remove_window(&event.window),
+            None=>warn!("No workspace currently selected")
+        }
     }
 
     pub fn handle_event(&mut self, event: &Event) {
-        print!("Received Event: ");
+        let debug_msg = "Received Event";
         match event {
-            Event::Expose(_event) => println!("Expose"),
+            Event::Expose(_event) => debug!("{} Expose", debug_msg),
             Event::UnmapNotify(_event) => {
-                println!("UnmapNotify");
+                debug!("{} UnmapNotify", debug_msg);
                 self.handle_event_unmap_notify(_event);
             },
-            Event::ButtonPress(_event) => println!("ButtonPress"),
-            Event::MotionNotify(_event) => println!("MotionNotify"),
-            Event::ButtonRelease(_event) => println!("ButtonRelease"),
-            Event::ConfigureRequest(_event) => println!("ConfigureRequest"),
+            Event::ButtonPress(_event) => debug!("{} ButtonPress", debug_msg),
+            Event::MotionNotify(_event) => debug!("{} MotionNotify", debug_msg),
+            Event::ButtonRelease(_event) => debug!("{} ButtonRelease", debug_msg),
+            Event::ConfigureRequest(_event) => debug!("{} ConfigureRequest", debug_msg),
             Event::MapRequest(_event) => {
-                println!("MapRequest");
+                debug!("{} MapRequest", debug_msg);
                 self.screeninfo.get_mut(&_event.parent).unwrap().on_map_request(_event);
             },
-            Event::KeyPress(_event) => println!("KeyPress"),
+            Event::KeyPress(_event) => debug!("{} KeyPress", debug_msg),
             Event::KeyRelease(_event) => {
-                println!("KeyRelease");
+                debug!("{} KeyRelease", debug_msg);
                 self.handle_keypress(_event);
             },
-            Event::DestroyNotify(_event) => println!("DestroyNotify"),
-            Event::PropertyNotify(_event) => println!("PropertyNotify"),
+            Event::DestroyNotify(_event) => debug!("{} DestroyNotify", debug_msg),
+            Event::PropertyNotify(_event) => debug!("{} PropertyNotify", debug_msg),
             Event::EnterNotify(_event) => {
-                println!("EnterNotify!!!");
+                debug!("{} EnterNotify!!!", debug_msg);
                 self.handle_event_enter_notify(_event);
             },
             Event::LeaveNotify(_event) => {
-                println!("LeaveNotify");
+                debug!("{} LeaveNotify", debug_msg);
                 self.handle_event_leave_notify(_event);
             },
-            Event::FocusIn(_event) => println!("FocusIn"),
-            Event::FocusOut(_event) => println!("FocusOut"),
-            _ => println!("\x1b[33mUnknown\x1b[0m {:?}", event),
+            Event::FocusIn(_event) => debug!("{} FocusIn", debug_msg),
+            Event::FocusOut(_event) => debug!("{} FocusOut", debug_msg),
+            _ => warn!("{} \x1b[33mUnknown\x1b[0m {:?}", debug_msg, event),
         };
     }
 

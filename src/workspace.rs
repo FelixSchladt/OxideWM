@@ -66,7 +66,7 @@ impl GoToWorkspace {
 pub struct Workspace {
     pub connection:  Rc<RefCell<RustConnection>>,
     pub name: String,
-    pub index: u16,
+    pub index: usize,
     pub root_window: u16,
     pub visible: bool,
     pub focused: bool,
@@ -83,7 +83,7 @@ pub struct Workspace {
 
 
 impl Workspace {
-    pub fn new(index: u16, connection: Rc<RefCell<RustConnection>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
+    pub fn new(index: usize, connection: Rc<RefCell<RustConnection>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
         Workspace {
             connection: connection,
             name: index.to_string(),
@@ -226,7 +226,7 @@ impl Workspace {
         //TODO: Chagnge color of border to focus color
     }
 
-    pub fn unfocus_window(&mut self, winid: u32) {
+    pub fn unfocus_window(&mut self, _winid: u32) {
         self.focused_window = None;
         //TODO: Change color of border to unfocus color
     }
@@ -245,11 +245,10 @@ impl Workspace {
     }
 
     pub fn unmap_windows(&mut self){
-        debug!("Unmapping Windows from workspace {}", self.name);
+        debug!("Unmapping {} Windows from workspace {}", self.windows.len(), self.name);
         let conn = self.connection.borrow();
         conn.grab_server().unwrap();
-        for id in self.order.iter() {
-            let win = self.windows.get(id).unwrap();
+        for (_, win) in self.windows.iter() {
             let resp = &conn.unmap_window(win.window);
             if resp.is_err() {
                 error!("An error occured while trying to unmap window");
