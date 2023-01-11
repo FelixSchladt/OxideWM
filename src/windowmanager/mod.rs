@@ -5,35 +5,44 @@ use std::process::{
     exit
 };
 
-use log::{warn, debug};
+use log::{warn, error, info};
 use x11rb::connection::Connection;
-use x11rb::protocol::xproto::*;
-use x11rb::protocol::{
-    Event,
-    ErrorKind
+use x11rb::protocol::xproto::ConnectionExt;
+use x11rb::{
+    protocol::{
+        ErrorKind,
+        Event
+    },
+    protocol::xproto::{
+        ChangeWindowAttributesAux,
+        Screen,
+        MapRequestEvent, 
+        UnmapNotifyEvent, 
+        LeaveNotifyEvent, 
+        EnterNotifyEvent, 
+        EventMask, 
+        GrabMode, 
+        ModMask
+    },
+    rust_connection::{
+        ConnectionError,
+        RustConnection,
+        ReplyError
+    }
 };
-use x11rb::rust_connection::{
-    RustConnection,
-    ReplyError
+use serde::Serialize;
+
+use crate::workspace::{GoToWorkspace, Layout, Workspace};
+use crate::{
+    keybindings::KeyBindings,
+    screeninfo::ScreenInfo,
+    config::Config,
+    eventhandler::commands::WmCommands,
 };
 
-use crate::screeninfo::ScreenInfo;
-use crate::workspace::{Workspace, Layout, GoToWorkspace};
-use crate::config::{Config, WmCommands};
-use crate::keybindings::KeyBindings;
-use crate::auxiliary::exec_user_command;
+use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
 
-#[derive(Debug)]
-pub struct WindowManager {
-    pub connection: Rc<RefCell<RustConnection>>,
-    pub screeninfo: HashMap<u32, ScreenInfo>,
-    pub config: Rc<RefCell<Config>>,
-    pub keybindings: KeyBindings,
-    pub focused_screen: u32,
-    pub moved_window: Option<u32>,
-}
 
-#[derive(Debug)]
 pub enum Movement {
     Left,
     Right,
@@ -54,12 +63,59 @@ impl TryFrom<&str> for Movement {
     }
 }
 
+#[derive(Type, DeserializeDict, SerializeDict, Debug)]
+#[zvariant(signature = "dict")]
+pub struct WmActionEvent {
+    pub command: WmCommands,
+    pub args: Option<String>,
+}
+
+impl WmActionEvent {
+    pub fn new(command: &str, args: Option<String>) -> Self {
+        WmActionEvent {
+            command: WmCommands::try_from(command).unwrap(),
+            args,
+        }
+    }
+}
+
+#[derive(DeserializeDict, SerializeDict, Type, Debug)]
+#[zvariant(signature = "dict")]
+pub struct IpcEvent {
+    pub status: bool,
+    pub event: Option<WmActionEvent>,
+}
+
+impl From<WmActionEvent> for IpcEvent {
+    fn from(command: WmActionEvent) -> Self {
+        IpcEvent {
+            status: false,
+            event: Some(command),
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct WindowManagerState {
+    pub screeninfo: HashMap<u32, ScreenInfo>,
+    pub config: Config,
+    pub focused_screen: u32,
+}
+
+#[derive(Debug, Clone)]
+pub struct WindowManager {
+    pub connection: Rc<RefCell<RustConnection>>,
+    pub screeninfo: HashMap<u32, ScreenInfo>,
+    pub config: Rc<RefCell<Config>>,
+    pub focused_screen: u32,
+    pub moved_window: Option<u32>,
+}
+
+
 impl WindowManager {
-    pub fn new() -> WindowManager {
+    pub fn new(keybindings: &KeyBindings, config: Rc<RefCell<Config>>) -> WindowManager {
         let connection = Rc::new(RefCell::new(RustConnection::connect(None).unwrap().0));
         let screeninfo = HashMap::new();
-        let config = Rc::new(RefCell::new(Config::new()));
-        let keybindings = KeyBindings::new(&config.borrow());
 
         let focused_screen = 0;
         //TODO: Get focused screen from X11
@@ -70,18 +126,47 @@ impl WindowManager {
             connection,
             screeninfo,
             config,
-            keybindings,
             focused_screen,
             moved_window: None,
         };
 
         manager.setup_screens();
         manager.update_root_window_event_masks();
-        manager.grab_keys().unwrap();
-
-        manager.connection.borrow().flush().unwrap();
+        manager.grab_keys(keybindings).expect("Failed to grab Keys");
+        let result = manager.connection.borrow_mut().flush();
+        if result.is_err() {
+            info!("Failed to flush rust connection");
+        }
 
         manager
+    }
+
+    pub fn get_state(&self) -> WindowManagerState {
+        WindowManagerState {
+            screeninfo: self.screeninfo.clone(),
+            config: self.config.borrow().clone(),
+            focused_screen: self.focused_screen.clone(),
+        }
+    }
+
+    fn grab_keys(&self, keybindings: &KeyBindings) -> Result<(), Box<dyn Error>> {
+        println!("grabbing keys");
+        //TODO check if the the screen iterations should be merged
+        for screen in self.connection.borrow().setup().roots.iter() {
+            for modifier in [0, u16::from(ModMask::M2)] {
+                for keyevent in keybindings.events_vec.iter() {
+                    self.connection.borrow().grab_key(
+                        false,
+                        screen.root,
+                        (keyevent.keycode.mask | modifier).into(),
+                        keyevent.keycode.code,
+                        GrabMode::ASYNC,
+                        GrabMode::ASYNC,
+                    )?;
+                }
+            }
+        }
+        Ok(())
     }
 
     fn get_active_workspace_id(&self) -> usize {
@@ -105,8 +190,12 @@ impl WindowManager {
             None => (None, None),
         }
     }
+
+    pub fn poll_for_event(&self)->Result<Option<Event>, ConnectionError>{
+        self.connection.borrow().poll_for_event()
+    }
       
-    fn handle_keypress_focus(&mut self, args_option: Option<String>) {
+    pub fn handle_keypress_focus(&mut self, args_option: Option<String>) {
         if args_option.is_none(){
             warn!("Argument must be provided");
             return;
@@ -126,7 +215,7 @@ impl WindowManager {
         }
     }
 
-    fn handle_keypress_move(&mut self, args_option: Option<String>) {
+    pub fn handle_keypress_move(&mut self, args_option: Option<String>) {
         if args_option.is_none(){
             warn!("Argument must be provided");
             return;
@@ -148,7 +237,7 @@ impl WindowManager {
         }
     }
     
-    fn handle_keypress_kill(&mut self) {
+    pub fn handle_keypress_kill(&mut self) {
         let (_, focused_window) = self.get_focused_window();
         println!("Focused window: {:?}", focused_window);
         if let Some(winid) = focused_window {
@@ -162,7 +251,7 @@ impl WindowManager {
         }
     }
 
-    fn handle_keypress_layout(&mut self, args: Option<String>) {    
+    pub fn handle_keypress_layout(&mut self, args: Option<String>) {    
         if args.is_none() {
             warn!("No argument provided");
             return;
@@ -187,7 +276,7 @@ impl WindowManager {
         }
     }
 
-    fn handle_keypress_go_to_workspace(&mut self, args: Option<String>){
+    pub fn handle_keypress_go_to_workspace(&mut self, args: Option<String>){
         let screen_option = self.screeninfo
             .get_mut(&self.focused_screen);
         if screen_option.is_none() {
@@ -206,54 +295,6 @@ impl WindowManager {
         let active_workspace = screen.active_workspace;
         let new_workspace = arg.unwrap().calculate_new_workspace(active_workspace, max_workspace);
         screen.set_workspace(new_workspace);
-    }
-
-    fn handle_keypress(&mut self, key_press_event: &KeyPressEvent) {
-        let event_option = self.keybindings.retreive_cmd(key_press_event);
-        if event_option.is_none() {
-            debug!("No WmCommand found for event {}", key_press_event.detail);
-            return;
-        }
-
-        let key_event = event_option.unwrap();
-
-        match key_event.event {
-            WmCommands::Move => {
-                println!("Move");
-                self.handle_keypress_move(key_event.args.clone());
-            },
-            WmCommands::Focus => {
-                println!("Focus");
-                self.handle_keypress_focus(key_event.args.clone());
-            },
-            WmCommands::Resize => {
-                println!("Resize");
-            },
-            WmCommands::Quit => {
-                println!("Quit");
-            },
-            WmCommands::Kill => {
-                println!("Kill");
-                self.handle_keypress_kill();
-            },
-            WmCommands::Layout => {
-                println!("Layout");
-                self.handle_keypress_layout(key_event.args.clone());
-            },
-            WmCommands::Restart => {
-                println!("Restart");
-            },
-            WmCommands::GoToWorkspace =>{
-                self.handle_keypress_go_to_workspace(key_event.args.clone());
-            },
-            WmCommands::Exec => {
-                println!("Exec");
-                exec_user_command(&key_event.args);
-            },
-            _ => {
-                println!("Unimplemented");
-            }
-        }
     }
 
     fn setup_screens(&mut self) {
@@ -319,7 +360,7 @@ impl WindowManager {
         update_result
     }
 
-    fn handle_event_enter_notify(&mut self, event: &EnterNotifyEvent) {
+    pub fn handle_event_enter_notify(&mut self, event: &EnterNotifyEvent) {
         let mut winid = event.event;
         if self.moved_window.is_some() {
             winid =  self.moved_window.unwrap();
@@ -333,17 +374,16 @@ impl WindowManager {
         }
     }
 
-    fn handle_event_leave_notify(&mut self, event: &LeaveNotifyEvent) {
-        let winid = event.event;
+    pub fn handle_event_leave_notify(&mut self, _event: &LeaveNotifyEvent) {
         let active_workspace = self.get_active_workspace();
         match active_workspace{
-            Some(workspace) => workspace.unfocus_window(winid),
+            Some(workspace) => workspace.unfocus_window(),
             None=>warn!("No workspace currently selected")
         }
     }
 
 
-    fn handle_event_unmap_notify(&mut self, event: &UnmapNotifyEvent) {
+    pub fn handle_event_unmap_notify(&mut self, event: &UnmapNotifyEvent) {
         let active_workspace = self.get_active_workspace();
         match active_workspace{
             Some(workspace) => workspace.remove_window(&event.window),
@@ -351,60 +391,8 @@ impl WindowManager {
         }
     }
 
-    pub fn handle_event(&mut self, event: &Event) {
-        let debug_msg = "Received Event";
-        match event {
-            Event::Expose(_event) => debug!("{} Expose", debug_msg),
-            Event::UnmapNotify(_event) => {
-                debug!("{} UnmapNotify", debug_msg);
-                self.handle_event_unmap_notify(_event);
-            },
-            Event::ButtonPress(_event) => debug!("{} ButtonPress", debug_msg),
-            Event::MotionNotify(_event) => debug!("{} MotionNotify", debug_msg),
-            Event::ButtonRelease(_event) => debug!("{} ButtonRelease", debug_msg),
-            Event::ConfigureRequest(_event) => debug!("{} ConfigureRequest", debug_msg),
-            Event::MapRequest(_event) => {
-                debug!("{} MapRequest", debug_msg);
-                self.screeninfo.get_mut(&_event.parent).unwrap().on_map_request(_event);
-            },
-            Event::KeyPress(_event) => debug!("{} KeyPress", debug_msg),
-            Event::KeyRelease(_event) => {
-                debug!("{} KeyRelease", debug_msg);
-                self.handle_keypress(_event);
-            },
-            Event::DestroyNotify(_event) => debug!("{} DestroyNotify", debug_msg),
-            Event::PropertyNotify(_event) => debug!("{} PropertyNotify", debug_msg),
-            Event::EnterNotify(_event) => {
-                debug!("{} EnterNotify!!!", debug_msg);
-                self.handle_event_enter_notify(_event);
-            },
-            Event::LeaveNotify(_event) => {
-                debug!("{} LeaveNotify", debug_msg);
-                self.handle_event_leave_notify(_event);
-            },
-            Event::FocusIn(_event) => debug!("{} FocusIn", debug_msg),
-            Event::FocusOut(_event) => debug!("{} FocusOut", debug_msg),
-            _ => warn!("{} \x1b[33mUnknown\x1b[0m {:?}", debug_msg, event),
-        };
-    }
-
-    fn grab_keys(&self) -> Result<(), Box<dyn Error>> {
-        //TODO check if the the screen iterations should be merged
-        for screen in self.connection.borrow().setup().roots.iter() {
-            for modifier in [0, u16::from(ModMask::M2)] {
-                for keyevent in self.keybindings.events_vec.iter() {
-                    self.connection.borrow().grab_key(
-                        false,
-                        screen.root,
-                        (keyevent.keycode.mask | modifier).into(),
-                        keyevent.keycode.code,
-                        GrabMode::ASYNC,
-                        GrabMode::ASYNC,
-                    )?;
-                }
-            }
-        }
-    Ok(())
+    pub fn handle_map_request(&mut self, event: &MapRequestEvent) {
+        self.screeninfo.get_mut(&event.parent).unwrap().on_map_request(event);
     }
 }
 
