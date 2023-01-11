@@ -3,7 +3,7 @@ use std::process::Command;
 
 use crate::{
     config::Config,
-    windowmanager::WmCommands,
+    eventhandler::commands::WmCommands,
 };
 
 #[derive(Debug)]

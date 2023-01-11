@@ -2,7 +2,7 @@ use std::fs::File;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
 
-use crate::windowmanager::WmCommands;
+use crate::eventhandler::commands::WmCommands;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where

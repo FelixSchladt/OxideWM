@@ -1,8 +1,9 @@
-//pub mod commands;
+pub mod commands;
 use crate::{
-    windowmanager::{WindowManager, WmActionEvent, WmCommands, IpcEvent},
+    windowmanager::{WindowManager, WmActionEvent, IpcEvent},
     keybindings::KeyBindings, 
     auxiliary::exec_user_command, 
+    eventhandler::commands::WmCommands,
 };
 
 use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};

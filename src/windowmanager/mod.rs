@@ -17,52 +17,17 @@ use x11rb::{
         ReplyError, ConnectionError
     },
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 use crate::{
     keybindings::KeyBindings,
     screeninfo::ScreenInfo,
     workspace::{Workspace, Layout},
     config::Config,
+    eventhandler::commands::WmCommands,
 };
 
 use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
-
-
-#[derive(Debug, Serialize, Deserialize, Clone, Type)]
-pub enum WmCommands {
-    Move, //args: left, up, right, down
-    Focus,
-    Resize,
-    Quit, // Quit the window manager
-    Kill, // Kill the focused window
-    Restart, // Restart the window manager
-    Layout, //args: horizontal, vertical
-    MoveToWorkspace,
-    GoToWorkspace,
-    MoveToWorkspaceAndFollow,
-    Exec,
-}
-
-impl TryFrom<&str> for WmCommands {
-    type Error = String;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value.to_lowercase().as_str() {
-            "move" => Ok(WmCommands::Move),
-            "focus" => Ok(WmCommands::Focus),
-            "resize" => Ok(WmCommands::Resize),
-            "quit" => Ok(WmCommands::Quit),
-            "kill" => Ok(WmCommands::Kill),
-            "restart" => Ok(WmCommands::Restart),
-            "layout" => Ok(WmCommands::Layout),
-            "movetoworkspace" => Ok(WmCommands::MoveToWorkspace),
-            "gotoworkspace" => Ok(WmCommands::GoToWorkspace),
-            "movetoworkspaceandfollow" => Ok(WmCommands::MoveToWorkspaceAndFollow),
-            "exec" => Ok(WmCommands::Exec),
-            _ => Err(format!("{} is not a valid command", value)),
-        }
-    }
-}
 
 
 pub enum Movement {
