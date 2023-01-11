@@ -30,6 +30,8 @@ pub struct WindowManager {
     pub keybindings: KeyBindings,
     pub focused_screen: u32,
     pub moved_window: Option<u32>,
+    //pub restarted: bool,
+    //pub restart_wm: bool,
 }
 
 #[derive(Debug)]
@@ -78,9 +80,32 @@ impl WindowManager {
         manager.update_root_window_event_masks();
         manager.grab_keys().unwrap();
 
+        manager.autostart_exec();
+        manager.autostart_exec_always();
+
         manager.connection.borrow_mut().flush().unwrap();
 
         manager
+    }
+
+    fn restart_wm(&mut self) {
+        self.config = Rc::new(RefCell::new(Config::new()));
+        self.keybindings = KeyBindings::new(&self.config.borrow());
+        self.grab_keys().unwrap();
+        self.autostart_exec_always();
+        self.connection.borrow_mut().flush().unwrap();
+    }
+
+    fn autostart_exec(&self) {
+        for command in &self.config.borrow().exec {
+            exec_user_command(&Some(command.clone()));
+        }
+    }
+
+    fn autostart_exec_always(&self) {
+        for command in &self.config.borrow().exec_always {
+            exec_user_command(&Some(command.clone()));
+        }
     }
 
     fn get_active_workspace(&self) -> usize {
@@ -186,6 +211,7 @@ impl WindowManager {
                     },
                     WmCommands::Restart => {
                         println!("Restart");
+                        self.restart_wm();
                     },
                     WmCommands::Exec => {
                         println!("Exec");
@@ -358,5 +384,3 @@ impl WindowManager {
     Ok(())
     }
 }
-
-

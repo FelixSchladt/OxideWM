@@ -11,8 +11,10 @@ pub mod auxiliary;
 use std::sync::mpsc::{channel, Sender};
 use std::error::Error;
 use std::thread;
+use std::{cell::RefCell, rc::Rc};
 
 use x11rb::connection::Connection;
+use x11rb::rust_connection::RustConnection;
 
 use windowmanager::WindowManager;
 
@@ -32,7 +34,6 @@ fn dbus_ipc_loop(sender: Sender<IpcEvent>) {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut manager = WindowManager::new();
-
     let (sender, receiver) = channel();
 
     thread::spawn(move || {
@@ -45,8 +46,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             Some(event) => manager.handle_event(&event),
             None => (),
         }
-        //get_cursor_position(&manager);
-
 
         let ipc_event = receiver.try_recv();
         match ipc_event {
