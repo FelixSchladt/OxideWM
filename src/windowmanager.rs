@@ -30,8 +30,6 @@ pub struct WindowManager {
     pub keybindings: KeyBindings,
     pub focused_screen: u32,
     pub moved_window: Option<u32>,
-    //pub restarted: bool,
-    //pub restart_wm: bool,
 }
 
 #[derive(Debug)]
