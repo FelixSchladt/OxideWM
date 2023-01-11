@@ -4,28 +4,42 @@ use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::xproto::*;
 use x11rb::CURRENT_TIME;
 use std::collections::HashMap;
+use serde::Serialize;
 
 use std::{cell::RefCell, rc::Rc};
 
 use crate::windowmanager::Movement;
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Layout {
-    Tiled,
+    //Tiled, //blocked by https://github.com/DHBW-FN/OxideWM/issues/70
     VerticalStriped,   //  |
     HorizontalStriped, // ---
     //Different layout modes and better names wanted C:
 }
 
-#[derive(Debug)]
+impl TryFrom<&str> for Layout {
+    type Error = String;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value.to_lowercase().as_str() {
+            "vertical" => Ok(Layout::VerticalStriped),
+            "horizontal" => Ok(Layout::HorizontalStriped),
+            _ => Err(format!("{} is not a valid layout", value)),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
+    #[serde(skip_serializing)]
     pub connection:  Rc<RefCell<RustConnection>>,
     pub name: String,
     pub index: u16,
     pub root_window: u16,
     pub visible: bool,
     pub focused: bool,
+    pub focused_window: Option<u32>,
     pub urgent: bool,
     pub windows: HashMap<u32, WindowState>,
     pub order: Vec<u32>,
@@ -46,6 +60,7 @@ impl Workspace {
             root_window: 0,  //TODO get root window index from windowmanager
             visible: false,
             focused: false,
+            focused_window: None,
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
@@ -58,12 +73,7 @@ impl Workspace {
     }
 
     pub fn get_focused_window(&self) -> Option<u32> {
-        for (_, window) in self.windows.iter() {
-            if window.focused {
-                return Some(window.window);
-            }
-        }
-        None
+        return self.focused_window;
     }
 
     pub fn move_focus(&mut self, mov: Movement) {
@@ -179,18 +189,13 @@ impl Workspace {
     pub fn hide() { panic!("Not implemented"); }
 
     pub fn focus_window(&mut self, winid: u32) {
-        for window in self.windows.values_mut() {
-            window.focused = false;
-        }
+        self.focused_window = Some(winid);
         self.connection.borrow().set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
-        self.windows.get_mut(&winid).unwrap().focused = true;
         //TODO: Chagnge color of border to focus color
     }
 
-    pub fn unfocus_window(&mut self, winid: u32) {
-        if let Some(win) = self.windows.get_mut(&winid) {
-            win.focused = false;
-        }
+    pub fn unfocus_window(&mut self) {
+        self.focused_window = None;
         //TODO: Change color of border to unfocus color
     }
 
@@ -199,9 +204,17 @@ impl Workspace {
         self.remap_windows();
     }
 
+    pub fn next_layout(&mut self) {
+        match self.layout {
+            Layout::HorizontalStriped => self.set_layout(Layout::VerticalStriped),
+            Layout::VerticalStriped => self.set_layout(Layout::HorizontalStriped),
+        }
+        self.remap_windows();
+    }
+
     pub fn remap_windows(&mut self) {
         match self.layout {
-            Layout::Tiled => {},
+            //Layout::Tiled => {},
             Layout::VerticalStriped => self.map_vertical_striped(),
             Layout::HorizontalStriped => self.map_horizontal_striped(),
 

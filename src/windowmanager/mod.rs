@@ -17,22 +17,54 @@ use x11rb::{
         ReplyError, ConnectionError
     },
 };
+use serde::{Deserialize, Serialize};
 
 use crate::{
     keybindings::KeyBindings,
     screeninfo::ScreenInfo,
-    workspace::Workspace,
+    workspace::{Workspace, Layout},
+    config::Config,
 };
 
-#[derive(Debug)]
-pub struct WindowManager {
-    pub connection: Rc<RefCell<RustConnection>>,
-    pub screeninfo: HashMap<u32, ScreenInfo>,
-    pub focused_screen: u32,
-    pub moved_window: Option<u32>,
+use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
+
+
+#[derive(Debug, Serialize, Deserialize, Clone, Type)]
+pub enum WmCommands {
+    Move, //args: left, up, right, down
+    Focus,
+    Resize,
+    Quit, // Quit the window manager
+    Kill, // Kill the focused window
+    Restart, // Restart the window manager
+    Layout, //args: horizontal, vertical
+    MoveToWorkspace,
+    GoToWorkspace,
+    MoveToWorkspaceAndFollow,
+    Exec,
 }
 
-#[derive(Debug)]
+impl TryFrom<&str> for WmCommands {
+    type Error = String;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value.to_lowercase().as_str() {
+            "move" => Ok(WmCommands::Move),
+            "focus" => Ok(WmCommands::Focus),
+            "resize" => Ok(WmCommands::Resize),
+            "quit" => Ok(WmCommands::Quit),
+            "kill" => Ok(WmCommands::Kill),
+            "restart" => Ok(WmCommands::Restart),
+            "layout" => Ok(WmCommands::Layout),
+            "movetoworkspace" => Ok(WmCommands::MoveToWorkspace),
+            "gotoworkspace" => Ok(WmCommands::GoToWorkspace),
+            "movetoworkspaceandfollow" => Ok(WmCommands::MoveToWorkspaceAndFollow),
+            "exec" => Ok(WmCommands::Exec),
+            _ => Err(format!("{} is not a valid command", value)),
+        }
+    }
+}
+
+
 pub enum Movement {
     Left,
     Right,
@@ -53,8 +85,57 @@ impl TryFrom<&str> for Movement {
     }
 }
 
+#[derive(Type, DeserializeDict, SerializeDict, Debug)]
+#[zvariant(signature = "dict")]
+pub struct WmActionEvent {
+    pub command: WmCommands,
+    pub args: Option<String>,
+}
+
+impl WmActionEvent {
+    pub fn new(command: &str, args: Option<String>) -> Self {
+        WmActionEvent {
+            command: WmCommands::try_from(command).unwrap(),
+            args,
+        }
+    }
+}
+
+#[derive(DeserializeDict, SerializeDict, Type, Debug)]
+#[zvariant(signature = "dict")]
+pub struct IpcEvent {
+    pub status: bool,
+    pub event: Option<WmActionEvent>,
+}
+
+impl From<WmActionEvent> for IpcEvent {
+    fn from(command: WmActionEvent) -> Self {
+        IpcEvent {
+            status: false,
+            event: Some(command),
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct WindowManagerState {
+    pub screeninfo: HashMap<u32, ScreenInfo>,
+    pub config: Config,
+    pub focused_screen: u32,
+}
+
+#[derive(Debug, Clone)]
+pub struct WindowManager {
+    pub connection: Rc<RefCell<RustConnection>>,
+    pub screeninfo: HashMap<u32, ScreenInfo>,
+    pub config: Rc<RefCell<Config>>,
+    pub focused_screen: u32,
+    pub moved_window: Option<u32>,
+}
+
+
 impl WindowManager {
-    pub fn new(keybindings: &KeyBindings) -> WindowManager {
+    pub fn new(keybindings: &KeyBindings, config: Rc<RefCell<Config>>) -> WindowManager {
         let connection = Rc::new(RefCell::new(RustConnection::connect(None).unwrap().0));
         let screeninfo = HashMap::new();
 
@@ -66,6 +147,7 @@ impl WindowManager {
         let mut manager = WindowManager {
             connection,
             screeninfo,
+            config,
             focused_screen,
             moved_window: None,
         };
@@ -78,7 +160,15 @@ impl WindowManager {
         manager
     }
 
-    fn grab_keys(&self,keybindings: &KeyBindings) -> Result<(), Box<dyn Error>> {
+    pub fn get_state(&self) -> WindowManagerState {
+        WindowManagerState {
+            screeninfo: self.screeninfo.clone(),
+            config: self.config.borrow().clone(),
+            focused_screen: self.focused_screen.clone(),
+        }
+    }
+
+    fn grab_keys(&self, keybindings: &KeyBindings) -> Result<(), Box<dyn Error>> {
         println!("grabbing keys");
         //TODO check if the the screen iterations should be merged
         for screen in self.connection.borrow().setup().roots.iter() {
@@ -143,6 +233,24 @@ impl WindowManager {
                 .kill_window(&winid);
         } else {
             println!("ERROR: No window to kill \nShould only happen on an empty screen");
+        }
+    }
+
+    pub fn handle_keypress_layout(&mut self, args: Option<String>) {    
+        let active_workspace = self.get_active_workspace();
+        match args {
+            Some(args) => {
+                self.screeninfo.get_mut(&self.focused_screen)
+                    .unwrap()
+                    .workspaces[active_workspace]
+                    .set_layout(Layout::try_from(args.as_str()).unwrap());
+            },
+            None => {
+                self.screeninfo.get_mut(&self.focused_screen)
+                    .unwrap()
+                    .workspaces[active_workspace]
+                    .next_layout();
+            }
         }
     }
 
@@ -235,7 +343,7 @@ impl WindowManager {
         self.screeninfo
             .get_mut(&event.root)
             .unwrap().workspaces[workspace_id]
-            .unfocus_window(event.event);
+            .unfocus_window();
     }
 
 

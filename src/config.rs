@@ -1,17 +1,32 @@
 use std::fs::File;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
 
-use crate::eventhandler::commands::WmCommands;
+use crate::windowmanager::WmCommands;
+
+fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let args = Option::<String>::deserialize(deserializer)?;
+    let args = args.unwrap_or("".to_string());
+    if args.is_empty() || args == "None" {
+        Ok(None)
+    } else {
+        Ok(Some(args))
+    }
+    
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct WmCommand {
     pub keys: Vec<String>,
     pub command: WmCommands,
+    #[serde(deserialize_with = "deserialize_optional_string")]
     pub args: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     #[serde(default = "default_cmds")]
     pub cmds: Vec<WmCommand>,
@@ -37,7 +52,6 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Config {
-        //simulate_config()
         // Opens the config.yaml file.
         let f = File::open("./config.yml").expect("Could not open file.");
         // Reads the Values from the 'config' struct in config.yml 
@@ -68,6 +82,3 @@ fn default_border_width() -> u8 { 3 }
 fn default_border_color() -> String { "white".to_string() }
 fn default_border_focus_color() -> String { "black".to_string() }
 fn default_gap() -> u8 { 3 }
-
-
-

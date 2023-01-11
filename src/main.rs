@@ -1,65 +1,53 @@
-pub mod windowmanager;
 pub mod eventhandler;
+pub mod windowmanager;
 pub mod workspace;
 pub mod windowstate;
 pub mod screeninfo;
 pub mod config;
 pub mod keybindings;
 pub mod auxiliary;
+pub mod ipc;
+
+use std::sync::{Arc, Mutex};
 
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::mpsc::{channel, Sender};
-use std::error::Error;
-use std::{thread};
+use std::sync::mpsc::channel;
+use std::thread;
 
 use config::Config;
 use log::error;
-use x11rb::{
-    connection::Connection,
-    protocol::xproto::{
-        ModMask,
-        ConnectionExt,
-        GrabMode,
-    },
-};
+use serde_json::Result;
 
 use crate::{
-    windowmanager::WindowManager,
+    windowmanager::{WindowManager, IpcEvent},
     eventhandler::EventHandler,
-    keybindings::KeyBindings
+    keybindings::KeyBindings,
+    ipc::zbus_serve,
 };
 
-#[derive(Debug)]
-struct IpcEvent {
-    test: String,
-}
 
 
-fn dbus_ipc_loop(sender: Sender<IpcEvent>) {
-    loop {
-        //sender.send(IpcEvent { test: "test".to_string() }).unwrap();
-        thread::sleep(std::time::Duration::from_millis(1000));
-    }
-}
-
-
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<()> {
     let config = Rc::new(RefCell::new(Config::new()));
     let keybindings = KeyBindings::new(&config.borrow());
     
-    let mut manager = WindowManager::new(&keybindings);
+    let mut manager = WindowManager::new(&keybindings, config.clone());
     let mut eventhandler = EventHandler::new(&mut manager, &keybindings);
     
-    let (sender, receiver) = channel();
+    let (ipc_sender, wm_receiver) = channel::<IpcEvent>();
+    let (wm_sender, ipc_receiver) = channel::<String>(); 
+
+    let ipc_sender_mutex = Arc::new(Mutex::new(ipc_sender));
+    let ipc_receiver_mutex = Arc::new(Mutex::new(ipc_receiver));
 
     thread::spawn(move || {
-        dbus_ipc_loop(sender);
+        async_std::task::block_on(zbus_serve(ipc_sender_mutex, ipc_receiver_mutex)).unwrap();
     });
 
     loop {
         let result = eventhandler.window_manager.poll_for_event();
-        if(!result.is_err()){
+        if !result.is_err() {
             let event = result.unwrap();
             match event {
                 Some(event) => eventhandler.handle_event(&event),
@@ -69,9 +57,18 @@ fn main() -> Result<(), Box<dyn Error>> {
             error!("Error retreiving Event from Window manager {}", result.err().unwrap());
         }
 
-        let ipc_event = receiver.try_recv();
+        let ipc_event = wm_receiver.try_recv();
         match ipc_event {
-            Ok(event) => println!("Received IPC Event: {:?}", event),
+            Ok(event) => {
+                if event.status {
+                    let wm_state = eventhandler.window_manager.get_state();
+                    let j = serde_json::to_string(&wm_state)?;
+                    println!("IPC status request");
+                    wm_sender.send(j).unwrap();
+                 } else {
+                    eventhandler.handle_ipc_event(event);
+                }
+            },
             Err(_) => (),
         }
     }

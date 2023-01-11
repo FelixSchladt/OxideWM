@@ -1,8 +1,8 @@
-pub mod commands;
+//pub mod commands;
 use crate::{
-    windowmanager::WindowManager,
+    windowmanager::{WindowManager, WmActionEvent, WmCommands, IpcEvent},
     keybindings::KeyBindings, 
-    auxiliary::exec_user_command, eventhandler::commands::WmCommands
+    auxiliary::exec_user_command, 
 };
 
 use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
@@ -11,6 +11,7 @@ pub struct EventHandler<'a>{
     pub window_manager: &'a mut WindowManager,
     keybindings: &'a KeyBindings,
 }
+
 
 impl EventHandler<'_> {
     pub fn new<'a>(window_manager: &'a mut WindowManager, keybindings: &'a KeyBindings)->EventHandler<'a>{
@@ -70,39 +71,56 @@ impl EventHandler<'_> {
 
         for key in keys.clone() {
             let state = u16::from(event.state);
-            if state == key.keycode.mask
-            || state == key.keycode.mask | u16::from(ModMask::M2) {
+            if state == key.keycode.mask || state == key.keycode.mask | u16::from(ModMask::M2) {
                 println!("Key: {:?}", key);
-                match key.event {
-                    WmCommands::Move => {
-                        println!("Move");
-                        self.window_manager.handle_keypress_move(key.args.clone());
-                    },
-                    WmCommands::Focus => {
-                        println!("Focus");
-                        self.window_manager.handle_keypress_focus(key.args.clone());
-                    },
-                    WmCommands::Resize => {
-                        println!("Resize");
-                    },
-                    WmCommands::Quit => {
-                        println!("Quit");
-                    },
-                    WmCommands::Kill => {
-                        println!("Kill");
-                        self.window_manager.handle_keypress_kill();
-                    },
-                    WmCommands::Restart => {
-                        println!("Restart");
-                    },
-                    WmCommands::Exec => {
-                        println!("Exec");
-                        exec_user_command(&key.args);
-                    },
-                    _ => {
-                        println!("Unimplemented");
-                    }
-                }
+                self.handle_wm_command(WmActionEvent {
+                    command: key.event,
+                    args: key.args.clone(),
+                });
+            }
+        }
+    }
+
+    pub fn handle_ipc_event(&mut self, event: IpcEvent) {
+        println!("IpcEvent: {:?}", event);
+        if let Some(command) = event.event {
+            self.handle_wm_command(command);
+        }
+    }
+
+    fn handle_wm_command(&mut self, command: WmActionEvent) {
+         match command.command {
+            WmCommands::Move => {
+                println!("Move");
+                self.window_manager.handle_keypress_move(command.args.clone());
+            },
+            WmCommands::Focus => {
+                println!("Focus");
+                self.window_manager.handle_keypress_focus(command.args.clone());
+            },
+            WmCommands::Resize => {
+                println!("Resize");
+            },
+            WmCommands::Quit => {
+                 println!("Quit");
+            },
+            WmCommands::Kill => {
+                println!("Kill");
+                self.window_manager.handle_keypress_kill();
+            },
+            WmCommands::Layout => {
+                println!("Layout");
+                self.window_manager.handle_keypress_layout(command.args.clone());
+            },
+            WmCommands::Restart => {
+                println!("Restart");
+            },
+            WmCommands::Exec => {
+                println!("Exec");
+                exec_user_command(&command.args);
+            },
+            _ => {
+                println!("Unimplemented");
             }
         }
     }
