@@ -97,6 +97,7 @@ pub struct WindowManager {
     pub config: Rc<RefCell<Config>>,
     pub focused_screen: u32,
     pub moved_window: Option<u32>,
+    pub restart: bool,
 }
 
 
@@ -116,6 +117,7 @@ impl WindowManager {
             config,
             focused_screen,
             moved_window: None,
+            restart: false,
         };
 
         manager.setup_screens();
@@ -136,6 +138,7 @@ impl WindowManager {
         self.grab_keys(keybindings).expect("Failed to grab Keys");
         self.autostart_exec_always();
         self.connection.borrow_mut().flush().unwrap();
+        self.restart = false;
     }
 
     fn autostart_exec(&self) {

@@ -16,8 +16,6 @@ pub struct EventHandler<'a>{
     keybindings: &'a KeyBindings,
 }
 
-pub type RestartWm = bool;
-
 impl EventHandler<'_> {
     pub fn new<'a>(window_manager: &'a mut WindowManager, keybindings: &'a KeyBindings)->EventHandler<'a>{
         EventHandler{
@@ -26,7 +24,7 @@ impl EventHandler<'_> {
         }
     }
 
-    pub fn handle_event(&mut self, event: &Event) -> RestartWm {
+    pub fn handle_event(&mut self, event: &Event) {
         print!("Received Event: ");
         match event {
             Event::Expose(_event) => println!("Expose"),
@@ -45,7 +43,7 @@ impl EventHandler<'_> {
             Event::KeyPress(_event) => println!("KeyPress"),
             Event::KeyRelease(_event) => {
                 println!("KeyPress");
-                return self.handle_keypress(_event);
+                self.handle_keypress(_event);
             },
             Event::DestroyNotify(_event) => println!("DestroyNotify"),
             Event::PropertyNotify(_event) => println!("PropertyNotify"),
@@ -61,10 +59,9 @@ impl EventHandler<'_> {
             Event::FocusOut(_event) => println!("FocusOut"),
             _ => println!("\x1b[33mUnknown\x1b[0m {:?}", event),
         };
-        false
     }
 
-    fn handle_keypress(&mut self, event: &KeyPressEvent) -> RestartWm {
+    fn handle_keypress(&mut self, event: &KeyPressEvent) {
         let keys = self.keybindings.events_map
             .get(&event.detail)
             .expect("ERROR: Key not found in keybindings -> THIS MUST NOT HAPPEN");
@@ -79,24 +76,22 @@ impl EventHandler<'_> {
             let state = u16::from(event.state);
             if state == key.keycode.mask || state == key.keycode.mask | u16::from(ModMask::M2) {
                 println!("Key: {:?}", key);
-                return self.handle_wm_command(WmActionEvent {
+                self.handle_wm_command(WmActionEvent {
                     command: key.event,
                     args: key.args.clone(),
                 });
             }
         }
-        false
     }
 
-    pub fn handle_ipc_event(&mut self, event: IpcEvent) -> RestartWm {
+    pub fn handle_ipc_event(&mut self, event: IpcEvent) {
         println!("IpcEvent: {:?}", event);
         if let Some(command) = event.event {
-            return self.handle_wm_command(command);
+            self.handle_wm_command(command)
         }
-        false
     }
 
-    fn handle_wm_command(&mut self, command: WmActionEvent) -> RestartWm {
+    fn handle_wm_command(&mut self, command: WmActionEvent) {
          match command.command {
             WmCommands::Move => {
                 println!("Move");
@@ -123,7 +118,7 @@ impl EventHandler<'_> {
             },
             WmCommands::Restart => {
                 println!("Restart");
-                return true;
+                self.window_manager.restart = true;
             },
             WmCommands::Exec => {
                 println!("Exec");
@@ -133,6 +128,5 @@ impl EventHandler<'_> {
                 println!("Unimplemented");
             }
         }
-        false
     }
 }

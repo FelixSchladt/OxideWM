@@ -22,7 +22,7 @@ use serde_json::Result;
 
 use crate::{
     windowmanager::{WindowManager, IpcEvent},
-    eventhandler::{EventHandler, RestartWm},
+    eventhandler::EventHandler,
     keybindings::KeyBindings,
     ipc::zbus_serve,
 };
@@ -48,9 +48,8 @@ fn main() -> Result<()> {
 
     loop {
         let result = eventhandler.window_manager.poll_for_event();
-        let mut restart: RestartWm = false;
         if let Ok(Some(event)) = result {
-            restart = eventhandler.handle_event(&event)
+            eventhandler.handle_event(&event)
         } else {
             error!("Error retreiving Event from Window manager {}", result.err().unwrap());
         }
@@ -62,11 +61,11 @@ fn main() -> Result<()> {
                 println!("IPC status request");
                 wm_sender.send(j).unwrap();
             } else {
-                restart = eventhandler.handle_ipc_event(event);
+                eventhandler.handle_ipc_event(event);
             }
         }
 
-        if restart {
+        if eventhandler.window_manager.restart {
             config = Rc::new(RefCell::new(Config::new()));
             keybindings = KeyBindings::new(&config.borrow());
     
