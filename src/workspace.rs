@@ -174,7 +174,7 @@ impl Workspace {
     }
 
     pub fn new_window(&mut self, window: Window) {
-        let windowstruct = WindowState::new(self.connection.clone(), window);
+        let windowstruct = WindowState::new(self.connection.clone(), &self.root_screen.borrow(), window);
         self.add_window(windowstruct);
     }
 

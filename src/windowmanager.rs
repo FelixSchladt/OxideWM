@@ -1,9 +1,7 @@
 use std::collections::HashMap;
 use std::error::Error;
 use std::{cell::RefCell, rc::Rc};
-use std::process::{
-    exit
-};
+use std::process::exit;
 
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
@@ -84,7 +82,7 @@ impl WindowManager {
     }
 
     fn get_active_workspace(&self) -> usize {
-        return self.screeninfo.get(&self.focused_screen).unwrap().active_workspace;    
+        return self.screeninfo.get(&self.focused_screen).unwrap().active_workspace;
     }
 
     fn get_focused_window(&self) -> (usize, Option<u32>) {
@@ -95,7 +93,7 @@ impl WindowManager {
             .get_focused_window();
         return (active_workspace, focused_window);
     }
-      
+
     fn handle_keypress_focus(&mut self, args: Option<String>) {
         let args = args.expect("No move arguments for focus");
         let active_workspace = self.get_active_workspace();
@@ -113,7 +111,7 @@ impl WindowManager {
             .workspaces[active_workspace]
             .move_window(Movement::try_from(args.as_str()).unwrap());
     }
-    
+
     fn handle_keypress_kill(&mut self) {
         let (active_workspace, focused_window) = self.get_focused_window();
         println!("Focused window: {:?}", focused_window);
@@ -127,7 +125,7 @@ impl WindowManager {
         }
     }
 
-    fn handle_keypress_layout(&mut self, args: Option<String>) {    
+    fn handle_keypress_layout(&mut self, args: Option<String>) {
         let active_workspace = self.get_active_workspace();
         match args {
             Some(args) => {
@@ -201,6 +199,7 @@ impl WindowManager {
 
     fn setup_screens(&mut self) {
         for screen in self.connection.borrow().setup().roots.iter() {
+            let screen_ref = Rc::new(RefCell::new(screen.clone()));
             let mut screenstruct = ScreenInfo::new(self.connection.clone(),
                                                    screen.root,
                                                    screen.width_in_pixels,
@@ -208,6 +207,7 @@ impl WindowManager {
                                                    );
             screenstruct.workspaces.push(Workspace::new(0,
                                                         self.connection.clone(),
+                                                        screen_ref.clone(),
                                                         0,
                                                         0,
                                                         screen.width_in_pixels as u32,
