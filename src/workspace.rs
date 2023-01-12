@@ -61,7 +61,7 @@ impl Workspace {
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
-            layout: Layout::VerticalStriped,
+            layout: Layout::HorizontalStriped,
             x,
             y,
             height,
@@ -234,12 +234,12 @@ impl Workspace {
 
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
-
-            current_window.x = self.x;
-            current_window.y = (i * self.height as usize / amount) as i32;
-
-            current_window.width  = self.width;
-            current_window.height = (self.height as usize / amount) as u32;
+            current_window.set_bounds(
+                self.x,
+                (i * self.height as usize / amount) as i32,
+                self.width,
+                (self.height as usize / amount) as u32,
+            ).map();
         }
     }
 }
