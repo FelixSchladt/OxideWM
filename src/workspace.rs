@@ -187,7 +187,7 @@ impl Workspace {
         //TODO: Change color of border to focus color
     }
 
-    pub fn unfocus_window(&mut self, winid: u32) {
+    pub fn unfocus_window(&mut self, _winid: u32) {
         self.focused_window = None;
         //TODO: Change color of border to unfocus color
     }
