@@ -35,6 +35,7 @@ pub struct Workspace {
     pub connection:  Rc<RefCell<RustConnection>>,
     pub name: String,
     pub index: u16,
+    #[serde(skip_serializing)]
     pub root_screen: Rc<RefCell<Screen>>,
     pub visible: bool,
     pub focused: bool,
@@ -189,11 +190,7 @@ impl Workspace {
         //TODO: Change color of border to focus color
     }
 
-<<<<<<< HEAD
-    pub fn unfocus_window(&mut self, _winid: u32) {
-=======
     pub fn unfocus_window(&mut self) {
->>>>>>> main
         self.focused_window = None;
         //TODO: Change color of border to unfocus color
     }

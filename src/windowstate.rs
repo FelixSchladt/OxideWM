@@ -1,11 +1,8 @@
 use x11rb::protocol::xproto::*;
 use x11rb::rust_connection::RustConnection;
-<<<<<<< HEAD
 use x11rb::connection::Connection;
 use x11rb::COPY_DEPTH_FROM_PARENT;
-=======
 use serde::Serialize;
->>>>>>> main
 use std::{cell::RefCell, rc::Rc};
 
 #[derive(Debug, Clone, Serialize)]

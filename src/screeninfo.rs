@@ -29,7 +29,7 @@ impl ScreenInfo {
             width,
             height,
         }
-    }   
+    }
 
     pub fn on_map_request(&mut self, event: &MapRequestEvent) {
         println!("WINMAN: MapRequestEvent: {:?}", event);
