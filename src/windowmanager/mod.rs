@@ -424,11 +424,13 @@ impl WindowManager {
 
         //if atom_reply.type_ == 0 { return false; }
         //let atom_name = self.atom_name(winid);
+        //println!("Atom name: {}, id: {}", prop_type, atom_reply.type_);
 
         if prop_type == "ATOM" {
             let atoms = atom_reply.value32().unwrap()
                 .map(|a| self.atom_name(a))
                 .collect::<Vec<String>>();
+            println!("Atom id: {:?}", atom_reply.value32().unwrap().collect::<Vec<u32>>());
             println!("Window type: {:?}", atoms);
             if atoms.contains(&"_NET_WM_WINDOW_TYPE_DOCK".to_string()) {
                 return true;

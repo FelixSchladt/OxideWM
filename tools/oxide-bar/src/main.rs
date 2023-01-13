@@ -43,6 +43,7 @@ use x11rb::{
         ModMask,
         AtomEnum,
         ConnectionExt as _,
+        PropMode,
     },
     rust_connection::{
         ConnectionError,
@@ -148,29 +149,36 @@ fn set_window_props(window: &gtk::Window, prop_name: &str, prop_values: &Vec<&st
         .map(|val| CString::new(*val).unwrap())
         .collect();
     unsafe {
-        let xid: xlib::Window = surface.unsafe_cast::<X11Surface>().xid();
-        let xdisplay: *mut xlib::Display = display.unsafe_cast::<X11Display>().xdisplay();
+        let xid = surface.unsafe_cast::<X11Surface>().xid() as u32;
+        //let xdisplay: *mut xlib::Display = display.unsafe_cast::<X11Display>().xdisplay();
         println!("xid: {:?}", xid);
-        println!("xdisplay: {:?}", xdisplay);
+        //println!("xdisplay: {:?}", xdisplay);
         let connection = RustConnection::connect(None).unwrap().0;
         let screens = connection.setup().roots.clone();
         
         let screen = screens[0].clone();
 
-        let atom_intern = connection.intern_atom(false, Atom::NetWmWindowType.as_ref().as_bytes());
+        let atom_intern = connection.intern_atom(false, "_NET_WM_WINDOW_TYPE".as_bytes()).unwrap().reply().unwrap().atom;
 
         println!("atom_intern: {:?}", atom_intern);
 
-        let atom_intern_prop = connection.intern_atom(false, Atom::NetWindowTypeDock.as_ref().as_bytes()).unwrap().reply().unwrap();
+        let atom_intern_prop = connection.intern_atom(false, "_NET_WM_WINDOW_TYPE_DOCK".as_bytes()).unwrap().reply().unwrap().atom;
 
         println!("atom_intern_prop: {:?}", atom_intern_prop);
-        connection.change_property32(
+        let atom_intern_prop_slice: Vec<u32> = vec![atom_intern_prop];
+        println!("atom_intern_prop_slice: {:?}", atom_intern_prop_slice);
+
+        //Also scheint zu funktionieren, allerdings, wenn ich die bar innerhalb von oxide starte,
+        //dann wird wird mir "_NET_WM_WINDOW_TYPE_NORMAL" zurückgegeben
+        //wenn man polybar oder lemonbar startet kommt "_NET_WM_WINDOW_TYPE_DOCK" :(
+        let res = connection.change_property32(
             PropMode::REPLACE,
-            xid.try_into().unwrap(),
+            xid,
             atom_intern,
             AtomEnum::ATOM,
-            &atom_intern_prop,
+            &atom_intern_prop_slice,
             );
+        connection.flush().unwrap();
         /*
         let prop_name_atom = XInternAtom(xdisplay, prop_name_cstr.as_ptr(), xlib::False);
         let mut prop_values_atom: Vec<u64> = prop_values_cstr
