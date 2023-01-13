@@ -7,6 +7,7 @@ pub mod screeninfo;
 pub mod config;
 pub mod keybindings;
 pub mod auxiliary;
+pub mod config_error_checker;
 
 use std::sync::mpsc::{channel, Sender};
 use std::error::Error;
