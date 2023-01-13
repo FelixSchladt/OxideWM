@@ -65,10 +65,10 @@ pub struct IpcEvent {
 }
 
 impl From<WmActionEvent> for IpcEvent {
-    fn from(command: WmActionEvent) -> Self {
+    fn from(wm_event: WmActionEvent) -> Self {
         IpcEvent {
             status: false,
-            event: Some(command),
+            event: Some(wm_event),
         }
     }
 }
@@ -130,7 +130,6 @@ impl WindowManager {
         self.connection.borrow_mut().flush().unwrap();
         self.restart = false;
     }
-
     fn autostart_exec(&self) {
         for command in &self.config.borrow().exec {
             exec_user_command(&Some(command.clone()));

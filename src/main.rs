@@ -49,7 +49,7 @@ fn main() -> Result<()> {
     loop {
         let result = eventhandler.window_manager.poll_for_event();
         if let Ok(Some(event)) = result {
-            eventhandler.handle_event(&event)
+            eventhandler.handle_event(&event);
         } else {
             error!("Error retreiving Event from Window manager {}", result.err().unwrap());
         }
@@ -68,7 +68,7 @@ fn main() -> Result<()> {
         if eventhandler.window_manager.restart {
             config = Rc::new(RefCell::new(Config::new()));
             keybindings = KeyBindings::new(&config.borrow());
-    
+
             eventhandler = EventHandler::new(&mut manager, &keybindings);
             eventhandler.window_manager.restart_wm(&keybindings, config.clone());
         }
