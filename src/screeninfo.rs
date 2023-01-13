@@ -1,7 +1,7 @@
 use log::debug;
 use uuid::Uuid;
 use x11rb::rust_connection::RustConnection;
-use x11rb::protocol::xproto::MapRequestEvent;
+use x11rb::protocol::xproto::*;
 use serde::Serialize;
 
 use crate::workspace::Workspace;
@@ -11,8 +11,9 @@ use std::{cell::RefCell, rc::Rc, collections::HashMap};
 #[derive(Debug, Clone, Serialize)]
 pub struct ScreenInfo {
     #[serde(skip_serializing)]
-    pub connection: Rc<RefCell<RustConnection>>,
-    pub id: u32,
+    _connection: Rc<RefCell<RustConnection>>,
+    #[serde(skip_serializing)]
+    _screen_ref: Rc<RefCell<Screen>>,
     workspaces: HashMap<u16, Workspace>,
     pub active_workspace: u16,
     pub width: u32,
@@ -20,12 +21,12 @@ pub struct ScreenInfo {
 }
 
 impl ScreenInfo {
-    pub fn new(connection: Rc<RefCell<RustConnection>>, id: u32, height: u32, width: u32) -> ScreenInfo {
+    pub fn new(connection: Rc<RefCell<RustConnection>>, screen_ref: Rc<RefCell<Screen>>, height: u32, width: u32) -> ScreenInfo {
         let active_workspace = 0;
         let workspaces = HashMap::new();
         let mut screen_info = ScreenInfo {
-            connection,
-            id,
+            _connection: connection,
+            _screen_ref: screen_ref,
             workspaces,
             active_workspace,
             width,
@@ -55,7 +56,15 @@ impl ScreenInfo {
         }
 
         let workspace_name = Uuid::new_v4().to_string();
-        let new_workspace = Workspace::new(workspace_name, self.connection.clone(), 0, 0, self.height, self.width);
+        let new_workspace = Workspace::new(
+            workspace_name,
+            self._connection.clone(),
+            self._screen_ref.clone(),
+            0,
+            0,
+            self.height,
+            self.width
+        );
         self.workspaces.insert(workspace_nr, new_workspace);
     }
 

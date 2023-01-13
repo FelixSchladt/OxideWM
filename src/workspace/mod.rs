@@ -2,7 +2,11 @@ pub mod enums_workspace;
 
 use self::enums_workspace::Layout;
 
-use super::windowstate::WindowState;
+use crate::{
+    windowmanager::enums_windowmanager::Movement,
+    windowstate::WindowState,
+};
+
 use log::{debug, error};
 use x11rb::connection::Connection;
 use x11rb::rust_connection::RustConnection;
@@ -10,17 +14,15 @@ use x11rb::protocol::xproto::*;
 use x11rb::CURRENT_TIME;
 use std::collections::HashMap;
 use serde::Serialize;
-
 use std::{cell::RefCell, rc::Rc};
-
-use crate::windowmanager::Movement;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
     #[serde(skip_serializing)]
     pub connection:  Rc<RefCell<RustConnection>>,
     pub name: String,
-    pub root_window: u16,
+    #[serde(skip_serializing)]
+    pub root_screen: Rc<RefCell<Screen>>,
     pub visible: bool,
     pub focused: bool,
     pub focused_window: Option<u32>,
@@ -28,7 +30,7 @@ pub struct Workspace {
     pub windows: HashMap<u32, WindowState>,
     pub order: Vec<u32>,
     pub layout: Layout,
-    pub x: i32,         //Used to resize the entire workspace, e.g. to make room for taskbars
+    pub x: i32,
     pub y: i32,
     pub height: u32,
     pub width: u32,
@@ -36,11 +38,11 @@ pub struct Workspace {
 
 
 impl Workspace {
-    pub fn new(name:String ,connection: Rc<RefCell<RustConnection>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
+    pub fn new(name:String ,connection: Rc<RefCell<RustConnection>>,root_screen: Rc<RefCell<Screen>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
         Workspace {
             connection: connection,
             name: name,
-            root_window: 0,  //TODO get root window index from windowmanager
+            root_screen: root_screen,
             visible: false,
             focused: false,
             focused_window: None,
@@ -160,14 +162,10 @@ impl Workspace {
     }
 
     pub fn new_window(&mut self, window: Window) {
-        let windowstruct = WindowState::new(self.connection.clone(), window);
+        let windowstruct = WindowState::new(self.connection.clone(), &self.root_screen.borrow(), window);
         self.add_window(windowstruct);
     }
 
-    //TODO: What is supposed to happen here?
-    // if an window is hidden how does the user know it exists?
-    // and does this make much sense in an window manager?
-    // the user could just move an not wanted window to a different workspace
     pub fn show() { panic!("Not implemented"); }
     pub fn hide() { panic!("Not implemented"); }
 
@@ -175,7 +173,7 @@ impl Workspace {
         debug!("focus_window");
         self.focused_window = Some(winid);
         self.connection.borrow().set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
-        //TODO: Chagnge color of border to focus color
+        //TODO: Change color of border to focus color
     }
 
     pub fn unfocus_window(&mut self) {
@@ -215,24 +213,6 @@ impl Workspace {
             //Layout::Tiled => {},
             Layout::VerticalStriped => self.map_vertical_striped(),
             Layout::HorizontalStriped => self.map_horizontal_striped(),
-
-        }
-
-        let conn = self.connection.borrow();
-        for id in self.order.iter() {
-            //TODO Add titlebar and Frame
-            let win = self.windows.get(id).unwrap();
-            let winaux = ConfigureWindowAux::new()
-                .x(win.x)
-                .y(win.y)
-                .width(win.width)
-                .height(win.height);
-            conn.configure_window(win.window, &winaux).unwrap();
-
-            conn.grab_server().unwrap();
-            conn.map_window(win.window).unwrap();
-            conn.ungrab_server().unwrap();
-            conn.flush().unwrap();
         }
     }
 
@@ -242,12 +222,12 @@ impl Workspace {
 
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
-
-            current_window.x = (i * self.width as usize / amount) as i32;
-            current_window.y = self.y;
-
-            current_window.width  = (self.width as usize / amount) as u32;
-            current_window.height = self.height;
+            current_window.set_bounds(
+                (i * self.width as usize / amount) as i32,
+                self.y,
+                (self.width as usize / amount) as u32,
+                self.height
+            ).draw();
         }
     }
 
@@ -257,12 +237,12 @@ impl Workspace {
 
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
-
-            current_window.x = self.x;
-            current_window.y = (i * self.height as usize / amount) as i32;
-
-            current_window.width  = self.width;
-            current_window.height = (self.height as usize / amount) as u32;
+            current_window.set_bounds(
+                self.x,
+                (i * self.height as usize / amount) as i32,
+                self.width,
+                (self.height as usize / amount) as u32,
+            ).draw();
         }
     }
 }

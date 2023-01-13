@@ -4,10 +4,9 @@ use self::enums_windowmanager::Movement;
 
 use std::collections::HashMap;
 use std::error::Error;
+use std::process::exit;
 use std::{cell::RefCell, rc::Rc};
-use std::process::{
-    exit
-};
+use serde::Serialize;
 
 use log::{warn, error, info};
 use x11rb::connection::Connection;
@@ -17,26 +16,16 @@ use x11rb::{
         ErrorKind,
         Event
     },
-    protocol::xproto::{
-        ChangeWindowAttributesAux,
-        Screen,
-        MapRequestEvent,
-        UnmapNotifyEvent,
-        LeaveNotifyEvent,
-        EnterNotifyEvent,
-        EventMask,
-        GrabMode,
-        ModMask
-    },
+    protocol::xproto::*,
     rust_connection::{
         ConnectionError,
         RustConnection,
         ReplyError
     }
 };
-use serde::Serialize;
 
 use crate::{
+    auxiliary::exec_user_command,
     keybindings::KeyBindings,
     screeninfo::ScreenInfo,
     config::Config,
@@ -60,6 +49,7 @@ pub struct WindowManager {
     pub config: Rc<RefCell<Config>>,
     pub focused_screen: u32,
     pub moved_window: Option<u32>,
+    pub restart: bool,
 }
 
 
@@ -79,6 +69,7 @@ impl WindowManager {
             config,
             focused_screen,
             moved_window: None,
+            restart: false,
         };
 
         manager.setup_screens();
@@ -89,7 +80,31 @@ impl WindowManager {
             info!("Failed to flush rust connection");
         }
 
+        manager.autostart_exec();
+        manager.autostart_exec_always();
+        manager.connection.borrow_mut().flush().unwrap();
+
         manager
+    }
+
+    pub fn restart_wm(&mut self, keybindings: &KeyBindings, config: Rc<RefCell<Config>>) {
+        self.config = config;
+        //self.keybindings = KeyBindings::new(&self.config.borrow());
+        self.grab_keys(keybindings).expect("Failed to grab Keys");
+        self.autostart_exec_always();
+        self.connection.borrow_mut().flush().unwrap();
+        self.restart = false;
+    }
+    fn autostart_exec(&self) {
+        for command in &self.config.borrow().exec {
+            exec_user_command(&Some(command.clone()));
+        }
+    }
+
+    fn autostart_exec_always(&self) {
+        for command in &self.config.borrow().exec_always {
+            exec_user_command(&Some(command.clone()));
+        }
     }
 
     pub fn get_state(&self) -> WindowManagerState {
@@ -172,7 +187,7 @@ impl WindowManager {
         self.get_active_workspace()
             .move_window(movement.unwrap());
     }
-    
+
     pub fn handle_keypress_kill(&mut self) {
         let focused_window = self.get_focused_window();
         println!("Focused window: {:?}", focused_window);
@@ -238,11 +253,13 @@ impl WindowManager {
 
     fn setup_screens(&mut self) {
         for screen in self.connection.borrow().setup().roots.iter() {
-            let mut screenstruct = ScreenInfo::new(self.connection.clone(),
-                                                   screen.root,
-                                                   screen.width_in_pixels as u32,
-                                                   screen.height_in_pixels as u32,
-                                                   );
+            let screen_ref = Rc::new(RefCell::new(screen.clone()));
+            let mut screenstruct = ScreenInfo::new(
+                self.connection.clone(),
+                screen_ref.clone(),
+                screen.width_in_pixels as u32,
+                screen.height_in_pixels as u32,
+            );
             screenstruct.create_new_workspace();    // Todo Js remove this
             self.screeninfo.insert(screen.root, screenstruct);
             self.focused_screen = screen.root;
@@ -262,13 +279,7 @@ impl WindowManager {
                     );
 
         for screen in self.connection.borrow().setup().roots.iter() {
-            #[cfg(debug_assertion)]
-            println!("Attempting to update event mask of: {} -> ", screen.root);
-
             self.set_mask(screen, mask).unwrap();
-
-            #[cfg(debug_assertion)]
-            println!("Screen: {} -> {}", screen.root, screen.width_in_pixels);
         }
     }
 
@@ -287,12 +298,6 @@ impl WindowManager {
                 eprintln!("\x1b[31m\x1b[1mError:\x1b[0m Access to X11 Client Api denied!");
                 exit(1);
             }
-        }
-
-        #[cfg(debug_assertion)]
-        match update_result {
-             Ok(_) => println!("\x1b[32mSuccess\x1b[0m"),
-             Err(_) => println!("\x1b[31mFailed\x1b[0m"),
         }
 
         update_result
@@ -325,5 +330,3 @@ impl WindowManager {
         screeninfo.on_map_request(event);
     }
 }
-
-
