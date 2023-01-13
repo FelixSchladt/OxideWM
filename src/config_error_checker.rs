@@ -1,7 +1,7 @@
 use crate::config::Config;
 use std::error::Error;
 
-fn check_config(file_path: &str) -> Result<Config, Error>{
+fn check_config(file_path: &str) -> Result<Config, Box<dyn Error>>{
     let config: Config = serde_yaml::from_reader(std::fs::File::open("./config.yml")?)?;
 
     // check for required fields
