@@ -1,4 +1,8 @@
 pub mod commands;
+
+use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
+use std::process;
+
 use crate::{
     windowmanager::{WindowManager, WmActionEvent, IpcEvent},
     keybindings::KeyBindings, 
@@ -6,13 +10,11 @@ use crate::{
     eventhandler::commands::WmCommands,
 };
 
-use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
 
 pub struct EventHandler<'a>{
     pub window_manager: &'a mut WindowManager,
     keybindings: &'a KeyBindings,
 }
-
 
 impl EventHandler<'_> {
     pub fn new<'a>(window_manager: &'a mut WindowManager, keybindings: &'a KeyBindings)->EventHandler<'a>{
@@ -85,7 +87,7 @@ impl EventHandler<'_> {
     pub fn handle_ipc_event(&mut self, event: IpcEvent) {
         println!("IpcEvent: {:?}", event);
         if let Some(command) = event.event {
-            self.handle_wm_command(command);
+            self.handle_wm_command(command)
         }
     }
 
@@ -104,6 +106,7 @@ impl EventHandler<'_> {
             },
             WmCommands::Quit => {
                  println!("Quit");
+                 process::exit(0);
             },
             WmCommands::Kill => {
                 println!("Kill");
@@ -115,6 +118,7 @@ impl EventHandler<'_> {
             },
             WmCommands::Restart => {
                 println!("Restart");
+                self.window_manager.restart = true;
             },
             WmCommands::Exec => {
                 println!("Exec");
