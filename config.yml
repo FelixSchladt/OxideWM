@@ -53,11 +53,11 @@ cmds:
     args: "dmenu_run"
   
   #Workspace keys configuration
-  - keys: ["C","A", "Left"]
+  - keys: ["C","A", "Right"]
     command: GoToWorkspace
     args: "next"
 
-  - keys: ["C","A", "Right"]
+  - keys: ["C","A", "Left"]
     command: GoToWorkspace
     args: "previous"
 
