@@ -1,3 +1,7 @@
+pub mod enums_windowmanager;
+
+use self::enums_windowmanager::Movement;
+
 use std::collections::HashMap;
 use std::error::Error;
 use std::{cell::RefCell, rc::Rc};
@@ -36,67 +40,11 @@ use crate::{
     keybindings::KeyBindings,
     screeninfo::ScreenInfo,
     config::Config,
-    eventhandler::commands::WmCommands,
     workspace::{
         Workspace,
         enums_workspace::{Layout,GoToWorkspace},
     }
 };
-
-use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
-
-
-pub enum Movement {
-    Left,
-    Right,
-    Up,
-    Down,
-}
-
-impl TryFrom<&str> for Movement {
-    type Error = String;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value.to_lowercase().as_str() {
-            "left" => Ok(Movement::Left),
-            "right" => Ok(Movement::Right),
-            "up" => Ok(Movement::Up),
-            "down" => Ok(Movement::Down),
-            _ => Err(format!("{} is not a valid movement", value)),
-        }
-    }
-}
-
-#[derive(Type, DeserializeDict, SerializeDict, Debug)]
-#[zvariant(signature = "dict")]
-pub struct WmActionEvent {
-    pub command: WmCommands,
-    pub args: Option<String>,
-}
-
-impl WmActionEvent {
-    pub fn new(command: &str, args: Option<String>) -> Self {
-        WmActionEvent {
-            command: WmCommands::try_from(command).unwrap(),
-            args,
-        }
-    }
-}
-
-#[derive(DeserializeDict, SerializeDict, Type, Debug)]
-#[zvariant(signature = "dict")]
-pub struct IpcEvent {
-    pub status: bool,
-    pub event: Option<WmActionEvent>,
-}
-
-impl From<WmActionEvent> for IpcEvent {
-    fn from(command: WmActionEvent) -> Self {
-        IpcEvent {
-            status: false,
-            event: Some(command),
-        }
-    }
-}
 
 #[derive(Debug, Serialize)]
 pub struct WindowManagerState {

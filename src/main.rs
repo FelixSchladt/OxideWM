@@ -22,9 +22,10 @@ use log::error;
 use serde_json::Result;
 
 use crate::{
-    windowmanager::{WindowManager, IpcEvent},
+    windowmanager::WindowManager,
     eventhandler::EventHandler,
     keybindings::KeyBindings,
+    eventhandler::events::IpcEvent,
     ipc::zbus_serve,
 };
 

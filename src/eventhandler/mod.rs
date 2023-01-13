@@ -1,6 +1,10 @@
 pub mod commands;
+pub mod events;
+
+use self::events::{IpcEvent, WmActionEvent};
+
 use crate::{
-    windowmanager::{WindowManager, WmActionEvent, IpcEvent},
+    windowmanager::{WindowManager},
     keybindings::KeyBindings, 
     auxiliary::exec_user_command, 
     eventhandler::commands::WmCommands,
