@@ -41,8 +41,8 @@ impl WindowState {
         let y: i32 = 0;
         let width: u32 = 0;
         let height: u32 = 0;
-        let titlebar_height = 0;
-        let border_width = 0;
+        let titlebar_height = 5;
+        let border_width = 5;
 
         let frame = connection.borrow().generate_id().unwrap();
         connection.borrow().create_window(
@@ -83,7 +83,7 @@ impl WindowState {
         }
     }
 
-    pub fn set_bounds(&self, x: i32, y: i32, width: u32, height: u32) {
+    pub fn set_bounds(&self, x: i32, y: i32, width: u32, height: u32) -> &WindowState {
         let frame_aux = ConfigureWindowAux::new()
             .x(x)
             .y(y)
@@ -91,20 +91,24 @@ impl WindowState {
             .height(height);
 
         let window_aux = ConfigureWindowAux::new()
-            .x(x+(self.border_width+self.titlebar_height) as i32)
-            .y(y+self.border_width as i32)
+            .x(x+self.border_width as i32)
+            .y(y+(self.border_width+self.titlebar_height) as i32)
             .width(width-(self.border_width*2))
             .height(height-self.titlebar_height-(self.border_width*2));
 
-        self.connection.borrow().configure_window(self.frame, &frame_aux);
-        self.connection.borrow().configure_window(self.window, &window_aux);
+        self.connection.borrow().configure_window(self.frame, &frame_aux).unwrap();
+        self.connection.borrow().configure_window(self.window, &window_aux).unwrap();
+
+        return self;
     }
 
     pub fn map(&self) {
         let con_b = self.connection.borrow();
         con_b.grab_server().unwrap();
-        con_b.map_window(self.frame);
-        con_b.map_window(self.window);
+
+        con_b.map_window(self.frame).unwrap();
+        con_b.map_window(self.window).unwrap();
+
         con_b.ungrab_server().unwrap();
         con_b.flush().unwrap();
     }

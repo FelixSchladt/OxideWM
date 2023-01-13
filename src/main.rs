@@ -18,11 +18,11 @@ use windowmanager::WindowManager;
 
 #[derive(Debug)]
 struct IpcEvent {
-    test: String,
+    _test: String,
 }
 
 
-fn dbus_ipc_loop(sender: Sender<IpcEvent>) {
+fn dbus_ipc_loop(_sender: Sender<IpcEvent>) {
     loop {
         //sender.send(IpcEvent { test: "test".to_string() }).unwrap();
         thread::sleep(std::time::Duration::from_millis(1000));
