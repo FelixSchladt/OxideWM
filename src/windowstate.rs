@@ -104,7 +104,7 @@ impl WindowState {
         return self;
     }
 
-    pub fn map(&self) {
+    pub fn draw(&self) {
         let con_b = self.connection.borrow();
         con_b.grab_server().unwrap();
 

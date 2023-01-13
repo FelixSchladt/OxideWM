@@ -227,7 +227,7 @@ impl Workspace {
                 self.y,
                 (self.width as usize / amount) as u32,
                 self.height
-            ).map();
+            ).draw();
         }
     }
 
@@ -242,7 +242,7 @@ impl Workspace {
                 (i * self.height as usize / amount) as i32,
                 self.width,
                 (self.height as usize / amount) as u32,
-            ).map();
+            ).draw();
         }
     }
 }
