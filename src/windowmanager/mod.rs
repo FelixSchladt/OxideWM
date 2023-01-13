@@ -18,6 +18,7 @@ use crate::{
     screeninfo::ScreenInfo,
     config::Config,
     eventhandler::commands::WmCommands,
+    auxiliary::exec_user_command,
 };
 
 pub enum Movement {
@@ -86,6 +87,7 @@ pub struct WindowManager {
     pub config: Rc<RefCell<Config>>,
     pub focused_screen: u32,
     pub moved_window: Option<u32>,
+    pub restart: bool,
 }
 
 
@@ -105,14 +107,40 @@ impl WindowManager {
             config,
             focused_screen,
             moved_window: None,
+            restart: false,
         };
 
         manager.setup_screens();
         manager.update_root_window_event_masks();
         manager.grab_keys(keybindings).expect("Failed to grab Keys");
+
+        manager.autostart_exec();
+        manager.autostart_exec_always();
+
         manager.connection.borrow_mut().flush().unwrap();
 
         manager
+    }
+
+    pub fn restart_wm(&mut self, keybindings: &KeyBindings, config: Rc<RefCell<Config>>) {
+        self.config = config;
+        //self.keybindings = KeyBindings::new(&self.config.borrow());
+        self.grab_keys(keybindings).expect("Failed to grab Keys");
+        self.autostart_exec_always();
+        self.connection.borrow_mut().flush().unwrap();
+        self.restart = false;
+    }
+
+    fn autostart_exec(&self) {
+        for command in &self.config.borrow().exec {
+            exec_user_command(&Some(command.clone()));
+        }
+    }
+
+    fn autostart_exec_always(&self) {
+        for command in &self.config.borrow().exec_always {
+            exec_user_command(&Some(command.clone()));
+        }
     }
 
     pub fn get_state(&self) -> WindowManagerState {
@@ -208,6 +236,7 @@ impl WindowManager {
             }
         }
     }
+
 
     fn setup_screens(&mut self) {
         for screen in self.connection.borrow().setup().roots.iter() {
@@ -306,5 +335,3 @@ impl WindowManager {
         self.screeninfo.get_mut(&event.parent).unwrap().on_map_request(event);
     }
 }
-
-
