@@ -1,35 +1,25 @@
 use std::collections::HashMap;
 use std::error::Error;
+use std::process::exit;
 use std::{cell::RefCell, rc::Rc};
-use std::process::{
-    exit
-};
+use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
+use serde::Serialize;
 
 use x11rb::{
     connection::Connection,
-    protocol::{
-        ErrorKind,
-        xproto::*, 
-        Event
-    },
-    rust_connection::{
-        RustConnection,
-        ReplyError, ConnectionError
-    },
+    protocol::{Event, ErrorKind},
+    protocol::xproto::*,
+    rust_connection::*,
 };
-use serde::Serialize;
 
 use crate::{
+    workspace::*,
     keybindings::KeyBindings,
     screeninfo::ScreenInfo,
-    workspace::{Workspace, Layout},
     config::Config,
     eventhandler::commands::WmCommands,
     auxiliary::exec_user_command,
 };
-
-use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
-
 
 pub enum Movement {
     Left,
@@ -75,10 +65,10 @@ pub struct IpcEvent {
 }
 
 impl From<WmActionEvent> for IpcEvent {
-    fn from(command: WmActionEvent) -> Self {
+    fn from(wm_event: WmActionEvent) -> Self {
         IpcEvent {
             status: false,
-            event: Some(command),
+            event: Some(wm_event),
         }
     }
 }
@@ -140,7 +130,6 @@ impl WindowManager {
         self.connection.borrow_mut().flush().unwrap();
         self.restart = false;
     }
-
     fn autostart_exec(&self) {
         for command in &self.config.borrow().exec {
             exec_user_command(&Some(command.clone()));
@@ -182,7 +171,7 @@ impl WindowManager {
     }
 
     fn get_active_workspace(&self) -> usize {
-        return self.screeninfo.get(&self.focused_screen).unwrap().active_workspace;    
+        return self.screeninfo.get(&self.focused_screen).unwrap().active_workspace;
     }
 
     fn get_focused_window(&self) -> (usize, Option<u32>) {
@@ -197,7 +186,7 @@ impl WindowManager {
     pub fn poll_for_event(&self)->Result<Option<Event>, ConnectionError>{
         self.connection.borrow_mut().poll_for_event()
     }
-      
+
     pub fn handle_keypress_focus(&mut self, args: Option<String>) {
         let args = args.expect("No move arguments for focus");
         let active_workspace = self.get_active_workspace();
@@ -215,7 +204,7 @@ impl WindowManager {
             .workspaces[active_workspace]
             .move_window(Movement::try_from(args.as_str()).unwrap());
     }
-    
+
     pub fn handle_keypress_kill(&mut self) {
         let (active_workspace, focused_window) = self.get_focused_window();
         println!("Focused window: {:?}", focused_window);
@@ -229,7 +218,7 @@ impl WindowManager {
         }
     }
 
-    pub fn handle_keypress_layout(&mut self, args: Option<String>) {    
+    pub fn handle_keypress_layout(&mut self, args: Option<String>) {
         let active_workspace = self.get_active_workspace();
         match args {
             Some(args) => {
@@ -250,13 +239,15 @@ impl WindowManager {
 
     fn setup_screens(&mut self) {
         for screen in self.connection.borrow().setup().roots.iter() {
+            let screen_ref = Rc::new(RefCell::new(screen.clone()));
             let mut screenstruct = ScreenInfo::new(self.connection.clone(),
-                                                   screen.root,
+                                                   screen_ref.clone(),
                                                    screen.width_in_pixels,
                                                    screen.height_in_pixels,
                                                    );
             screenstruct.workspaces.push(Workspace::new(0,
                                                         self.connection.clone(),
+                                                        screen_ref.clone(),
                                                         0,
                                                         0,
                                                         screen.width_in_pixels as u32,
@@ -280,13 +271,7 @@ impl WindowManager {
                     );
 
         for screen in self.connection.borrow().setup().roots.iter() {
-            #[cfg(debug_assertion)]
-            println!("Attempting to update event mask of: {} -> ", screen.root);
-
             self.set_mask(screen, mask).unwrap();
-
-            #[cfg(debug_assertion)]
-            println!("Screen: {} -> {}", screen.root, screen.width_in_pixels);
         }
     }
 
@@ -305,12 +290,6 @@ impl WindowManager {
                 eprintln!("\x1b[31m\x1b[1mError:\x1b[0m Access to X11 Client Api denied!");
                 exit(1);
             }
-        }
-
-        #[cfg(debug_assertion)]
-        match update_result {
-             Ok(_) => println!("\x1b[32mSuccess\x1b[0m"),
-             Err(_) => println!("\x1b[31mFailed\x1b[0m"),
         }
 
         update_result
