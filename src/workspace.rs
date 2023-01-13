@@ -68,7 +68,6 @@ pub struct Workspace {
     #[serde(skip_serializing)]
     pub connection:  Rc<RefCell<RustConnection>>,
     pub name: String,
-    pub index: usize,
     pub root_window: u16,
     pub visible: bool,
     pub focused: bool,
@@ -85,11 +84,10 @@ pub struct Workspace {
 
 
 impl Workspace {
-    pub fn new(index: usize, connection: Rc<RefCell<RustConnection>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
+    pub fn new(name:String ,connection: Rc<RefCell<RustConnection>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
         Workspace {
             connection: connection,
-            name: index.to_string(),
-            index,
+            name: name,
             root_window: 0,  //TODO get root window index from windowmanager
             visible: false,
             focused: false,
