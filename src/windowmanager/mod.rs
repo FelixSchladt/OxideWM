@@ -169,10 +169,6 @@ impl WindowManager {
         Ok(())
     }
 
-    fn get_active_screen_info(&mut self) -> &ScreenInfo {
-        self.screeninfo.get(&self.focused_screen).unwrap()
-    }
-
     fn get_active_workspace_id(&self) -> u16 {
         return self.screeninfo.get(&self.focused_screen).unwrap().active_workspace;    
     }
@@ -270,7 +266,7 @@ impl WindowManager {
             warn!("No argument for key binding go to workspace");
             return;
         }
-        let mut screen= screen_option.unwrap();
+        let screen= screen_option.unwrap();
         
         let max_workspace = screen.get_workspace_count() - 1;
         let active_workspace = screen.active_workspace;
