@@ -180,14 +180,11 @@ impl WindowManager {
             .get_workspace(active_workspace_id);
     }
 
-    fn get_focused_window(&mut self) -> (Option<usize>, Option<u32>) {
+    fn get_focused_window(&mut self) -> Option<u32> {
         let workspace_option = self.get_active_workspace();
         return match workspace_option {
-            Some(workspace) => {
-                let focused_window = workspace.get_focused_window();
-                (Some(workspace.index), focused_window)
-            },
-            None => (None, None),
+            Some(workspace) => workspace.get_focused_window(),
+            None => None,
         }
     }
 
@@ -238,7 +235,7 @@ impl WindowManager {
     }
     
     pub fn handle_keypress_kill(&mut self) {
-        let (_, focused_window) = self.get_focused_window();
+        let focused_window = self.get_focused_window();
         println!("Focused window: {:?}", focused_window);
         if let Some(winid) = focused_window {
             if let Some(workspace) = self.get_active_workspace(){
