@@ -1,7 +1,10 @@
 use gtk::{Application, ApplicationWindow};
 use gtk::Button;
 use gtk::Orientation;
-use gdk_x11::x11::xlib::{PropModeReplace, XChangeProperty, XInternAtom, XA_ATOM};
+//use gdk_x11::x11::xlib::{PropModeReplace, XChangeProperty, XInternAtom, XA_ATOM};
+//use gdk_x11::x11::xlib;
+use gdk_x11::x11::xlib::{PropModeReplace, XChangeProperty, XA_ATOM};
+use gdk_x11_sys::xlib::XInternAtom;
 use gdk_x11::x11::xlib;
 use std::ffi::CString;
 use gdk_x11::X11Display;
@@ -102,7 +105,7 @@ fn build_ui(app: &Application) {
 
 fn set_window_props(window: &gtk::Window, prop_name: &str, prop_values: &Vec<&str>) {
     let display = window.display();
-    let surface = window.surface();
+    let surface = window.surface().unwrap();
     let prop_name_cstr = CString::new(prop_name).unwrap();
     let prop_values_cstr: Vec<CString> = prop_values
         .iter()
