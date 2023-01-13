@@ -98,7 +98,7 @@ impl ScreenInfo {
         let active_workspace = self.get_workspace(self.active_workspace);
         active_workspace.unmap_windows();
 
-        if self.workspaces.contains_key(&workspace_nr){
+        if !self.workspaces.contains_key(&workspace_nr){
             self.create_workspace(workspace_nr)
         }
 

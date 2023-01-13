@@ -155,37 +155,31 @@ impl WindowManager {
     }
       
     pub fn handle_keypress_focus(&mut self, args_option: Option<String>) {
-        if args_option.is_none(){
+        if let Some(args) = args_option {
+            match Movement::try_from(args.as_str()) {
+                Ok(movement) => {
+                    let workspace = self.get_active_workspace();
+                    workspace.move_focus(movement);
+                },
+                Err(_) => warn!("Could not parse movement from argument {}", args),
+            }
+        } else {
             warn!("Argument must be provided");
-            return;
         }
-        let args = args_option.unwrap();
-        
-        let movement = Movement::try_from(args.as_str());
-        if movement.is_err() {
-            warn!("Could not parse movement from argument {}", args);
-            return;
-        }
-
-        let workspace = self.get_active_workspace();
-        workspace.move_focus(movement.unwrap());
     }
 
     pub fn handle_keypress_move(&mut self, args_option: Option<String>) {
-        if args_option.is_none(){
+        if let Some(args) = args_option {
+            match Movement::try_from(args.as_str()) {
+                Ok(movement) => {
+                    let workspace = self.get_active_workspace();
+                    workspace.move_window(movement);
+                },
+                Err(_) => warn!("Could not parse movement from argument {}", args),
+            }
+        } else {
             warn!("Argument must be provided");
-            return;
         }
-        let args = args_option.unwrap();
-
-        let movement = Movement::try_from(args.as_str());
-        if movement.is_err() {
-            warn!("Could not parse movement from argument {}",args);
-            return;
-        }
-
-        self.get_active_workspace()
-            .move_window(movement.unwrap());
     }
 
     pub fn handle_keypress_kill(&mut self) {
@@ -200,11 +194,6 @@ impl WindowManager {
     }
 
     pub fn handle_keypress_layout(&mut self, args: Option<String>) {    
-        if args.is_none() {
-            warn!("No argument provided");
-            return;
-        }
-
         let active_workspace = self.get_active_workspace();
 
         match args {
@@ -216,7 +205,7 @@ impl WindowManager {
                 }
                 active_workspace.set_layout(layout.unwrap());
             },
-            None => active_workspace.next_layout()
+            None => warn!("No argument provided"), 
         }
     }
 
