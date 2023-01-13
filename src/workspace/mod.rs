@@ -198,8 +198,8 @@ impl Workspace {
         debug!("Unmapping {} Windows from workspace {}", self.windows.len(), self.name);
         let conn = self.connection.borrow();
         conn.grab_server().unwrap();
-        for (window, _) in self.windows.iter() {
-            let resp = &conn.unmap_window(*window as Window);
+        for window_id in self.windows.keys() {
+            let resp = &conn.unmap_window(*window_id as Window);
             if resp.is_err() {
                 error!("An error occured while trying to unmap window");
             }
