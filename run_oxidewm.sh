@@ -18,7 +18,7 @@ function install_cargo () {
     echo -e "[\x1b[32m+\x1b[0m] Installation complete"
 }
 
-echo -e  "\x1b[1m\x1b[31m#- Thank you for using OxideWM -#\x1b[0m"
+echo -e  "\x1b[1m\x1b[36m#- Thank you for using OxideWM -#\x1b[0m"
 echo -e  "[\x1b[36m~\x1b[0m] Checking whether Xephyr is installed..."
 echo -ne "[\x1b[32m+\x1b[0m] "
 whereis Xephyr | grep "/Xephyr" || install_xephyr
