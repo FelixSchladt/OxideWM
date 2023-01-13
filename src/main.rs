@@ -21,8 +21,6 @@ use config::Config;
 use log::error;
 use serde_json::Result;
 
-use windowmanager::WindowManager;
-
 use crate::{
     windowmanager::{WindowManager, IpcEvent},
     eventhandler::EventHandler,
