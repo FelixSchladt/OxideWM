@@ -1,19 +1,30 @@
-use crate::config::Config;
-use std::error::Error;
+/* use crate::config::Config;
+use std::error::Error; */
 
-fn check_config(file_path: &str) -> Result<Config, Box<dyn Error>>{
+//  Nothing is currently working
+/* fn check_config(file_path: &str) -> Result<Config, Box<dyn Error>>{
     let config: Config = serde_yaml::from_reader(std::fs::File::open("./config.yml")?)?;
 
     // check for required fields
-    if config.cmds.is_empty() {
-        eprintln!("Error: cmds are required");
-    }
-    if config.exec.is_empty() {
-        eprintln!("Error: exec field is required");
-    }
+    let variable = config;
+    for variable in config.into_iter() {
 
-    // check for valid values
-    if config.border_width.is_integer() == false{
-        eprintln!("Error: border_width must be an integeir");
+         if variable.is_empty() {
+            eprintln!("Error: {} is a required field!", variable)
+        } 
     }
-}
+        if config.cmds.is_empty() {
+            eprintln!("Error: cmds are required");
+        }
+
+        if config.exec.is_empty() {
+            eprintln!("Error: exec field is required");
+        }
+
+        // check for valid values
+        /* if config.border_width as u8 == false{
+            eprintln!("The order witdh must be an integer");
+        } */
+
+    Ok(config)
+    } */
