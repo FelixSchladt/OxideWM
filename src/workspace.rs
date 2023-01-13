@@ -4,13 +4,14 @@ use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::xproto::*;
 use x11rb::CURRENT_TIME;
 use std::collections::HashMap;
+use serde::Serialize;
 
 use std::{cell::RefCell, rc::Rc};
 
 use crate::windowmanager::Movement;
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Layout {
     //Tiled, //blocked by https://github.com/DHBW-FN/OxideWM/issues/70
     VerticalStriped,   //  |
@@ -28,8 +29,9 @@ impl TryFrom<&str> for Layout {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
+    #[serde(skip_serializing)]
     pub connection:  Rc<RefCell<RustConnection>>,
     pub name: String,
     pub index: u16,
@@ -187,7 +189,11 @@ impl Workspace {
         //TODO: Change color of border to focus color
     }
 
+<<<<<<< HEAD
     pub fn unfocus_window(&mut self, _winid: u32) {
+=======
+    pub fn unfocus_window(&mut self) {
+>>>>>>> main
         self.focused_window = None;
         //TODO: Change color of border to unfocus color
     }

@@ -1,21 +1,10 @@
 use std::fs::File;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
+use std::process;
+use std::path::Path;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum WmCommands {
-    Move, //args: left, up, right, down
-    Focus,
-    Resize,
-    Quit, // Quit the window manager
-    Kill, // Kill the focused window
-    Restart, // Restart the window manager
-    Layout, //args: horizontal, vertical
-    MoveToWorkspace,
-    GoToWorkspace,
-    MoveToWorkspaceAndFollow,
-    Exec,
-}
+use crate::eventhandler::commands::WmCommands;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where
@@ -39,7 +28,7 @@ pub struct WmCommand {
     pub args: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     #[serde(default = "default_cmds")]
     pub cmds: Vec<WmCommand>,
@@ -54,10 +43,10 @@ pub struct Config {
     pub border_width: u8,
     
     #[serde(default = "default_border_color")]
-    pub border_color: String,
+    pub border_color: i32,
     
     #[serde(default = "default_border_focus_color")]
-    pub border_focus_color: String,
+    pub border_focus_color: i32,
 
     #[serde(default = "default_gap")]
     pub gap: u8,
@@ -65,13 +54,29 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Config {
-        //simulate_config()
-        // Opens the config.yaml file.
-        let f = File::open("./config.yml").expect("Could not open file.");
-        // Reads the Values from the 'config' struct in config.yml 
-        let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
-        println!("{:?}", user_config);
-        user_config
+        let mut f: Option<File> = None;
+        let mut paths = vec![ "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+        #[cfg(not(release))]
+        paths.insert(0, "./config.yml");
+        let path_copy = paths.clone();
+        for path in paths {
+            if Path::new(path).exists() {
+                f = Some(File::open(path).unwrap());
+                break;
+            }
+        }
+        match f {
+            Some(f) => {
+                // Reads the Values from the 'config' struct in config.yml 
+                let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
+                println!("{:?}", user_config);
+                user_config
+            },
+            None => {
+                eprintln!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", path_copy);
+                process::exit(-1);
+            }
+        }
     }
 } 
 
@@ -93,9 +98,12 @@ fn default_exec_always() -> Vec<String> {
 }
 
 fn default_border_width() -> u8 { 3 }
-fn default_border_color() -> String { "white".to_string() }
-fn default_border_focus_color() -> String { "black".to_string() }
+fn default_border_color() -> i32 { 0xFFFFFF } // white
+fn default_border_focus_color() -> i32 { 0x000000 } // black
 fn default_gap() -> u8 { 3 }
 
-
+/* fn convert_colors() {
+    let border_color = Color::from_hex(user_config::border_color).unwrap();
+    let border_focus_color = Color::from_hex(user_config::border_color).unwrap();
+} */
 
