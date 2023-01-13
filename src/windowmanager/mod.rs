@@ -205,7 +205,7 @@ impl WindowManager {
             .workspaces[active_workspace]
             .move_window(Movement::try_from(args.as_str()).unwrap());
     }
-    
+
     pub fn handle_keypress_kill(&mut self) {
         let (active_workspace, focused_window) = self.get_focused_window();
         println!("Focused window: {:?}", focused_window);
@@ -219,7 +219,7 @@ impl WindowManager {
         }
     }
 
-    pub fn handle_keypress_layout(&mut self, args: Option<String>) {    
+    pub fn handle_keypress_layout(&mut self, args: Option<String>) {
         let active_workspace = self.get_active_workspace();
         match args {
             Some(args) => {
@@ -242,7 +242,7 @@ impl WindowManager {
         for screen in self.connection.borrow().setup().roots.iter() {
             let screen_ref = Rc::new(RefCell::new(screen.clone()));
             let mut screenstruct = ScreenInfo::new(self.connection.clone(),
-                                                   screen.root,
+                                                   screen_ref.clone(),
                                                    screen.width_in_pixels,
                                                    screen.height_in_pixels,
                                                    );
