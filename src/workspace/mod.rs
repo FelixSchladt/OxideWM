@@ -1,3 +1,7 @@
+pub mod enums_workspace;
+
+use self::enums_workspace::Layout;
+
 use super::windowstate::WindowState;
 use log::{debug, error};
 use x11rb::connection::Connection;
@@ -10,58 +14,6 @@ use serde::Serialize;
 use std::{cell::RefCell, rc::Rc};
 
 use crate::windowmanager::Movement;
-
-
-#[derive(Debug, Clone, Serialize)]
-pub enum Layout {
-    //Tiled, //blocked by https://github.com/DHBW-FN/OxideWM/issues/70
-    VerticalStriped,   //  |
-    HorizontalStriped, // ---
-    //Different layout modes and better names wanted C:
-}
-
-impl TryFrom<&str> for Layout {
-    type Error = String;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value.to_lowercase().as_str() {
-            "vertical" => Ok(Layout::VerticalStriped),
-            "horizontal" => Ok(Layout::HorizontalStriped),
-            _ => Err(format!("{} is not a valid layout", value)),
-        }
-    }
-}
-
-pub enum GoToWorkspace {
-    Next,
-    Previous,
-}
-
-impl GoToWorkspace {
-    pub fn try_from(value:Option<String>)->Option<GoToWorkspace>{
-        if value.is_none() {
-            return None;
-        }        
-
-        return match value.unwrap().to_lowercase().as_str() {
-            "next" => Some(GoToWorkspace::Next),
-            "previous" => Some(GoToWorkspace::Previous),
-            _ => None,
-        }
-    }
-
-    pub fn calculate_new_workspace(&self, active_workspace:usize, max_workspace:usize) -> usize {
-        match self {
-            GoToWorkspace::Next => (active_workspace + 1) % (max_workspace + 1),
-            GoToWorkspace::Previous => {
-                if active_workspace == 0 {
-                    max_workspace
-                }else{
-                    active_workspace - 1
-                }
-            }
-        }
-    }
-}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
@@ -248,8 +200,8 @@ impl Workspace {
         debug!("Unmapping {} Windows from workspace {}", self.windows.len(), self.name);
         let conn = self.connection.borrow();
         conn.grab_server().unwrap();
-        for (_, win) in self.windows.iter() {
-            let resp = &conn.unmap_window(win.window);
+        for (window, _) in self.windows.iter() {
+            let resp = &conn.unmap_window(*window as Window);
             if resp.is_err() {
                 error!("An error occured while trying to unmap window");
             }

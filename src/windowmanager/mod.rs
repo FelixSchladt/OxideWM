@@ -32,12 +32,15 @@ use x11rb::{
 };
 use serde::Serialize;
 
-use crate::workspace::{GoToWorkspace, Layout, Workspace};
 use crate::{
     keybindings::KeyBindings,
     screeninfo::ScreenInfo,
     config::Config,
     eventhandler::commands::WmCommands,
+    workspace::{
+        Workspace,
+        enums_workspace::{Layout,GoToWorkspace},
+    }
 };
 
 use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
@@ -246,6 +249,7 @@ impl WindowManager {
                 let layout = Layout::try_from(args.as_str());
                 if layout.is_err(){
                     warn!("Layout could not be parsed from argument {}", args);
+                    return;
                 }
                 active_workspace.set_layout(layout.unwrap());
             },
@@ -253,7 +257,7 @@ impl WindowManager {
         }
     }
 
-    pub fn handle_keypress_go_to_workspace(&mut self, args: Option<String>){
+    pub fn handle_keypress_go_to_workspace(&mut self, args_option: Option<String>){
         let screen_option = self.screeninfo
             .get_mut(&self.focused_screen);
         if screen_option.is_none() {
@@ -261,16 +265,26 @@ impl WindowManager {
             return;
         }
 
-        let arg = GoToWorkspace::try_from(args);
-        if arg.is_none() {
-            warn!("No argument for key binding go to workspace");
+        let arg;
+        if let Some(args) = args_option {
+            let go_to_result = GoToWorkspace::try_from(args.as_str());
+            match go_to_result {
+                Ok(go_to) => arg=go_to,
+                Err(_) => {
+                    warn!("Argumet '{}' could not be parsed", args);
+                    return;
+                },
+            }
+        }else{
+            warn!("No argument was passed");
             return;
         }
+
         let screen= screen_option.unwrap();
         
         let max_workspace = screen.get_workspace_count() - 1;
         let active_workspace = screen.active_workspace;
-        let new_workspace = arg.unwrap().calculate_new_workspace(active_workspace as usize, max_workspace);
+        let new_workspace = arg.calculate_new_workspace(active_workspace as usize, max_workspace);
         screen.set_workspace_create_if_not_exists(new_workspace as u16);
     }
 
