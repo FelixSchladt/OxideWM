@@ -8,7 +8,8 @@ edition = "2021"
 [dependencies]
 oxidewm = { version = "0.1.*", path = "../../" }
 oxideipc = { version = "0.1.*", path = "../oxide-ipc" }
-gtk = { version = "0.1", package = "gtk4" }
-gdk-x11 = {version = "0.1", package = "gdk4-x11"}
-gdk-x11-sys = {version = "0.1", package = "gdk4-x11-sys"}
-gdk = {version = "0.1", package = "gdk4"}
+x11rb = "0.11.*"
+gtk = { version = "0.3", package = "gtk4" }
+gdk-x11 = {version = "0.3", package = "gdk4-x11", feature = "xlib"}
+gdk-x11-sys = {version = "0.3", package = "gdk4-x11-sys"}
+gdk = {version = "0.3", package = "gdk4"}

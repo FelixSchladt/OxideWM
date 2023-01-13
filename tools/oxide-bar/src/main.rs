@@ -1,10 +1,10 @@
 use gtk::{Application, ApplicationWindow};
 use gtk::Button;
 use gtk::Orientation;
-//use gdk_x11::x11::xlib::{PropModeReplace, XChangeProperty, XInternAtom, XA_ATOM};
+use gdk_x11::x11::xlib::{PropModeReplace, XChangeProperty, XInternAtom, XA_ATOM};
 //use gdk_x11::x11::xlib;
-use gdk_x11::x11::xlib::{PropModeReplace, XChangeProperty, XA_ATOM};
-use gdk_x11_sys::xlib::XInternAtom;
+//use gdk_x11::x11::xlib::{PropModeReplace, XChangeProperty, XA_ATOM};
+//use gdk_x11_sys::xlib::XInternAtom;
 use gdk_x11::x11::xlib;
 use std::ffi::CString;
 use gdk_x11::X11Display;
@@ -24,9 +24,39 @@ use gtk::prelude::Cast;
 use gdk::prelude::SurfaceExt;
 
 
+use x11rb::connection::Connection;
+use x11rb::protocol::xproto::ConnectionExt;
+use x11rb::{
+    protocol::{
+        ErrorKind,
+        Event
+    },
+    protocol::xproto::{
+        ChangeWindowAttributesAux,
+        Screen,
+        MapRequestEvent, 
+        UnmapNotifyEvent, 
+        LeaveNotifyEvent, 
+        EnterNotifyEvent, 
+        EventMask, 
+        GrabMode, 
+        ModMask,
+        AtomEnum,
+        ConnectionExt as _,
+    },
+    rust_connection::{
+        ConnectionError,
+        RustConnection,
+        ReplyError
+    }
+};
+use x11rb::wrapper::ConnectionExt as _;
+
+
 
 use oxideipc;
 use oxideipc::state::*;
+use oxidewm::atom::Atom;
 
 const APP_ID: &str = "org.oxide.oxide-bar";
 
@@ -85,7 +115,7 @@ fn build_ui(app: &Application) {
     let prop_values: Vec<&str> = vec!["_NET_WM_WINDOW_TYPE_DOCK"];
 
     let toplevels = gtk::Window::list_toplevels();
-    println!("toplevels: {:?}", toplevels);
+    //println!("toplevels: {:?}", toplevels);
     let top = toplevels[0].clone();
     let display = top.display();
     
@@ -102,6 +132,12 @@ fn build_ui(app: &Application) {
 
 //https://stackoverflow.com/questions/68476172/how-do-you-set-x11-window-hints-using-gtk4-rs
 
+/*
+pub fn atom_name(&self, id: u32) -> String {
+    let reply = self.connection.borrow().get_atom_name(id).unwrap().reply().unwrap();
+    self.connection.borrow().flush().unwrap();
+    String::from_utf8(reply.name).unwrap()
+}*/
 
 fn set_window_props(window: &gtk::Window, prop_name: &str, prop_values: &Vec<&str>) {
     let display = window.display();
@@ -114,6 +150,28 @@ fn set_window_props(window: &gtk::Window, prop_name: &str, prop_values: &Vec<&st
     unsafe {
         let xid: xlib::Window = surface.unsafe_cast::<X11Surface>().xid();
         let xdisplay: *mut xlib::Display = display.unsafe_cast::<X11Display>().xdisplay();
+        println!("xid: {:?}", xid);
+        println!("xdisplay: {:?}", xdisplay);
+        let connection = RustConnection::connect(None).unwrap().0;
+        let screens = connection.setup().roots.clone();
+        
+        let screen = screens[0].clone();
+
+        let atom_intern = connection.intern_atom(false, Atom::NetWmWindowType.as_ref().as_bytes());
+
+        println!("atom_intern: {:?}", atom_intern);
+
+        let atom_intern_prop = connection.intern_atom(false, Atom::NetWindowTypeDock.as_ref().as_bytes()).unwrap().reply().unwrap();
+
+        println!("atom_intern_prop: {:?}", atom_intern_prop);
+        connection.change_property32(
+            PropMode::REPLACE,
+            xid.try_into().unwrap(),
+            atom_intern,
+            AtomEnum::ATOM,
+            &atom_intern_prop,
+            );
+        /*
         let prop_name_atom = XInternAtom(xdisplay, prop_name_cstr.as_ptr(), xlib::False);
         let mut prop_values_atom: Vec<u64> = prop_values_cstr
             .into_iter()
@@ -131,6 +189,7 @@ fn set_window_props(window: &gtk::Window, prop_name: &str, prop_values: &Vec<&st
             prop_values_c as *const u8,
             num_values as i32,
         );
+        */
     }
 }
 
