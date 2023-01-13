@@ -17,7 +17,7 @@ where
     } else {
         Ok(Some(args))
     }
-    
+
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -41,10 +41,10 @@ pub struct Config {
 
     #[serde(default = "default_border_width")]
     pub border_width: u8,
-    
+
     #[serde(default = "default_border_color")]
     pub border_color: i32,
-    
+
     #[serde(default = "default_border_focus_color")]
     pub border_focus_color: i32,
 
@@ -65,26 +65,23 @@ impl Config {
                 break;
             }
         }
-        match f {
-            Some(f) => {
-                // Reads the Values from the 'config' struct in config.yml 
-                let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
-                println!("{:?}", user_config);
-                user_config
-            },
-            None => {
-                eprintln!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", path_copy);
-                process::exit(-1);
-            }
-        }
+        if let Some(f) = f {
+             // Reads the Values from the 'config' struct in config.yml 
+             let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
+             println!("{:?}", user_config);
+             user_config
+         } else {
+             eprintln!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", path_copy);
+             process::exit(-1);
+         }
     }
-} 
+}
 
 // Defining default values
 fn default_cmds() -> Vec<WmCommand> {
     vec![WmCommand{
-        keys: vec!["A".to_string(), "t".to_string()], 
-        command: WmCommands::Exec, 
+        keys: vec!["A".to_string(), "t".to_string()],
+        command: WmCommands::Exec,
         args: Some("kitty".to_string())
     }]
 }

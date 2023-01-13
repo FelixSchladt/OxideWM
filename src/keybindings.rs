@@ -16,12 +16,12 @@ pub enum ModifierKey {
 
 impl From<ModifierKey> for u16 {
     fn from(key: ModifierKey) -> u16 {
-        (match key {
-            ModifierKey::Shift  =>  1,
-            ModifierKey::Ctrl   =>  4,
-            ModifierKey::Alt    =>  8,
-            ModifierKey::Meta   =>  64,
-        }) as u16
+        match key {
+            ModifierKey::Shift  =>  1  as u16,
+            ModifierKey::Ctrl   =>  4  as u16,
+            ModifierKey::Alt    =>  8  as u16,
+            ModifierKey::Meta   =>  64 as u16,
+        }
     }
 }
 
@@ -69,7 +69,7 @@ fn keycodes_map() -> HashMap<String, u8> {
                 keycodes_map.insert(words[3].to_string(), words[1].parse().unwrap());
             }
         }
-    return keycodes_map; 
+    return keycodes_map;
 }
 
 fn keyname_to_keycode(keyname: &str, keymap: &HashMap<String, u8>) -> u8 {
@@ -100,12 +100,13 @@ pub struct KeyBindings {
 }
 
 impl KeyBindings {
+    #[must_use]
     pub fn new(config: &Config) -> KeyBindings {
         let mut keybindings = KeyBindings {
             events_map: HashMap::new(),
             events_vec: Vec::new(),
         };
-        
+
         let keymap = keycodes_map();
 
         //add wm commands
@@ -119,7 +120,7 @@ impl KeyBindings {
             keybindings.events_vec.push(kevent.clone());
             keybindings.events_map
                 .entry(keycode.code)
-                .or_insert(Vec::new())
+                .or_default()
                 .push(kevent);
         }
         keybindings

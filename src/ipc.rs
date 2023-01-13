@@ -28,16 +28,21 @@ impl WmInterface {
     }
 }
 
+/// # Errors
+///
+/// Errors might occur when the `ConnectionBuilder` cannot establish a session to
+/// `org.oxide.interface`
 pub async fn zbus_serve(sender: Arc<Mutex<Sender<IpcEvent>>>, receiver: Arc<Mutex<Receiver<String>>>) -> Result<(), Box<dyn Error>> {
-    let interface = WmInterface { 
-        sender: sender,
-        receiver: receiver,
+    let interface = WmInterface {
+        sender,
+        receiver,
     };
-    let _ = ConnectionBuilder::session()?
-        .name("org.oxide.interface")?
-        .serve_at("/org/oxide/interface", interface)?
-        .build()
-        .await?;
+
+    ConnectionBuilder::session()?
+                      .name("org.oxide.interface")?
+                      .serve_at("/org/oxide/interface", interface)?
+                      .build()
+                      .await?;
 
     Ok(())
 }
