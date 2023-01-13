@@ -121,13 +121,13 @@ fn build_ui(app: &Application) {
     let display = top.display();
     
 
+    set_window_props(&mut window, "_NET_WM_WINDOW_TYPE", &prop_values);
 
 
 
     // Present window
     window.present();
 
-    set_window_props(&mut window, "_NET_WM_WINDOW_TYPE", &prop_values);
 }
 
 
