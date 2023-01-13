@@ -17,8 +17,8 @@ pub fn exec_user_command(args: &Option<String>) {
                     .stdout(Stdio::null())
                     .stderr(Stdio::null())
                     .spawn()
-            }.unwrap();
+            }.expect("Failed to execute user command: Does the program exist?");
         },
-        None => panic!("User command called without args"),
+        None => panic!("User command called without values"),
     }
 }
