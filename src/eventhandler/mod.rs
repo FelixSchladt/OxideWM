@@ -60,6 +60,7 @@ impl EventHandler<'_> {
     }
 
     fn handle_keypress(&mut self, event: &KeyPressEvent) {
+        //println!("{:?}", event);
         let keys = self.keybindings.events_map
             .get(&event.detail)
             .expect("ERROR: Key not found in keybindings -> THIS MUST NOT HAPPEN");

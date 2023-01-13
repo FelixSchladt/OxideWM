@@ -4,7 +4,7 @@ use std::{cell::RefCell, rc::Rc};
 use std::process::{
     exit
 };
-
+use std::str::FromStr;
 use log::{warn, error, info};
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::ConnectionExt;
@@ -22,7 +22,8 @@ use x11rb::{
         EnterNotifyEvent, 
         EventMask, 
         GrabMode, 
-        ModMask
+        ModMask,
+        AtomEnum,
     },
     rust_connection::{
         ConnectionError,
@@ -38,6 +39,7 @@ use crate::{
     screeninfo::ScreenInfo,
     config::Config,
     eventhandler::commands::WmCommands,
+    atom::Atom,
 };
 
 use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
@@ -391,7 +393,52 @@ impl WindowManager {
         }
     }
 
+    pub fn atom_name(&self, id: u32) -> String {
+        let reply = self.connection.borrow().get_atom_name(id).unwrap().reply().unwrap();
+        self.connection.borrow().flush().unwrap();
+        String::from_utf8(reply.name).unwrap()
+    }
+
+    //Note to get general atoms look at
+    //https://github.com/sminez/penrose/blob/develop/src/x11rb/mod.rs lines 404-500
+
+    pub fn atom_window_type_dock(&self, winid: u32) -> bool {
+        let binding = self.connection.borrow();
+        let atom_intern = binding.intern_atom(false, Atom::NetWmWindowType.as_ref().as_bytes()).unwrap().reply().unwrap().atom;
+
+        self.connection.borrow().flush().unwrap();
+        let atom_reply = binding.get_property(false,
+                                              winid,
+                                              atom_intern,
+                                              AtomEnum::ANY,
+                                              0,
+                                              1024).unwrap().reply().unwrap();
+
+        
+        self.connection.borrow().flush().unwrap();
+
+        let prop_type = match atom_reply.type_ {
+            0 => return false, // Null response
+            atomid => self.atom_name(atomid),
+        };
+
+        //if atom_reply.type_ == 0 { return false; }
+        //let atom_name = self.atom_name(winid);
+
+        if prop_type == "ATOM" {
+            let atoms = atom_reply.value32().unwrap()
+                .map(|a| self.atom_name(a))
+                .collect::<Vec<String>>();
+            println!("Window type: {:?}", atoms);
+            if atoms.contains(&"_NET_WM_WINDOW_TYPE_DOCK".to_string()) {
+                return true;
+            }
+        }
+        false
+    }
+
     pub fn handle_map_request(&mut self, event: &MapRequestEvent) {
+        println!("IS DOCK: {}", self.atom_window_type_dock(event.window));
         self.screeninfo.get_mut(&event.parent).unwrap().on_map_request(event);
     }
 }
