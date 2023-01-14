@@ -21,17 +21,20 @@ use log::error;
 use serde_json::Result;
 
 use crate::{
-    windowmanager::{WindowManager, IpcEvent},
+    windowmanager::WindowManager,
     eventhandler::EventHandler,
     keybindings::KeyBindings,
+    eventhandler::events::IpcEvent,
     ipc::zbus_serve,
 };
 
+extern crate log;
 
 fn main() -> Result<()> {
+    env_logger::init();
     let mut config = Rc::new(RefCell::new(Config::new()));
     let mut keybindings = KeyBindings::new(&config.borrow());
-
+    
     let mut manager = WindowManager::new(&keybindings, config.clone());
     let mut eventhandler = EventHandler::new(&mut manager, &keybindings);
 
@@ -51,7 +54,9 @@ fn main() -> Result<()> {
         if let Ok(Some(event)) = result {
             eventhandler.handle_event(&event);
         } else {
-            error!("Error retreiving Event from Window manager {}", result.err().unwrap());
+            if let Some(error) = result.err(){
+                error!("Error retreiving Event from Window manager {:?}", error);
+            }
         }
 
         if let Ok(event) = wm_receiver.try_recv() {

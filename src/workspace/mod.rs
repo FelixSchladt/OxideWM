@@ -1,40 +1,26 @@
-use super::windowstate::WindowState;
+pub mod enums_workspace;
+
+use self::enums_workspace::Layout;
+
+use crate::{
+    windowmanager::enums_windowmanager::Movement,
+    windowstate::WindowState,
+};
+
+use log::{debug, error};
 use x11rb::connection::Connection;
 use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::xproto::*;
 use x11rb::CURRENT_TIME;
 use std::collections::HashMap;
 use serde::Serialize;
-
 use std::{cell::RefCell, rc::Rc};
-
-use crate::windowmanager::Movement;
-
-
-#[derive(Debug, Clone, Serialize)]
-pub enum Layout {
-    //Tiled, //blocked by https://github.com/DHBW-FN/OxideWM/issues/70
-    VerticalStriped,   //  |
-    HorizontalStriped, // ---
-}
-
-impl TryFrom<&str> for Layout {
-    type Error = String;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value.to_lowercase().as_str() {
-            "vertical" => Ok(Layout::VerticalStriped),
-            "horizontal" => Ok(Layout::HorizontalStriped),
-            _ => Err(format!("{} is not a valid layout", value)),
-        }
-    }
-}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
     #[serde(skip_serializing)]
     pub connection:  Rc<RefCell<RustConnection>>,
     pub name: String,
-    pub index: u16,
     #[serde(skip_serializing)]
     pub root_screen: Rc<RefCell<Screen>>,
     pub visible: bool,
@@ -52,12 +38,11 @@ pub struct Workspace {
 
 
 impl Workspace {
-    pub fn new(index: u16, connection: Rc<RefCell<RustConnection>>, root_screen: Rc<RefCell<Screen>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
+    pub fn new(name:String ,connection: Rc<RefCell<RustConnection>>,root_screen: Rc<RefCell<Screen>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
         Workspace {
-            connection,
-            name: index.to_string(),
-            index,
-            root_screen,
+            connection: connection,
+            name: name,
+            root_screen: root_screen,
             visible: false,
             focused: false,
             focused_window: None,
@@ -185,6 +170,7 @@ impl Workspace {
     pub fn hide() { panic!("Not implemented"); }
 
     pub fn focus_window(&mut self, winid: u32) {
+        debug!("focus_window");
         self.focused_window = Some(winid);
         self.connection.borrow().set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
         //TODO: Change color of border to focus color
@@ -206,6 +192,20 @@ impl Workspace {
             Layout::VerticalStriped => self.set_layout(Layout::HorizontalStriped),
         }
         self.remap_windows();
+    }
+
+    pub fn unmap_windows(&mut self){
+        debug!("Unmapping {} Windows from workspace {}", self.windows.len(), self.name);
+        let conn = self.connection.borrow();
+        conn.grab_server().unwrap();
+        for window_id in self.windows.keys() {
+            let resp = &conn.unmap_window(*window_id as Window);
+            if resp.is_err() {
+                error!("An error occured while trying to unmap window");
+            }
+        }
+        conn.ungrab_server().unwrap();
+        conn.flush().unwrap();
     }
 
     pub fn remap_windows(&mut self) {
