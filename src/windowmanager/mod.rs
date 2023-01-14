@@ -2,13 +2,14 @@ pub mod enums_windowmanager;
 
 use self::enums_windowmanager::Movement;
 
+use std::any::Any;
 use std::collections::HashMap;
 use std::error::Error;
 use std::process::exit;
 use std::{cell::RefCell, rc::Rc};
 use serde::Serialize;
 
-use log::{warn, error, info};
+use log::{warn, error, info, debug};
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::ConnectionExt;
 use x11rb::{
@@ -252,6 +253,7 @@ impl WindowManager {
             screenstruct.create_new_workspace();    // Todo Js remove this
             self.screeninfo.insert(screen.root, screenstruct);
             self.focused_screen = screen.root;
+            debug!("screen widht: {} screen height: {}", screen.width_in_pixels, screen.height_in_pixels);
         }
     }
 
