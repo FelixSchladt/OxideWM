@@ -1,5 +1,4 @@
 use log::debug;
-use uuid::Uuid;
 use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::xproto::*;
 use serde::Serialize;
@@ -55,9 +54,8 @@ impl ScreenInfo {
             return;
         }
 
-        let workspace_name = Uuid::new_v4().to_string();
         let new_workspace = Workspace::new(
-            workspace_name,
+            workspace_nr.to_string(),
             self._connection.clone(),
             self._screen_ref.clone(),
             0,
