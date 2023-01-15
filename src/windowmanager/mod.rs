@@ -2,15 +2,10 @@ pub mod enums_windowmanager;
 
 use self::enums_windowmanager::Movement;
 
-use std::any::Any;
 use std::collections::HashMap;
 use std::error::Error;
 use std::process::exit;
 use std::{cell::RefCell, rc::Rc};
-use std::process::{
-    exit
-};
-use std::str::FromStr;
 use serde::Serialize;
 
 use log::{warn, error, info, debug};
@@ -34,7 +29,6 @@ use crate::{
     keybindings::KeyBindings,
     screeninfo::ScreenInfo,
     config::Config,
-    eventhandler::commands::WmCommands,
     atom::Atom,
     workspace::{
         Workspace,
