@@ -4,6 +4,8 @@ use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::xproto::*;
 use x11rb::CURRENT_TIME;
 use std::collections::HashMap;
+use std::process::exit;
+use log::error;
 use serde::Serialize;
 
 use std::{cell::RefCell, rc::Rc};
@@ -219,14 +221,22 @@ impl Workspace {
             Layout::HorizontalStriped => self.map_horizontal_striped(),
 
         }
-        for id in self.order.iter() {
+        for id in &self.order {
             //TODO Add titlebar and Frame
-            let win = self.windows.get(id).unwrap();
+            let win = match self.windows.get(id) {
+                Some(window) => window,
+                None => {
+                    error!("Failed to grab window by ID.");
+                    exit(-1);
+                }
+            };
+
             let winaux = ConfigureWindowAux::new()
                 .x(win.x)
                 .y(win.y)
                 .width(win.width)
                 .height(win.height);
+
             let conn = self.connection.borrow();
             conn.configure_window(win.window, &winaux).unwrap();
 
@@ -244,10 +254,10 @@ impl Workspace {
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
 
-            current_window.x = (i * self.width as usize / amount) as i32;
+            current_window.x = (i * self.width as usize / amount).try_into().unwrap();
             current_window.y = self.y;
 
-            current_window.width  = (self.width as usize / amount) as u32;
+            current_window.width  = (self.width as usize / amount).try_into().unwrap();
             current_window.height = self.height;
         }
     }
@@ -260,10 +270,10 @@ impl Workspace {
             let current_window = self.windows.get_mut(id).unwrap();
 
             current_window.x = self.x;
-            current_window.y = (i * self.height as usize / amount) as i32;
+            current_window.y = (i * self.height as usize / amount).try_into().unwrap();
 
             current_window.width  = self.width;
-            current_window.height = (self.height as usize / amount) as u32;
+            current_window.height = (self.height as usize / amount).try_into().unwrap();
         }
     }
 }
