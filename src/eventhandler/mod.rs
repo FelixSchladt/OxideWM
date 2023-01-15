@@ -1,10 +1,13 @@
 pub mod commands;
+pub mod events;
+
+use self::events::{IpcEvent, WmActionEvent};
 
 use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
 use std::process;
 
 use crate::{
-    windowmanager::{WindowManager, WmActionEvent, IpcEvent},
+    windowmanager::{WindowManager},
     keybindings::KeyBindings, 
     auxiliary::exec_user_command, 
     eventhandler::commands::WmCommands,
@@ -119,6 +122,9 @@ impl EventHandler<'_> {
             WmCommands::Restart => {
                 println!("Restart");
                 self.window_manager.restart = true;
+            },
+            WmCommands::GoToWorkspace =>{
+                self.window_manager.handle_keypress_go_to_workspace(command.args.clone());
             },
             WmCommands::Exec => {
                 println!("Exec");

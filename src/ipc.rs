@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 
 use std::error::Error;
 
-use crate::windowmanager::{IpcEvent, WmActionEvent};
+use crate::eventhandler::events::{IpcEvent, WmActionEvent};
 
 
 use zbus::{ConnectionBuilder, dbus_interface};

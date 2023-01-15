@@ -1,87 +1,40 @@
+pub mod enums_windowmanager;
+
+use self::enums_windowmanager::Movement;
+
+use std::any::Any;
 use std::collections::HashMap;
 use std::error::Error;
+use std::process::exit;
 use std::{cell::RefCell, rc::Rc};
-use std::process::{
-    exit
-};
-
-use x11rb::{
-    connection::Connection,
-    protocol::{
-        ErrorKind,
-        xproto::*, 
-        Event
-    },
-    rust_connection::{
-        RustConnection,
-        ReplyError, ConnectionError
-    },
-};
 use serde::Serialize;
 
-use crate::{
-    keybindings::KeyBindings,
-    screeninfo::ScreenInfo,
-    workspace::{Workspace, Layout},
-    config::Config,
-    eventhandler::commands::WmCommands,
-    auxiliary::exec_user_command,
+use log::{warn, error, info, debug};
+use x11rb::connection::Connection;
+use x11rb::protocol::xproto::ConnectionExt;
+use x11rb::{
+    protocol::{
+        ErrorKind,
+        Event
+    },
+    protocol::xproto::*,
+    rust_connection::{
+        ConnectionError,
+        RustConnection,
+        ReplyError
+    }
 };
 
-use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
-
-
-pub enum Movement {
-    Left,
-    Right,
-    Up,
-    Down,
-}
-
-impl TryFrom<&str> for Movement {
-    type Error = String;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value.to_lowercase().as_str() {
-            "left" => Ok(Movement::Left),
-            "right" => Ok(Movement::Right),
-            "up" => Ok(Movement::Up),
-            "down" => Ok(Movement::Down),
-            _ => Err(format!("{} is not a valid movement", value)),
-        }
+use crate::{
+    auxiliary::exec_user_command,
+    keybindings::KeyBindings,
+    screeninfo::ScreenInfo,
+    config::Config,
+    workspace::{
+        Workspace,
+        enums_workspace::{Layout,GoToWorkspace},
     }
-}
-
-#[derive(Type, DeserializeDict, SerializeDict, Debug)]
-#[zvariant(signature = "dict")]
-pub struct WmActionEvent {
-    pub command: WmCommands,
-    pub args: Option<String>,
-}
-
-impl WmActionEvent {
-    pub fn new(command: &str, args: Option<String>) -> Self {
-        WmActionEvent {
-            command: WmCommands::try_from(command).unwrap(),
-            args,
-        }
-    }
-}
-
-#[derive(DeserializeDict, SerializeDict, Type, Debug)]
-#[zvariant(signature = "dict")]
-pub struct IpcEvent {
-    pub status: bool,
-    pub event: Option<WmActionEvent>,
-}
-
-impl From<WmActionEvent> for IpcEvent {
-    fn from(command: WmActionEvent) -> Self {
-        IpcEvent {
-            status: false,
-            event: Some(command),
-        }
-    }
-}
+};
 
 #[derive(Debug, Serialize)]
 pub struct WindowManagerState {
@@ -123,10 +76,13 @@ impl WindowManager {
         manager.setup_screens();
         manager.update_root_window_event_masks();
         manager.grab_keys(keybindings).expect("Failed to grab Keys");
+        let result = manager.connection.borrow().flush();
+        if result.is_err() {
+            info!("Failed to flush rust connection");
+        }
 
         manager.autostart_exec();
         manager.autostart_exec_always();
-
         manager.connection.borrow_mut().flush().unwrap();
 
         manager
@@ -140,7 +96,6 @@ impl WindowManager {
         self.connection.borrow_mut().flush().unwrap();
         self.restart = false;
     }
-
     fn autostart_exec(&self) {
         for command in &self.config.borrow().exec {
             exec_user_command(&Some(command.clone()));
@@ -181,89 +136,124 @@ impl WindowManager {
         Ok(())
     }
 
-    fn get_active_workspace(&self) -> usize {
+    fn get_active_workspace_id(&self) -> u16 {
         return self.screeninfo.get(&self.focused_screen).unwrap().active_workspace;    
     }
 
-    fn get_focused_window(&self) -> (usize, Option<u32>) {
-        let active_workspace = self.get_active_workspace();
-        let focused_window = self.screeninfo
-            .get(&self.focused_screen)
-            .unwrap().workspaces[active_workspace]
-            .get_focused_window();
-        return (active_workspace, focused_window);
+    fn get_active_workspace(&mut self) -> &mut Workspace {
+        let active_workspace_id = self.get_active_workspace_id();
+        let screen_info = self.screeninfo.get_mut(&self.focused_screen).unwrap();
+        screen_info.get_workspace(active_workspace_id)
+    }
+
+    fn get_focused_window(&mut self) -> Option<u32> {
+        let workspace = self.get_active_workspace();
+        workspace.get_focused_window()
     }
 
     pub fn poll_for_event(&self)->Result<Option<Event>, ConnectionError>{
-        self.connection.borrow_mut().poll_for_event()
+        self.connection.borrow().poll_for_event()
     }
       
-    pub fn handle_keypress_focus(&mut self, args: Option<String>) {
-        let args = args.expect("No move arguments for focus");
-        let active_workspace = self.get_active_workspace();
-        self.screeninfo.get_mut(&self.focused_screen)
-            .unwrap()
-            .workspaces[active_workspace]
-            .move_focus(Movement::try_from(args.as_str()).unwrap());
+    pub fn handle_keypress_focus(&mut self, args_option: Option<String>) {
+        if let Some(args) = args_option {
+            match Movement::try_from(args.as_str()) {
+                Ok(movement) => {
+                    let workspace = self.get_active_workspace();
+                    workspace.move_focus(movement);
+                },
+                Err(_) => warn!("Could not parse movement from argument {}", args),
+            }
+        } else {
+            warn!("Argument must be provided");
+        }
     }
 
-    pub fn handle_keypress_move(&mut self, args: Option<String>) {
-        let args = args.expect("No move arguments for move");
-        let active_workspace = self.get_active_workspace();
-        self.moved_window = self.screeninfo.get_mut(&self.focused_screen)
-            .unwrap()
-            .workspaces[active_workspace]
-            .move_window(Movement::try_from(args.as_str()).unwrap());
+    pub fn handle_keypress_move(&mut self, args_option: Option<String>) {
+        if let Some(args) = args_option {
+            match Movement::try_from(args.as_str()) {
+                Ok(movement) => {
+                    let workspace = self.get_active_workspace();
+                    workspace.move_window(movement);
+                },
+                Err(_) => warn!("Could not parse movement from argument {}", args),
+            }
+        } else {
+            warn!("Argument must be provided");
+        }
     }
-    
+
     pub fn handle_keypress_kill(&mut self) {
-        let (active_workspace, focused_window) = self.get_focused_window();
+        let focused_window = self.get_focused_window();
         println!("Focused window: {:?}", focused_window);
         if let Some(winid) = focused_window {
-            self.screeninfo
-                .get_mut(&self.focused_screen)
-                .unwrap().workspaces[active_workspace]
+            self.get_active_workspace()
                 .kill_window(&winid);
         } else {
-            println!("ERROR: No window to kill \nShould only happen on an empty screen");
+            error!("ERROR: No window to kill \nShould only happen on an empty screen");
         }
     }
 
     pub fn handle_keypress_layout(&mut self, args: Option<String>) {    
         let active_workspace = self.get_active_workspace();
+
         match args {
             Some(args) => {
-                self.screeninfo.get_mut(&self.focused_screen)
-                    .unwrap()
-                    .workspaces[active_workspace]
-                    .set_layout(Layout::try_from(args.as_str()).unwrap());
+                let layout = Layout::try_from(args.as_str());
+                if layout.is_err(){
+                    warn!("Layout could not be parsed from argument {}", args);
+                    return;
+                }
+                active_workspace.set_layout(layout.unwrap());
             },
-            None => {
-                self.screeninfo.get_mut(&self.focused_screen)
-                    .unwrap()
-                    .workspaces[active_workspace]
-                    .next_layout();
-            }
+            None => warn!("No argument provided"), 
         }
     }
 
+    pub fn handle_keypress_go_to_workspace(&mut self, args_option: Option<String>){
+        let screen_option = self.screeninfo
+            .get_mut(&self.focused_screen);
+        if screen_option.is_none() {
+            warn!("Could not switch workspace, no screen was focused");
+            return;
+        }
+
+        let arg;
+        if let Some(args) = args_option {
+            let go_to_result = GoToWorkspace::try_from(args.as_str());
+            match go_to_result {
+                Ok(go_to) => arg=go_to,
+                Err(_) => {
+                    warn!("Argumet '{}' could not be parsed", args);
+                    return;
+                },
+            }
+        }else{
+            warn!("No argument was passed");
+            return;
+        }
+
+        let screen= screen_option.unwrap();
+        
+        let max_workspace = screen.get_workspace_count() - 1;
+        let active_workspace = screen.active_workspace;
+        let new_workspace = arg.calculate_new_workspace(active_workspace as usize, max_workspace);
+        screen.set_workspace_create_if_not_exists(new_workspace as u16);
+    }
 
     fn setup_screens(&mut self) {
         for screen in self.connection.borrow().setup().roots.iter() {
-            let mut screenstruct = ScreenInfo::new(self.connection.clone(),
-                                                   screen.root,
-                                                   screen.width_in_pixels,
-                                                   screen.height_in_pixels,
-                                                   );
-            screenstruct.workspaces.push(Workspace::new(0,
-                                                        self.connection.clone(),
-                                                        0,
-                                                        0,
-                                                        screen.width_in_pixels as u32,
-                                                        screen.height_in_pixels as u32,
-                                                        ));
+            let screen_ref = Rc::new(RefCell::new(screen.clone()));
+            let mut screenstruct = ScreenInfo::new(
+                self.connection.clone(),
+                screen_ref.clone(),
+                screen.width_in_pixels as u32,
+                screen.height_in_pixels as u32,
+            );
+            screenstruct.create_new_workspace();    // Todo Js remove this
             self.screeninfo.insert(screen.root, screenstruct);
             self.focused_screen = screen.root;
+            debug!("screen widht: {} screen height: {}", screen.width_in_pixels, screen.height_in_pixels);
         }
     }
 
@@ -280,13 +270,7 @@ impl WindowManager {
                     );
 
         for screen in self.connection.borrow().setup().roots.iter() {
-            #[cfg(debug_assertion)]
-            println!("Attempting to update event mask of: {} -> ", screen.root);
-
             self.set_mask(screen, mask).unwrap();
-
-            #[cfg(debug_assertion)]
-            println!("Screen: {} -> {}", screen.root, screen.width_in_pixels);
         }
     }
 
@@ -307,51 +291,33 @@ impl WindowManager {
             }
         }
 
-        #[cfg(debug_assertion)]
-        match update_result {
-             Ok(_) => println!("\x1b[32mSuccess\x1b[0m"),
-             Err(_) => println!("\x1b[31mFailed\x1b[0m"),
-        }
-
         update_result
     }
 
     pub fn handle_event_enter_notify(&mut self, event: &EnterNotifyEvent) {
-        self.focused_screen = event.root;
-        let workspace_id = self.get_active_workspace();
         let mut winid = event.event;
         if self.moved_window.is_some() {
             winid =  self.moved_window.unwrap();
             self.moved_window = None;
         }
 
-        self.screeninfo
-            .get_mut(&event.root)
-            .unwrap()
-            .workspaces[workspace_id]
-            .focus_window(winid);
+        let active_workspace = self.get_active_workspace();
+        active_workspace.focus_window(winid);
     }
 
-    pub fn handle_event_leave_notify(&mut self, event: &LeaveNotifyEvent) {
-        let workspace_id = self.get_active_workspace();
-        self.screeninfo
-            .get_mut(&event.root)
-            .unwrap().workspaces[workspace_id]
-            .unfocus_window();
+    pub fn handle_event_leave_notify(&mut self, _event: &LeaveNotifyEvent) {
+        let active_workspace = self.get_active_workspace();
+        active_workspace.unfocus_window();
     }
 
 
     pub fn handle_event_unmap_notify(&mut self, event: &UnmapNotifyEvent) {
-        let workspace_id = self.screeninfo
-            .get(&event.event)
-            .unwrap().active_workspace;
-        self.screeninfo
-            .get_mut(&event.event)
-            .unwrap().workspaces[workspace_id]
-            .remove_window(&event.window);
+        let active_workspace = self.get_active_workspace();
+        active_workspace.remove_window(&event.window);
     }
 
     pub fn handle_map_request(&mut self, event: &MapRequestEvent) {
-        self.screeninfo.get_mut(&event.parent).unwrap().on_map_request(event);
+        let screeninfo = self.screeninfo.get_mut(&event.parent).unwrap();
+        screeninfo.on_map_request(event);
     }
 }
