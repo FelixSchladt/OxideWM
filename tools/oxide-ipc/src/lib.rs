@@ -4,7 +4,7 @@ pub mod state;
 
 use ipc::{get_state_async, sent_event_async};
 use state::*;
-use oxidewm::windowmanager::WmActionEvent;
+use oxidewm::eventhandler::events::WmActionEvent;
 
 
 pub fn get_state() -> String {
