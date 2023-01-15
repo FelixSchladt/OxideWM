@@ -1,6 +1,7 @@
-use log::debug;
+use log::{debug, error};
+use std::process::exit;
 use x11rb::rust_connection::RustConnection;
-use x11rb::protocol::xproto::*;
+use x11rb::protocol::xproto::{MapRequestEvent, Screen};
 use serde::Serialize;
 
 use crate::workspace::Workspace;
@@ -10,9 +11,9 @@ use std::{cell::RefCell, rc::Rc, collections::HashMap};
 #[derive(Debug, Clone, Serialize)]
 pub struct ScreenInfo {
     #[serde(skip_serializing)]
-    _connection: Rc<RefCell<RustConnection>>,
+    connection: Rc<RefCell<RustConnection>>,
     #[serde(skip_serializing)]
-    _screen_ref: Rc<RefCell<Screen>>,
+    screen_ref: Rc<RefCell<Screen>>,
     workspaces: HashMap<u16, Workspace>,
     pub active_workspace: u16,
     pub width: u32,
@@ -24,8 +25,8 @@ impl ScreenInfo {
         let active_workspace = 0;
         let workspaces = HashMap::new();
         let mut screen_info = ScreenInfo {
-            _connection: connection,
-            _screen_ref: screen_ref,
+            connection,
+            screen_ref,
             workspaces,
             active_workspace,
             width,
@@ -34,7 +35,7 @@ impl ScreenInfo {
         screen_info.create_workspace(0);
         screen_info
     }
-    
+
     pub fn create_new_workspace(&mut self){
         let mut index = u16::MAX;
         for i in 0..u16::MAX{
@@ -56,8 +57,8 @@ impl ScreenInfo {
 
         let new_workspace = Workspace::new(
             workspace_nr.to_string(),
-            self._connection.clone(),
-            self._screen_ref.clone(),
+            self.connection.clone(),
+            self.screen_ref.clone(),
             0,
             0,
             self.height,
@@ -68,7 +69,12 @@ impl ScreenInfo {
 
     pub fn get_workspace(&mut self, workspace_nr: u16) -> &mut Workspace {
         if self.workspaces.contains_key(&workspace_nr){
-            self.workspaces.get_mut(&workspace_nr).unwrap()
+            if let Some(workspace) = self.workspaces.get_mut(&workspace_nr) {
+                workspace
+            } else {
+                error!("Failed to switch workspace to {} despite it existing", workspace_nr);
+                exit(-1);
+            }
         }else{
             self.set_workspace_create_if_not_exists(workspace_nr)
         }
@@ -89,24 +95,27 @@ impl ScreenInfo {
         }
     }
 
-    /// If the workspace with the passed workspace_nr does not exist, it will be created
-    pub fn set_workspace_create_if_not_exists(&mut self, workspace_nr: u16) -> &mut Workspace{
+    /// If the workspace with the passed `workspace_nr` does not exist, it will be created
+    pub fn set_workspace_create_if_not_exists(&mut self, workspace_nr: u16) -> &mut Workspace {
         debug!("Changing workspace from {} to {}", self.active_workspace, workspace_nr);
 
         let active_workspace = self.get_workspace(self.active_workspace);
         active_workspace.unmap_windows();
 
         if !self.workspaces.contains_key(&workspace_nr){
-            self.create_workspace(workspace_nr)
+            self.create_workspace(workspace_nr);
         }
 
-        self.active_workspace = workspace_nr;
-        let new_workspace = self.workspaces.get_mut(&self.active_workspace).unwrap();
-        new_workspace.remap_windows();
-        new_workspace
-        
+        if let Some(new_workspace) = self.workspaces.get_mut(&self.active_workspace) {
+             new_workspace.remap_windows();
+             new_workspace
+         } else {
+             error!("Failed to switch to workspace {}", workspace_nr);
+             exit(-1);
+         }
     }
 
+    #[must_use]
     pub fn get_workspace_count(&self) -> usize{
         return self.workspaces.len();
     }

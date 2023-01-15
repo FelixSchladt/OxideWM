@@ -129,14 +129,13 @@ impl KeyBindings {
         keybindings
     }
 
+    #[must_use]
     pub fn retreive_cmd(&self, event: &KeyPressEvent) -> Option<KeyEvent>{
-        let keys = self.events_map
-            .get(&event.detail);
-        if keys.is_none() {
-            debug!("Found no matching key for event {}", event.detail);
-            return None
-        }
-        
+        let keys = if let Some(k) = self.events_map.get(&event.detail) { k } else {
+             debug!("Found no matching key for event {}", event.detail);
+             return None;
+         };
+
         //NOTE: IF you get the error above, this is probably cause by an inconsistency
         // in the Connection. Most likely you did something with the connection that
         // left it in a weird state. This **must not be** directly connected to this
@@ -144,7 +143,7 @@ impl KeyBindings {
         // with your changes. I experienced this a couple of times and it always was
         // quite strange and hard to find. Ask for help if you can't find the problem.
 
-        for key in keys.unwrap().clone() {
+        for key in keys.clone() {
             let state = u16::from(event.state);
             if state == key.keycode.mask
             || state == key.keycode.mask | u16::from(ModMask::M2) {

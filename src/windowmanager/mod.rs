@@ -2,7 +2,6 @@ pub mod enums_windowmanager;
 
 use self::enums_windowmanager::Movement;
 
-use std::any::Any;
 use std::collections::HashMap;
 use std::error::Error;
 use std::process::exit;

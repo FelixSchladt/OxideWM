@@ -1,6 +1,6 @@
 use log::{error, info};
 use std::process::exit;
-use x11rb::protocol::xproto::*;
+use x11rb::protocol::xproto::{AtomEnum, ChangeWindowAttributesAux, ConfigureWindowAux, ConnectionExt, CreateWindowAux, EventMask, Screen, Window, WindowClass};
 use x11rb::rust_connection::RustConnection;
 use x11rb::connection::Connection;
 use x11rb::COPY_DEPTH_FROM_PARENT;
@@ -20,8 +20,8 @@ pub struct WindowState {
     pub y: i32,
     pub width: u32,
     pub height: u32,
-    pub titlebar_height: u32,
-    pub border_width: u32,
+    pub titlebar_height: u16,
+    pub border_width: u16,
 }
 
 impl WindowState {
@@ -29,27 +29,34 @@ impl WindowState {
         let title = WindowState::get_title(&connection, window);
         let visible = true;
         let urgent = false;
-        let x: i32 = 0;
-        let y: i32 = 0;
-        let width: u32 = 0;
-        let height: u32 = 0;
+        let x: i16 = 0;
+        let y: i16 = 0;
+        let width: u16 = 0;
+        let height: u16 = 0;
         let titlebar_height = 5;
         let border_width = 5;
 
-        let frame = connection.borrow().generate_id().unwrap();
+        let frame = match connection.borrow().generate_id() {
+            Ok(frame_id) => frame_id,
+            Err(reason) => {
+                error!("Failed to generate a new ID for a window frame because {}", reason);
+                exit(-1);
+            }
+        };
+
         connection.borrow().create_window(
             COPY_DEPTH_FROM_PARENT,
             frame,
             root_screen.root,
-            x as i16,
-            y as i16,
-            width as u16,
-            height as u16,
+            x,
+            y,
+            width,
+            height,
             0,
             WindowClass::INPUT_OUTPUT,
             0,
             &CreateWindowAux::new().background_pixel(root_screen.black_pixel),
-        ).unwrap();
+        ).ok();
 
         let mask = ChangeWindowAttributesAux::default()
             .event_mask(EventMask::ENTER_WINDOW | EventMask::LEAVE_WINDOW );
@@ -73,15 +80,16 @@ impl WindowState {
             title,
             visible,
             urgent,
-            x,
-            y,
-            width,
-            height,
+            x: x.into(),
+            y: y.into(),
+            width: width.into(),
+            height: height.into(),
             titlebar_height,
             border_width,
         }
     }
 
+    #[must_use]
     pub fn set_bounds(&self, x: i32, y: i32, width: u32, height: u32) -> &WindowState {
         let frame_aux = ConfigureWindowAux::new()
             .x(x)
@@ -90,26 +98,32 @@ impl WindowState {
             .height(height);
 
         let window_aux = ConfigureWindowAux::new()
-            .x(x+self.border_width as i32)
-            .y(y+(self.border_width+self.titlebar_height) as i32)
-            .width(width-(self.border_width*2))
-            .height(height-self.titlebar_height-(self.border_width*2));
+            .x(x+i32::from(self.border_width))
+            .y(y+i32::from(self.border_width+self.titlebar_height))
+            .width(width-u32::from(self.border_width*2))
+            .height(height-u32::from(self.titlebar_height-(self.border_width*2)));
 
-        self.connection.borrow().configure_window(self.frame, &frame_aux).unwrap();
-        self.connection.borrow().configure_window(self.window, &window_aux).unwrap();
+        self.connection.borrow().configure_window(self.frame, &frame_aux).ok();
+        self.connection.borrow().configure_window(self.window, &window_aux).ok();
 
         return self;
     }
 
     pub fn draw(&self) {
-        let con_b = self.connection.borrow();
-        con_b.grab_server().unwrap();
+        let connection_borrow = self.connection.borrow();
 
-        con_b.map_window(self.frame).unwrap();
-        con_b.map_window(self.window).unwrap();
+        match connection_borrow.grab_server() {
+            Ok(_) => {
+                connection_borrow.map_window(self.frame).ok();
+                connection_borrow.map_window(self.window).ok();
+            },
+            Err(reason) => {
+                error!("Failed to grab server for window remapping because {}", reason);
+            }
+        }
 
-        con_b.ungrab_server().unwrap();
-        con_b.flush().unwrap();
+        connection_borrow.ungrab_server().ok();
+        connection_borrow.flush().ok();
     }
 
     fn get_title(connection: &Rc<RefCell<RustConnection>>, window: Window) -> String {
