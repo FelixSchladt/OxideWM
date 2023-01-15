@@ -1,16 +1,16 @@
-pub mod enums_workspace;
+pub mod enums;
 
-use self::enums_workspace::Layout;
+use self::enums::Layout;
 
 use crate::{
     windowmanager::enums_windowmanager::Movement,
     windowstate::WindowState,
 };
 
-use log::{debug, error};
+use log::{debug, error, info};
 use x11rb::connection::Connection;
 use x11rb::rust_connection::RustConnection;
-use x11rb::protocol::xproto::*;
+use x11rb::protocol::xproto::{ConnectionExt, InputFocus, Screen, Window};
 use x11rb::CURRENT_TIME;
 use std::collections::HashMap;
 use serde::Serialize;
@@ -57,17 +57,24 @@ impl Workspace {
         }
     }
 
+    #[must_use]
     pub fn get_focused_window(&self) -> Option<u32> {
         return self.focused_window;
     }
 
-    pub fn move_focus(&mut self, mov: Movement) {
+    pub fn move_focus(&mut self, mov: &Movement) {
         let len = self.order.len();
+
         if let Some(focused_win) = self.get_focused_window() {
             if len < 2 {
                 return;
             }
-            let pos = self.order.iter().position(|&x| x == focused_win).unwrap();
+
+            let pos = if let Some(pos) = self.order.iter().position(|&x| x == focused_win) { pos } else {
+                 error!("Failed to get position of window");
+                 return;
+            };
+
             match mov {
                 Movement::Left => {
                     if pos == 0 {
@@ -83,12 +90,9 @@ impl Workspace {
                         self.focus_window(self.order[pos + 1]);
                     }
                 },
-                Movement::Up => {
+                Movement::Up | Movement::Down => {
                     //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                },
-                Movement::Down => {
-                    //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                },
+                }
             }
         } else {
             //Shouldnt really happen but just in case
@@ -98,14 +102,20 @@ impl Workspace {
         }
     }
 
-    pub fn move_window(&mut self, mov: Movement) -> Option<u32> {
+    pub fn move_window(&mut self, mov: &Movement) -> Option<u32> {
         let len = self.order.len();
         let mut move_occured: Option<u32> = None; //Its hacky but works good
+
         if let Some(focused_win) = self.get_focused_window() {
             if len < 2 {
                 return move_occured;
             }
-            let pos = self.order.iter().position(|&x| x == focused_win).unwrap();
+
+            let pos = if let Some(pos) = self.order.iter().position(|&x| x == focused_win) { pos } else {
+                 error!("Failed to get position of window");
+                 return None;
+             };
+
             match mov {
                 Movement::Left => {
                     if pos == 0 {
@@ -123,10 +133,7 @@ impl Workspace {
                     }
                     move_occured = Some(focused_win);
                 },
-                Movement::Up => {
-                    //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                },
-                Movement::Down => {
+                Movement::Up | Movement::Down => {
                     //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
                 }
             }
@@ -150,14 +157,17 @@ impl Workspace {
         //TODO implement soft kill via client message over x
         //(Tell window to close itself)
         //https://github.com/DHBW-FN/OxideWM/issues/46
+
         self.connection.borrow().kill_client(*winid).expect("Could not kill client");
-        self.connection.borrow().flush().unwrap();
+        self.connection.borrow().flush().ok();
+
         self.remove_window(winid);
     }
 
     pub fn remove_window(&mut self, win_id: &u32) {
         self.windows.remove(&win_id);
         self.order.retain(|&x| x != *win_id);
+
         self.remap_windows();
     }
 
@@ -166,13 +176,21 @@ impl Workspace {
         self.add_window(windowstruct);
     }
 
-    pub fn show() { panic!("Not implemented"); }
-    pub fn hide() { panic!("Not implemented"); }
-
     pub fn focus_window(&mut self, winid: u32) {
         debug!("focus_window");
+
         self.focused_window = Some(winid);
-        self.connection.borrow().set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
+
+        match self.connection.borrow().set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME) {
+            Ok(cookie) => {
+                if let Err(reason) = cookie.check() {
+                    error!("`set_input_focus` request caused an X11 error:\n{}", reason);
+                }
+            },
+            Err(reason) => {
+                error!("Failed to est focus on window {} because {}", winid, reason);
+            }
+        }
         //TODO: Change color of border to focus color
     }
 
@@ -196,16 +214,21 @@ impl Workspace {
 
     pub fn unmap_windows(&mut self){
         debug!("Unmapping {} Windows from workspace {}", self.windows.len(), self.name);
+
         let conn = self.connection.borrow();
-        conn.grab_server().unwrap();
+        conn.grab_server().ok();
+
         for window_id in self.windows.keys() {
-            let resp = &conn.unmap_window(*window_id as Window);
-            if resp.is_err() {
-                error!("An error occured while trying to unmap window");
-            }
+            match &conn.unmap_window(*window_id as Window) {
+                Ok(_) => {},
+                Err(reason) => {
+                    error!("Failed to unmap window because {}", reason);
+                }
+            };
         }
-        conn.ungrab_server().unwrap();
-        conn.flush().unwrap();
+
+        conn.ungrab_server().ok();
+        conn.flush().ok();
     }
 
     pub fn remap_windows(&mut self) {
@@ -217,31 +240,41 @@ impl Workspace {
     }
 
     fn map_vertical_striped(&mut self) {
-        let amount = self.order.len();
-        println!("\n\nMapping {} windows with vertical striped layout.", amount);
+        let mut cast_i: i32;
+        let mut current_window: &WindowState;
+        let amount = u32::try_from(self.order.len()).unwrap();
+
+        info!("\n\nMapping {} windows with vertical striped layout.", amount);
 
         for (i, id) in self.order.iter().enumerate() {
-            let current_window = self.windows.get_mut(id).unwrap();
+            cast_i = i32::try_from(i).unwrap();
+            current_window = self.windows.get_mut(id).unwrap();
+
             current_window.set_bounds(
-                (i * self.width as usize / amount) as i32,
+                cast_i * i32::try_from(self.width / amount).unwrap(),
                 self.y,
-                (self.width as usize / amount) as u32,
+                self.width / amount,
                 self.height
             ).draw();
         }
     }
 
     fn map_horizontal_striped(&mut self) {
-        let amount = self.order.len();
-        println!("\n\nMapping {} windows with horizontal striped layout.", amount);
+        let mut cast_i: i32;
+        let mut current_window: &WindowState;
+        let amount = u32::try_from(self.order.len()).unwrap();
+
+        info!("Mapping {} windows with horizontal striped layout.", amount);
 
         for (i, id) in self.order.iter().enumerate() {
-            let current_window = self.windows.get_mut(id).unwrap();
+            cast_i = i32::try_from(i).unwrap();
+            current_window = self.windows.get_mut(id).unwrap();
+
             current_window.set_bounds(
                 self.x,
-                (i * self.height as usize / amount) as i32,
+                cast_i * i32::try_from(self.height / amount).unwrap(),
                 self.width,
-                (self.height as usize / amount) as u32,
+                self.height / amount,
             ).draw();
         }
     }

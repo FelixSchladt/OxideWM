@@ -37,7 +37,8 @@ impl TryFrom<&str> for GoToWorkspace {
 }
 
 impl GoToWorkspace {
-    pub fn calculate_new_workspace(&self, active_workspace:usize, max_workspace:usize) -> usize {
+    #[must_use]
+    pub fn calculate_new_workspace(&self, active_workspace: u32, max_workspace: u32) -> u32 {
         match self {
             GoToWorkspace::Next => (active_workspace + 1) % (max_workspace + 1),
             GoToWorkspace::Previous => {

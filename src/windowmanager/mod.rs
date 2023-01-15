@@ -31,7 +31,7 @@ use crate::{
     config::Config,
     workspace::{
         Workspace,
-        enums_workspace::{Layout,GoToWorkspace},
+        enums::{Layout,GoToWorkspace},
     }
 };
 
@@ -136,7 +136,7 @@ impl WindowManager {
     }
 
     fn get_active_workspace_id(&self) -> u16 {
-        return self.screeninfo.get(&self.focused_screen).unwrap().active_workspace;    
+        return self.screeninfo.get(&self.focused_screen).unwrap().active_workspace;
     }
 
     fn get_active_workspace(&mut self) -> &mut Workspace {
@@ -153,13 +153,13 @@ impl WindowManager {
     pub fn poll_for_event(&self)->Result<Option<Event>, ConnectionError>{
         self.connection.borrow().poll_for_event()
     }
-      
+
     pub fn handle_keypress_focus(&mut self, args_option: Option<String>) {
         if let Some(args) = args_option {
             match Movement::try_from(args.as_str()) {
                 Ok(movement) => {
                     let workspace = self.get_active_workspace();
-                    workspace.move_focus(movement);
+                    workspace.move_focus(&movement);
                 },
                 Err(_) => warn!("Could not parse movement from argument {}", args),
             }
@@ -173,7 +173,7 @@ impl WindowManager {
             match Movement::try_from(args.as_str()) {
                 Ok(movement) => {
                     let workspace = self.get_active_workspace();
-                    workspace.move_window(movement);
+                    workspace.move_window(&movement);
                 },
                 Err(_) => warn!("Could not parse movement from argument {}", args),
             }
@@ -193,7 +193,7 @@ impl WindowManager {
         }
     }
 
-    pub fn handle_keypress_layout(&mut self, args: Option<String>) {    
+    pub fn handle_keypress_layout(&mut self, args: Option<String>) {
         let active_workspace = self.get_active_workspace();
 
         match args {
@@ -205,49 +205,40 @@ impl WindowManager {
                 }
                 active_workspace.set_layout(layout.unwrap());
             },
-            None => warn!("No argument provided"), 
+            None => warn!("No argument provided"),
         }
     }
 
     pub fn handle_keypress_go_to_workspace(&mut self, args_option: Option<String>){
-        let screen_option = self.screeninfo
-            .get_mut(&self.focused_screen);
-        if screen_option.is_none() {
-            warn!("Could not switch workspace, no screen was focused");
+        let screen = if let Some(screen) = self.screeninfo.get_mut(&self.focused_screen) { screen } else {
+            error!("Failed to get screen.");
             return;
-        }
+        };
 
-        let arg;
-        if let Some(args) = args_option {
-            let go_to_result = GoToWorkspace::try_from(args.as_str());
-            match go_to_result {
-                Ok(go_to) => arg=go_to,
-                Err(_) => {
-                    warn!("Argumet '{}' could not be parsed", args);
-                    return;
-                },
+        let arg = if let Some(args) = args_option {
+            if let Ok(direction) = GoToWorkspace::try_from(args.as_str()) { direction } else {
+                 warn!("Argumet '{}' could not be parsed", args);
+                 return;
             }
         }else{
             warn!("No argument was passed");
             return;
-        }
+        };
 
-        let screen= screen_option.unwrap();
-        
         let max_workspace = screen.get_workspace_count() - 1;
         let active_workspace = screen.active_workspace;
-        let new_workspace = arg.calculate_new_workspace(active_workspace as usize, max_workspace);
-        screen.set_workspace_create_if_not_exists(new_workspace as u16);
+        let new_workspace = arg.calculate_new_workspace(active_workspace.into(), max_workspace);
+        screen.set_workspace_create_if_not_exists(u16::try_from(new_workspace).unwrap());
     }
 
     fn setup_screens(&mut self) {
-        for screen in self.connection.borrow().setup().roots.iter() {
+        for screen in &self.connection.borrow().setup().roots {
             let screen_ref = Rc::new(RefCell::new(screen.clone()));
             let mut screenstruct = ScreenInfo::new(
                 self.connection.clone(),
                 screen_ref.clone(),
-                screen.width_in_pixels as u32,
-                screen.height_in_pixels as u32,
+                u32::from(screen.width_in_pixels),
+                u32::from(screen.height_in_pixels),
             );
             screenstruct.create_new_workspace();    // Todo Js remove this
             self.screeninfo.insert(screen.root, screenstruct);
@@ -268,7 +259,7 @@ impl WindowManager {
                         EventMask::PROPERTY_CHANGE
                     );
 
-        for screen in self.connection.borrow().setup().roots.iter() {
+        for screen in &self.connection.borrow().setup().roots {
             self.set_mask(screen, mask).unwrap();
         }
     }
@@ -289,19 +280,18 @@ impl WindowManager {
                 exit(1);
             }
         }
-
         update_result
     }
 
-    pub fn handle_event_enter_notify(&mut self, event: &EnterNotifyEvent) {
-        let mut winid = event.event;
-        if self.moved_window.is_some() {
-            winid =  self.moved_window.unwrap();
+    pub fn handle_event_enter_notify(&mut self, enter_notify: &EnterNotifyEvent) {
+        let winid = if let Some(window) = self.moved_window {
             self.moved_window = None;
-        }
+            window
+        } else {
+            enter_notify.event
+        };
 
-        let active_workspace = self.get_active_workspace();
-        active_workspace.focus_window(winid);
+        self.get_active_workspace().focus_window(winid);
     }
 
     pub fn handle_event_leave_notify(&mut self, _event: &LeaveNotifyEvent) {
@@ -316,7 +306,11 @@ impl WindowManager {
     }
 
     pub fn handle_map_request(&mut self, event: &MapRequestEvent) {
-        let screeninfo = self.screeninfo.get_mut(&event.parent).unwrap();
+        let screeninfo = if let Some(screeninfo) = self.screeninfo.get_mut(&event.parent) { screeninfo } else {
+            error!("Failed to get screeninfo.");
+            exit(-1);
+        };
+
         screeninfo.on_map_request(event);
     }
 }

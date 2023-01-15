@@ -116,7 +116,10 @@ impl ScreenInfo {
     }
 
     #[must_use]
-    pub fn get_workspace_count(&self) -> usize{
-        return self.workspaces.len();
+    pub fn get_workspace_count(&self) -> u32{
+        if let Ok(count) = u32::try_from(self.workspaces.len()) { count } else {
+             error!("Failed to parse workspace_count");
+             exit(-1);
+        }
     }
 }
