@@ -1,4 +1,6 @@
-use x11rb::protocol::xproto::*;
+use log::{error, info};
+use std::process::exit;
+use x11rb::protocol::xproto::{AtomEnum, ChangeWindowAttributesAux, ConnectionExt, EventMask, Window};
 use x11rb::rust_connection::RustConnection;
 use serde::Serialize;
 use std::{cell::RefCell, rc::Rc};
@@ -20,8 +22,7 @@ pub struct WindowState {
 
 impl WindowState {
     pub fn new(connection: Rc<RefCell<RustConnection>>, window: Window) -> WindowState {
-        let title = connection.borrow().get_property(false, window, AtomEnum::WM_NAME, AtomEnum::STRING, 0, 1024).unwrap().reply().unwrap().value;
-        let title = String::from_utf8(title).unwrap();
+        let title = WindowState::get_title(&connection, window);
         let visible = true;
         let urgent = false;
         let x = 0;
@@ -32,11 +33,18 @@ impl WindowState {
 
         let mask = ChangeWindowAttributesAux::default()
             .event_mask(EventMask::ENTER_WINDOW | EventMask::LEAVE_WINDOW );
-        let res = connection.borrow().change_window_attributes(window, &mask).unwrap().check();
-        if let Err(e) = res {
-            println!("Error couldn change mask: {:?}", e);
-            panic!("Error couldnt change mask");
-        }
+
+        match connection.borrow().change_window_attributes(window, &mask) {
+            Ok(_) => {
+                info!("Updated attributes of window {} ({})", title, window);
+            }
+            Err(reason) => {
+                error!("Failed to change window attributes because {}", reason);
+                //TODO refactor method to return a result instead, to cover this error instead of
+                //exiting
+                exit(-1);
+            },
+        };
 
         WindowState {
             connection,
@@ -49,6 +57,17 @@ impl WindowState {
             width,
             height,
             titlebar_height,
+        }
+    }
+
+    fn get_title(connection: &Rc<RefCell<RustConnection>>, window: Window) -> String {
+        match connection.borrow().get_property(false, window, AtomEnum::WM_NAME, AtomEnum::STRING, 0, 1024) {
+            Err(_) => {
+                "Unknown".to_string()
+            },
+            Ok(property) => {
+                String::from_utf8(property.reply().unwrap().value).expect("Unknown")
+            }
         }
     }
 }

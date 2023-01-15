@@ -1,8 +1,9 @@
+use log::error;
 use std::fs::File;
-use serde::{Deserialize, Deserializer, Serialize};
-use serde_yaml::{self};
-use std::process;
+use std::process::exit;
 use std::path::Path;
+use serde::{Deserialize, Deserializer, Serialize};
+use serde_yaml;
 
 use crate::eventhandler::commands::WmCommands;
 
@@ -11,7 +12,7 @@ where
     D: Deserializer<'de>,
 {
     let args = Option::<String>::deserialize(deserializer)?;
-    let args = args.unwrap_or("".to_string());
+    let args = args.unwrap_or(String::new());
     if args.is_empty() || args == "None" {
         Ok(None)
     } else {
@@ -53,6 +54,7 @@ pub struct Config {
 }
 
 impl Config {
+    #[must_use]
     pub fn new() -> Config {
         let mut f: Option<File> = None;
         let mut paths = vec![ "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
@@ -61,18 +63,25 @@ impl Config {
         let path_copy = paths.clone();
         for path in paths {
             if Path::new(path).exists() {
-                f = Some(File::open(path).unwrap());
+                //f = Some(File::open(path).unwrap());
+                f = match File::open(path) {
+                    Ok(file) => Some(file),
+                    Err(reason) => {
+                        error!("Failed to open config file becase {}", reason);
+                        exit(-1);
+                    }
+                };
                 break;
             }
         }
         if let Some(f) = f {
-             // Reads the Values from the 'config' struct in config.yml 
+             // Reads the Values from the 'config' struct in config.yml
              let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
              println!("{:?}", user_config);
              user_config
          } else {
              eprintln!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", path_copy);
-             process::exit(-1);
+             exit(-1);
          }
     }
 }
