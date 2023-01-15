@@ -39,7 +39,7 @@ struct OxideBar {
     connection: RustConnection,
     screen: Screen,
     window: u32,
-    //state: OxideState,
+    state: OxideState,
 }
 
 impl OxideBar {
@@ -47,11 +47,12 @@ impl OxideBar {
         let (connection, screen_num) = RustConnection::connect(None).unwrap();
         let screen = connection.setup().roots[screen_num].clone();
         let window = connection.generate_id().unwrap();
-        //let state = oxideipc::get_state_struct();
+        let state = oxideipc::get_state_struct();
         let oxide_bar = OxideBar {
             connection,
             screen,
             window,
+            state,
         };
         oxide_bar.setup_window();
         oxide_bar.setup_props();
@@ -104,10 +105,9 @@ impl OxideBar {
 
     }
 
-    /*
     pub fn update_state(&mut self) {
         self.state = oxideipc::get_state_struct();
-    }*/
+    }
 }
 
 

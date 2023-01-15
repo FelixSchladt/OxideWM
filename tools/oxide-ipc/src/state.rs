@@ -3,7 +3,6 @@ use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct ScreenInfo {
-    //pub id: u32,
     pub workspaces: HashMap<u16, Workspace>,
     pub active_workspace: usize,
     pub width: u32,
@@ -26,8 +25,6 @@ pub struct Window {
 #[derive(Debug, Clone, Deserialize)]
 pub struct Workspace {
     pub name: String,
-    //pub index: usize,
-    //pub root_window: u32,
     pub visible: bool,
     pub focused: bool,
     pub focused_window: Option<u32>,
@@ -66,12 +63,11 @@ pub struct OxideState {
     pub focused_screen: u32,
 }
 
-/*
 impl OxideState {
-    pub fn get_workspaces(&self, screen: u32) -> Vec<Workspace> {
+    pub fn get_workspaces(&self, screen: u32) -> HashMap<u16, Workspace> {
         self.screeninfo.get(&screen).unwrap().workspaces.clone()
     }
-}*/
+}
 
 
 

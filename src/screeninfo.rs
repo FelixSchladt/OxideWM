@@ -95,6 +95,7 @@ impl ScreenInfo {
 
         let active_workspace = self.get_workspace(self.active_workspace);
         active_workspace.unmap_windows();
+        active_workspace.focused = false;
 
         if !self.workspaces.contains_key(&workspace_nr){
             self.create_workspace(workspace_nr)
@@ -103,6 +104,7 @@ impl ScreenInfo {
         self.active_workspace = workspace_nr;
         let new_workspace = self.workspaces.get_mut(&self.active_workspace).unwrap();
         new_workspace.remap_windows();
+        new_workspace.focused = true;
         new_workspace
         
     }

@@ -21,7 +21,6 @@ pub fn get_state_struct() -> OxideState {
 }
 
 
-/*
 pub fn switch_workspace(index: usize) {
     sent_event("gotoworkspace", Some(index.to_string()));
 }
@@ -32,4 +31,4 @@ pub fn next_workspace() {
 
 pub fn prev_workspace() {
     sent_event("gotoworkspace", Some("prev".to_string()));
-}*/
+}
