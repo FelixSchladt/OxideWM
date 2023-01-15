@@ -13,19 +13,19 @@ pub mod atom;
 
 use std::sync::{Arc, Mutex};
 
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::sync::mpsc::channel;
 use std::thread;
+use std::{cell::RefCell, rc::Rc};
 
 use config::Config;
 use log::error;
 use serde_json::Result;
 
 use crate::{
-    windowmanager::{WindowManager, IpcEvent},
+    windowmanager::WindowManager,
     eventhandler::EventHandler,
     keybindings::KeyBindings,
+    eventhandler::events::IpcEvent,
     ipc::zbus_serve,
 };
 
@@ -33,14 +33,15 @@ extern crate log;
 
 fn main() -> Result<()> {
     env_logger::init();
-    let config = Rc::new(RefCell::new(Config::new()));
-    let keybindings = KeyBindings::new(&config.borrow());
+    let mut config = Rc::new(RefCell::new(Config::new()));
+    let mut keybindings = KeyBindings::new(&config.borrow());
     
     let mut manager = WindowManager::new(&keybindings, config.clone());
     let mut eventhandler = EventHandler::new(&mut manager, &keybindings);
-    
+
     let (ipc_sender, wm_receiver) = channel::<IpcEvent>();
-    let (wm_sender, ipc_receiver) = channel::<String>(); 
+    let (wm_sender, ipc_receiver) = channel::<String>();
+
 
     let ipc_sender_mutex = Arc::new(Mutex::new(ipc_sender));
     let ipc_receiver_mutex = Arc::new(Mutex::new(ipc_receiver));
@@ -52,7 +53,7 @@ fn main() -> Result<()> {
     loop {
         let result = eventhandler.window_manager.poll_for_event();
         if let Ok(Some(event)) = result {
-            eventhandler.handle_event(&event)
+            eventhandler.handle_event(&event);
         } else {
             if let Some(error) = result.err(){
                 error!("Error retreiving Event from Window manager {:?}", error);
@@ -68,6 +69,14 @@ fn main() -> Result<()> {
             } else {
                 eventhandler.handle_ipc_event(event);
             }
+        }
+
+        if eventhandler.window_manager.restart {
+            config = Rc::new(RefCell::new(Config::new()));
+            keybindings = KeyBindings::new(&config.borrow());
+
+            eventhandler = EventHandler::new(&mut manager, &keybindings);
+            eventhandler.window_manager.restart_wm(&keybindings, config.clone());
         }
     }
 }

@@ -53,16 +53,16 @@ cmds:
     args: "dmenu_run"
   
   #Workspace keys configuration
-  - keys: ["C","A", "Left"]
+  - keys: ["C","A", "Right"]
     command: GoToWorkspace
     args: "next"
 
-  - keys: ["C","A", "Right"]
+  - keys: ["C","A", "Left"]
     command: GoToWorkspace
     args: "previous"
 
-exec: ["B", "R", "O"]
-exec_always: ["I", "D", "K"]
+exec: []
+exec_always: [] 
 border_with: 8
 border_color: "0x008000" # yellow
 border_focus_color: "0xFFFF00" # green
