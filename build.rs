@@ -9,7 +9,7 @@ fn generate_class_diagramm(src: &Path, dest: &Path){
     println!("generating class diagrams");
     let unescaped_results = rs2dot(src);
     let results = escape_results(&unescaped_results);
-    
+
 
     let mut target_name = PathBuf::new();
     target_name.push(Path::new("target/docs/diagrams/class-diagram")
@@ -43,7 +43,8 @@ fn escape_results(results:&String)->String{
             escaped_str = escaped_str + &escaped;
         }
     }
-    return escaped_str;
+
+    escaped_str
 }
 
 fn main() {

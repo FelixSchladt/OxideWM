@@ -1,47 +1,68 @@
 # This is the config file for OxideWM.
 # Here you can freely configure your window manager.
-# Please keep in mind that you have to configure every valuie properly for the WM to run.
+# Please keep in mind that you have to configure every value properly for the WM to run.
 # Otherwise the programm will crash.
 
 cmds:
   - keys: ["A", "t"]
     command: Exec
     args: "kitty"
+
   - keys: ["A", "S", "e"]
     command: Quit
     args: None
+
   - keys: ["A", "S", "r"]
     command: Restart
     args: None
+
   - keys: ["A", "S", "q"]
     command: Kill
     args: None
+
   - keys: ["A", "l"]
     command: Focus
     args: "right"
+
   - keys: ["A", "S", "l"]
     command: Move
     args: "right"
+
   - keys: ["A", "S", "h"]
     command: Move
     args: "left"
+
   - keys: ["A", "h"]
     command: Focus
     args: "left"
+
   - keys: ["A", "u"]
     command: Layout
     args: None
+
   - keys: ["A", "i"]
     command: Layout
     args: "Vertical"
+
   - keys: ["A", "S", "i"]
     command: Layout
     args: "horizontal"
+
   - keys: ["A", "d"]
     command: Exec
     args: "dmenu_run"
-exec: ["B", "R", "O"]
-exec_always: ["I", "D", "K"]
+  
+  #Workspace keys configuration
+  - keys: ["C","A", "Right"]
+    command: GoToWorkspace
+    args: "next"
+
+  - keys: ["C","A", "Left"]
+    command: GoToWorkspace
+    args: "previous"
+
+exec: []
+exec_always: [] 
 border_with: 8
 border_color: 0x008000 # yellow
 border_focus_color: 0xFFFF00 # green
