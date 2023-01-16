@@ -66,31 +66,40 @@ pub struct Config {
     pub gap: u8,
 }
 
+
 impl Config {
     pub fn new() -> Config {
         let mut f: Option<File> = None;
         let mut paths = vec![ "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
         #[cfg(not(release))]
         paths.insert(0, "./config.yml");
-        let path_copy = paths.clone();
-        for path in paths {
+        let mut chosen_config: Option<&str> = None;
+        for path in paths.clone() {
             if Path::new(path).exists() {
-                f = Some(File::open(path).unwrap());
+                f = Some(File::open(path.clone()).unwrap());
+                chosen_config = Some(path);
                 break;
             }
         }
+
         match f {
             Some(f) => {
-                // Reads the Values from the 'config' struct in config.yml 
-                let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
-                println!("{:?}", user_config);
-                user_config
+                // Reads the values from the 'config' struct in config.yml 
+                let user_config = serde_yaml::from_reader(f);
+                match user_config {
+                    Ok(config)  => return config,
+                    Err(err)    => {
+                        let err_msg = format!("Error in '{}': {}", chosen_config.unwrap(), err);
+                        //TODO: Write this error to a log file
+                        println!("ERR: {:?}", err_msg);
+                    }
+                }
             },
             None => {
-                eprintln!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", path_copy);
-                process::exit(-1);
+                eprintln!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", paths);
             }
         }
+        process::exit(-1);
     }
 } 
 
