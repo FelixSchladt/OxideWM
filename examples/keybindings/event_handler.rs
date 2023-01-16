@@ -1,15 +1,10 @@
 use std::error::Error;
 use std::collections::HashMap;
-
 use x11rb::protocol::xproto::*;
-use x11rb::protocol::Event;
-use x11rb::protocol::ErrorKind;
-use x11rb::connection::Connection;
 
 use crate::keybindings::KeyEvent;
 
-pub fn keypress<C: Connection>(
-    manager: &C,
+pub fn keypress(
     event: &KeyReleaseEvent,
     keyevent: HashMap<u8, Vec<KeyEvent>>,
     ) {
@@ -24,4 +19,8 @@ pub fn keypress<C: Connection>(
         }
     }
     
+}
+
+fn main(){
+    println!()
 }
