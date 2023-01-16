@@ -363,8 +363,12 @@ impl WindowManager {
     }
 
     pub fn handle_map_request(&mut self, event: &MapRequestEvent) {
-        println!("IS DOCK: {}", self.atom_window_type_dock(event.window));
-        let screeninfo = self.screeninfo.get_mut(&event.parent).unwrap();
-        screeninfo.on_map_request(event);
+        if self.atom_window_type_dock(event.window.clone()) {
+            let screeninfo = self.screeninfo.get_mut(&event.parent.clone()).unwrap();
+            screeninfo.add_status_bar(event);
+        } else { 
+            let screeninfo = self.screeninfo.get_mut(&event.parent.clone()).unwrap();
+            screeninfo.on_map_request(event);
+        }
     }
 }

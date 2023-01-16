@@ -4,6 +4,7 @@ use x11rb::protocol::xproto::*;
 use serde::Serialize;
 
 use crate::workspace::Workspace;
+use crate::windowstate::WindowState;
 use std::{cell::RefCell, rc::Rc, collections::HashMap};
 
 
@@ -17,6 +18,7 @@ pub struct ScreenInfo {
     pub active_workspace: u16,
     pub width: u32,
     pub height: u32,
+    pub status_bar: Option<WindowState>,
 }
 
 impl ScreenInfo {
@@ -30,6 +32,7 @@ impl ScreenInfo {
             active_workspace,
             width,
             height,
+            status_bar: None,
         };
         screen_info.create_workspace(0);
         screen_info
@@ -72,6 +75,27 @@ impl ScreenInfo {
         }else{
             self.set_workspace_create_if_not_exists(workspace_nr)
         }
+    }
+
+    pub fn add_status_bar(&mut self, event: &MapRequestEvent){
+        self.status_bar = Some(WindowState::new(self._connection.clone(), &self._screen_ref.borrow(), event.window));
+        
+        //TODO get sizes and position from config /screen
+        let window_aux = ConfigureWindowAux::new()
+            .x(0)
+            .y(0)
+            .width(1000)
+            .height(20);
+        self._connection.borrow_mut().configure_window(event.window, &window_aux).unwrap();
+        let con_b = self._connection.borrow();
+        con_b.grab_server().unwrap();
+
+        con_b.map_window(event.window).unwrap();
+
+        con_b.ungrab_server().unwrap();
+        //con_b.flush().unwrap();
+
+
     }
 
     pub fn on_map_request(&mut self, event: &MapRequestEvent) {

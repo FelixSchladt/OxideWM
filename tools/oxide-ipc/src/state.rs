@@ -10,7 +10,7 @@ pub struct ScreenInfo {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct Window {
+pub struct OxideWindow {
     pub window: u32,
     pub title: String,
     pub visible: bool,
@@ -29,7 +29,7 @@ pub struct Workspace {
     pub focused: bool,
     pub focused_window: Option<u32>,
     pub urgent: bool,
-    pub windows: HashMap<u32, Window>,
+    pub windows: HashMap<u32, OxideWindow>,
     pub order: Vec<u32>,
     pub layout: String,
     pub x: u32,
@@ -65,7 +65,18 @@ pub struct OxideState {
 
 impl OxideState {
     pub fn get_workspaces(&self, screen: u32) -> HashMap<u16, Workspace> {
+        println!("screen: {}", screen);
+        println!("screeninfo: {:?}", self.screeninfo);
         self.screeninfo.get(&screen).unwrap().workspaces.clone()
+    }
+
+    pub fn workspace_tuple(&self, screen: u32) -> Vec<(bool, String)> {
+        let workspaces = self.get_workspaces(screen);
+        let mut vec = Vec::new();
+        for (index, workspace) in workspaces {
+            vec.push((workspace.focused, workspace.name));
+        }
+        vec
     }
 }
 
