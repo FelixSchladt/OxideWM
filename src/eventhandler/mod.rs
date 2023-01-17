@@ -3,6 +3,7 @@ pub mod events;
 
 use self::events::{IpcEvent, WmActionEvent};
 
+use log::info;
 use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
 use std::process;
 
@@ -28,39 +29,39 @@ impl EventHandler<'_> {
     }
 
     pub fn handle_event(&mut self, event: &Event) {
-        print!("Received Event: ");
+        let log_msg = "Received Event: ";
         match event {
-            Event::Expose(_event) => println!("Expose"),
+            Event::Expose(_event) => info!("{} Expose", log_msg),
             Event::UnmapNotify(_event) => {
-                println!("UnmapNotify");
+                info!("{} UnmapNotify", log_msg);
                 self.window_manager.handle_event_unmap_notify(_event);
             },
-            Event::ButtonPress(_event) => println!("ButtonPress"),
-            Event::MotionNotify(_event) => println!("MotionNotify"),
-            Event::ButtonRelease(_event) => println!("ButtonRelease"),
-            Event::ConfigureRequest(_event) => println!("ConfigureRequest"),
+            Event::ButtonPress(_event) => info!("{} ButtonPress", log_msg),
+            Event::MotionNotify(_event) => info!("{} MotionNotify", log_msg),
+            Event::ButtonRelease(_event) => info!("{} ButtonRelease", log_msg),
+            Event::ConfigureRequest(_event) => info!("{} ConfigureRequest", log_msg),
             Event::MapRequest(_event) => {
-                println!("MapRequest");
+                info!("{} MapRequest", log_msg);
                 self.window_manager.handle_map_request(_event);
             },
-            Event::KeyPress(_event) => println!("KeyPress"),
+            Event::KeyPress(_event) => info!("{} KeyPress", log_msg),
             Event::KeyRelease(_event) => {
-                println!("KeyPress");
+                info!("{} KeyPress", log_msg);
                 self.handle_keypress(_event);
             },
-            Event::DestroyNotify(_event) => println!("DestroyNotify"),
-            Event::PropertyNotify(_event) => println!("PropertyNotify"),
+            Event::DestroyNotify(_event) => info!("{} DestroyNotify", log_msg),
+            Event::PropertyNotify(_event) => info!("{} PropertyNotify", log_msg),
             Event::EnterNotify(_event) => {
-                println!("EnterNotify!!!");
+                info!("{} EnterNotify!!!", log_msg);
                 self.window_manager.handle_event_enter_notify(_event);
             },
             Event::LeaveNotify(_event) => {
-                println!("LeaveNotify");
+                info!("{} LeaveNotify", log_msg);
                 self.window_manager.handle_event_leave_notify(_event);
             },
-            Event::FocusIn(_event) => println!("FocusIn"),
-            Event::FocusOut(_event) => println!("FocusOut"),
-            _ => println!("\x1b[33mUnknown\x1b[0m {:?}", event),
+            Event::FocusIn(_event) => info!("{} FocusIn", log_msg),
+            Event::FocusOut(_event) => info!("{} FocusOut", log_msg),
+            _ => info!("{} \x1b[33mUnknown\x1b[0m {:?}", log_msg, event),
         };
     }
 

@@ -9,7 +9,9 @@ pub mod config;
 pub mod keybindings;
 pub mod auxiliary;
 pub mod ipc;
+pub mod common;
 
+use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 
 use std::sync::mpsc::channel;
@@ -17,8 +19,25 @@ use std::thread;
 use std::{cell::RefCell, rc::Rc};
 
 use config::Config;
-use log::error;
 use serde_json::Result;
+
+use log::{LevelFilter, error, info};
+use log4rs::{
+    append::{
+        console::ConsoleAppender,
+        rolling_file::{
+            RollingFileAppender,
+            policy::compound::{
+                CompoundPolicy,
+                roll::fixed_window::FixedWindowRoller,
+                trigger::size::SizeTrigger
+            }
+        }
+    },
+    filter::threshold::ThresholdFilter,
+    encode::pattern::PatternEncoder,
+    config::{Appender, Root},
+};
 
 use crate::{
     windowmanager::WindowManager,
@@ -28,10 +47,67 @@ use crate::{
     ipc::zbus_serve,
 };
 
-extern crate log;
+fn get_log_level() -> LevelFilter {
+    let log_level_env = std::env::var(common::LOG_LEVEL_ENV.to_string());
+    if let Ok(level_env) = log_level_env{
+        let log_level = LevelFilter::from_str(level_env.as_str());
+        if let Ok(level) = log_level {
+            level
+        }else{
+            print!("Could not parse log level from {}", level_env);
+            common::LOG_LEVEL_DEFAULT
+        }
+    }else{
+        common::LOG_LEVEL_DEFAULT
+    }
+}
+
+fn get_log_file_appender()->RollingFileAppender{
+    let window_size = 3; // log0, log1, log2
+    let fixed_window_roller = FixedWindowRoller::builder().build("log{}",window_size).unwrap();
+
+    let size_limit = 5 * 1024; // 5KB as max log file size to roll
+    let size_trigger = SizeTrigger::new(size_limit);
+
+    let compound_policy = CompoundPolicy::new(Box::new(size_trigger),Box::new(fixed_window_roller));
+
+    RollingFileAppender::builder()
+        .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S)(utc)} - {l}: {m}{n}")))
+        .build("log/oxidewm.log", Box::new(compound_policy))
+        .unwrap()
+}
+
+fn init_logger(){
+    let log_level = get_log_level();
+
+    let stdout_appender = ConsoleAppender::builder()
+        .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S)(utc)} - [{h({l})}]: {m}{n}")))
+        .build();
+
+    let config = log4rs::Config::builder()
+        .appender(Appender::builder().build("stdout", Box::new(stdout_appender)))
+        .appender(Appender::builder()
+            .filter(Box::new(ThresholdFilter::new(log_level)))
+            .build("logfile", Box::new(get_log_file_appender()))
+        )
+        .build(
+            Root::builder()
+            .appender("stdout")
+            .appender("logfile")
+            .build(log_level)
+        )
+        .unwrap();
+
+    if let Err(error) = log4rs::init_config(config){
+        println!("Failed to initialize logging config {:?}", error);   
+        std::process::exit(common::EXIT_CODE_LOGGER_CONFIG_FAIL);
+    } else {
+        info!("Logging with Level, {}", log_level);
+    }
+}
 
 fn main() -> Result<()> {
-    env_logger::init();
+    init_logger();
     let mut config = Rc::new(RefCell::new(Config::new()));
     let mut keybindings = KeyBindings::new(&config.borrow());
     

@@ -2,7 +2,6 @@ pub mod enums_windowmanager;
 
 use self::enums_windowmanager::Movement;
 
-use std::any::Any;
 use std::collections::HashMap;
 use std::error::Error;
 use std::process::exit;
@@ -117,7 +116,7 @@ impl WindowManager {
     }
 
     fn grab_keys(&self, keybindings: &KeyBindings) -> Result<(), Box<dyn Error>> {
-        println!("grabbing keys");
+        info!("grabbing keys");
         //TODO check if the the screen iterations should be merged
         for screen in self.connection.borrow().setup().roots.iter() {
             for modifier in [0, u16::from(ModMask::M2)] {
