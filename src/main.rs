@@ -71,9 +71,15 @@ fn get_log_file_appender()->RollingFileAppender{
 
     let compound_policy = CompoundPolicy::new(Box::new(size_trigger),Box::new(fixed_window_roller));
 
+    #[cfg(debug_assertions)]
+    let log_path = common::LOG_FILE_LOCATION_DEV;
+    #[cfg(not(debug_assertions))]
+    let log_path = common::LOG_FILE_LOCATION_PROD;
+
+
     RollingFileAppender::builder()
         .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S)(utc)} - {l}: {m}{n}")))
-        .build("log/oxidewm.log", Box::new(compound_policy))
+        .build(log_path, Box::new(compound_policy))
         .unwrap()
 }
 

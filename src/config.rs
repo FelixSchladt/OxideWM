@@ -55,9 +55,13 @@ pub struct Config {
 impl Config {
     pub fn new() -> Config {
         let mut f: Option<File> = None;
-        let mut paths = vec![ "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
-        #[cfg(not(release))]
-        paths.insert(0, "./config.yml");
+
+        #[cfg(not(debug_assertions))]
+        let paths = vec!["~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+        
+        #[cfg(debug_assertions)]
+        let paths = vec!["./config.yml", "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+
         let path_copy = paths.clone();
         for path in paths {
             if Path::new(path).exists() {
