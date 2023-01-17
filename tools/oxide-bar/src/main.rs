@@ -1,3 +1,5 @@
+// This code is derived from https://github.com/psychon/x11rb/blob/c3894c092101a16cedf4c45e487652946a3c4284/cairo-example/src/main.rs
+//
 use x11rb::atom_manager;
 use x11rb::connection::Connection;
 use x11rb::errors::{ReplyError, ReplyOrIdError};
@@ -254,8 +256,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut visual = find_xcb_visualtype(&conn, visualid).unwrap();
     // SAFETY: cairo-rs just passes the pointer to C code and C code uses the xcb_connection_t, so
     // "nothing really" happens here, except that the borrow checked cannot check the lifetimes.
-    let cairo_conn =
-        unsafe { cairo::XCBConnection::from_raw_none(conn.get_raw_xcb_connection() as _) };
+    let cairo_conn = unsafe { cairo::XCBConnection::from_raw_none(conn.get_raw_xcb_connection() as _) };
     let visual = unsafe { cairo::XCBVisualType::from_raw_none(&mut visual as *mut _ as _) };
     let surface = cairo::XCBSurface::create(
         &cairo_conn,
@@ -263,8 +264,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         &visual,
         width.into(),
         height.into(),
-    )
-    .unwrap();
+    ).unwrap();
 
     loop {
         conn.flush()?;
@@ -296,12 +296,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 _ => println!("Got an unknown event"),
             }
         }
-        if need_redraw {
-            let cr = cairo::Context::new(&surface).expect("failed to create cairo context");
-            do_draw(&cr, (width as _, height as _), transparency, screen_id).expect("failed to draw");
-            surface.flush();
-        }
+        let cr = cairo::Context::new(&surface).expect("failed to create cairo context");
+        do_draw(&cr, (width as _, height as _), transparency, screen_id).expect("failed to draw");
+        surface.flush();
         //sleep for 100ms
-        std::thread::sleep(std::time::Duration::from_millis(100));
+        std::thread::sleep(std::time::Duration::from_millis(200));
     }
 }
