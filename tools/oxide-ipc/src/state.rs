@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use serde::Deserialize;
+use itertools::Itertools;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct ScreenInfo {
@@ -72,9 +73,10 @@ impl OxideState {
 
     pub fn workspace_tuple(&self, screen: u32) -> Vec<(bool, String)> {
         let workspaces = self.get_workspaces(screen);
+        let workspaces_sorted = workspaces.iter().sorted_by_key(|w| w.0);
         let mut vec = Vec::new();
-        for (index, workspace) in workspaces {
-            vec.push((workspace.focused, workspace.name));
+        for (index, workspace) in workspaces_sorted {
+            vec.push((workspace.focused.clone(), workspace.name.clone()));
         }
         vec
     }
