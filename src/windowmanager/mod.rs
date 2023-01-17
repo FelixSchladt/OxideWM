@@ -324,7 +324,6 @@ impl WindowManager {
 
     //Note to get general atoms look at
     //https://github.com/sminez/penrose/blob/develop/src/x11rb/mod.rs lines 404-500
-
     pub fn atom_window_type_dock(&self, winid: u32) -> bool {
         let binding = self.connection.borrow();
         let atom_intern = binding.intern_atom(false, Atom::NetWmWindowType.as_ref().as_bytes()).unwrap().reply().unwrap().atom;
@@ -345,17 +344,12 @@ impl WindowManager {
             atomid => self.atom_name(atomid),
         };
 
-        //if atom_reply.type_ == 0 { return false; }
-        //let atom_name = self.atom_name(winid);
-        //println!("Atom name: {}, id: {}", prop_type, atom_reply.type_);
-
         if prop_type == "ATOM" {
             let atoms = atom_reply.value32().unwrap()
                 .map(|a| self.atom_name(a))
                 .collect::<Vec<String>>();
-            println!("Atom id: {:?}", atom_reply.value32().unwrap().collect::<Vec<u32>>());
-            println!("Window type: {:?}", atoms);
             if atoms.contains(&"_NET_WM_WINDOW_TYPE_DOCK".to_string()) {
+                info!("Spawned window is of type _NET_WM_WINDOW_TYPE_DOCK");
                 return true;
             }
         }
@@ -364,11 +358,9 @@ impl WindowManager {
 
     pub fn handle_map_request(&mut self, event: &MapRequestEvent) {
         if self.atom_window_type_dock(event.window.clone()) {
-            let screeninfo = self.screeninfo.get_mut(&event.parent.clone()).unwrap();
-            screeninfo.add_status_bar(event);
+            self.screeninfo.get_mut(&event.parent.clone()).unwrap().add_status_bar(event);
         } else { 
-            let screeninfo = self.screeninfo.get_mut(&event.parent.clone()).unwrap();
-            screeninfo.on_map_request(event);
+            self.screeninfo.get_mut(&event.parent.clone()).unwrap().on_map_request(event);
         }
     }
 }

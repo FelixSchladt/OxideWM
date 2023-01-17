@@ -1,5 +1,6 @@
 use log::debug;
 use x11rb::rust_connection::RustConnection;
+use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
 use serde::Serialize;
 
@@ -23,7 +24,7 @@ pub struct ScreenInfo {
 
 impl ScreenInfo {
     pub fn new(connection: Rc<RefCell<RustConnection>>, screen_ref: Rc<RefCell<Screen>>, height: u32, width: u32) -> ScreenInfo {
-        let active_workspace = 0;
+        let active_workspace = 1;
         let workspaces = HashMap::new();
         let mut screen_info = ScreenInfo {
             _connection: connection,
@@ -34,19 +35,18 @@ impl ScreenInfo {
             height,
             status_bar: None,
         };
-        screen_info.create_workspace(0);
+        screen_info.create_workspace(active_workspace);
         screen_info
     }
     
     pub fn create_new_workspace(&mut self){
         let mut index = u16::MAX;
-        for i in 0..u16::MAX{
+        for i in 1..u16::MAX{
             if !self.workspaces.contains_key(&i){
                 index = i;
                 break;
             }
         }
-
         self.create_workspace(index);
         self.set_workspace_create_if_not_exists(index);
     }
@@ -79,6 +79,9 @@ impl ScreenInfo {
 
     pub fn add_status_bar(&mut self, event: &MapRequestEvent){
         self.status_bar = Some(WindowState::new(self._connection.clone(), &self._screen_ref.borrow(), event.window));
+        let conn = self._connection.borrow_mut();
+
+        println!("status bar: {:?}", event);
         
         //TODO get sizes and position from config /screen
         let window_aux = ConfigureWindowAux::new()
@@ -86,14 +89,9 @@ impl ScreenInfo {
             .y(0)
             .width(1000)
             .height(20);
-        self._connection.borrow_mut().configure_window(event.window, &window_aux).unwrap();
-        let con_b = self._connection.borrow();
-        con_b.grab_server().unwrap();
-
-        con_b.map_window(event.window).unwrap();
-
-        con_b.ungrab_server().unwrap();
-        //con_b.flush().unwrap();
+        conn.configure_window(event.window, &window_aux).unwrap();
+        conn.map_window(event.window).unwrap();
+        conn.flush().unwrap();
 
 
     }
