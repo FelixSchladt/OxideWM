@@ -63,23 +63,25 @@ fn get_log_level() -> LevelFilter {
 }
 
 fn get_log_file_appender()->RollingFileAppender{
-    let window_size = 3; // log0, log1, log2
-    let fixed_window_roller = FixedWindowRoller::builder().build("log{}",window_size).unwrap();
-
-    let size_limit = 5 * 1024; // 5KB as max log file size to roll
-    let size_trigger = SizeTrigger::new(size_limit);
-
-    let compound_policy = CompoundPolicy::new(Box::new(size_trigger),Box::new(fixed_window_roller));
-
     #[cfg(debug_assertions)]
     let log_path = common::LOG_FILE_LOCATION_DEV;
     #[cfg(not(debug_assertions))]
     let log_path = common::LOG_FILE_LOCATION_PROD;
 
+    let log_file_pattern = format!("{}{}{{}}.{}",log_path,common::LOG_FILE_NAME,common::LOG_FILE_EXTENSION);
+    let log_file = format!("{}{}.{}",log_path,common::LOG_FILE_NAME,common::LOG_FILE_EXTENSION);
+
+    let window_size = 3; // log0, log1, log2
+    let fixed_window_roller = FixedWindowRoller::builder().build(log_file_pattern.as_str(),window_size).unwrap();
+
+    let size_limit = 5 * u64::pow(2, 20); // 5MB as max log file size to roll
+    let size_trigger = SizeTrigger::new(size_limit);
+
+    let compound_policy = CompoundPolicy::new(Box::new(size_trigger),Box::new(fixed_window_roller));
 
     RollingFileAppender::builder()
         .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S)(utc)} - {l}: {m}{n}")))
-        .build(log_path, Box::new(compound_policy))
+        .build(log_file, Box::new(compound_policy))
         .unwrap()
 }
 
