@@ -1,6 +1,5 @@
 use std::{error::Error, future::pending};
 use zbus::{ConnectionBuilder, dbus_interface};
-use zbus::blocking::Connection;
 
 struct Greeter {
     count: u64
