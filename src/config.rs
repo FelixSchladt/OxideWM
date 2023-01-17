@@ -5,6 +5,9 @@ use std::process;
 use std::path::Path;
 use log::error;
 
+mod constants;
+use constants::*;
+
 use crate::eventhandler::commands::WmCommands;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
@@ -86,7 +89,7 @@ impl Config {
                 error!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", paths);
             }
         }
-        process::exit(-1);
+        process::exit(constants::ERR_PROCESS);
     }
 } 
 
