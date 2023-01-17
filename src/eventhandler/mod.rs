@@ -3,7 +3,7 @@ pub mod events;
 
 use self::events::{IpcEvent, WmActionEvent};
 
-use log::info;
+use log::{info, debug, trace};
 use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
 use std::process;
 
@@ -61,7 +61,7 @@ impl EventHandler<'_> {
             },
             Event::FocusIn(_event) => info!("{} FocusIn", log_msg),
             Event::FocusOut(_event) => info!("{} FocusOut", log_msg),
-            _ => info!("{} \x1b[33mUnknown\x1b[0m {:?}", log_msg, event),
+            _ => info!("{} Unknown {:?}", log_msg, event),
         };
     }
 
@@ -79,7 +79,7 @@ impl EventHandler<'_> {
         for key in keys.clone() {
             let state = u16::from(event.state);
             if state == key.keycode.mask || state == key.keycode.mask | u16::from(ModMask::M2) {
-                println!("Key: {:?}", key);
+                debug!("Key: {:?}", key);
                 self.handle_wm_command(WmActionEvent {
                     command: key.event,
                     args: key.args.clone(),
@@ -89,50 +89,51 @@ impl EventHandler<'_> {
     }
 
     pub fn handle_ipc_event(&mut self, event: IpcEvent) {
-        println!("IpcEvent: {:?}", event);
+        trace!("IpcEvent: {:?}", event);
         if let Some(command) = event.event {
             self.handle_wm_command(command)
         }
     }
 
     fn handle_wm_command(&mut self, command: WmActionEvent) {
+        let log_msg = "Handle wm command";
          match command.command {
             WmCommands::Move => {
-                println!("Move");
+                info!("{} Move", log_msg);
                 self.window_manager.handle_keypress_move(command.args.clone());
             },
             WmCommands::Focus => {
-                println!("Focus");
+                info!("{} Focus", log_msg);
                 self.window_manager.handle_keypress_focus(command.args.clone());
             },
             WmCommands::Resize => {
-                println!("Resize");
+                info!("{} Resize", log_msg);
             },
             WmCommands::Quit => {
-                 println!("Quit");
+                 info!("{} Quit", log_msg);
                  process::exit(0);
             },
             WmCommands::Kill => {
-                println!("Kill");
+                info!("{} Kill", log_msg);
                 self.window_manager.handle_keypress_kill();
             },
             WmCommands::Layout => {
-                println!("Layout");
+                info!("{} Layout", log_msg);
                 self.window_manager.handle_keypress_layout(command.args.clone());
             },
             WmCommands::Restart => {
-                println!("Restart");
+                info!("{} Restart", log_msg);
                 self.window_manager.restart = true;
             },
             WmCommands::GoToWorkspace =>{
                 self.window_manager.handle_keypress_go_to_workspace(command.args.clone());
             },
             WmCommands::Exec => {
-                println!("Exec");
+                info!("{} Exec", log_msg);
                 exec_user_command(&command.args);
             },
             _ => {
-                println!("Unimplemented");
+                info!("{} Unimplemented", log_msg);
             }
         }
     }

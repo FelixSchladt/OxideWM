@@ -1,4 +1,4 @@
-use log::debug;
+use log::{debug, info};
 use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::xproto::*;
 use serde::Serialize;
@@ -75,7 +75,7 @@ impl ScreenInfo {
     }
 
     pub fn on_map_request(&mut self, event: &MapRequestEvent) {
-        println!("WINMAN: MapRequestEvent: {:?}", event);
+        info!("WINMAN: MapRequestEvent: {:?}", event);
         let workspace_option = self.workspaces.get_mut(&self.active_workspace.clone());
         match workspace_option{
             Some(workspace)=>{

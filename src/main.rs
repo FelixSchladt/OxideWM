@@ -21,7 +21,7 @@ use std::{cell::RefCell, rc::Rc};
 use config::Config;
 use serde_json::Result;
 
-use log::{LevelFilter, error, info};
+use log::{LevelFilter, error, info, trace};
 use log4rs::{
     append::{
         console::ConsoleAppender,
@@ -54,7 +54,7 @@ fn get_log_level() -> LevelFilter {
         if let Ok(level) = log_level {
             level
         }else{
-            print!("Could not parse log level from {}", level_env);
+            eprintln!("Could not parse log level from {}", level_env);
             common::LOG_LEVEL_DEFAULT
         }
     }else{
@@ -105,7 +105,7 @@ fn init_logger(){
         .unwrap();
 
     if let Err(error) = log4rs::init_config(config){
-        println!("Failed to initialize logging config {:?}", error);   
+        eprintln!("Failed to initialize logging config {:?}", error);   
         std::process::exit(common::EXIT_CODE_LOGGER_CONFIG_FAIL);
     } else {
         info!("Logging with Level, {}", log_level);
@@ -145,7 +145,7 @@ fn main() -> Result<()> {
             if event.status {
                 let wm_state = eventhandler.window_manager.get_state();
                 let j = serde_json::to_string(&wm_state)?;
-                println!("IPC status request");
+                trace!("IPC status request");
                 wm_sender.send(j).unwrap();
             } else {
                 eventhandler.handle_ipc_event(event);
