@@ -3,6 +3,7 @@ use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
 use std::process;
 use std::path::Path;
+use log::error;
 
 use crate::eventhandler::commands::WmCommands;
 
@@ -75,14 +76,14 @@ impl Config {
                 match user_config {
                     Ok(config)  => return config,
                     Err(err)    => {
-                        let err_msg = format!("Error in '{}': {}", chosen_config.unwrap(), err);
+                        let err_msg = error!("Error in '{}': {}", chosen_config.unwrap(), err);
                         //TODO: Write this error to a log file
                         println!("ERR: {:?}", err_msg);
                     }
                 }
             },
             None => {
-                eprintln!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", paths);
+                error!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", paths);
             }
         }
         process::exit(-1);
