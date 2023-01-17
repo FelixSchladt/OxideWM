@@ -1,2 +1,1 @@
-type Exit = i32;
-pub const ERR_PROCESS: Exit = -1;
+pub const ERR_PROCESS: i32 = -1;
