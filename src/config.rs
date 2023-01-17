@@ -55,23 +55,23 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Config {
-        let mut f: Option<File> = None;
+        let mut file_option: Option<File> = None;
         let mut paths = vec![ "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
         #[cfg(not(release))]
         paths.insert(0, "./config.yml");
         let mut chosen_config: Option<&str> = None;
         for path in paths.clone() {
             if Path::new(path).exists() {
-                f = Some(File::open(path.clone()).unwrap());
+                file_option = Some(File::open(path.clone()).unwrap());
                 chosen_config = Some(path);
                 break;
             }
         }
 
-        match f {
-            Some(f) => {
+        match file_option {
+            Some(file_option) => {
                 // Reads the values from the 'config' struct in config.yml 
-                let user_config = serde_yaml::from_reader(f);
+                let user_config = serde_yaml::from_reader(file_option);
                 match user_config {
                     Ok(config)  => return config,
                     Err(err)    => {
