@@ -6,7 +6,7 @@ build = "build.rs"
 include = ["src/**/*", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE"]
 
 [workspace]
-members = ["tools/oxide-ipc", "tools/oxide-msg", "tools/oxide-bar", "tools/lemon-bar"]
+members = ["tools/oxide-ipc", "tools/oxide-msg", "tools/oxide-bar"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
