@@ -5,7 +5,7 @@ use self::events::{IpcEvent, WmActionEvent};
 
 use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
 use std::process;
-use log::{error};
+use log::{error, info};
 
 use crate::{
     windowmanager::{WindowManager},
@@ -61,11 +61,9 @@ impl EventHandler<'_> {
             },
             Event::FocusIn(_event) => println!("FocusIn"),
             Event::FocusOut(_event) => println!("FocusOut"),
-            Event::ConfigureNotify(_event) =>  {
-                println!("ConfigureNotify: {:?}", _event);
-                if self.window_manager.screeninfo.get(&_event.event).unwrap().status_bar.is_some(){
-                    self.window_manager.screeninfo.get_mut(&_event.event).unwrap().configure_status_bar(_event);
-                }
+            Event::CreateNotify(_event) => {
+                println!("CreateNotify");
+                self.window_manager.handle_create_notify(_event);
             },
             _ => println!("\x1b[33mUnknown\x1b[0m {:?}", event),
         };

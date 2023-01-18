@@ -238,7 +238,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let screen_id = screen.root;
     println!("screen_num: {}", screen_num);
     let atoms = AtomCollection::new(&conn)?.reply()?;
-    let (mut width, mut height) = (100, 100);
+    let (mut width, mut height) = (1000, 30);
     let (depth, visualid) = choose_visual(&conn, screen_num)?;
     println!("Using visual {:#x} with depth {}", visualid, depth);
 

@@ -334,33 +334,38 @@ impl WindowManager {
                                               atom_intern,
                                               AtomEnum::ANY,
                                               0,
-                                              1024).unwrap().reply().unwrap();
-
+                                              1024).unwrap().reply();
+        if let Ok(atom_reply) = atom_reply {
         
-        self.connection.borrow().flush().unwrap();
+            self.connection.borrow().flush().unwrap();
 
-        let prop_type = match atom_reply.type_ {
-            0 => return false, // Null response
-            atomid => self.atom_name(atomid),
-        };
+            let prop_type = match atom_reply.type_ {
+                0 => return false, // Null response
+                atomid => self.atom_name(atomid),
+            };
 
-        if prop_type == "ATOM" {
-            let atoms = atom_reply.value32().unwrap()
-                .map(|a| self.atom_name(a))
-                .collect::<Vec<String>>();
-            if atoms.contains(&"_NET_WM_WINDOW_TYPE_DOCK".to_string()) {
-                info!("Spawned window is of type _NET_WM_WINDOW_TYPE_DOCK");
-                return true;
+            if prop_type == "ATOM" {
+                let atoms = atom_reply.value32().unwrap()
+                    .map(|a| self.atom_name(a))
+                    .collect::<Vec<String>>();
+                if atoms.contains(&"_NET_WM_WINDOW_TYPE_DOCK".to_string()) {
+                    info!("Spawned window is of type _NET_WM_WINDOW_TYPE_DOCK");
+                    return true;
+                }
             }
         }
         false
     }
 
-    pub fn handle_map_request(&mut self, event: &MapRequestEvent) {
-        if self.atom_window_type_dock(event.window.clone()) {
+    pub fn handle_create_notify(&mut self, event: &CreateNotifyEvent) {
+        if self.atom_window_type_dock(event.window) {
             self.screeninfo.get_mut(&event.parent.clone()).unwrap().add_status_bar(event);
-        } else { 
-            self.screeninfo.get_mut(&event.parent.clone()).unwrap().on_map_request(event);
         }
+    }
+
+    pub fn handle_map_request(&mut self, event: &MapRequestEvent) {
+        if !self.atom_window_type_dock(event.window.clone()) {
+            self.screeninfo.get_mut(&event.parent.clone()).unwrap().on_map_request(event);
+        } 
     }
 }
