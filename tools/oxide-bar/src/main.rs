@@ -11,7 +11,6 @@ use x11rb::xcb_ffi::XCBConnection;
 
 
 use oxideipc;
-use oxideipc::state::*;
 
 // A collection of the atoms we will need.
 atom_manager! {
@@ -197,7 +196,7 @@ where
 /// Draw the window content
 fn do_draw(
     cr: &cairo::Context,
-    (width, height): (f64, f64),
+    (_width, _height): (f64, f64),
     transparency: bool,
     screen_num: u32,
 ) -> Result<(), cairo::Error> {
@@ -238,7 +237,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let screen_id = screen.root;
     println!("screen_num: {}", screen_num);
     let atoms = AtomCollection::new(&conn)?.reply()?;
-    let (mut width, mut height) = (1000, 30);
+    let (width, height) = (1000, 30);
     let (depth, visualid) = choose_visual(&conn, screen_num)?;
     println!("Using visual {:#x} with depth {}", visualid, depth);
 
@@ -269,19 +268,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     loop {
         conn.flush()?;
         let result = conn.poll_for_event();
-        let mut need_redraw = false;
         if let Ok(Some(event)) = result {
             println!("{:?})", event);
             match event {
-                Event::Expose(_) => {
-                    need_redraw = true;
-                }
-                Event::ConfigureNotify(event) => {
-                    width = event.width;
-                    height = event.height;
-                    surface.set_size(width as _, height as _).unwrap();
-                    need_redraw = true;
-                }
                 Event::ClientMessage(event) => {
                     let data = event.data.as_data32();
                     if event.format == 32

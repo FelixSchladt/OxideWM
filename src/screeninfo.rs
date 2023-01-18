@@ -6,7 +6,7 @@ use serde::Serialize;
 use crate::workspace::Workspace;
 use crate::windowstate::WindowState;
 use std::{cell::RefCell, rc::Rc, collections::HashMap};
-use log::{warn, error, info, debug};
+use log::{info, debug};
 
 
 #[derive(Debug, Clone, Serialize)]
@@ -49,8 +49,6 @@ impl ScreenInfo {
 
     pub fn add_status_bar(&mut self, event: &CreateNotifyEvent) {
         self.status_bar = Some(WindowState::new(self._connection.clone(), &self._screen_ref.borrow(), event.window));
-        //figure out the position of the status bar
-        //and set the workspace height accordingly
 
         //TODO: if the status bar is on the left or right
         //if the status bar is on the bottom
@@ -68,7 +66,6 @@ impl ScreenInfo {
         status_bar.width = event.width as u32;
         status_bar.height = event.height as u32;
 
-            
         {
             let conn = self._connection.borrow_mut();
             let window_aux = ConfigureWindowAux::new().x(status_bar.x).y(status_bar.y).width(event.width as u32).height(event.height as u32);
@@ -76,7 +73,6 @@ impl ScreenInfo {
             conn.map_window(event.window).unwrap();
             conn.flush().unwrap();
         }   
-
 
         self.status_bar.as_mut().unwrap().draw();
 
@@ -142,7 +138,7 @@ impl ScreenInfo {
         }
     }
 
-    /// If the workspace with the passed workspace_nr does not exist, it will be created
+    // If the workspace with the passed workspace_nr does not exist, it will be created
     pub fn set_workspace_create_if_not_exists(&mut self, workspace_nr: u16) -> &mut Workspace{
         debug!("Changing workspace from {} to {}", self.active_workspace, workspace_nr);
 

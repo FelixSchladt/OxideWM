@@ -5,7 +5,7 @@ use self::events::{IpcEvent, WmActionEvent};
 
 use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
 use std::process;
-use log::{error, info};
+use log::error;
 
 use crate::{
     windowmanager::{WindowManager},

@@ -75,7 +75,7 @@ impl OxideState {
         let workspaces = self.get_workspaces(screen);
         let workspaces_sorted = workspaces.iter().sorted_by_key(|w| w.0);
         let mut vec = Vec::new();
-        for (index, workspace) in workspaces_sorted {
+        for (_, workspace) in workspaces_sorted {
             vec.push((workspace.focused.clone(), workspace.name.clone()));
         }
         vec

@@ -14,7 +14,7 @@ use x11rb::CURRENT_TIME;
 use std::collections::HashMap;
 use serde::Serialize;
 use std::{cell::RefCell, rc::Rc};
-use log::{warn, error, info, debug};
+use log::{error, info, debug};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
