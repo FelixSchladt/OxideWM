@@ -10,18 +10,19 @@ pub mod keybindings;
 pub mod auxiliary;
 pub mod ipc;
 pub mod common;
+pub mod teelogger;
 
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 
 use std::sync::mpsc::channel;
-use std::thread;
+use std::{thread, process};
 use std::{cell::RefCell, rc::Rc};
 
 use config::Config;
 use serde_json::Result;
 
-use log::{LevelFilter, error, info, trace};
+use log::{LevelFilter, error, trace};
 use log4rs::{
     append::{
         console::ConsoleAppender,
@@ -38,6 +39,8 @@ use log4rs::{
     encode::pattern::PatternEncoder,
     config::{Appender, Root},
 };
+use syslog::{Formatter3164, Facility};
+use teelogger::Teelogger;
 
 use crate::{
     windowmanager::WindowManager,
@@ -88,6 +91,23 @@ fn get_log_file_appender()->RollingFileAppender{
 fn init_logger(){
     let log_level = get_log_level();
 
+    let log4rs_logger = get_log4rs_logger(log_level);
+    let sys_logger = get_sys_logger();
+
+    let mut tee_logger = Teelogger::new();
+
+    tee_logger.add_logger(log4rs_logger)
+        .add_logger(sys_logger);
+
+    let result = log::set_boxed_logger(Box::new(tee_logger))
+        .map(|()| log::set_max_level(LevelFilter::Info));
+
+    if result.is_err() {
+        println!("failed to set boxed logger");
+    };
+}
+
+fn get_log4rs_logger(log_level:LevelFilter) -> Box<dyn log::Log> {
     let stdout_appender = ConsoleAppender::builder()
         .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S)(utc)} - [{h({l})}]: {m}{n}")))
         .build();
@@ -105,17 +125,24 @@ fn init_logger(){
             .build(log_level)
         )
         .unwrap();
+    Box::new(log4rs::Logger::new(config))
+}
 
-    if let Err(error) = log4rs::init_config(config){
-        eprintln!("Failed to initialize logging config {:?}", error);   
-        std::process::exit(common::EXIT_CODE_LOGGER_CONFIG_FAIL);
-    } else {
-        info!("Logging with Level, {}", log_level);
-    }
+fn get_sys_logger() -> Box<dyn log::Log> {
+    let formatter = Formatter3164 {
+        facility: Facility::LOG_USER,
+        hostname: None,
+        process: "oxide-wm".into(),
+        pid: process::id(),
+    };
+
+    let logger = syslog::unix(formatter).expect("could not connect to syslog");
+    Box::new(syslog::BasicLogger::new(logger))
 }
 
 fn main() -> Result<()> {
     init_logger();
+
     let mut config = Rc::new(RefCell::new(Config::new()));
     let mut keybindings = KeyBindings::new(&config.borrow());
     
