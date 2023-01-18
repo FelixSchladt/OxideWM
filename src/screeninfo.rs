@@ -1,4 +1,3 @@
-use log::debug;
 use x11rb::rust_connection::RustConnection;
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
@@ -7,6 +6,7 @@ use serde::Serialize;
 use crate::workspace::Workspace;
 use crate::windowstate::WindowState;
 use std::{cell::RefCell, rc::Rc, collections::HashMap};
+use log::{warn, error, info, debug};
 
 
 #[derive(Debug, Clone, Serialize)]
@@ -17,6 +17,10 @@ pub struct ScreenInfo {
     _screen_ref: Rc<RefCell<Screen>>,
     workspaces: HashMap<u16, Workspace>,
     pub active_workspace: u16,
+    pub ws_pos_x: i32,
+    pub ws_pos_y: i32,
+    pub ws_width: u32,
+    pub ws_height: u32,
     pub width: u32,
     pub height: u32,
     pub status_bar: Option<WindowState>,
@@ -31,12 +35,45 @@ impl ScreenInfo {
             _screen_ref: screen_ref,
             workspaces,
             active_workspace,
+            ws_pos_x: 0,
+            ws_pos_y: 0,
+            ws_width: width,
+            ws_height: height,
             width,
             height,
             status_bar: None,
         };
         screen_info.create_workspace(active_workspace);
         screen_info
+    }
+
+    pub fn configure_status_bar(&mut self, event: &ConfigureNotifyEvent) {
+        if event.window == self.status_bar.as_ref().unwrap().window {
+            //figure out the position of the status bar
+            //and set the workspace height accordingly
+
+            //TODO: if the status bar is on the left or right
+            //if the status bar is on the bottom
+            if event.y as i32 == (self.height - (event.height as u32)) as i32 {
+                self.ws_height = self.height - event.height as u32;
+                self.ws_pos_y = self.status_bar.as_ref().unwrap().height as i32;
+            } //everything else will land on the top position
+            else {
+                self.ws_pos_y = event.height as i32;
+                self.ws_height = self.height - event.height as u32;
+                self.status_bar.as_mut().unwrap().x = 0;
+                self.status_bar.as_mut().unwrap().y = 0;
+            }
+            self.status_bar.as_mut().unwrap().width = event.width as u32;
+            self.status_bar.as_mut().unwrap().height = event.height as u32;
+            self.status_bar.as_mut().unwrap().draw();
+
+            info!("Workspaceposition updated to x: {}, y: {}, width: {}, height: {}", self.ws_pos_x, self.ws_pos_y, self.ws_width, self.ws_height);
+            //update the workspaces
+            for (_, workspace) in self.workspaces.iter_mut() {
+                workspace.update_size(self.ws_pos_x, self.ws_pos_y, self.ws_width, self.ws_height);
+            }
+        }
     }
     
     pub fn create_new_workspace(&mut self){
@@ -61,10 +98,10 @@ impl ScreenInfo {
             workspace_nr.to_string(),
             self._connection.clone(),
             self._screen_ref.clone(),
-            0,
-            0,
-            self.height,
-            self.width
+            self.ws_pos_x,
+            self.ws_pos_y,
+            self.ws_width,
+            self.ws_height,
         );
         self.workspaces.insert(workspace_nr, new_workspace);
     }
