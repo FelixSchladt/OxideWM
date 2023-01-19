@@ -1,4 +1,4 @@
-name: Rust-Clippy-Check
+name: Clippy
 
 on:
   push:
