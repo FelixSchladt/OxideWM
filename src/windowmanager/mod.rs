@@ -336,7 +336,6 @@ impl WindowManager {
                                               0,
                                               1024).unwrap().reply();
         if let Ok(atom_reply) = atom_reply {
-        
             self.connection.borrow().flush().unwrap();
 
             let prop_type = match atom_reply.type_ {
