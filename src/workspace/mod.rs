@@ -233,7 +233,7 @@ impl Workspace {
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
             current_window.set_bounds(
-                (i * self.width as usize / amount) as i32,
+                (i * self.width as usize / amount) as i32 + self.x,
                 self.y,
                 (self.width as usize / amount) as u32,
                 self.height
@@ -249,7 +249,7 @@ impl Workspace {
             let current_window = self.windows.get_mut(id).unwrap();
             current_window.set_bounds(
                 self.x,
-                (i * self.height as usize / amount) as i32,
+                (i * self.height as usize / amount) as i32 + self.y,
                 self.width,
                 (self.height as usize / amount) as u32,
             ).draw();
