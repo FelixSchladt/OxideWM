@@ -64,7 +64,6 @@ fn main() -> Result<()> {
             if event.status {
                 let wm_state = eventhandler.window_manager.get_state();
                 let j = serde_json::to_string(&wm_state)?;
-                println!("IPC status request");
                 wm_sender.send(j).unwrap();
             } else {
                 eventhandler.handle_ipc_event(event);
