@@ -21,7 +21,7 @@ install:
 		$(ROOT_DIR)/target/release/oxide \
 		$(ROOT_DIR)/target/release/oxide-bar \
 		-t $(TARGET_DIR)
-	sudo cp $(ROOT_DIR)/config.yml $(CONFIG_DIR)/oxide/config.yml
+	sudo cp $(ROOT_DIR)/resources/config.yml $(CONFIG_DIR)/oxide/config.yml
 	sudo install -Dm644 $(ROOT_DIR)/resources/oxide.desktop $(SHARE_DIR)/xsessions/oxide.desktop
 	cd $(ROOT_DIR) && cargo clean
 	@echo -e  "\x1b[1m\x1b[36m#- Oxide has been successfully installed -#\x1b[0m"
