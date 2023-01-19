@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::collections::HashMap;
 use x11rb::protocol::xproto::*;
 
@@ -19,8 +18,4 @@ pub fn keypress(
         }
     }
     
-}
-
-fn main(){
-    println!()
 }

@@ -1,4 +1,5 @@
 use std::fs::File;
+use log::{error, debug};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
 use std::process;
@@ -55,9 +56,13 @@ pub struct Config {
 impl Config {
     pub fn new() -> Config {
         let mut f: Option<File> = None;
-        let mut paths = vec![ "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
-        #[cfg(not(release))]
-        paths.insert(0, "./config.yml");
+
+        #[cfg(not(debug_assertions))]
+        let paths = vec!["~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+        
+        #[cfg(debug_assertions)]
+        let paths = vec!["./config.yml", "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+
         let path_copy = paths.clone();
         for path in paths {
             if Path::new(path).exists() {
@@ -69,11 +74,11 @@ impl Config {
             Some(f) => {
                 // Reads the Values from the 'config' struct in config.yml 
                 let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
-                println!("{:?}", user_config);
+                debug!("{:?}", user_config);
                 user_config
             },
             None => {
-                eprintln!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", path_copy);
+                error!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", path_copy);
                 process::exit(-1);
             }
         }
