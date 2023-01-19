@@ -2,6 +2,7 @@
 
 
 ![workflow](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust.yml/badge.svg)
+![clippy](https://github.com/DHBW-FN/OxideWM/actions/workflows/Rust-Clippy-Check.yml/badge.svg)
 <!--![release](/github/v/release/DHBW-FN/OxideWM?display_name=tag) -->
 
 ### [zenhub-board](https://app.zenhub.com/workspaces/oxidewm-635665ffcecdb867786ebd04/board)
