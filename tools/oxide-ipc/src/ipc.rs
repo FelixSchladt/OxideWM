@@ -1,5 +1,5 @@
 use zbus::{Connection, Result, dbus_proxy};
-use oxidewm::eventhandler::events::WmActionEvent;
+use oxide::eventhandler::events::WmActionEvent;
 
 #[dbus_proxy(
     interface = "org.oxide.interface",
