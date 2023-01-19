@@ -57,7 +57,7 @@ impl Workspace {
         }
     }
 
-    pub fn update_size(&mut self, x: i32, y: i32, width: u32, height: u32) {
+    pub fn set_bounds(&mut self, x: i32, y: i32, width: u32, height: u32) {
         self.x = x;
         self.y = y;
         self.height = height;

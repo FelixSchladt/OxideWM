@@ -82,7 +82,7 @@ impl ScreenInfo {
         info!("Workspaceposition updated to x: {}, y: {}, width: {}, height: {}", self.ws_pos_x, self.ws_pos_y, self.ws_width, self.ws_height);
         //update the workspaces
         for (_, workspace) in self.workspaces.iter_mut() {
-            workspace.update_size(self.ws_pos_x, self.ws_pos_y, self.ws_width, self.ws_height);
+            workspace.set_bounds(self.ws_pos_x, self.ws_pos_y, self.ws_width, self.ws_height);
             workspace.remap_windows();
         }
     }
