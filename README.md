@@ -3,7 +3,6 @@
 
 ![workflow](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust.yml/badge.svg)
 <!--![release](/github/v/release/DHBW-FN/OxideWM?display_name=tag) -->
-![master](https://img.shields.io/github/last-commit/badges/shields/master)
 
 ### [zenhub-board](https://app.zenhub.com/workspaces/oxidewm-635665ffcecdb867786ebd04/board)
 
