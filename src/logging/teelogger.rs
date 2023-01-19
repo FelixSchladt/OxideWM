@@ -27,7 +27,6 @@ impl Log for Teelogger {
     }
 
     fn log(&self, record: &Record) {
-        let message = format!("{}", record.args());
         for logger in &self.loggers{
             if logger.enabled(record.metadata()){
                 logger.log(record);
