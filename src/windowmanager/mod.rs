@@ -343,11 +343,12 @@ impl WindowManager {
                 atomid => self.atom_name(atomid),
             };
 
+            let wm_type = Atom::NetWindowTypeDock.as_ref();
             if prop_type == "ATOM" {
                 let atoms = atom_reply.value32().unwrap()
                     .map(|a| self.atom_name(a))
                     .collect::<Vec<String>>();
-                if atoms.contains(&"_NET_WM_WINDOW_TYPE_DOCK".to_string()) {
+                if atoms.contains(&wm_type.to_string()) {
                     info!("Spawned window is of type _NET_WM_WINDOW_TYPE_DOCK");
                     return true;
                 }

@@ -70,7 +70,6 @@ impl EventHandler<'_> {
     }
 
     fn handle_keypress(&mut self, event: &KeyPressEvent) {
-        //println!("{:?}", event);
         match self.keybindings.events_map.get(&event.detail) {
             Some(keys) => {
         //NOTE: IF you get the error above, this is probably cause by an inconsistency
