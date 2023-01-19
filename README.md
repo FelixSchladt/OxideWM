@@ -5,7 +5,9 @@
 ![clippy](https://github.com/DHBW-FN/OxideWM/actions/workflows/Rust-Clippy-Check.yml/badge.svg)
 <!--![release](/github/v/release/DHBW-FN/OxideWM?display_name=tag) -->
 
-### [zenhub-board](https://app.zenhub.com/workspaces/oxidewm-635665ffcecdb867786ebd04/board)
+## Project Status
+
+### [Zenhub Board](https://app.zenhub.com/workspaces/oxidewm-635665ffcecdb867786ebd04/board)
 
 ## Group Members
 1. [Antonia Pawlik](https://github.com/gungula)
