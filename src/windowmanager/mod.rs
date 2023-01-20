@@ -32,7 +32,8 @@ use crate::{
     atom::Atom,
     workspace::{
         Workspace,
-        enums_workspace::{Layout,EnumWorkspaceNavigation},
+        enum_workspace_layout::EnumWorkspaceLayout,
+        enum_workspace_navigation::EnumWorkspaceNavigation,
     }
 };
 
@@ -195,7 +196,7 @@ impl WindowManager {
 
         match args {
             Some(args) => {
-                let layout = Layout::try_from(args.as_str());
+                let layout = EnumWorkspaceLayout::try_from(args.as_str());
                 if layout.is_err(){
                     warn!("Layout could not be parsed from argument {}", args);
                     return;

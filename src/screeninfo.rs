@@ -4,7 +4,7 @@ use x11rb::protocol::xproto::*;
 use serde::Serialize;
 
 use crate::windowstate::WindowState;
-use crate::workspace::{Workspace, enums_workspace::EnumWorkspaceNavigation};
+use crate::workspace::{Workspace, enum_workspace_navigation::EnumWorkspaceNavigation};
 use std::{cell::RefCell, rc::Rc, collections::HashMap};
 use log::{info, debug, warn};
 

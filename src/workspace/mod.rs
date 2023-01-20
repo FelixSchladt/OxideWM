@@ -1,6 +1,7 @@
-pub mod enums_workspace;
+pub mod enum_workspace_layout;
+pub mod enum_workspace_navigation;
 
-use self::enums_workspace::Layout;
+use self::enum_workspace_layout::EnumWorkspaceLayout;
 
 use crate::{
     windowmanager::enums_windowmanager::Movement,
@@ -29,7 +30,7 @@ pub struct Workspace {
     pub urgent: bool,
     pub windows: HashMap<u32, WindowState>,
     pub order: Vec<u32>,
-    pub layout: Layout,
+    pub layout: EnumWorkspaceLayout,
     pub x: i32,
     pub y: i32,
     pub height: u32,
@@ -49,7 +50,7 @@ impl Workspace {
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
-            layout: Layout::HorizontalStriped,
+            layout: EnumWorkspaceLayout::HorizontalStriped,
             x,
             y,
             height,
@@ -190,15 +191,15 @@ impl Workspace {
         //TODO: Change color of border to unfocus color
     }
 
-    pub fn set_layout(&mut self, layout: Layout) {
+    pub fn set_layout(&mut self, layout: EnumWorkspaceLayout) {
         self.layout = layout;
         self.remap_windows();
     }
 
     pub fn next_layout(&mut self) {
         match self.layout {
-            Layout::HorizontalStriped => self.set_layout(Layout::VerticalStriped),
-            Layout::VerticalStriped => self.set_layout(Layout::HorizontalStriped),
+            EnumWorkspaceLayout::HorizontalStriped => self.set_layout(EnumWorkspaceLayout::VerticalStriped),
+            EnumWorkspaceLayout::VerticalStriped => self.set_layout(EnumWorkspaceLayout::HorizontalStriped),
         }
         self.remap_windows();
     }
@@ -221,8 +222,8 @@ impl Workspace {
         info!("Rempaing {} Windows from workspace {}: WS x: {}, y: {}, width: {}, height: {}", self.windows.len(), self.name, self.x, self.y, self.width, self.height);
         match self.layout {
             //Layout::Tiled => {},
-            Layout::VerticalStriped => self.map_vertical_striped(),
-            Layout::HorizontalStriped => self.map_horizontal_striped(),
+            EnumWorkspaceLayout::VerticalStriped => self.map_vertical_striped(),
+            EnumWorkspaceLayout::HorizontalStriped => self.map_horizontal_striped(),
         }
     }
 
