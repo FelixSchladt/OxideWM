@@ -27,7 +27,7 @@
 # - Resize
 # - Restart: restart the window manager
 #
-# In 'cmds' all keybinding for the WM are defined.
+# In 'cmds' all keybindings for the WM are defined.
 # A Command consists of an array of keys, the command, some optional arguments and should be configured like the following:
 # - keys: ["A", "t"]
 #   command: Exec
