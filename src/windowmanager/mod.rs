@@ -53,7 +53,6 @@ pub struct WindowManager {
     pub restart: bool,
 }
 
-
 impl WindowManager {
     pub fn new(keybindings: &KeyBindings, config: Rc<RefCell<Config>>) -> WindowManager {
         let connection = Rc::new(RefCell::new(RustConnection::connect(None).unwrap().0));
@@ -137,7 +136,7 @@ impl WindowManager {
     }
 
     fn get_active_workspace_id(&self) -> u16 {
-        return self.screeninfo.get(&self.focused_screen).unwrap().active_workspace;    
+        return self.screeninfo.get(&self.focused_screen).unwrap().active_workspace;
     }
 
     fn get_active_workspace(&mut self) -> &mut Workspace {
@@ -154,7 +153,7 @@ impl WindowManager {
     pub fn poll_for_event(&self)->Result<Option<Event>, ConnectionError>{
         self.connection.borrow().poll_for_event()
     }
-      
+
     pub fn handle_keypress_focus(&mut self, args_option: Option<String>) {
         if let Some(args) = args_option {
             match Movement::try_from(args.as_str()) {
@@ -194,7 +193,7 @@ impl WindowManager {
         }
     }
 
-    pub fn handle_keypress_layout(&mut self, args: Option<String>) {    
+    pub fn handle_keypress_layout(&mut self, args: Option<String>) {
         let active_workspace = self.get_active_workspace();
 
         match args {
@@ -206,7 +205,7 @@ impl WindowManager {
                 }
                 active_workspace.set_layout(layout.unwrap());
             },
-            None => warn!("No argument provided"), 
+            None => warn!("No argument provided"),
         }
     }
 
@@ -234,7 +233,7 @@ impl WindowManager {
         }
 
         let screen= screen_option.unwrap();
-        
+
         let max_workspace = screen.get_workspace_count() - 1;
         let active_workspace = screen.active_workspace;
         let new_workspace = arg.calculate_new_workspace(active_workspace as usize, max_workspace);
@@ -366,6 +365,6 @@ impl WindowManager {
     pub fn handle_map_request(&mut self, event: &MapRequestEvent) {
         if !self.atom_window_type_dock(event.window.clone()) {
             self.screeninfo.get_mut(&event.parent.clone()).unwrap().on_map_request(event);
-        } 
+        }
     }
 }

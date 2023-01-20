@@ -9,8 +9,7 @@ use crate::constants::ERR_PROCESS;
 use crate::eventhandler::commands::WmCommands;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
-where
-    D: Deserializer<'de>,
+where D: Deserializer<'de>,
 {
     let args = Option::<String>::deserialize(deserializer)?;
     let args = args.unwrap_or("".to_string());
