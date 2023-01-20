@@ -22,7 +22,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use config::Config;
 use serde_json::Result;
-use log::{error, trace};
+use log::{error, trace, debug};
 
 use crate::{
     logging::init_logger,
@@ -30,7 +30,7 @@ use crate::{
     eventhandler::EventHandler,
     keybindings::KeyBindings,
     eventhandler::events::IpcEvent,
-    ipc::zbus_serve,
+    ipc::{zbus_serve, zbus_serve_blocking},
 };
 
 fn main() -> Result<()> {
@@ -48,14 +48,24 @@ fn main() -> Result<()> {
     let (ipc_sender, wm_receiver) = channel::<IpcEvent>();
     let (wm_sender, ipc_receiver) = channel::<String>();
 
-
     let ipc_sender_mutex = Arc::new(Mutex::new(ipc_sender));
     let ipc_receiver_mutex = Arc::new(Mutex::new(ipc_receiver));
 
+    thread::spawn(move || {
+        async_std::task::block_on(zbus_serve(ipc_sender_mutex, ipc_receiver_mutex)).unwrap();
+    });
+
+
+    let (ipc_sender_blocking, wm_receiver_blocking) = channel::<IpcEvent>();
+    let (wm_sender_blocking, ipc_receiver_blocking) = channel::<String>();
+
+    let ipc_sender_mutex_blocking = Arc::new(Mutex::new(ipc_sender_blocking));
+    let ipc_receiver_mutex_blocking = Arc::new(Mutex::new(ipc_receiver_blocking));
 
     thread::spawn(move || {
-        async_std::task::block_on(zbus_serve(ipc_sender_mutex, ipc_receiver_mutex, wm_state_change_ipc)).unwrap();
+        async_std::task::block_on(zbus_serve_blocking(ipc_sender_mutex_blocking, ipc_receiver_mutex_blocking, wm_state_change_ipc)).unwrap();
     });
+
 
     loop {
         let result = eventhandler.window_manager.poll_for_event();
@@ -71,12 +81,24 @@ fn main() -> Result<()> {
             if event.status {
                 let wm_state = eventhandler.window_manager.get_state();
                 let j = serde_json::to_string(&wm_state)?;
-                trace!("IPC status request");
+                debug!("IPC status request");
                 wm_sender.send(j).unwrap();
             } else {
                 eventhandler.handle_ipc_event(event);
             }
         }
+
+        if let Ok(event) = wm_receiver_blocking.try_recv() {
+            if event.status {
+                let wm_state = eventhandler.window_manager.get_state();
+                let j = serde_json::to_string(&wm_state)?;
+                debug!("IPC status request blocking");
+                wm_sender_blocking.send(j).unwrap();
+            } else {
+                eventhandler.handle_ipc_event(event);
+            }
+        }
+
 
         if eventhandler.window_manager.restart {
             config = Rc::new(RefCell::new(Config::new()));

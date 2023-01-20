@@ -1,8 +1,10 @@
 mod ipc;
+//mod ipc_blocking;
 pub mod state;
 
 
-use ipc::{get_state_async, sent_event_async, wait_for_state_change_async};
+use ipc::{get_state_async, sent_event_async};
+//use ipc_blocking::wait_for_state_change_async;
 use state::*;
 use oxide::eventhandler::events::WmActionEvent;
 
@@ -20,10 +22,12 @@ pub fn get_state_struct() -> OxideState {
     serde_json::from_str(&get_state()).unwrap()
 }
 
+/*
 pub fn wait_for_state_change() -> OxideState {
     let state = async_std::task::block_on(wait_for_state_change_async()).unwrap();
     serde_json::from_str(&state).unwrap()
 }
+*/
 
 
 pub fn switch_workspace(index: usize) {

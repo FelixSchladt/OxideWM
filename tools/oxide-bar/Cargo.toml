@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 oxide = { version = "0.1.*", path = "../../" }
-oxideipc = { version = "0.1.*", path = "../oxide-ipc" }
+oxideipcblocking = { version = "0.1.*", path = "../oxide-ipc-blocking" }
 x11rb = { version = "0.11.*", features = ["allow-unsafe-code", "render"] }
 cairo-rs = { version = "0.15.6", features = ["xcb"] }

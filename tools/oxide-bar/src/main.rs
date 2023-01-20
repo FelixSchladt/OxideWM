@@ -11,7 +11,7 @@ use x11rb::wrapper::ConnectionExt;
 use x11rb::xcb_ffi::XCBConnection;
 
 use crate::xcb_visualtype::{ find_xcb_visualtype, choose_visual};
-use oxideipc;
+use oxideipcblocking;
 
 // A collection of the atoms we will need.
 atom_manager! {
@@ -130,7 +130,7 @@ fn do_draw(
         cr.set_operator(cairo::Operator::Over);
     }
 
-    let ws_vec =  oxideipc::wait_for_state_change().workspace_tuple(screen_num);
+    let ws_vec =  oxideipcblocking::wait_for_state_change().workspace_tuple(screen_num);
     println!("ws_vec: {:?}", ws_vec);
 
     let mut x = 10.0;
