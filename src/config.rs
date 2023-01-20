@@ -1,9 +1,11 @@
 use std::fs::File;
+use log::error;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
 use std::process;
 use std::path::Path;
 
+use crate::constants::ERR_PROCESS;
 use crate::eventhandler::commands::WmCommands;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
@@ -52,31 +54,44 @@ pub struct Config {
     pub gap: u8,
 }
 
+
 impl Config {
     pub fn new() -> Config {
-        let mut f: Option<File> = None;
-        let mut paths = vec![ "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
-        #[cfg(not(release))]
-        paths.insert(0, "./config.yml");
-        let path_copy = paths.clone();
-        for path in paths {
+
+        #[cfg(not(debug_assertions))]
+        let paths = vec!["~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+        
+        #[cfg(debug_assertions)]
+        let paths = vec!["./config.yml", "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+        
+        let mut chosen_config: Option<&str> = None;
+        let mut file_option: Option<File> = None;
+        for path in paths.clone() {
             if Path::new(path).exists() {
-                f = Some(File::open(path).unwrap());
+                file_option = Some(File::open(path.clone()).unwrap());
+                chosen_config = Some(path);
                 break;
             }
         }
-        match f {
-            Some(f) => {
-                // Reads the Values from the 'config' struct in config.yml 
-                let user_config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
-                println!("{:?}", user_config);
-                user_config
+
+        match file_option {
+            Some(file_option) => {
+                // Reads the values from the 'config' struct in config.yml 
+                let user_config = serde_yaml::from_reader(file_option);
+                match user_config {
+                    Ok(config)  => return config,
+                    Err(err)    => {
+                        let err_msg = error!("Error in '{}': {}", chosen_config.unwrap(), err);
+                        //TODO: Write this error to a log file
+                        println!("ERR: {:?}", err_msg);
+                    }
+                }
             },
             None => {
-                eprintln!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", path_copy);
-                process::exit(-1);
+                error!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", paths);
             }
         }
+        process::exit(ERR_PROCESS);
     }
 } 
 
@@ -101,9 +116,3 @@ fn default_border_width() -> u8 { 3 }
 fn default_border_color() -> String { "0xFFFFFF".to_string() } // white
 fn default_border_focus_color() -> String { "0x000000".to_string() } // black
 fn default_gap() -> u8 { 3 }
-
-/* fn convert_colors() {
-    let border_color = Color::from_hex(user_config::border_color).unwrap();
-    let border_focus_color = Color::from_hex(user_config::border_color).unwrap();
-} */
-

@@ -1,3 +1,4 @@
+use log::error;
 use x11rb::protocol::xproto::*;
 use x11rb::rust_connection::RustConnection;
 use x11rb::connection::Connection;
@@ -65,7 +66,7 @@ impl WindowState {
             .event_mask(EventMask::ENTER_WINDOW | EventMask::LEAVE_WINDOW );
         let res = connection.borrow().change_window_attributes(window, &mask).unwrap().check();
         if let Err(e) = res {
-            println!("Error couldn change mask: {:?}", e);
+            error!("Error couldn change mask: {:?}", e);
             panic!("Error couldnt change mask");
         }
 

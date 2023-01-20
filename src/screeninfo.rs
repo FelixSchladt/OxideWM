@@ -127,7 +127,7 @@ impl ScreenInfo {
 
     
     pub fn on_map_request(&mut self, event: &MapRequestEvent) {
-        println!("WINMAN: MapRequestEvent: {:?}", event);
+        info!("WINMAN: MapRequestEvent: {:?}", event);
         let workspace_option = self.workspaces.get_mut(&self.active_workspace.clone());
         match workspace_option{
             Some(workspace)=>{

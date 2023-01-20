@@ -228,7 +228,7 @@ impl Workspace {
 
     fn map_vertical_striped(&mut self) {
         let amount = self.order.len();
-        println!("\n\nMapping {} windows with vertical striped layout.", amount);
+        info!("Mapping {} windows with vertical striped layout.", amount);
 
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
@@ -243,7 +243,7 @@ impl Workspace {
 
     fn map_horizontal_striped(&mut self) {
         let amount = self.order.len();
-        println!("\n\nMapping {} windows with horizontal striped layout.", amount);
+        info!("Mapping {} windows with horizontal striped layout.", amount);
 
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
