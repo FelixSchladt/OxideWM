@@ -19,7 +19,7 @@ fn get_event(folder: &str) -> Option<String> {
     let mut files = get_filenames(folder);
     let event = files.pop();
     if !event.is_none() {
-        fs::remove_file(event.as_ref().unwrap().as_str());
+        fs::remove_file(event.as_ref().unwrap().as_str()).unwrap();
     }
     return event;
 } 

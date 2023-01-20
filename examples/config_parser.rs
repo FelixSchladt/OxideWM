@@ -29,10 +29,10 @@ struct UserCommand {
 #[derive(Debug, Serialize, Deserialize)]
 struct Config {
 
-    #[serde(default = "default_cmds")
+    #[serde(default = "default_modifier")]
     modifier: char,
 
-    #[serde(default = "default_cmds")
+    #[serde(default = "default_cmds")]
     cmds: Vec<WmCommand>,
 
     #[serde(default = "default_user_cmds")]

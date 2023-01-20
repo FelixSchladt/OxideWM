@@ -8,8 +8,6 @@ use x11rb::errors::ReplyError;
 use x11rb::protocol::Event;
 use x11rb::protocol::ErrorKind;
 use x11rb::protocol::xproto::*;
-use std::process::Command;
-use std::collections::HashMap;
 
 mod event_handler;
 mod keybindings;
@@ -133,7 +131,7 @@ fn handle_event<C: Connection>(
     //println!("Event: {:?}", event);
     
     //TODO: Move this into a struct and call this just once
-    let keybindings = keybindings::get_keyevents();
+    let bindings = keybindings::get_keyevents();
 
     match event {
         Event::Expose(_event) => println!("Ignored event!"),
@@ -146,7 +144,7 @@ fn handle_event<C: Connection>(
         Event::MapRequest(_event) => {
             on_map_request(manager, screen_index, _event).unwrap();
         },
-        Event::KeyPress(_event) => event_handler::keypress(manager, _event, keybindings),
+        Event::KeyPress(_event) => event_handler::keypress( _event, bindings),
         _ => {}
     };
 }

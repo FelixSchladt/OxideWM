@@ -3,6 +3,7 @@ pub mod events;
 
 use self::events::{IpcEvent, WmActionEvent};
 
+use log::{info, debug, trace};
 use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
 use std::process;
 
@@ -28,39 +29,39 @@ impl EventHandler<'_> {
     }
 
     pub fn handle_event(&mut self, event: &Event) {
-        print!("Received Event: ");
+        let log_msg = "Received Event: ";
         match event {
-            Event::Expose(_event) => println!("Expose"),
+            Event::Expose(_event) => info!("{} Expose", log_msg),
             Event::UnmapNotify(_event) => {
-                println!("UnmapNotify");
+                info!("{} UnmapNotify", log_msg);
                 self.window_manager.handle_event_unmap_notify(_event);
             },
-            Event::ButtonPress(_event) => println!("ButtonPress"),
-            Event::MotionNotify(_event) => println!("MotionNotify"),
-            Event::ButtonRelease(_event) => println!("ButtonRelease"),
-            Event::ConfigureRequest(_event) => println!("ConfigureRequest"),
+            Event::ButtonPress(_event) => info!("{} ButtonPress", log_msg),
+            Event::MotionNotify(_event) => info!("{} MotionNotify", log_msg),
+            Event::ButtonRelease(_event) => info!("{} ButtonRelease", log_msg),
+            Event::ConfigureRequest(_event) => info!("{} ConfigureRequest", log_msg),
             Event::MapRequest(_event) => {
-                println!("MapRequest");
+                info!("{} MapRequest", log_msg);
                 self.window_manager.handle_map_request(_event);
             },
-            Event::KeyPress(_event) => println!("KeyPress"),
+            Event::KeyPress(_event) => info!("{} KeyPress", log_msg),
             Event::KeyRelease(_event) => {
-                println!("KeyPress");
+                info!("{} KeyPress", log_msg);
                 self.handle_keypress(_event);
             },
-            Event::DestroyNotify(_event) => println!("DestroyNotify"),
-            Event::PropertyNotify(_event) => println!("PropertyNotify"),
+            Event::DestroyNotify(_event) => info!("{} DestroyNotify", log_msg),
+            Event::PropertyNotify(_event) => info!("{} PropertyNotify", log_msg),
             Event::EnterNotify(_event) => {
-                println!("EnterNotify!!!");
+                info!("{} EnterNotify!!!", log_msg);
                 self.window_manager.handle_event_enter_notify(_event);
             },
             Event::LeaveNotify(_event) => {
-                println!("LeaveNotify");
+                info!("{} LeaveNotify", log_msg);
                 self.window_manager.handle_event_leave_notify(_event);
             },
-            Event::FocusIn(_event) => println!("FocusIn"),
-            Event::FocusOut(_event) => println!("FocusOut"),
-            _ => println!("\x1b[33mUnknown\x1b[0m {:?}", event),
+            Event::FocusIn(_event) => info!("{} FocusIn", log_msg),
+            Event::FocusOut(_event) => info!("{} FocusOut", log_msg),
+            _ => info!("{} Unknown {:?}", log_msg, event),
         };
     }
 
@@ -78,7 +79,7 @@ impl EventHandler<'_> {
         for key in keys.clone() {
             let state = u16::from(event.state);
             if state == key.keycode.mask || state == key.keycode.mask | u16::from(ModMask::M2) {
-                println!("Key: {:?}", key);
+                debug!("Key: {:?}", key);
                 self.handle_wm_command(WmActionEvent {
                     command: key.event,
                     args: key.args.clone(),
@@ -88,50 +89,51 @@ impl EventHandler<'_> {
     }
 
     pub fn handle_ipc_event(&mut self, event: IpcEvent) {
-        println!("IpcEvent: {:?}", event);
+        trace!("IpcEvent: {:?}", event);
         if let Some(command) = event.event {
             self.handle_wm_command(command)
         }
     }
 
     fn handle_wm_command(&mut self, command: WmActionEvent) {
+        let log_msg = "Handle wm command";
          match command.command {
             WmCommands::Move => {
-                println!("Move");
+                info!("{} Move", log_msg);
                 self.window_manager.handle_keypress_move(command.args.clone());
             },
             WmCommands::Focus => {
-                println!("Focus");
+                info!("{} Focus", log_msg);
                 self.window_manager.handle_keypress_focus(command.args.clone());
             },
             WmCommands::Resize => {
-                println!("Resize");
+                info!("{} Resize", log_msg);
             },
             WmCommands::Quit => {
-                 println!("Quit");
+                 info!("{} Quit", log_msg);
                  process::exit(0);
             },
             WmCommands::Kill => {
-                println!("Kill");
+                info!("{} Kill", log_msg);
                 self.window_manager.handle_keypress_kill();
             },
             WmCommands::Layout => {
-                println!("Layout");
+                info!("{} Layout", log_msg);
                 self.window_manager.handle_keypress_layout(command.args.clone());
             },
             WmCommands::Restart => {
-                println!("Restart");
+                info!("{} Restart", log_msg);
                 self.window_manager.restart = true;
             },
             WmCommands::GoToWorkspace =>{
                 self.window_manager.handle_keypress_go_to_workspace(command.args.clone());
             },
             WmCommands::Exec => {
-                println!("Exec");
+                info!("{} Exec", log_msg);
                 exec_user_command(&command.args);
             },
             _ => {
-                println!("Unimplemented");
+                info!("{} Unimplemented", log_msg);
             }
         }
     }

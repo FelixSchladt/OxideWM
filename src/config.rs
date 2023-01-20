@@ -1,4 +1,5 @@
 use std::fs::File;
+use log::{error, debug};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
 use std::process;
@@ -57,10 +58,14 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Config {
-        let mut file_option: Option<File> = None;
-        let mut paths = vec![ "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
-        #[cfg(not(release))]
-        paths.insert(0, "./config.yml");
+        let mut f: Option<File> = None;
+
+        #[cfg(not(debug_assertions))]
+        let paths = vec!["~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+        
+        #[cfg(debug_assertions)]
+        let paths = vec!["./config.yml", "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+        
         let mut chosen_config: Option<&str> = None;
         for path in paths.clone() {
             if Path::new(path).exists() {

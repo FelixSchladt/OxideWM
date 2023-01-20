@@ -2,7 +2,6 @@ pub mod enums_windowmanager;
 
 use self::enums_windowmanager::Movement;
 
-use std::any::Any;
 use std::collections::HashMap;
 use std::error::Error;
 use std::process::exit;
@@ -117,7 +116,7 @@ impl WindowManager {
     }
 
     fn grab_keys(&self, keybindings: &KeyBindings) -> Result<(), Box<dyn Error>> {
-        println!("grabbing keys");
+        info!("grabbing keys");
         //TODO check if the the screen iterations should be merged
         for screen in self.connection.borrow().setup().roots.iter() {
             for modifier in [0, u16::from(ModMask::M2)] {
@@ -185,7 +184,7 @@ impl WindowManager {
 
     pub fn handle_keypress_kill(&mut self) {
         let focused_window = self.get_focused_window();
-        println!("Focused window: {:?}", focused_window);
+        debug!("Focused window: {:?}", focused_window);
         if let Some(winid) = focused_window {
             self.get_active_workspace()
                 .kill_window(&winid);
@@ -286,7 +285,7 @@ impl WindowManager {
 
         if let Err(ReplyError::X11Error(ref error)) = update_result {
             if error.error_kind == ErrorKind::Access {
-                eprintln!("\x1b[31m\x1b[1mError:\x1b[0m Access to X11 Client Api denied!");
+                error!("Access to X11 Client Api denied!");
                 exit(1);
             }
         }
