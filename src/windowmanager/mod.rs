@@ -96,6 +96,7 @@ impl WindowManager {
         self.connection.borrow_mut().flush().unwrap();
         self.restart = false;
     }
+
     fn autostart_exec(&self) {
         for command in &self.config.borrow().exec {
             exec_user_command(&Some(command.clone()));
