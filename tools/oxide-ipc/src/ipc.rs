@@ -9,6 +9,7 @@ use oxide::eventhandler::events::WmActionEvent;
 trait WmInterface {
     async fn get_status(&self) -> Result<String>;
     async fn sent_event(&self, event: WmActionEvent) -> Result<()>;
+    async fn wait_for_state_change(&self) -> Result<String>;
 }
 
 
@@ -21,6 +22,12 @@ async fn get_proxy() -> Result<WmInterfaceProxy<'static>>{
 pub async fn get_state_async() -> Result<String> {
     let proxy = get_proxy().await?;
     let state = proxy.get_status().await?;
+    Ok(state)
+}
+
+pub async fn wait_for_state_change_async() -> Result<String> {
+    let proxy = get_proxy().await?;
+    let state = proxy.wait_for_state_change().await?;
     Ok(state)
 }
 

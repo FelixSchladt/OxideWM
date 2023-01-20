@@ -14,7 +14,7 @@ pub mod constants;
 pub mod common;
 pub mod logging;
 
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, Condvar};
 
 use std::sync::mpsc::channel;
 use std::thread;
@@ -39,7 +39,10 @@ fn main() -> Result<()> {
     let mut config = Rc::new(RefCell::new(Config::new()));
     let mut keybindings = KeyBindings::new(&config.borrow());
     
-    let mut manager = WindowManager::new(&keybindings, config.clone());
+    let wm_state_change_ipc = Arc::new((Mutex::new(false), Condvar::new()));
+    let wm_state_change = Rc::new(RefCell::new(wm_state_change_ipc.clone()));
+
+    let mut manager = WindowManager::new(&keybindings, config.clone(), wm_state_change);
     let mut eventhandler = EventHandler::new(&mut manager, &keybindings);
 
     let (ipc_sender, wm_receiver) = channel::<IpcEvent>();
@@ -49,8 +52,9 @@ fn main() -> Result<()> {
     let ipc_sender_mutex = Arc::new(Mutex::new(ipc_sender));
     let ipc_receiver_mutex = Arc::new(Mutex::new(ipc_receiver));
 
+
     thread::spawn(move || {
-        async_std::task::block_on(zbus_serve(ipc_sender_mutex, ipc_receiver_mutex)).unwrap();
+        async_std::task::block_on(zbus_serve(ipc_sender_mutex, ipc_receiver_mutex, wm_state_change_ipc)).unwrap();
     });
 
     loop {

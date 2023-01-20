@@ -3,6 +3,9 @@ use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
 use serde::Serialize;
 
+
+use std::sync::{Mutex, Condvar, Arc};
+
 use crate::workspace::Workspace;
 use crate::windowstate::WindowState;
 use std::{cell::RefCell, rc::Rc, collections::HashMap};
@@ -24,10 +27,17 @@ pub struct ScreenInfo {
     pub width: u32,
     pub height: u32,
     pub status_bar: Option<WindowState>,
+    #[serde(skip_serializing)]
+    pub wm_state_change: Rc<RefCell<Arc<(Mutex<bool>, Condvar)>>>,
 }
 
 impl ScreenInfo {
-    pub fn new(connection: Rc<RefCell<RustConnection>>, screen_ref: Rc<RefCell<Screen>>, width: u32, height: u32) -> ScreenInfo {
+    pub fn new(connection: Rc<RefCell<RustConnection>>, 
+               screen_ref: Rc<RefCell<Screen>>, 
+               width: u32, 
+               height: u32, 
+               wm_state_change: Rc<RefCell<Arc<(Mutex<bool>, Condvar)>>>
+               ) -> ScreenInfo {
         let active_workspace = 1;
         let workspaces = HashMap::new();
         let mut screen_info = ScreenInfo {
@@ -42,6 +52,7 @@ impl ScreenInfo {
             width,
             height,
             status_bar: None,
+            wm_state_change,
         };
         screen_info.create_workspace(active_workspace);
         screen_info
@@ -149,7 +160,8 @@ impl ScreenInfo {
         active_workspace.unmap_windows();
         active_workspace.focused = false;
 
-        if !self.workspaces.contains_key(&workspace_nr){
+
+                if !self.workspaces.contains_key(&workspace_nr){
             self.create_workspace(workspace_nr)
         }
 
@@ -157,6 +169,13 @@ impl ScreenInfo {
         let new_workspace = self.workspaces.get_mut(&self.active_workspace).unwrap();
         new_workspace.remap_windows();
         new_workspace.focused = true;
+
+        let (lock, cvar) = &*self.wm_state_change.borrow_mut().clone();
+        let mut wm_changed_state = lock.lock().unwrap();
+        *wm_changed_state = true;
+        cvar.notify_one();
+
+
         new_workspace
         
     }

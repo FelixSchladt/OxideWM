@@ -8,6 +8,9 @@ use std::process::exit;
 use std::{cell::RefCell, rc::Rc};
 use serde::Serialize;
 
+
+use std::sync::{Mutex, Condvar, Arc};
+
 use log::{warn, error, info, debug};
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::ConnectionExt;
@@ -55,7 +58,7 @@ pub struct WindowManager {
 
 
 impl WindowManager {
-    pub fn new(keybindings: &KeyBindings, config: Rc<RefCell<Config>>) -> WindowManager {
+    pub fn new(keybindings: &KeyBindings, config: Rc<RefCell<Config>>, wm_state_change: Rc<RefCell<Arc<(Mutex<bool>, Condvar)>>>) -> WindowManager {
         let connection = Rc::new(RefCell::new(RustConnection::connect(None).unwrap().0));
         let screeninfo = HashMap::new();
 
@@ -73,7 +76,7 @@ impl WindowManager {
             restart: false,
         };
 
-        manager.setup_screens();
+        manager.setup_screens(wm_state_change);
         manager.update_root_window_event_masks();
         manager.grab_keys(keybindings).expect("Failed to grab Keys");
         let result = manager.connection.borrow().flush();
@@ -242,7 +245,7 @@ impl WindowManager {
         screen.set_workspace_create_if_not_exists(new_workspace as u16);
     }
 
-    fn setup_screens(&mut self) {
+    fn setup_screens(&mut self, wm_state_change: Rc<RefCell<Arc<(Mutex<bool>, Condvar)>>>){
         for screen in self.connection.borrow().setup().roots.iter() {
             let screen_ref = Rc::new(RefCell::new(screen.clone()));
             let mut screenstruct = ScreenInfo::new(
@@ -250,6 +253,7 @@ impl WindowManager {
                 screen_ref.clone(),
                 screen.width_in_pixels as u32,
                 screen.height_in_pixels as u32,
+                wm_state_change.clone(),
             );
             screenstruct.create_new_workspace();    // Todo Js remove this
             self.screeninfo.insert(screen.root, screenstruct);
