@@ -4,7 +4,7 @@ use x11rb::protocol::xproto::*;
 use serde::Serialize;
 
 use crate::windowstate::WindowState;
-use crate::workspace::{Workspace, enums_workspace::GoToWorkspace};
+use crate::workspace::{Workspace, enums_workspace::EnumWorkspaceNavigation};
 use std::{cell::RefCell, rc::Rc, collections::HashMap};
 use log::{info, debug, warn};
 
@@ -145,11 +145,11 @@ impl ScreenInfo {
         }
     }
 
-    pub fn switch_workspace(&mut self, arg: GoToWorkspace) {
+    pub fn switch_workspace(&mut self, arg: EnumWorkspaceNavigation) {
         match arg {
-            GoToWorkspace::Next => self.handle_go_to_workspace_next(),
-            GoToWorkspace::Previous => self.handle_go_to_workspace_previous(),
-            GoToWorkspace::Number(number) => {
+            EnumWorkspaceNavigation::Next => self.handle_go_to_workspace_next(),
+            EnumWorkspaceNavigation::Previous => self.handle_go_to_workspace_previous(),
+            EnumWorkspaceNavigation::Number(number) => {
                 if number >= LOWEST_WORKSPACE_NR {
                     self.set_workspace_create_if_not_exists(number);
                 }else{

@@ -52,7 +52,7 @@ cmds:
     command: Exec
     args: "dmenu_run"
   
-  #Workspace keys configuration
+  #GoToWorkspace keys configuration
   - keys: ["C","A", "Right"]
     command: GoToWorkspace
     args: "next"
@@ -97,8 +97,96 @@ cmds:
     command: GoToWorkspace
     args: "9"
 
+    
+  #MoveToWorkspace keys configuration
+  - keys: ["A", "Right"]
+    command: MoveToWorkspace
+    args: "next"
 
+  - keys: ["A", "Left"]
+    command: MoveToWorkspace
+    args: "previous"
 
+  - keys: ["A", "1"]
+    command: MoveToWorkspace
+    args: "1"
+
+  - keys: ["A", "2"]
+    command: MoveToWorkspace
+    args: "3"
+
+  - keys: ["A", "3"]
+    command: MoveToWorkspace
+    args: "3"
+
+  - keys: ["A", "4"]
+    command: MoveToWorkspace
+    args: "4"
+
+  - keys: ["A", "5"]
+    command: MoveToWorkspace
+    args: "5"
+
+  - keys: ["A", "6"]
+    command: MoveToWorkspace
+    args: "6"
+
+  - keys: ["A", "7"]
+    command: MoveToWorkspace
+    args: "7"
+
+  - keys: ["A", "8"]
+    command: MoveToWorkspace
+    args: "8"
+
+  - keys: ["A", "9"]
+    command: MoveToWorkspace
+    args: "9"
+
+  #MoveToWorkspaceAndFollow keys configuration
+  - keys: ["A", "S", "Right"]
+    command: MoveToWorkspaceAndFollow
+    args: "next"
+
+  - keys: ["A", "S", "Left"]
+    command: MoveToWorkspaceAndFollow
+    args: "previous"
+
+  - keys: ["A", "S", "1"]
+    command: MoveToWorkspaceAndFollow
+    args: "1"
+
+  - keys: ["A", "S", "2"]
+    command: MoveToWorkspaceAndFollow
+    args: "3"
+
+  - keys: ["A", "S", "3"]
+    command: MoveToWorkspaceAndFollow
+    args: "3"
+
+  - keys: ["A", "S", "4"]
+    command: MoveToWorkspaceAndFollow
+    args: "4"
+
+  - keys: ["A", "S", "5"]
+    command: MoveToWorkspaceAndFollow
+    args: "5"
+
+  - keys: ["A", "S", "6"]
+    command: MoveToWorkspaceAndFollow
+    args: "6"
+
+  - keys: ["A", "S", "7"]
+    command: MoveToWorkspaceAndFollow
+    args: "7"
+
+  - keys: ["A", "S", "8"]
+    command: MoveToWorkspaceAndFollow
+    args: "8"
+
+  - keys: ["A", "S", "9"]
+    command: MoveToWorkspaceAndFollow
+    args: "9"
 
 exec: ["./target/debug/oxide-bar"]
 exec_always: []

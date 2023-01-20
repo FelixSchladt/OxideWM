@@ -32,7 +32,7 @@ use crate::{
     atom::Atom,
     workspace::{
         Workspace,
-        enums_workspace::{Layout,GoToWorkspace},
+        enums_workspace::{Layout,EnumWorkspaceNavigation},
     }
 };
 
@@ -216,7 +216,7 @@ impl WindowManager {
 
         let arg;
         if let Some(args) = args_option {
-            let go_to_result = GoToWorkspace::try_from(args.as_str());
+            let go_to_result = EnumWorkspaceNavigation::try_from(args.as_str());
             match go_to_result {
                 Ok(go_to) => arg=go_to,
                 Err(_) => {
