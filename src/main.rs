@@ -9,6 +9,7 @@ pub mod config;
 pub mod keybindings;
 pub mod auxiliary;
 pub mod ipc;
+pub mod constants;
 pub mod common;
 pub mod logging;
 use std::sync::{Arc, Mutex};

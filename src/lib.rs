@@ -7,3 +7,5 @@ pub mod keybindings;
 pub mod config;
 pub mod windowstate;
 pub mod auxiliary;
+pub mod constants;
+
