@@ -6,7 +6,7 @@ build = "build.rs"
 include = ["src/**/*", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE"]
 
 [workspace]
-members = ["tools/oxide-msg"]
+members = ["tools/oxide-ipc", "tools/oxide-msg", "tools/oxide-bar"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -26,3 +26,5 @@ syslog = "6.0.*"
 anyhow = "1.0.*"
 zbus = { version = "3", default-features = false, features = ["tokio"] }
 async-std = { version = "1", features = ["attributes", "tokio1"] }
+strum = { version = "0.24", features = ["derive"] }
+strum_macros = "0.24"

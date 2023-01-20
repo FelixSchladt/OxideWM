@@ -7,7 +7,6 @@ use crate::{
     windowstate::WindowState,
 };
 
-use log::{debug, error, info};
 use x11rb::connection::Connection;
 use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::xproto::*;
@@ -15,6 +14,7 @@ use x11rb::CURRENT_TIME;
 use std::collections::HashMap;
 use serde::Serialize;
 use std::{cell::RefCell, rc::Rc};
+use log::{error, info, debug};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
@@ -55,6 +55,15 @@ impl Workspace {
             height,
             width,
         }
+    }
+
+    pub fn set_bounds(&mut self, x: i32, y: i32, width: u32, height: u32) {
+        self.x = x;
+        self.y = y;
+        self.height = height;
+        self.width = width;
+        info!("Workspace {} size updated to x: {}, y: {}, width: {}, height: {}", self.name, self.x, self.y,self.width, self.height);
+        self.remap_windows();
     }
 
     pub fn get_focused_window(&self) -> Option<u32> {
@@ -209,6 +218,7 @@ impl Workspace {
     }
 
     pub fn remap_windows(&mut self) {
+        info!("Rempaing {} Windows from workspace {}: WS x: {}, y: {}, width: {}, height: {}", self.windows.len(), self.name, self.x, self.y, self.width, self.height);
         match self.layout {
             //Layout::Tiled => {},
             Layout::VerticalStriped => self.map_vertical_striped(),
@@ -223,7 +233,7 @@ impl Workspace {
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
             current_window.set_bounds(
-                (i * self.width as usize / amount) as i32,
+                (i * self.width as usize / amount) as i32 + self.x,
                 self.y,
                 (self.width as usize / amount) as u32,
                 self.height
@@ -239,7 +249,7 @@ impl Workspace {
             let current_window = self.windows.get_mut(id).unwrap();
             current_window.set_bounds(
                 self.x,
-                (i * self.height as usize / amount) as i32,
+                (i * self.height as usize / amount) as i32 + self.y,
                 self.width,
                 (self.height as usize / amount) as u32,
             ).draw();

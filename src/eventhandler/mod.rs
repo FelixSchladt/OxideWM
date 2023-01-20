@@ -6,6 +6,7 @@ use self::events::{IpcEvent, WmActionEvent};
 use log::{info, debug, trace};
 use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
 use std::process;
+use log::error;
 
 use crate::{
     windowmanager::{WindowManager},
@@ -59,16 +60,19 @@ impl EventHandler<'_> {
                 info!("{} LeaveNotify", log_msg);
                 self.window_manager.handle_event_leave_notify(_event);
             },
-            Event::FocusIn(_event) => info!("{} FocusIn", log_msg),
-            Event::FocusOut(_event) => info!("{} FocusOut", log_msg),
+            Event::FocusIn(_event) => println!("FocusIn"),
+            Event::FocusOut(_event) => println!("FocusOut"),
+            Event::CreateNotify(_event) => {
+                println!("CreateNotify");
+                self.window_manager.handle_create_notify(_event);
+            },
             _ => info!("{} Unknown {:?}", log_msg, event),
         };
     }
 
     fn handle_keypress(&mut self, event: &KeyPressEvent) {
-        let keys = self.keybindings.events_map
-            .get(&event.detail)
-            .expect("ERROR: Key not found in keybindings -> THIS MUST NOT HAPPEN");
+        match self.keybindings.events_map.get(&event.detail) {
+            Some(keys) => {
         //NOTE: IF you get the error above, this is probably cause by an inconsistency
         // in the Connection. Most likely you did something with the connection that
         // left it in a weird state. This **must not be** directly connected to this
@@ -76,15 +80,18 @@ impl EventHandler<'_> {
         // with your changes. I experienced this a couple of times and it always was
         // quite strange and hard to find. Ask for help if you can't find the problem.
 
-        for key in keys.clone() {
-            let state = u16::from(event.state);
-            if state == key.keycode.mask || state == key.keycode.mask | u16::from(ModMask::M2) {
-                debug!("Key: {:?}", key);
-                self.handle_wm_command(WmActionEvent {
-                    command: key.event,
-                    args: key.args.clone(),
-                });
-            }
+                for key in keys.clone() {
+                    let state = u16::from(event.state);
+                    if state == key.keycode.mask || state == key.keycode.mask | u16::from(ModMask::M2) {
+                        debug!("Key: {:?}", key);
+                        self.handle_wm_command(WmActionEvent {
+                            command: key.event,
+                            args: key.args.clone(),
+                        });
+                    }
+                }
+            },
+            None => error!("Key not found: {:?} if this happens frequently, you probably left the X connection in a weird state", event.detail),
         }
     }
 

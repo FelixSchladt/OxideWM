@@ -41,7 +41,7 @@ impl GoToWorkspace {
         match self {
             GoToWorkspace::Next => (active_workspace + 1) % (max_workspace + 1),
             GoToWorkspace::Previous => {
-                if active_workspace == 0 {
+                if active_workspace <= 1 {
                     max_workspace
                 }else{
                     active_workspace - 1
