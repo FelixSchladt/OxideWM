@@ -18,14 +18,14 @@
 # - Exec
 # - Focus
 # - GoToWorkspace
-# - Kill, kill the focused window
+# - Kill: kill the focused window
 # - Layout, args: horizontal, Vertical
 # - Move, args: left, right, up, down
 # - MoveToWorkspace
 # - MoveToWorkspaceAndFollow
-# - Quit; quit the window manager
+# - Quit: quit the window manager
 # - Resize
-# - Restart, restart the window manager
+# - Restart: restart the window manager
 #
 # In 'cmds' all keybinding for the WM are defined.
 # A Command consists of an array of keys, the command, some optional arguments and should be configured like the following:
