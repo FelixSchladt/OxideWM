@@ -207,9 +207,7 @@ impl WindowManager {
                 }
                 active_workspace.set_layout(layout.unwrap());
             },
-            None => {
-                active_workspace.next_layout();
-            },
+            None => active_workspace.next_layout(),
         }
     }
 
