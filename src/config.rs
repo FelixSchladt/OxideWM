@@ -19,7 +19,7 @@ where
     } else {
         Ok(Some(args))
     }
-    
+
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -43,10 +43,10 @@ pub struct Config {
 
     #[serde(default = "default_border_width")]
     pub border_width: u8,
-    
+
     #[serde(default = "default_border_color")]
     pub border_color: String,
-    
+
     #[serde(default = "default_border_focus_color")]
     pub border_focus_color: String,
 
@@ -59,10 +59,10 @@ impl Config {
     pub fn new() -> Config {
         #[cfg(not(debug_assertions))]
         let paths = vec!["~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
-        
+
         #[cfg(debug_assertions)]
         let paths = vec!["./config.yml", "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
-        
+
         let mut chosen_config: Option<&str> = None;
         let mut file_option: Option<File> = None;
         for path in paths.clone() {
@@ -92,7 +92,7 @@ impl Config {
         }
         process::exit(ERR_PROCESS);
     }
-} 
+}
 
 // Defining default values
 fn default_cmds() -> Vec<WmCommand> {
