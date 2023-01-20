@@ -1,7 +1,7 @@
 # This is the config file for OxideWM.
 # Here you can freely configure your window manager.
 # Please keep in mind that you have to configure every value properly for the WM to run, otherwise the programm will crash.
-
+#
 # OxideWM uses the 'Alt' key as the meta key
 # Key shortcuts:
 # - A -> ALT
@@ -83,7 +83,7 @@ cmds:
     command: Exec
     args: "dmenu_run"
 
-  #Workspace keys configuration
+  # Workspace keys configuration
   - keys: ["C", "A", "Right"]
     command: GoToWorkspace
     args: "next"
@@ -95,6 +95,7 @@ cmds:
 exec: ["./target/debug/oxide-bar"]
 exec_always: []
 border_with: 8
+# Colors have to be entered in hexadacinmal
 border_color: "0x008000" # yellow
 border_focus_color: "0xFFFF00" # green
 gap: 8
