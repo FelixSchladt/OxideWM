@@ -117,7 +117,7 @@ impl WindowManager {
     }
 
     fn grab_keys(&self, keybindings: &KeyBindings) -> Result<(), Box<dyn Error>> {
-        println!("grabbing keys");
+        info!("grabbing keys");
         //TODO check if the the screen iterations should be merged
         for screen in self.connection.borrow().setup().roots.iter() {
             for modifier in [0, u16::from(ModMask::M2)] {
@@ -185,7 +185,7 @@ impl WindowManager {
 
     pub fn handle_keypress_kill(&mut self) {
         let focused_window = self.get_focused_window();
-        println!("Focused window: {:?}", focused_window);
+        debug!("Focused window: {:?}", focused_window);
         if let Some(winid) = focused_window {
             self.get_active_workspace()
                 .kill_window(&winid);
@@ -286,7 +286,7 @@ impl WindowManager {
 
         if let Err(ReplyError::X11Error(ref error)) = update_result {
             if error.error_kind == ErrorKind::Access {
-                eprintln!("\x1b[31m\x1b[1mError:\x1b[0m Access to X11 Client Api denied!");
+                error!("Access to X11 Client Api denied!");
                 exit(1);
             }
         }
@@ -336,7 +336,6 @@ impl WindowManager {
                                               0,
                                               1024).unwrap().reply();
         if let Ok(atom_reply) = atom_reply {
-        
             self.connection.borrow().flush().unwrap();
 
             let prop_type = match atom_reply.type_ {
@@ -344,11 +343,12 @@ impl WindowManager {
                 atomid => self.atom_name(atomid),
             };
 
+            let wm_type = Atom::NetWindowTypeDock.as_ref();
             if prop_type == "ATOM" {
                 let atoms = atom_reply.value32().unwrap()
                     .map(|a| self.atom_name(a))
                     .collect::<Vec<String>>();
-                if atoms.contains(&"_NET_WM_WINDOW_TYPE_DOCK".to_string()) {
+                if atoms.contains(&wm_type.to_string()) {
                     info!("Spawned window is of type _NET_WM_WINDOW_TYPE_DOCK");
                     return true;
                 }

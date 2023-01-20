@@ -57,7 +57,7 @@ impl Workspace {
         }
     }
 
-    pub fn update_size(&mut self, x: i32, y: i32, width: u32, height: u32) {
+    pub fn set_bounds(&mut self, x: i32, y: i32, width: u32, height: u32) {
         self.x = x;
         self.y = y;
         self.height = height;
@@ -228,12 +228,12 @@ impl Workspace {
 
     fn map_vertical_striped(&mut self) {
         let amount = self.order.len();
-        println!("\n\nMapping {} windows with vertical striped layout.", amount);
+        info!("Mapping {} windows with vertical striped layout.", amount);
 
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
             current_window.set_bounds(
-                (i * self.width as usize / amount) as i32,
+                (i * self.width as usize / amount) as i32 + self.x,
                 self.y,
                 (self.width as usize / amount) as u32,
                 self.height
@@ -243,13 +243,13 @@ impl Workspace {
 
     fn map_horizontal_striped(&mut self) {
         let amount = self.order.len();
-        println!("\n\nMapping {} windows with horizontal striped layout.", amount);
+        info!("Mapping {} windows with horizontal striped layout.", amount);
 
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
             current_window.set_bounds(
                 self.x,
-                (i * self.height as usize / amount) as i32,
+                (i * self.height as usize / amount) as i32 + self.y,
                 self.width,
                 (self.height as usize / amount) as u32,
             ).draw();

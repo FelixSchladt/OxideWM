@@ -16,11 +16,15 @@ The current status will be kept updated for the following states:
 - done
 
 ## Branching
-Every feature will get its own branch.
-This branch will be named after the following guideline:
-
+Every issue will get its own branch.
+A feature branch will be named after the following guideline:
 ```
-Feature/ISSUE<ISSUENUMBER>-<Featurename>
+feature/ISSUE<ISSUENUMBER>-<Featurename>
+```
+
+A bugfix branch will be named after the following guideline:
+```
+bug/ISSUE<ISSUENUMBER>-<Featurename>
 ```
 
 The feature branches can freely be branched for testing purposes.

@@ -10,6 +10,9 @@ pub mod keybindings;
 pub mod auxiliary;
 pub mod ipc;
 pub mod atom;
+pub mod constants;
+pub mod common;
+pub mod logging;
 
 use std::sync::{Arc, Mutex};
 
@@ -18,10 +21,11 @@ use std::thread;
 use std::{cell::RefCell, rc::Rc};
 
 use config::Config;
-use log::error;
 use serde_json::Result;
+use log::{error, trace};
 
 use crate::{
+    logging::init_logger,
     windowmanager::WindowManager,
     eventhandler::EventHandler,
     keybindings::KeyBindings,
@@ -29,10 +33,9 @@ use crate::{
     ipc::zbus_serve,
 };
 
-extern crate log;
-
 fn main() -> Result<()> {
-    env_logger::init();
+    init_logger();
+
     let mut config = Rc::new(RefCell::new(Config::new()));
     let mut keybindings = KeyBindings::new(&config.borrow());
     
@@ -64,7 +67,7 @@ fn main() -> Result<()> {
             if event.status {
                 let wm_state = eventhandler.window_manager.get_state();
                 let j = serde_json::to_string(&wm_state)?;
-                println!("IPC status request");
+                trace!("IPC status request");
                 wm_sender.send(j).unwrap();
             } else {
                 eventhandler.handle_ipc_event(event);

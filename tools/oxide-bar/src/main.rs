@@ -55,16 +55,13 @@ impl From<Visualtype> for xcb_visualtype_t {
 
 /// Find a `xcb_visualtype_t` based on its ID number
 fn find_xcb_visualtype(conn: &impl Connection, visual_id: u32) -> Option<xcb_visualtype_t> {
-    for root in &conn.setup().roots {
-        for depth in &root.allowed_depths {
-            for visual in &depth.visuals {
-                if visual.visual_id == visual_id {
-                    return Some((*visual).into());
-                }
-            }
-        }
-    }
-    None
+    return conn.setup()
+        .roots
+        .iter()
+        .flat_map(|root| root.allowed_depths.iter())
+        .flat_map(|depth| depth.visuals.iter())
+        .find(|visual| visual.visual_id == visual_id)
+        .map(|visual| (*visual).into());
 }
 
 /// Choose a visual to use. This function tries to find a depth=32 visual and falls back to the
