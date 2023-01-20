@@ -210,28 +210,46 @@ impl WindowManager {
     pub fn handle_keypress_go_to_workspace(&mut self, args_option: Option<String>){
         let screen_option = self.screeninfo
             .get_mut(&self.focused_screen);
-        if screen_option.is_none() {
-            warn!("Could not switch workspace, no screen was focused");
-            return;
-        }
-
-        let arg;
-        if let Some(args) = args_option {
-            let go_to_result = EnumWorkspaceNavigation::try_from(args.as_str());
-            match go_to_result {
-                Ok(go_to) => arg=go_to,
-                Err(_) => {
-                    warn!("Argumet '{}' could not be parsed", args);
-                    return;
-                },
+        if let Some(screen) = screen_option {
+            let arg_option = EnumWorkspaceNavigation::parse_enum_workspace_navigation(args_option);
+            if let Ok(arg) = arg_option{
+                screen.switch_workspace(arg);        
+            }else if let Err(error) = arg_option{
+                warn!("Could not go to workspace {}", error);
             }
         }else{
-            warn!("No argument was passed");
-            return;
+            warn!("Could not switch workspace, no screen was focused");
         }
+    }
 
-        let screen= screen_option.unwrap();
-        screen.switch_workspace(arg);
+    pub fn handle_move_to_workspace(&mut self, args_option: Option<String>){
+        let screen_option = self.screeninfo
+            .get_mut(&self.focused_screen);
+        if let Some(screen) = screen_option {
+            let arg_option = EnumWorkspaceNavigation::parse_enum_workspace_navigation(args_option);
+            if let Ok(arg) = arg_option{       
+                screen.move_window_to_workspace(arg);
+            }else if let Err(error) = arg_option{
+                warn!("Could not move to workspace {}", error);
+            }
+        }else{
+            warn!("Could not move to workspace, no screen was focused");
+        }
+    }
+
+    pub fn handle_move_to_workspace_follow(&mut self, args_option: Option<String>){
+        let screen_option = self.screeninfo
+            .get_mut(&self.focused_screen);
+        if let Some(screen) = screen_option {
+            let arg_option = EnumWorkspaceNavigation::parse_enum_workspace_navigation(args_option);
+            if let Ok(arg) = arg_option{       
+                screen.move_window_to_workspace_and_follow(arg);
+            }else if let Err(error) = arg_option{
+                warn!("Could not move to workspace {}", error);
+            }
+        }else{
+            warn!("Could not move to workspace, no screen was focused");
+        }
     }
 
     fn setup_screens(&mut self) {

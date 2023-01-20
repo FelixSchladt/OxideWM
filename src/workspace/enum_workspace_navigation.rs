@@ -1,9 +1,27 @@
 use log::error;
 
+use super::parse_error::ParseError;
+
 pub enum EnumWorkspaceNavigation {
     Next,
     Previous,
     Number(u16),
+}
+
+impl EnumWorkspaceNavigation {
+    pub fn parse_enum_workspace_navigation(args_option: Option<String>)->Result<EnumWorkspaceNavigation, ParseError>{
+        if let Some(args) = args_option {
+            let go_to_result = EnumWorkspaceNavigation::try_from(args.as_str());
+            match go_to_result {
+                Ok(arg) => Ok(arg),
+                Err(_) => return Err(ParseError::new( 
+                    format!("Argumet '{}' could not be parsed", args)
+                ))
+            }
+        }else{
+            Err(ParseError::new(format!("No argument was passed")))
+        }
+    }
 }
 
 impl TryFrom<&str> for EnumWorkspaceNavigation {

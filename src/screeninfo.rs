@@ -145,10 +145,82 @@ impl ScreenInfo {
         }
     }
 
+    //todo js do not switch when window was not moved
+    pub fn move_window_to_workspace_and_follow(&mut self, arg: EnumWorkspaceNavigation){
+        match arg {
+            EnumWorkspaceNavigation::Next => {
+                let next_workspace = self.find_next_workspace();
+                self.move_window_to_workspace_nr(next_workspace);
+                self.set_workspace_create_if_not_exists(next_workspace);
+            },
+            EnumWorkspaceNavigation::Previous => {
+                let previous_workspace = self.find_previous_workspace();
+                self.move_window_to_workspace_nr(previous_workspace);
+                self.set_workspace_create_if_not_exists(previous_workspace);
+            },
+            EnumWorkspaceNavigation::Number(number) => {
+                if number >= LOWEST_WORKSPACE_NR {
+                self.move_window_to_workspace_nr(number);
+                self.set_workspace_create_if_not_exists(number);
+                }else{
+                    warn!("workspace nr {} has to be greater than or equal to {}", number, LOWEST_WORKSPACE_NR)
+                };
+            },
+        };
+    }
+
+
+    pub fn move_window_to_workspace(&mut self, arg: EnumWorkspaceNavigation){
+        match arg {
+            EnumWorkspaceNavigation::Next => {
+                let next_workspace = self.find_next_workspace();
+                self.move_window_to_workspace_nr(next_workspace);
+            },
+            EnumWorkspaceNavigation::Previous => {
+                let previous_workspace = self.find_previous_workspace();
+                self.move_window_to_workspace_nr(previous_workspace);
+            },
+            EnumWorkspaceNavigation::Number(number) => {
+                if number >= LOWEST_WORKSPACE_NR {
+                    self.move_window_to_workspace_nr(number);
+                }else{
+                    warn!("workspace nr {} has to be greater than or equal to {}", number, LOWEST_WORKSPACE_NR)
+                };
+            },
+        };
+    }
+
+
+    fn move_window_to_workspace_nr(&mut self, new_workspace: u16){
+        if !self.workspaces.contains_key(&new_workspace) {
+            warn!("could not move screen, workspace {} does not exist on screen", new_workspace);
+            return;
+        }
+        if self.active_workspace == new_workspace {
+            info!("window is already on desired workspace {}", new_workspace);
+            return;
+        }
+
+        let active_workspace = self.get_active_workspace();
+        if let Some(window) = active_workspace.get_focused_window() {
+            active_workspace.remove_window(&window);
+            let windowsate = WindowState::new(self._connection.clone(), &self._screen_ref.borrow(), window);
+            self.get_workspace(new_workspace).add_window(windowsate);
+        } else{
+            warn!("Can not move window to workspace {} since no window is focused", new_workspace);
+        }
+    }
+
     pub fn switch_workspace(&mut self, arg: EnumWorkspaceNavigation) {
         match arg {
-            EnumWorkspaceNavigation::Next => self.handle_go_to_workspace_next(),
-            EnumWorkspaceNavigation::Previous => self.handle_go_to_workspace_previous(),
+            EnumWorkspaceNavigation::Next => {
+                let next_workspace = self.find_next_workspace();
+                self.set_workspace_create_if_not_exists(next_workspace);
+            },
+            EnumWorkspaceNavigation::Previous => {
+                let previous_workspace = self.find_previous_workspace();
+                self.set_workspace_create_if_not_exists(previous_workspace);
+            },
             EnumWorkspaceNavigation::Number(number) => {
                 if number >= LOWEST_WORKSPACE_NR {
                     self.set_workspace_create_if_not_exists(number);
@@ -159,31 +231,31 @@ impl ScreenInfo {
         };
     }
 
-    fn handle_go_to_workspace_next(&mut self){
+     fn find_next_workspace(&mut self) -> u16 {
         if let Some(next_workspace) = self.find_next_highest_workspace_nr(){
-            self.set_workspace_create_if_not_exists(next_workspace);
+            next_workspace
         }else{
             if let Some(first_workspace) = self.find_lowest_workspace(){
-                self.set_workspace_create_if_not_exists(first_workspace);
+                first_workspace
             }else{
                 warn!("in a state where no workspace was selected");
-                self.set_workspace_create_if_not_exists(LOWEST_WORKSPACE_NR);
-            };
-        };
+                LOWEST_WORKSPACE_NR
+            }
+        }
     }
 
-    fn handle_go_to_workspace_previous(&mut self){
+    fn find_previous_workspace(&mut self) -> u16 {
         if let Some(previous_workspace) = self.find_next_lowest_workspace_nr(){
-            self.set_workspace_create_if_not_exists(previous_workspace);
+            previous_workspace
         }else{
             if let Some(last_workspace) = self.find_highest_workspace(){
-                self.set_workspace_create_if_not_exists(last_workspace);
+                last_workspace
             }else{
                 warn!("in a state where no workspace was selected");
-                self.set_workspace_create_if_not_exists(LOWEST_WORKSPACE_NR);
-            };
-        };
-    }
+                LOWEST_WORKSPACE_NR
+            }
+        }
+    } 
 
     fn find_highest_workspace(&self) -> Option<u16> {
         self.workspaces.iter()

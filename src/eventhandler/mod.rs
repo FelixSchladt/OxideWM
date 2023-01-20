@@ -135,13 +135,12 @@ impl EventHandler<'_> {
             WmCommands::GoToWorkspace =>{
                 self.window_manager.handle_keypress_go_to_workspace(command.args.clone());
             },
+            WmCommands::MoveToWorkspace => self.window_manager.handle_move_to_workspace(command.args.clone()),
+            WmCommands::MoveToWorkspaceAndFollow => self.window_manager.handle_move_to_workspace_follow(command.args.clone()),
             WmCommands::Exec => {
                 info!("{} Exec", log_msg);
                 exec_user_command(&command.args);
             },
-            _ => {
-                info!("{} Unimplemented", log_msg);
-            }
         }
     }
 }

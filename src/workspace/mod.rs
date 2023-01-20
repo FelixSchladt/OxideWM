@@ -1,5 +1,6 @@
 pub mod enum_workspace_layout;
 pub mod enum_workspace_navigation;
+pub mod parse_error;
 
 use self::enum_workspace_layout::EnumWorkspaceLayout;
 
@@ -26,10 +27,10 @@ pub struct Workspace {
     pub root_screen: Rc<RefCell<Screen>>,
     pub visible: bool,
     pub focused: bool,
-    pub focused_window: Option<u32>,
+    focused_window: Option<u32>,
     pub urgent: bool,
-    pub windows: HashMap<u32, WindowState>,
-    pub order: Vec<u32>,
+    windows: HashMap<u32, WindowState>,
+    order: Vec<u32>,
     pub layout: EnumWorkspaceLayout,
     pub x: i32,
     pub y: i32,
@@ -169,6 +170,14 @@ impl Workspace {
         self.windows.remove(&win_id);
         self.order.retain(|&x| x != *win_id);
         self.remap_windows();
+        let conn = self.connection.borrow();
+        conn.grab_server().unwrap();
+        let resp = &conn.unmap_window(*win_id as Window);
+        if resp.is_err() {
+            error!("An error occured while trying to unmap window");
+        }
+        conn.ungrab_server().unwrap();
+        conn.flush().unwrap();
     }
 
     pub fn new_window(&mut self, window: Window) {
