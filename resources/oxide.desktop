@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=oxide
+Comment=dynamic tiling window manager
+Exec=oxide
+TryExec=oxide
+Type=Application
+X-LightDM-DesktopName=oxide
+DesktopNames=oxide
+Keywords=dynamic;tiling;wm;windowmanager;window;manager;

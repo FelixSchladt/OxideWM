@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-oxidewm = { version = "0.1.*", path = "../../" }
+oxide = { version = "0.1.*", path = "../../" }
 oxideipc = { version = "0.1.*", path = "../oxide-ipc" }
 x11rb = { version = "0.11.*", features = ["allow-unsafe-code", "render"] }
 cairo-rs = { version = "0.15.6", features = ["xcb"] }

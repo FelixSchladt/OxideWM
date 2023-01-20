@@ -57,7 +57,6 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Config {
-
         #[cfg(not(debug_assertions))]
         let paths = vec!["~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
         
