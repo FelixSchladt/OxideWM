@@ -58,10 +58,10 @@ pub struct Config {
 impl Config {
     pub fn new() -> Config {
         #[cfg(not(debug_assertions))]
-        let paths = vec!["~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+        let paths = vec!["~/.config/oxide/config.yml", "/etc/oxide/config.yml"];
         
         #[cfg(debug_assertions)]
-        let paths = vec!["./config.yml", "~/.config/oxidewm/config.yml", "/etc/oxidewm/config.yml"];
+        let paths = vec!["./config.yml", "~/.config/oxide/config.yml", "/etc/oxide/config.yml"];
         
         let mut chosen_config: Option<&str> = None;
         let mut file_option: Option<File> = None;
