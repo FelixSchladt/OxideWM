@@ -61,6 +61,45 @@ cmds:
     command: GoToWorkspace
     args: "previous"
 
+  - keys: ["C","A", "1"]
+    command: GoToWorkspace
+    args: "1"
+
+  - keys: ["C","A", "2"]
+    command: GoToWorkspace
+    args: "3"
+
+  - keys: ["C","A", "3"]
+    command: GoToWorkspace
+    args: "3"
+
+  - keys: ["C","A", "4"]
+    command: GoToWorkspace
+    args: "4"
+
+  - keys: ["C","A", "5"]
+    command: GoToWorkspace
+    args: "5"
+
+  - keys: ["C","A", "6"]
+    command: GoToWorkspace
+    args: "6"
+
+  - keys: ["C","A", "7"]
+    command: GoToWorkspace
+    args: "7"
+
+  - keys: ["C","A", "8"]
+    command: GoToWorkspace
+    args: "8"
+
+  - keys: ["C","A", "9"]
+    command: GoToWorkspace
+    args: "9"
+
+
+
+
 exec: ["./target/debug/oxide-bar"]
 exec_always: []
 border_with: 8

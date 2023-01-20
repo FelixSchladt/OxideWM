@@ -137,14 +137,9 @@ impl WindowManager {
         Ok(())
     }
 
-    fn get_active_workspace_id(&self) -> u16 {
-        return self.screeninfo.get(&self.focused_screen).unwrap().active_workspace;    
-    }
-
     fn get_active_workspace(&mut self) -> &mut Workspace {
-        let active_workspace_id = self.get_active_workspace_id();
         let screen_info = self.screeninfo.get_mut(&self.focused_screen).unwrap();
-        screen_info.get_workspace(active_workspace_id)
+        screen_info.get_active_workspace()
     }
 
     fn get_focused_window(&mut self) -> Option<u32> {
@@ -235,11 +230,7 @@ impl WindowManager {
         }
 
         let screen= screen_option.unwrap();
-        
-        let max_workspace = screen.get_workspace_count() - 1;
-        let active_workspace = screen.active_workspace;
-        let new_workspace = arg.calculate_new_workspace(active_workspace as usize, max_workspace);
-        screen.set_workspace_create_if_not_exists(new_workspace as u16);
+        screen.switch_workspace(arg);
     }
 
     fn setup_screens(&mut self) {

@@ -3,11 +3,12 @@ use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
 use serde::Serialize;
 
-use crate::workspace::Workspace;
 use crate::windowstate::WindowState;
+use crate::workspace::{Workspace, enums_workspace::GoToWorkspace};
 use std::{cell::RefCell, rc::Rc, collections::HashMap};
-use log::{info, debug};
+use log::{info, debug, warn};
 
+const LOWEST_WORKSPACE_NR: u16 = 1;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ScreenInfo {
@@ -16,7 +17,7 @@ pub struct ScreenInfo {
     #[serde(skip_serializing)]
     _screen_ref: Rc<RefCell<Screen>>,
     workspaces: HashMap<u16, Workspace>,
-    pub active_workspace: u16,
+    active_workspace: u16,
     pub ws_pos_x: i32,
     pub ws_pos_y: i32,
     pub ws_width: u32,
@@ -27,8 +28,8 @@ pub struct ScreenInfo {
 }
 
 impl ScreenInfo {
-    pub fn new(connection: Rc<RefCell<RustConnection>>, screen_ref: Rc<RefCell<Screen>>, width: u32, height: u32) -> ScreenInfo {
-        let active_workspace = 1;
+    pub fn new(connection: Rc<RefCell<RustConnection>>, screen_ref: Rc<RefCell<Screen>>, height: u32, width: u32) -> ScreenInfo {
+        let active_workspace = LOWEST_WORKSPACE_NR;
         let workspaces = HashMap::new();
         let mut screen_info = ScreenInfo {
             _connection: connection,
@@ -43,7 +44,7 @@ impl ScreenInfo {
             height,
             status_bar: None,
         };
-        screen_info.create_workspace(active_workspace);
+        screen_info.create_workspace(LOWEST_WORKSPACE_NR);
         screen_info
     }
 
@@ -125,7 +126,10 @@ impl ScreenInfo {
         }
     }
 
-    
+    pub fn get_active_workspace(&mut self) -> &mut Workspace{
+        self.get_workspace(self.active_workspace)
+    }
+
     pub fn on_map_request(&mut self, event: &MapRequestEvent) {
         info!("WINMAN: MapRequestEvent: {:?}", event);
         let workspace_option = self.workspaces.get_mut(&self.active_workspace.clone());
@@ -139,6 +143,72 @@ impl ScreenInfo {
                     .remap_windows();
             }
         }
+    }
+
+    pub fn switch_workspace(&mut self, arg: GoToWorkspace) {
+        match arg {
+            GoToWorkspace::Next => self.handle_go_to_workspace_next(),
+            GoToWorkspace::Previous => self.handle_go_to_workspace_previous(),
+            GoToWorkspace::Number(number) => {
+                if number >= LOWEST_WORKSPACE_NR {
+                    self.set_workspace_create_if_not_exists(number);
+                }else{
+                    warn!("workspace nr {} has to be greater than or equal to {}", number, LOWEST_WORKSPACE_NR)
+                };
+            },
+        };
+    }
+
+    fn handle_go_to_workspace_next(&mut self){
+        if let Some(next_workspace) = self.find_next_highest_workspace_nr(){
+            self.set_workspace_create_if_not_exists(next_workspace);
+        }else{
+            if let Some(first_workspace) = self.find_lowest_workspace(){
+                self.set_workspace_create_if_not_exists(first_workspace);
+            }else{
+                warn!("in a state where no workspace was selected");
+                self.set_workspace_create_if_not_exists(LOWEST_WORKSPACE_NR);
+            };
+        };
+    }
+
+    fn handle_go_to_workspace_previous(&mut self){
+        if let Some(previous_workspace) = self.find_next_lowest_workspace_nr(){
+            self.set_workspace_create_if_not_exists(previous_workspace);
+        }else{
+            if let Some(last_workspace) = self.find_highest_workspace(){
+                self.set_workspace_create_if_not_exists(last_workspace);
+            }else{
+                warn!("in a state where no workspace was selected");
+                self.set_workspace_create_if_not_exists(LOWEST_WORKSPACE_NR);
+            };
+        };
+    }
+
+    fn find_highest_workspace(&self) -> Option<u16> {
+        self.workspaces.iter()
+            .map(|(workspace_nr, _)| *workspace_nr)
+            .max()
+    }
+
+    fn find_lowest_workspace(&self) -> Option<u16> {
+        self.workspaces.iter()
+            .map(|(workspace_nr, _)| *workspace_nr)
+            .min()
+    }
+
+    fn find_next_highest_workspace_nr(&self) -> Option<u16> {
+        self.workspaces.iter()
+            .map(|(workspace_nr, _)| *workspace_nr)
+            .filter(|workspace_nr| *workspace_nr > self.active_workspace)
+            .min()
+    }
+
+    fn find_next_lowest_workspace_nr(&self) -> Option<u16> {
+        self.workspaces.iter()
+            .map(|(workspace_nr, _)| *workspace_nr)
+            .filter(|workspace_nr| *workspace_nr < self.active_workspace)
+            .max()
     }
 
     /// If the workspace with the passed workspace_nr does not exist, it will be created
