@@ -13,6 +13,7 @@ pub mod atom;
 pub mod constants;
 pub mod common;
 pub mod logging;
+pub mod test;
 
 use std::sync::{Arc, Mutex};
 
@@ -34,11 +35,14 @@ use crate::{
 };
 
 fn main() -> Result<()> {
+    #[cfg(test)]
+    test::run_and_exit();
+
     init_logger();
 
     let mut config = Rc::new(RefCell::new(Config::new()));
     let mut keybindings = KeyBindings::new(&config.borrow());
-    
+
     let mut manager = WindowManager::new(&keybindings, config.clone());
     let mut eventhandler = EventHandler::new(&mut manager, &keybindings);
 
