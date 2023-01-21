@@ -14,12 +14,13 @@ use x11rb::CURRENT_TIME;
 use std::collections::HashMap;
 use serde::Serialize;
 use std::{cell::RefCell, rc::Rc};
+use std::sync::Arc;
 use log::{error, info, debug};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
     #[serde(skip_serializing)]
-    pub connection:  Rc<RefCell<RustConnection>>,
+    pub connection:  Arc<RefCell<RustConnection>>,
     pub name: String,
     #[serde(skip_serializing)]
     pub root_screen: Rc<RefCell<Screen>>,
@@ -38,7 +39,7 @@ pub struct Workspace {
 
 
 impl Workspace {
-    pub fn new(name:String ,connection: Rc<RefCell<RustConnection>>,root_screen: Rc<RefCell<Screen>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
+    pub fn new(name:String ,connection: Arc<RefCell<RustConnection>>,root_screen: Rc<RefCell<Screen>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
         Workspace {
             connection: connection,
             name: name,

@@ -4,12 +4,13 @@ use x11rb::rust_connection::RustConnection;
 use x11rb::connection::Connection;
 use x11rb::COPY_DEPTH_FROM_PARENT;
 use serde::Serialize;
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell};
+use std::sync::Arc;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct WindowState {
     #[serde(skip_serializing)]
-    pub connection: Rc<RefCell<RustConnection>>,
+    pub connection: Arc<RefCell<RustConnection>>,
     pub frame: Window,
     pub window: Window,
     pub title: String,
@@ -24,7 +25,7 @@ pub struct WindowState {
 }
 
 impl WindowState {
-    pub fn new(connection: Rc<RefCell<RustConnection>>, root_screen: &Screen, window: Window) -> WindowState {
+    pub fn new(connection: Arc<RefCell<RustConnection>>, root_screen: &Screen, window: Window) -> WindowState {
         let title = connection.borrow()
                               .get_property(
                                   false,

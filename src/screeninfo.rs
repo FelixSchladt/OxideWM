@@ -5,14 +5,16 @@ use serde::Serialize;
 
 use crate::workspace::Workspace;
 use crate::windowstate::WindowState;
-use std::{cell::RefCell, rc::Rc, collections::HashMap};
+use std::{cell::RefCell, collections::HashMap};
+use std::sync::Arc;
+use std::rc::Rc;
 use log::{info, debug};
 
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ScreenInfo {
     #[serde(skip_serializing)]
-    _connection: Rc<RefCell<RustConnection>>,
+    _connection: Arc<RefCell<RustConnection>>,
     #[serde(skip_serializing)]
     _screen_ref: Rc<RefCell<Screen>>,
     workspaces: HashMap<u16, Workspace>,
@@ -27,7 +29,7 @@ pub struct ScreenInfo {
 }
 
 impl ScreenInfo {
-    pub fn new(connection: Rc<RefCell<RustConnection>>, screen_ref: Rc<RefCell<Screen>>, width: u32, height: u32) -> ScreenInfo {
+    pub fn new(connection: Arc<RefCell<RustConnection>>, screen_ref: Rc<RefCell<Screen>>, width: u32, height: u32) -> ScreenInfo {
         let active_workspace = 1;
         let workspaces = HashMap::new();
         let mut screen_info = ScreenInfo {
