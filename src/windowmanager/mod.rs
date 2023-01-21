@@ -242,6 +242,10 @@ impl WindowManager {
         screen.set_workspace_create_if_not_exists(new_workspace as u16);
     }
 
+    pub fn handle_keypress_fullscreen(&mut self) {
+        self.get_active_workspace().toggle_fullscreen();
+    }
+
     fn setup_screens(&mut self) {
         for screen in self.connection.borrow().setup().roots.iter() {
             let screen_ref = Rc::new(RefCell::new(screen.clone()));

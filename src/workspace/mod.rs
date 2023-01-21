@@ -27,6 +27,7 @@ pub struct Workspace {
     pub visible: bool,
     pub focused: bool,
     pub focused_window: Option<u32>,
+    pub fullscreen: Option<u32>,
     pub urgent: bool,
     pub windows: HashMap<u32, WindowState>,
     pub order: Vec<u32>,
@@ -50,6 +51,7 @@ impl Workspace {
             visible: false,
             focused: false,
             focused_window: None,
+            fullscreen: None,
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
@@ -147,6 +149,23 @@ impl Workspace {
         self.windows.insert(win.window, win);
     }
 
+    pub fn toggle_fullscreen(&mut self) {
+        if let Some(focused_win) = self.get_focused_window() {
+            match self.fullscreen {
+                Some(_) => {
+                    self.fullscreen = None;
+                },
+                None => {
+                    self.fullscreen = Some(focused_win);
+                }
+            }
+            self.remap_windows();
+        } else {
+            error!("No window focused");
+        }
+
+    }
+
     pub fn kill_window(&mut self, winid: &u32) {
         //TODO implement soft kill via client message over x
         //(Tell window to close itself)
@@ -210,10 +229,23 @@ impl Workspace {
     }
 
     pub fn remap_windows(&mut self) {
-        match self.layout {
-            //Layout::Tiled => {},
-            Layout::VerticalStriped => self.map_vertical_striped(),
-            Layout::HorizontalStriped => self.map_horizontal_striped(),
+        if let Some(fs_win) = self.fullscreen {
+            self.unmap_windows();
+            let screen_size = self.screen_size.borrow();
+            let window = self.windows.get_mut(&fs_win).unwrap();
+            window.set_bounds(
+                0,
+                0,
+                screen_size.width as u32,
+                screen_size.height as u32,
+            ).draw();
+            self.connection.borrow().flush().unwrap();
+        } else {
+            match self.layout {
+                //Layout::Tiled => {},
+                Layout::VerticalStriped => self.map_vertical_striped(),
+                Layout::HorizontalStriped => self.map_horizontal_striped(),
+            }
         }
     }
 
