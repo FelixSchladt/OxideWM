@@ -19,7 +19,7 @@ where
     } else {
         Ok(Some(args))
     }
-    
+
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -43,10 +43,10 @@ pub struct Config {
 
     #[serde(default = "default_border_width")]
     pub border_width: u8,
-    
+
     #[serde(default = "default_border_color")]
     pub border_color: String,
-    
+
     #[serde(default = "default_border_focus_color")]
     pub border_focus_color: String,
 
@@ -61,10 +61,10 @@ impl Config {
 
         #[cfg(not(debug_assertions))]
         let paths = vec![home_config, "/etc/oxide/config.yml"];
-        
+
         #[cfg(debug_assertions)]
         let paths = vec!["./config.yml", home_config, "/etc/oxide/config.yml"];
-        
+
         let mut chosen_config: Option<&str> = None;
         let mut file_option: Option<File> = None;
         for path in paths.clone() {
@@ -77,7 +77,7 @@ impl Config {
 
         match file_option {
             Some(file_option) => {
-                // Reads the values from the 'config' struct in config.yml 
+                // Reads the values from the 'config' struct in config.yml
                 let user_config = serde_yaml::from_reader(file_option);
                 match user_config {
                     Ok(config)  => return config,
@@ -94,13 +94,13 @@ impl Config {
         }
         process::exit(ERR_PROCESS);
     }
-} 
+}
 
 // Defining default values
 fn default_cmds() -> Vec<WmCommand> {
     vec![WmCommand{
-        keys: vec!["A".to_string(), "t".to_string()], 
-        command: WmCommands::Exec, 
+        keys: vec!["A".to_string(), "t".to_string()],
+        command: WmCommands::Exec,
         args: Some("kitty".to_string())
     }]
 }
