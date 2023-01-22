@@ -2,10 +2,8 @@ use std::fs::File;
 use log::error;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
-use std::process;
 use std::path::Path;
 
-use crate::constants::ERR_PROCESS;
 use crate::eventhandler::commands::WmCommands;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
@@ -96,7 +94,7 @@ impl Config {
                 error!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", paths);
             }
         }
-        process::exit(ERR_PROCESS);
+        panic!("Failed to parse config from file.");
     }
 }
 
@@ -110,11 +108,11 @@ fn default_cmds() -> Vec<WmCommand> {
 }
 
 fn default_exec() -> Vec<String> {
-    vec!["L".to_string(), "O".to_string(), "L".to_string()]
+    Vec::<String>::new()
 }
 
 fn default_exec_always() -> Vec<String> {
-    vec!["H".to_string(), "I".to_string()]
+    Vec::<String>::new()
 }
 
 fn default_border_width() -> u8 { 3 }
