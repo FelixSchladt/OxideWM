@@ -13,6 +13,8 @@ pub mod atom;
 pub mod constants;
 pub mod common;
 pub mod logging;
+
+#[cfg(test)]
 pub mod test;
 
 use std::sync::{Arc, Mutex};
@@ -40,7 +42,7 @@ fn main() -> Result<()> {
 
     init_logger();
 
-    let mut config = Rc::new(RefCell::new(Config::new()));
+    let mut config = Rc::new(RefCell::new(Config::new(None)));
     let mut keybindings = KeyBindings::new(&config.borrow());
 
     let mut manager = WindowManager::new(&keybindings, config.clone());
@@ -79,7 +81,7 @@ fn main() -> Result<()> {
         }
 
         if eventhandler.window_manager.restart {
-            config = Rc::new(RefCell::new(Config::new()));
+            config = Rc::new(RefCell::new(Config::new(None)));
             keybindings = KeyBindings::new(&config.borrow());
 
             eventhandler = EventHandler::new(&mut manager, &keybindings);

@@ -56,14 +56,18 @@ pub struct Config {
 
 
 impl Config {
-    pub fn new() -> Config {
+    pub fn new(source_file: Option<&str>) -> Config {
         let home_config = &format!("{}/.config/oxide/config.yml", std::env::var("HOME").unwrap());
 
         #[cfg(not(debug_assertions))]
-        let paths = vec![home_config, "/etc/oxide/config.yml"];
+        let mut paths = vec![home_config, "/etc/oxide/config.yml"];
 
         #[cfg(debug_assertions)]
-        let paths = vec!["./config.yml", home_config, "/etc/oxide/config.yml"];
+        let mut paths = vec!["./config.yml", home_config, "/etc/oxide/config.yml"];
+
+        if let Some(path) = source_file {
+            paths.insert(0, path);
+        }
 
         let mut chosen_config: Option<&str> = None;
         let mut file_option: Option<File> = None;
