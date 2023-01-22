@@ -207,7 +207,7 @@ impl WindowManager {
                 }
                 active_workspace.set_layout(layout.unwrap());
             },
-            None => warn!("No argument provided"), 
+            None => active_workspace.next_layout(),
         }
     }
 
