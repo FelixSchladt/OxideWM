@@ -20,7 +20,7 @@ pub fn empty_test() {
 
 #[test]
 pub fn load_config_from_file() {
-    let mock_file_path = &format!("{}/Git/OxideWM/test_files/config.yml", std::env::var("HOME").unwrap());
+    let mock_file_path = &format!("{}/test_files/config.yml", std::env::var("PWD").unwrap());
     let cfg = Config::new(Some(mock_file_path));
 
     assert_eq!(cfg.cmds.len(), 1);
@@ -58,7 +58,7 @@ pub fn load_config_from_repository_file() {
 
 #[test]
 pub fn load_config_from_wrong_datatype_file() {
-    let mock_file_path = &format!("{}/Git/OxideWM/test_files/invalid_datatypes.yml", std::env::var("HOME").unwrap());
+    let mock_file_path = &format!("{}/test_files/invalid_datatypes.yml", std::env::var("PWD").unwrap());
     let cfg = Config::new(Some(mock_file_path));
 
     assert_eq!(cfg.cmds.len(), 1);
