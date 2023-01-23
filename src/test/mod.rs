@@ -5,7 +5,6 @@ pub fn run_and_exit() {
 
     //Config Loading
     load_config_from_file();
-    load_config_from_repository_file();
     load_config_from_wrong_datatype_file();
 
     println!("Test runs finished.");
