@@ -22,13 +22,21 @@ use x11rb::{
 
 use crate::keybindings::KeyBindings;
 
-pub fn grab_keys(connection: Arc<RefCell<RustConnection>>, keybindings: &KeyBindings) -> Result<(), ConnectionError> {
+pub fn get_connection(keybindings: &KeyBindings)->Arc<RustConnection>{
+    let rc = RustConnection::connect(None).unwrap().0;
+    let rust_connection = Arc::new(rc);
+    grab_keys(rust_connection.clone(), keybindings).expect("failed to grab keys");
+    update_root_window_event_masks(rust_connection.clone());
+    rust_connection
+}
+
+fn grab_keys(connection: Arc<RustConnection>, keybindings: &KeyBindings) -> Result<(), ConnectionError> {
     info!("grabbing keys");
     //TODO check if the the screen iterations should be merged
-    for screen in connection.borrow().setup().roots.iter() {
+    for screen in connection.setup().roots.iter() {
         for modifier in [0, u16::from(ModMask::M2)] {
             for keyevent in keybindings.events_vec.iter() {
-                connection.borrow().grab_key(
+                connection.grab_key(
                     false,
                     screen.root,
                     (keyevent.keycode.mask | modifier).into(),
@@ -39,10 +47,10 @@ pub fn grab_keys(connection: Arc<RefCell<RustConnection>>, keybindings: &KeyBind
             }
         }
     }
-    connection.borrow().flush()
+    connection.flush()
 }
 
-pub fn update_root_window_event_masks(connection: Arc<RefCell<RustConnection>>) {
+fn update_root_window_event_masks(connection: Arc<RustConnection>) {
     let mask = ChangeWindowAttributesAux::default()
                .event_mask(
                     EventMask::SUBSTRUCTURE_REDIRECT |
@@ -54,17 +62,17 @@ pub fn update_root_window_event_masks(connection: Arc<RefCell<RustConnection>>) 
                     EventMask::PROPERTY_CHANGE
                 );
 
-    for screen in connection.borrow().setup().roots.iter() {
+    for screen in connection.setup().roots.iter() {
         set_mask(connection.clone(), screen, mask).unwrap();
     }
 }
 
 fn set_mask(
-    connection: Arc<RefCell<RustConnection>>,
+    connection: Arc<RustConnection>,
     screen: &Screen,
     mask: ChangeWindowAttributesAux
 ) -> Result<(), ReplyError> {
-    let update_result = connection.borrow().change_window_attributes(
+    let update_result = connection.change_window_attributes(
                             screen.root,
                             &mask
                         )?.check();

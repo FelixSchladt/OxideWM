@@ -14,7 +14,7 @@ use log::{info, debug};
 #[derive(Debug, Clone, Serialize)]
 pub struct ScreenInfo {
     #[serde(skip_serializing)]
-    _connection: Arc<RefCell<RustConnection>>,
+    _connection: Arc<RustConnection>,
     #[serde(skip_serializing)]
     _screen_ref: Rc<RefCell<Screen>>,
     workspaces: HashMap<u16, Workspace>,
@@ -29,7 +29,7 @@ pub struct ScreenInfo {
 }
 
 impl ScreenInfo {
-    pub fn new(connection: Arc<RefCell<RustConnection>>, screen_ref: Rc<RefCell<Screen>>, width: u32, height: u32) -> ScreenInfo {
+    pub fn new(connection: Arc<RustConnection>, screen_ref: Rc<RefCell<Screen>>, width: u32, height: u32) -> ScreenInfo {
         let active_workspace = 1;
         let workspaces = HashMap::new();
         let mut screen_info = ScreenInfo {
@@ -51,11 +51,10 @@ impl ScreenInfo {
 
     fn create_status_bar_window(&mut self, event: &CreateNotifyEvent) {
         let status_bar = self.status_bar.as_mut().unwrap();
-        let conn = self._connection.borrow_mut();
         let window_aux = ConfigureWindowAux::new().x(status_bar.x).y(status_bar.y).width(event.width as u32).height(event.height as u32);
-        conn.configure_window(event.window, &window_aux).unwrap();
-        conn.map_window(event.window).unwrap();
-        conn.flush().unwrap();
+        self._connection.configure_window(event.window, &window_aux).unwrap();
+        self._connection.map_window(event.window).unwrap();
+        self._connection.flush().unwrap();
 
     }
 

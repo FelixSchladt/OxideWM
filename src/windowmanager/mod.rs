@@ -1,10 +1,6 @@
 pub mod enums_windowmanager;
-pub mod setup_connection;
 
-use self::{
-    setup_connection::{grab_keys, update_root_window_event_masks},
-    enums_windowmanager::Movement,
-};
+use self::enums_windowmanager::Movement;
 
 use std::{collections::HashMap};
 use std::sync::{Mutex,Arc};
@@ -44,7 +40,7 @@ pub struct WindowManagerState {
 
 #[derive(Debug, Clone)]
 pub struct WindowManager {
-    pub connection: Arc<RefCell<RustConnection>>,
+    pub connection: Arc<RustConnection>,
     pub screeninfo: HashMap<u32, ScreenInfo>,
     pub config: Rc<RefCell<Config>>,
     pub focused_screen: u32,
@@ -54,8 +50,7 @@ pub struct WindowManager {
 
 
 impl WindowManager {
-    pub fn new(config: Rc<RefCell<Config>>) -> WindowManager {
-        let connection = WindowManager::new_connection();
+    pub fn new(connection:Arc<RustConnection>, config: Rc<RefCell<Config>>) -> WindowManager {
         let screeninfo = HashMap::new();
 
         let focused_screen = 0;
@@ -75,7 +70,7 @@ impl WindowManager {
         manager.setup_screens();
         manager.autostart_exec();
         manager.autostart_exec_always();
-        let result = manager.connection.borrow().flush();
+        let result = manager.connection.flush();
         if result.is_err() {
             info!("Failed to flush rust connection");
         }
@@ -83,14 +78,10 @@ impl WindowManager {
         manager
     }
 
-    fn new_connection() -> Arc<RefCell<RustConnection>> {
-        Arc::new(RefCell::new(RustConnection::connect(None).unwrap().0))
-    }
-
     pub fn restart_wm(&mut self, keybindings: &KeyBindings, config: Rc<RefCell<Config>>) {
         self.config = config;
         self.autostart_exec_always();
-        self.connection.borrow_mut().flush().unwrap();
+        self.connection.flush().unwrap();
         self.restart = false;
     }
 
@@ -114,15 +105,11 @@ impl WindowManager {
         }
     }
 
-    pub fn run_event_proxy(queue: Arc<Mutex<Sender<EnumEventType>>>, keybindings: &KeyBindings){
+    pub fn run_event_proxy(connection: Arc<RustConnection>,queue: Arc<Mutex<Sender<EnumEventType>>>, keybindings: &KeyBindings){
         debug!("Started waiting for X-Event");
 
-        let connection = WindowManager::new_connection();
-        grab_keys(connection.clone(), keybindings).unwrap();
-        update_root_window_event_masks(connection.clone());
-
         loop{
-            let result = connection.borrow().wait_for_event();
+            let result = connection.wait_for_event();
             if let Ok(event) = result {
                 debug!("Transvering X-Event into Queue {:?}", event);
                 
@@ -239,7 +226,7 @@ impl WindowManager {
     }
 
     fn setup_screens(&mut self) {
-        for screen in self.connection.borrow().setup().roots.iter() {
+        for screen in self.connection.setup().roots.iter() {
             let screen_ref = Rc::new(RefCell::new(screen.clone()));
             let mut screenstruct = ScreenInfo::new(
                 self.connection.clone(),
@@ -277,26 +264,25 @@ impl WindowManager {
     }
 
     pub fn atom_name(&self, id: u32) -> String {
-        let reply = self.connection.borrow().get_atom_name(id).unwrap().reply().unwrap();
-        self.connection.borrow().flush().unwrap();
+        let reply = self.connection.get_atom_name(id).unwrap().reply().unwrap();
+        self.connection.flush().unwrap();
         String::from_utf8(reply.name).unwrap()
     }
 
     //Note to get general atoms look at
     //https://github.com/sminez/penrose/blob/develop/src/x11rb/mod.rs lines 404-500
     pub fn atom_window_type_dock(&self, winid: u32) -> bool {
-        let binding = self.connection.borrow();
-        let atom_intern = binding.intern_atom(false, Atom::NetWmWindowType.as_ref().as_bytes()).unwrap().reply().unwrap().atom;
+        let atom_intern = self.connection.intern_atom(false, Atom::NetWmWindowType.as_ref().as_bytes()).unwrap().reply().unwrap().atom;
 
-        self.connection.borrow().flush().unwrap();
-        let atom_reply = binding.get_property(false,
+        self.connection.flush().unwrap();
+        let atom_reply = self.connection.get_property(false,
                                               winid,
                                               atom_intern,
                                               AtomEnum::ANY,
                                               0,
                                               1024).unwrap().reply();
         if let Ok(atom_reply) = atom_reply {
-            self.connection.borrow().flush().unwrap();
+            self.connection.flush().unwrap();
 
             let prop_type = match atom_reply.type_ {
                 0 => return false, // Null response
