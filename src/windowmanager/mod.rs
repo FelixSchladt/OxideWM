@@ -54,8 +54,8 @@ pub struct WindowManager {
 
 
 impl WindowManager {
-    pub fn new(keybindings: &KeyBindings, config: Rc<RefCell<Config>>) -> WindowManager {
-        let connection = Arc::new(RefCell::new(RustConnection::connect(None).unwrap().0));
+    pub fn new(config: Rc<RefCell<Config>>) -> WindowManager {
+        let connection = WindowManager::new_connection();
         let screeninfo = HashMap::new();
 
         let focused_screen = 0;
@@ -73,8 +73,6 @@ impl WindowManager {
         };
 
         manager.setup_screens();
-        grab_keys(manager.connection.clone(), keybindings);
-        update_root_window_event_masks(manager.connection.clone());
         manager.autostart_exec();
         manager.autostart_exec_always();
         let result = manager.connection.borrow().flush();
@@ -85,8 +83,8 @@ impl WindowManager {
         manager
     }
 
-    pub fn get_connection(&mut self) -> Arc<RefCell<RustConnection>> {
-        self.connection.clone()
+    fn new_connection() -> Arc<RefCell<RustConnection>> {
+        Arc::new(RefCell::new(RustConnection::connect(None).unwrap().0))
     }
 
     pub fn restart_wm(&mut self, keybindings: &KeyBindings, config: Rc<RefCell<Config>>) {
@@ -116,10 +114,15 @@ impl WindowManager {
         }
     }
 
-    pub async fn run_event_proxy(&mut self, queue: Arc<Mutex<Sender<EnumEventType>>>){
+    pub fn run_event_proxy(queue: Arc<Mutex<Sender<EnumEventType>>>, keybindings: &KeyBindings){
         debug!("Started waiting for X-Event");
+
+        let connection = WindowManager::new_connection();
+        grab_keys(connection.clone(), keybindings).unwrap();
+        update_root_window_event_masks(connection.clone());
+
         loop{
-            let result = self.connection.borrow().wait_for_event();
+            let result = connection.borrow().wait_for_event();
             if let Ok(event) = result {
                 debug!("Transvering X-Event into Queue {:?}", event);
                 

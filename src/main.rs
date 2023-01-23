@@ -33,15 +33,15 @@ use crate::{
     ipc::zbus_serve,
 };
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     init_logger();
 
     let mut config = Rc::new(RefCell::new(Config::new()));
     let mut keybindings = KeyBindings::new(&config.borrow());
     
-    let mut manager = WindowManager::new(&keybindings, config.clone());
-    let mut eventhandler = EventHandler::new(&mut manager, &keybindings);
+    let keybinding_clone = keybindings.clone();
+    let mut manager = WindowManager::new(config.clone());
+    let mut eventhandler = EventHandler::new(&mut manager, &keybinding_clone);
 
     let (event_sender, event_receiver) = channel::<EnumEventType>();
     let (status_sender, status_receiver) = channel::<String>();
@@ -56,13 +56,20 @@ async fn main() -> Result<()> {
     loop {
 
         info!("starting zbus serve");
-        tokio::spawn(async move {
-            zbus_serve(event_sender_mutex.clone(), status_receiver_mutex.clone());
+        let event_mutex_zbus = event_sender_mutex.clone();
+        let status_mutex_zbus = status_receiver_mutex.clone();
+        thread::spawn(move || {
+            async_std::task::block_on(
+                zbus_serve(event_mutex_zbus, status_mutex_zbus)
+            ).unwrap();
         });
+            
     
         info!("starting x event proxy");
-        tokio::spawn(async move {
-            eventhandler.window_manager.run_event_proxy( event_sender_mutex.clone());
+        let event_mutex_x = event_sender_mutex.clone();
+        let keybinding_x = keybindings.clone();
+        thread::spawn(move || {
+            WindowManager::run_event_proxy( event_mutex_x, &keybinding_x);
         });
 
         info!("starting event loop");
