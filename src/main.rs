@@ -55,29 +55,28 @@ fn main() -> Result<()> {
     let status_sender_mutex = Arc::new(Mutex::new(status_sender));
     let status_receiver_mutex = Arc::new(Mutex::new(status_receiver));
 
-    loop {
-        info!("starting zbus serve");
-        let event_mutex_zbus = event_sender_mutex.clone();
-        let status_mutex_zbus = status_receiver_mutex.clone();
-        thread::spawn(move || {
-            async_std::task::block_on(
-                zbus_serve(event_mutex_zbus, status_mutex_zbus)
-            ).unwrap();
-        });
-            
-    
-        info!("starting x event proxy");
-        let event_mutex_x = event_sender_mutex.clone();
-        let keybinding_x = keybindings.clone();
-        let connection_x = connection.clone();
-        thread::spawn(move || {
-            WindowManager::run_event_proxy(connection_x, event_mutex_x, &keybinding_x);
-        });
+    info!("starting zbus serve");
+    let event_mutex_zbus = event_sender_mutex.clone();
+    let status_mutex_zbus = status_receiver_mutex.clone();
+    thread::spawn(move || {
+        // as seperate thread to speed up boot time
+        async_std::task::block_on(
+            zbus_serve(event_mutex_zbus, status_mutex_zbus)
+        ).unwrap();
+    });
+        
 
+    info!("starting x event proxy");
+    let event_mutex_x = event_sender_mutex.clone();
+    let keybinding_x = keybindings.clone();
+    let connection_x = connection.clone();
+    thread::spawn(move || {
+        WindowManager::run_event_proxy(connection_x, event_mutex_x, &keybinding_x);
+    });
+
+    loop {
         info!("starting event loop");
         eventhandler.run_event_loop(event_receiver_mutex.clone(), status_sender_mutex.clone());
-
-        // Todo js handle restart threads currently do not finish
 
         if eventhandler.window_manager.restart {
             config = Rc::new(RefCell::new(Config::new()));
