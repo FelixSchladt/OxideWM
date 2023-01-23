@@ -16,10 +16,12 @@ install:
 	$(ROOT_DIR)/resources/install_required_apps.sh
 	cargo build --release
 	cargo build -p oxide-bar --release
+	cargo build -p oxide-msg --release
 	sudo mkdir -p $(CONFIG_DIR)/oxide
 	sudo install -Dm755 \
 		$(ROOT_DIR)/target/release/oxide \
 		$(ROOT_DIR)/target/release/oxide-bar \
+		$(ROOT_DIR)/target/release/oxide-msg \
 		-t $(TARGET_DIR)
 	sudo cp $(ROOT_DIR)/resources/config.yml $(CONFIG_DIR)/oxide/config.yml
 	sudo install -Dm644 $(ROOT_DIR)/resources/oxide.desktop $(SHARE_DIR)/xsessions/oxide.desktop
@@ -32,7 +34,7 @@ uninstall:
 	sudo rm -f\
 		$(TARGET_DIR)/oxide\
 		$(TARGET_DIR)/oxide-bar\
+		$(TARGET_DIR)/oxide-msg\
 		$(SHARE_DIR)/xsessions/oxide.desktop\
 		$(CONFIG_DIR)/oxide/config.yml
 	@echo -e  "\x1b[1m\x1b[36m#- Oxide has been successfully uninstalled -#\x1b[0m"
-

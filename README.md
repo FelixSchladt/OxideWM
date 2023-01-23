@@ -49,6 +49,4 @@ This project idea is inspired by the DWM, leftWM and i3WM.
 ## Logging
 To change log level, set environment variable `RUST_LOG=[error, info, debug, trace]`.
 Logs will always be written to `/var/log/syslog`.
-When project is build without `--release` flag, the logs are additionally written to `stdout` and to `log/*.log.
-
-
+When project is build without `--release` flag, the logs are additionally written to `stdout` and to `log/*.log`.

@@ -96,6 +96,7 @@ impl WindowManager {
         self.connection.borrow_mut().flush().unwrap();
         self.restart = false;
     }
+
     fn autostart_exec(&self) {
         for command in &self.config.borrow().exec {
             exec_user_command(&Some(command.clone()));
@@ -206,7 +207,7 @@ impl WindowManager {
                 }
                 active_workspace.set_layout(layout.unwrap());
             },
-            None => warn!("No argument provided"), 
+            None => active_workspace.next_layout(),
         }
     }
 
@@ -239,6 +240,10 @@ impl WindowManager {
         let active_workspace = screen.active_workspace;
         let new_workspace = arg.calculate_new_workspace(active_workspace as usize, max_workspace);
         screen.set_workspace_create_if_not_exists(new_workspace as u16);
+    }
+
+    pub fn handle_keypress_fullscreen(&mut self) {
+        self.get_active_workspace().toggle_fullscreen();
     }
 
     fn setup_screens(&mut self) {

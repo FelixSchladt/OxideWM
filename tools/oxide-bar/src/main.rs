@@ -232,9 +232,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (conn, screen_num) = XCBConnection::connect(None)?;
     let screen = &conn.setup().roots[screen_num];
     let screen_id = screen.root;
+
+    let width = screen.width_in_pixels;
+    let height = 30;
+
     println!("screen_num: {}", screen_num);
+    
     let atoms = AtomCollection::new(&conn)?.reply()?;
-    let (width, height) = (1000, 30);
     let (depth, visualid) = choose_visual(&conn, screen_num)?;
     println!("Using visual {:#x} with depth {}", visualid, depth);
 

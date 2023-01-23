@@ -35,10 +35,7 @@
 # In this example, the command opens a kitty window.
 
 cmds:
-  - keys: ["A", "t"]
-    command: Exec
-    args: "kitty"
-
+  # WM Commands
   - keys: ["A", "S", "e"]
     command: Quit
     args: None
@@ -51,10 +48,16 @@ cmds:
     command: Kill
     args: None
 
+  # Move Focus
   - keys: ["A", "l"]
     command: Focus
     args: "right"
 
+  - keys: ["A", "h"]
+    command: Focus
+    args: "left"
+
+  # Move Windows
   - keys: ["A", "S", "l"]
     command: Move
     args: "right"
@@ -63,10 +66,12 @@ cmds:
     command: Move
     args: "left"
 
-  - keys: ["A", "h"]
-    command: Focus
-    args: "left"
+  # Toggle Fullscreen
+  - keys: ["A", "f"]
+    command: Fullscreen
+    args: None
 
+  # Change Layout
   - keys: ["A", "u"]
     command: Layout
     args: None
@@ -91,6 +96,15 @@ cmds:
   - keys: ["C", "A", "Left"]
     command: GoToWorkspace
     args: "previous"
+
+  # Execute Commands
+  - keys: ["A", "d"]
+    command: Exec
+    args: "dmenu_run"
+
+  - keys: ["A", "t"]
+    command: Exec
+    args: "kitty"
 
 exec: ["./target/debug/oxide-bar"]
 exec_always: []
