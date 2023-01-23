@@ -14,9 +14,9 @@ use log::{info, debug};
 #[derive(Debug, Clone, Serialize)]
 pub struct ScreenInfo {
     #[serde(skip_serializing)]
-    _connection: Arc<RustConnection>,
+    connection: Arc<RustConnection>,
     #[serde(skip_serializing)]
-    _screen_ref: Rc<RefCell<Screen>>,
+    screen_ref: Rc<RefCell<Screen>>,
     workspaces: HashMap<u16, Workspace>,
     pub active_workspace: u16,
     pub ws_pos_x: i32,
@@ -33,8 +33,8 @@ impl ScreenInfo {
         let active_workspace = 1;
         let workspaces = HashMap::new();
         let mut screen_info = ScreenInfo {
-            _connection: connection,
-            _screen_ref: screen_ref,
+            connection,
+            screen_ref,
             workspaces,
             active_workspace,
             ws_pos_x: 0,
@@ -52,14 +52,14 @@ impl ScreenInfo {
     fn create_status_bar_window(&mut self, event: &CreateNotifyEvent) {
         let status_bar = self.status_bar.as_mut().unwrap();
         let window_aux = ConfigureWindowAux::new().x(status_bar.x).y(status_bar.y).width(event.width as u32).height(event.height as u32);
-        self._connection.configure_window(event.window, &window_aux).unwrap();
-        self._connection.map_window(event.window).unwrap();
-        self._connection.flush().unwrap();
+        self.connection.configure_window(event.window, &window_aux).unwrap();
+        self.connection.map_window(event.window).unwrap();
+        self.connection.flush().unwrap();
 
     }
 
     pub fn add_status_bar(&mut self, event: &CreateNotifyEvent) {
-        self.status_bar = Some(WindowState::new(self._connection.clone(), &self._screen_ref.borrow(), event.window));
+        self.status_bar = Some(WindowState::new(self.connection.clone(), &self.screen_ref.borrow(), event.window));
 
         //TODO: if the status bar is on the left or right
         //if the status bar is on the bottom
@@ -108,8 +108,8 @@ impl ScreenInfo {
 
         let new_workspace = Workspace::new(
             workspace_nr.to_string(),
-            self._connection.clone(),
-            self._screen_ref.clone(),
+            self.connection.clone(),
+            self.screen_ref.clone(),
             self.ws_pos_x,
             self.ws_pos_y,
             self.ws_width,
