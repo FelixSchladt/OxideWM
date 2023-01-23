@@ -37,8 +37,8 @@ impl EventHandler<'_> {
         loop {
             if let Ok(event_type) = receive_channel.lock().unwrap().recv() {
                 match event_type {
-                    EnumEventType::X11RB_EVENT(event) => self.handle_x_event(&event),
-                    EnumEventType::OXIDE_EVENT(event) => self.handle_ipc_event(event, status_send_channel.clone()),
+                    EnumEventType::X11rbEvent(event) => self.handle_x_event(&event),
+                    EnumEventType::OxideEvent(event) => self.handle_ipc_event(event, status_send_channel.clone()),
                 }
             }
 

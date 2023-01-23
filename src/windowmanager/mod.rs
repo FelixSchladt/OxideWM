@@ -21,7 +21,6 @@ use x11rb::{
 use crate::{
     eventhandler::events::EnumEventType,
     auxiliary::exec_user_command,
-    keybindings::KeyBindings,
     screeninfo::ScreenInfo,
     config::Config,
     atom::Atom,
@@ -78,7 +77,7 @@ impl WindowManager {
         manager
     }
 
-    pub fn restart_wm(&mut self, keybindings: &KeyBindings, config: Rc<RefCell<Config>>) {
+    pub fn restart_wm(&mut self, config: Rc<RefCell<Config>>) {
         self.config = config;
         self.autostart_exec_always();
         self.connection.flush().unwrap();
@@ -105,7 +104,7 @@ impl WindowManager {
         }
     }
 
-    pub fn run_event_proxy(connection: Arc<RustConnection>,queue: Arc<Mutex<Sender<EnumEventType>>>, keybindings: &KeyBindings){
+    pub fn run_event_proxy(connection: Arc<RustConnection>,queue: Arc<Mutex<Sender<EnumEventType>>>){
         debug!("Started waiting for X-Event");
 
         loop{
@@ -113,7 +112,7 @@ impl WindowManager {
             if let Ok(event) = result {
                 debug!("Transvering X-Event into Queue {:?}", event);
                 
-                let event_typ = EnumEventType::X11RB_EVENT(event);
+                let event_typ = EnumEventType::X11rbEvent(event);
                 if let Err(error) = queue.lock().unwrap().send(event_typ) {
                     warn!("Could not insert event into event queue {}", error);
                 };

@@ -68,10 +68,9 @@ fn main() -> Result<()> {
 
     info!("starting x event proxy");
     let event_mutex_x = event_sender_mutex.clone();
-    let keybinding_x = keybindings.clone();
     let connection_x = connection.clone();
     thread::spawn(move || {
-        WindowManager::run_event_proxy(connection_x, event_mutex_x, &keybinding_x);
+        WindowManager::run_event_proxy(connection_x, event_mutex_x);
     });
 
     loop {
@@ -83,7 +82,7 @@ fn main() -> Result<()> {
             keybindings = KeyBindings::new(&config.borrow());
 
             eventhandler = EventHandler::new(&mut manager, &keybindings);
-            eventhandler.window_manager.restart_wm(&keybindings, config.clone());
+            eventhandler.window_manager.restart_wm(config.clone());
         }else{
             break;
         }

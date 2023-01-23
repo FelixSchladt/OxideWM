@@ -1,4 +1,4 @@
-use std::{cell::RefCell, sync::Arc, process::exit};
+use std::{sync::Arc, process::exit};
 
 use log::{info, error};
 use x11rb::{
