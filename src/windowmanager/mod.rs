@@ -242,6 +242,10 @@ impl WindowManager {
         screen.set_workspace_create_if_not_exists(new_workspace as u16);
     }
 
+    pub fn handle_keypress_fullscreen(&mut self) {
+        self.get_active_workspace().toggle_fullscreen();
+    }
+
     fn setup_screens(&mut self) {
         for screen in self.connection.borrow().setup().roots.iter() {
             let screen_ref = Rc::new(RefCell::new(screen.clone()));
@@ -312,7 +316,7 @@ impl WindowManager {
     }
 
 
-    pub fn handle_event_unmap_notify(&mut self, event: &UnmapNotifyEvent) {
+    pub fn handle_event_destroy_notify(&mut self, event: &DestroyNotifyEvent) {
         let active_workspace = self.get_active_workspace();
         active_workspace.remove_window(&event.window);
     }
