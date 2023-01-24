@@ -5,7 +5,9 @@ use serde::Serialize;
 
 use crate::workspace::Workspace;
 use crate::windowstate::WindowState;
-use std::{cell::RefCell, rc::Rc, collections::HashMap};
+use std::{cell::RefCell, collections::HashMap};
+use std::sync::Arc;
+use std::rc::Rc;
 use log::{info, debug};
 
 #[derive(Debug)]
@@ -34,9 +36,9 @@ impl ScreenSize {
 #[derive(Debug, Clone, Serialize)]
 pub struct ScreenInfo {
     #[serde(skip_serializing)]
-    _connection: Rc<RefCell<RustConnection>>,
+    connection: Arc<RustConnection>,
     #[serde(skip_serializing)]
-    _screen_ref: Rc<RefCell<Screen>>,
+    screen_ref: Rc<RefCell<Screen>>,
     workspaces: HashMap<u16, Workspace>,
     pub active_workspace: u16,
     #[serde(skip_serializing)]
@@ -45,13 +47,13 @@ pub struct ScreenInfo {
 }
 
 impl ScreenInfo {
-    pub fn new(connection: Rc<RefCell<RustConnection>>, screen_ref: Rc<RefCell<Screen>>, width: u32, height: u32) -> ScreenInfo {
+    pub fn new(connection: Arc<RustConnection>, screen_ref: Rc<RefCell<Screen>>, width: u32, height: u32) -> ScreenInfo {
         let active_workspace = 1;
         let workspaces = HashMap::new();
         let screen_size = Rc::new(RefCell::new(ScreenSize::default(width, height)));
         let mut screen_info = ScreenInfo {
-            _connection: connection,
-            _screen_ref: screen_ref,
+            connection,
+            screen_ref,
             workspaces,
             active_workspace,
             screen_size,
@@ -63,16 +65,15 @@ impl ScreenInfo {
 
     fn create_status_bar_window(&mut self, event: &CreateNotifyEvent) {
         let status_bar = self.status_bar.as_mut().unwrap();
-        let conn = self._connection.borrow_mut();
         let window_aux = ConfigureWindowAux::new().x(status_bar.x).y(status_bar.y).width(event.width as u32).height(event.height as u32);
-        conn.configure_window(event.window, &window_aux).unwrap();
-        conn.map_window(event.window).unwrap();
-        conn.flush().unwrap();
+        self.connection.configure_window(event.window, &window_aux).unwrap();
+        self.connection.map_window(event.window).unwrap();
+        self.connection.flush().unwrap();
 
     }
 
     pub fn add_status_bar(&mut self, event: &CreateNotifyEvent) {
-        self.status_bar = Some(WindowState::new(self._connection.clone(), &self._screen_ref.borrow(), event.window));
+        self.status_bar = Some(WindowState::new(self.connection.clone(), &self.screen_ref.borrow(), event.window));
         
         {
             let mut screen_size = self.screen_size.borrow_mut();
@@ -124,8 +125,8 @@ impl ScreenInfo {
 
         let new_workspace = Workspace::new(
             workspace_nr.to_string(),
-            self._connection.clone(),
-            self._screen_ref.clone(),
+            self.connection.clone(),
+            self.screen_ref.clone(),
             self.screen_size.clone(),
         );
         self.workspaces.insert(workspace_nr, new_workspace);
