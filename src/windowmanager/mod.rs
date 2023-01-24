@@ -316,7 +316,7 @@ impl WindowManager {
     }
 
 
-    pub fn handle_event_unmap_notify(&mut self, event: &UnmapNotifyEvent) {
+    pub fn handle_event_destroy_notify(&mut self, event: &DestroyNotifyEvent) {
         let active_workspace = self.get_active_workspace();
         active_workspace.remove_window(&event.window);
     }

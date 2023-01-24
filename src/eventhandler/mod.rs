@@ -33,11 +33,7 @@ impl EventHandler<'_> {
         let log_msg = "Received Event: ";
         match event {
             Event::Expose(_event) => info!("{} Expose", log_msg),
-            /*
-            Event::UnmapNotify(_event) => {
-                info!("{} UnmapNotify", log_msg);
-                self.window_manager.handle_event_unmap_notify(_event);
-            },*/
+            Event::UnmapNotify(_event) => info!("{} UnmapNotify", log_msg),
             Event::ButtonPress(_event) => info!("{} ButtonPress", log_msg),
             Event::MotionNotify(_event) => info!("{} MotionNotify", log_msg),
             Event::ButtonRelease(_event) => info!("{} ButtonRelease", log_msg),
@@ -51,7 +47,10 @@ impl EventHandler<'_> {
                 info!("{} KeyPress", log_msg);
                 self.handle_keypress(_event);
             },
-            Event::DestroyNotify(_event) => info!("{} DestroyNotify", log_msg),
+            Event::DestroyNotify(_event) => {
+                info!("{} DestroyNotify", log_msg);
+                self.window_manager.handle_event_destroy_notify(_event);
+            },
             Event::PropertyNotify(_event) => info!("{} PropertyNotify", log_msg),
             Event::EnterNotify(_event) => {
                 info!("{} EnterNotify!!!", log_msg);
