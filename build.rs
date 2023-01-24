@@ -24,8 +24,15 @@ fn generate_class_diagramm(src: &Path, dest: &Path){
     let dot_file_name = target_name.clone().into_os_string().into_string().unwrap();
     let svg_file_name = dot_file_name.replace("dot", DIAG_TYPE);
 
-    println!("converting {dot_file_name} to {svg_file_name}");
-    converte_to_svg(dot_file_name, svg_file_name);
+    match Command::new("dot").spawn() {
+        Ok(_) => {
+            println!("converting {dot_file_name} to {svg_file_name}");
+            converte_to_svg(dot_file_name, svg_file_name);
+        },
+        Err(_) => {
+            println!("Not converting graphviz files")
+        }
+    };
 }
 
 fn write_to_file(target_name: PathBuf, results: String){
