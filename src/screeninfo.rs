@@ -10,6 +10,28 @@ use std::sync::Arc;
 use std::rc::Rc;
 use log::{info, debug};
 
+#[derive(Debug)]
+pub struct ScreenSize {
+    pub width: u32,
+    pub height: u32,
+    pub ws_pos_x: i32,
+    pub ws_pos_y: i32,
+    pub ws_width: u32,
+    pub ws_height: u32,
+}
+
+impl ScreenSize {
+    pub fn default(width: u32, height: u32) -> ScreenSize {
+        ScreenSize {
+            width,
+            height,
+            ws_pos_x: 0,
+            ws_pos_y: 0,
+            ws_width: width,
+            ws_height: height,
+        }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ScreenInfo {
@@ -19,12 +41,8 @@ pub struct ScreenInfo {
     screen_ref: Rc<RefCell<Screen>>,
     workspaces: HashMap<u16, Workspace>,
     pub active_workspace: u16,
-    pub ws_pos_x: i32,
-    pub ws_pos_y: i32,
-    pub ws_width: u32,
-    pub ws_height: u32,
-    pub width: u32,
-    pub height: u32,
+    #[serde(skip_serializing)]
+    pub screen_size: Rc<RefCell<ScreenSize>>,
     pub status_bar: Option<WindowState>,
 }
 
@@ -32,17 +50,13 @@ impl ScreenInfo {
     pub fn new(connection: Arc<RustConnection>, screen_ref: Rc<RefCell<Screen>>, width: u32, height: u32) -> ScreenInfo {
         let active_workspace = 1;
         let workspaces = HashMap::new();
+        let screen_size = Rc::new(RefCell::new(ScreenSize::default(width, height)));
         let mut screen_info = ScreenInfo {
             connection,
             screen_ref,
             workspaces,
             active_workspace,
-            ws_pos_x: 0,
-            ws_pos_y: 0,
-            ws_width: width,
-            ws_height: height,
-            width,
-            height,
+            screen_size,
             status_bar: None,
         };
         screen_info.create_workspace(active_workspace);
@@ -60,30 +74,33 @@ impl ScreenInfo {
 
     pub fn add_status_bar(&mut self, event: &CreateNotifyEvent) {
         self.status_bar = Some(WindowState::new(self.connection.clone(), &self.screen_ref.borrow(), event.window));
+        
+        {
+            let mut screen_size = self.screen_size.borrow_mut();
 
-        //TODO: if the status bar is on the left or right
-        //if the status bar is on the bottom
-        let status_bar = self.status_bar.as_mut().unwrap();
-        if event.y as i32 == (self.height - (event.height as u32)) as i32 {
-            self.ws_height = self.height - event.height as u32;
-            self.ws_pos_y = status_bar.height as i32;
-        } //everything else will land on the top position
-        else {
-            self.ws_pos_y = event.height as i32;
-            self.ws_height = self.height - event.height as u32;
-            status_bar.x = 0;
-            status_bar.y = 0;
+            //TODO: if the status bar is on the left or right
+            //if the status bar is on the bottom
+            let mut status_bar = self.status_bar.as_mut().unwrap();
+            if event.y as i32 == (screen_size.height - (event.height as u32)) as i32 {
+                screen_size.ws_height = screen_size.height - event.height as u32;
+                screen_size.ws_pos_y = status_bar.height as i32;
+            } //everything else will land on the top position
+            else {
+                screen_size.ws_pos_y = event.height as i32;
+                screen_size.ws_height = screen_size.height - event.height as u32;
+                status_bar.x = 0;
+                status_bar.y = 0;
+            }
+            status_bar.width = event.width as u32;
+            status_bar.height = event.height as u32;
+            info!("Workspaceposition updated to x: {}, y: {}, width: {}, height: {}", screen_size.ws_pos_x, screen_size.ws_pos_y, screen_size.ws_width, screen_size.ws_height);
         }
-        status_bar.width = event.width as u32;
-        status_bar.height = event.height as u32;
 
         self.create_status_bar_window(event);
         self.status_bar.as_mut().unwrap().draw();
 
-        info!("Workspaceposition updated to x: {}, y: {}, width: {}, height: {}", self.ws_pos_x, self.ws_pos_y, self.ws_width, self.ws_height);
         //update the workspaces
         for (_, workspace) in self.workspaces.iter_mut() {
-            workspace.set_bounds(self.ws_pos_x, self.ws_pos_y, self.ws_width, self.ws_height);
             workspace.remap_windows();
         }
     }
@@ -110,10 +127,7 @@ impl ScreenInfo {
             workspace_nr.to_string(),
             self.connection.clone(),
             self.screen_ref.clone(),
-            self.ws_pos_x,
-            self.ws_pos_y,
-            self.ws_width,
-            self.ws_height,
+            self.screen_size.clone(),
         );
         self.workspaces.insert(workspace_nr, new_workspace);
     }

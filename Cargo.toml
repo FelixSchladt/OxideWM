@@ -10,8 +10,8 @@ members = ["tools/oxide-ipc", "tools/oxide-msg", "tools/oxide-bar"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[build-dependencies.rudg]
-version = "0.1.1"
+[build-dependencies]
+rudg = { git = "https://github.com/janschaible/rudg-fork", branch = "fix_label_escape" }
 
 [dependencies]
 x11rb = "0.11.*"
