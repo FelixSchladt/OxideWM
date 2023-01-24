@@ -108,8 +108,8 @@ impl WindowManager {
         debug!("Started waiting for X-Event");
 
         loop{
-            let result = connection.wait_for_event();
-            if let Ok(event) = result {
+            match connection.wait_for_event(){
+            Ok(event) => {
                 debug!("Transvering X-Event into Queue {:?}", event);
                 
                 let event_typ = EnumEventType::X11rbEvent(event);
@@ -117,9 +117,11 @@ impl WindowManager {
                     warn!("Could not insert event into event queue {}", error);
                 };
 
-            } else if let Some(error) = result.err(){
+            },
+            Err(error) => {
                 error!("Error retreiving Event from Window manager {:?}", error);
-            };
+            }
+        };
         };
     }
 
