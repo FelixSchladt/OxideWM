@@ -1,5 +1,5 @@
 use std::fs::File;
-use log::error;
+use log::{error, info};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
 use std::process;
@@ -57,32 +57,35 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Config {
+        let home_config = &format!("{}/.config/oxide/config.yml", std::env::var("HOME").unwrap());
+
         #[cfg(not(debug_assertions))]
-        let paths = vec!["~/.config/oxide/config.yml", "/etc/oxide/config.yml"];
+        let paths = vec![home_config, "/etc/oxide/config.yml"];
         
         #[cfg(debug_assertions)]
-        let paths = vec!["./config.yml", "~/.config/oxide/config.yml", "/etc/oxide/config.yml"];
+        let paths = vec!["./config.yml", home_config, "/etc/oxide/config.yml"];
         
         let mut chosen_config: Option<&str> = None;
-        let mut file_option: Option<File> = None;
         for path in paths.clone() {
             if Path::new(path).exists() {
-                file_option = Some(File::open(path.clone()).unwrap());
                 chosen_config = Some(path);
                 break;
             }
         }
 
-        match file_option {
-            Some(file_option) => {
+        match chosen_config {
+            Some(config_path) => {
+                info!("using config {config_path}");
+
                 // Reads the values from the 'config' struct in config.yml 
-                let user_config = serde_yaml::from_reader(file_option);
+                let config_file = File::open(config_path).unwrap();
+                let user_config = serde_yaml::from_reader(config_file);
+
                 match user_config {
                     Ok(config)  => return config,
                     Err(err)    => {
-                        let err_msg = error!("Error in '{}': {}", chosen_config.unwrap(), err);
-                        //TODO: Write this error to a log file
-                        println!("ERR: {:?}", err_msg);
+                        let err_msg = error!("Error in '{}': {}", config_path, err);
+                        error!("ERR: {:?}", err_msg);
                     }
                 }
             },

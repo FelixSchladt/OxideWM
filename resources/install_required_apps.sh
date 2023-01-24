@@ -28,6 +28,15 @@ function install_dmenu () {
     echo -e " [\x1b[32m+\x1b[0m] Installation complete"
 }
 
+function install_graphviz () {
+    echo -e "[\x1b[36m~\x1b[0m] Installing Graphviz renderer..."
+
+    which apt    && sudo apt install graphviz
+    which pacman && sudo pacman -S graphviz
+
+    echo -e "[\x1b[32m+\x1b[0m] Installation complete"
+}
+
 echo -e  "[\x1b[36m~\x1b[0m] Checking whether Xephyr is installed..."
 echo -ne "[\x1b[32m+\x1b[0m] "
 which Xephyr || install_xephyr
@@ -39,3 +48,7 @@ which cargo || install_cargo
 echo -e  "[\x1b[36m~\x1b[0m] Checking whether DMenu is installed..."
 echo -ne "[\x1b[32m+\x1b[0m] "
 which dmenu || install_dmenu
+
+echo -e  "[\x1b[36m~\x1b[0m] Checking whether Graphviz is installed..."
+echo -ne "[\x1b[32m+\x1b[0m] "
+which dot || install_graphviz

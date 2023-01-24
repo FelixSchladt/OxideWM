@@ -1,12 +1,13 @@
 use std::process::{Command, Stdio};
+use log::error;
 
-pub fn exec_user_command(args: &Option<String>) {
+pub fn exec_user_command(args: &Option<String>){
     match args {
         Some(args) => {
             let mut args = args.split_whitespace();
             let command = args.next().unwrap();
             let args = args.collect::<Vec<&str>>().join(" ");
-            if args.is_empty() {
+            match if args.is_empty() {
                 Command::new(command)
                     .stdout(Stdio::null())
                     .stderr(Stdio::null())
@@ -17,8 +18,11 @@ pub fn exec_user_command(args: &Option<String>) {
                     .stdout(Stdio::null())
                     .stderr(Stdio::null())
                     .spawn()
-            }.expect("Failed to execute user command: Does the program exist?");
+            } {
+                Ok(_) => (),
+                Err(_) => error!("Command {} not found", command),
+            }
         },
-        None => panic!("User command called without values"),
+        None => error!("User command called without values"),
     }
 }

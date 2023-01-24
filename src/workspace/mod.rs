@@ -7,40 +7,46 @@ use self::enum_workspace_layout::EnumWorkspaceLayout;
 use crate::{
     windowmanager::enums_windowmanager::Movement,
     windowstate::WindowState,
+    screeninfo::ScreenSize,
 };
 
 use x11rb::connection::Connection;
 use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::xproto::*;
 use x11rb::CURRENT_TIME;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use serde::Serialize;
 use std::{cell::RefCell, rc::Rc};
+use std::sync::Arc;
 use log::{error, info, debug};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
     #[serde(skip_serializing)]
-    pub connection:  Rc<RefCell<RustConnection>>,
-    pub name: String,
+    pub connection:  Arc<RustConnection>,
+    pub name: u16,
     #[serde(skip_serializing)]
     pub root_screen: Rc<RefCell<Screen>>,
     pub visible: bool,
     pub focused: bool,
-    focused_window: Option<u32>,
+    pub focused_window: Option<u32>,
+    pub fullscreen: Option<u32>,
     pub urgent: bool,
-    windows: HashMap<u32, WindowState>,
-    order: Vec<u32>,
+    pub windows: HashMap<u32, WindowState>,
+    pub order: Vec<u32>,
     pub layout: EnumWorkspaceLayout,
-    pub x: i32,
-    pub y: i32,
-    pub height: u32,
-    pub width: u32,
+    #[serde(skip_serializing)]
+    pub screen_size: Rc<RefCell<ScreenSize>>,
 }
 
 
 impl Workspace {
-    pub fn new(name:String ,connection: Rc<RefCell<RustConnection>>,root_screen: Rc<RefCell<Screen>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
+    pub fn new(name:u16, 
+               connection: Arc<RustConnection>, 
+               root_screen: Rc<RefCell<Screen>>, 
+               screen_size: Rc<RefCell<ScreenSize>> 
+               ) -> Workspace 
+    {
         Workspace {
             connection: connection,
             name: name,
@@ -48,24 +54,13 @@ impl Workspace {
             visible: false,
             focused: false,
             focused_window: None,
+            fullscreen: None,
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
             layout: EnumWorkspaceLayout::HorizontalStriped,
-            x,
-            y,
-            height,
-            width,
+            screen_size: screen_size,
         }
-    }
-
-    pub fn set_bounds(&mut self, x: i32, y: i32, width: u32, height: u32) {
-        self.x = x;
-        self.y = y;
-        self.height = height;
-        self.width = width;
-        info!("Workspace {} size updated to x: {}, y: {}, width: {}, height: {}", self.name, self.x, self.y,self.width, self.height);
-        self.remap_windows();
     }
 
     pub fn get_focused_window(&self) -> Option<u32> {
@@ -146,7 +141,7 @@ impl Workspace {
         return move_occured;
     }
 
-    pub fn rename(&mut self, name: String) {
+    pub fn rename(&mut self, name: u16) {
         //TODO: Check if name is already taken
         //TODO: Check if name is valid (not too long, etc.)
         self.name = name;
@@ -157,12 +152,39 @@ impl Workspace {
         self.windows.insert(win.window, win);
     }
 
+    pub fn toggle_fullscreen(&mut self) {
+        if let Some(focused_win) = self.get_focused_window() {
+            match self.fullscreen {
+                Some(_) => {
+                    self.fullscreen = None;
+                },
+                None => {
+                    self.fullscreen = Some(focused_win);
+                }
+            }
+            self.remap_windows();
+        } else {
+            error!("No window focused");
+        }
+
+    }
+
+    pub fn kill_all_windows(&mut self){
+        let windows:HashSet<u32> = self.windows.keys()
+            .map(|window| (*window).clone())
+            .collect();
+
+        windows.iter()
+            .map(|window| self.kill_window(window))
+            .collect()
+    }
+
     pub fn kill_window(&mut self, winid: &u32) {
         //TODO implement soft kill via client message over x
         //(Tell window to close itself)
         //https://github.com/DHBW-FN/OxideWM/issues/46
-        self.connection.borrow().kill_client(*winid).expect("Could not kill client");
-        self.connection.borrow().flush().unwrap();
+        self.connection.kill_client(*winid).expect("Could not kill client");
+        self.connection.flush().unwrap();
         self.remove_window(winid);
     }
 
@@ -170,18 +192,17 @@ impl Workspace {
         self.windows.remove(&win_id);
         self.order.retain(|&x| x != *win_id);
         self.remap_windows();
-        let conn = self.connection.borrow();
-        conn.grab_server().unwrap();
-        let resp = &conn.unmap_window(*win_id as Window);
+        self.connection.grab_server().unwrap();
+        let resp = &self.connection.unmap_window(*win_id as Window);
         if resp.is_err() {
             error!("An error occured while trying to unmap window");
         }
-        conn.ungrab_server().unwrap();
-        conn.flush().unwrap();
+        self.connection.ungrab_server().unwrap();
+        self.connection.flush().unwrap();
     }
 
     pub fn new_window(&mut self, window: Window) {
-        let windowstruct = WindowState::new(self.connection.clone(), &self.root_screen.borrow(), window);
+        let windowstruct = WindowState::new(self.connection.clone(), self.root_screen.clone(), window);
         self.add_window(windowstruct);
     }
 
@@ -191,7 +212,7 @@ impl Workspace {
     pub fn focus_window(&mut self, winid: u32) {
         debug!("focus_window");
         self.focused_window = Some(winid);
-        self.connection.borrow().set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
+        self.connection.set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
         //TODO: Change color of border to focus color
     }
 
@@ -215,38 +236,50 @@ impl Workspace {
 
     pub fn unmap_windows(&mut self){
         debug!("Unmapping {} Windows from workspace {}", self.windows.len(), self.name);
-        let conn = self.connection.borrow();
-        conn.grab_server().unwrap();
+        self.connection.grab_server().unwrap();
         for window_id in self.windows.keys() {
-            let resp = &conn.unmap_window(*window_id as Window);
+            let resp = &self.connection.unmap_window(*window_id as Window);
             if resp.is_err() {
                 error!("An error occured while trying to unmap window");
             }
         }
-        conn.ungrab_server().unwrap();
-        conn.flush().unwrap();
+        self.connection.ungrab_server().unwrap();
+        self.connection.flush().unwrap();
     }
 
     pub fn remap_windows(&mut self) {
-        info!("Rempaing {} Windows from workspace {}: WS x: {}, y: {}, width: {}, height: {}", self.windows.len(), self.name, self.x, self.y, self.width, self.height);
-        match self.layout {
-            //Layout::Tiled => {},
-            EnumWorkspaceLayout::VerticalStriped => self.map_vertical_striped(),
-            EnumWorkspaceLayout::HorizontalStriped => self.map_horizontal_striped(),
+        if let Some(fs_win) = self.fullscreen {
+            self.unmap_windows();
+            let screen_size = self.screen_size.borrow();
+            let window = self.windows.get_mut(&fs_win).unwrap();
+            window.set_bounds(
+                0,
+                0,
+                screen_size.width as u32,
+                screen_size.height as u32,
+            ).draw();
+            self.connection.flush().unwrap();
+        } else {
+            match self.layout {
+                //Layout::Tiled => {},
+                EnumWorkspaceLayout::VerticalStriped => self.map_vertical_striped(),
+                EnumWorkspaceLayout::HorizontalStriped => self.map_horizontal_striped(),
+            }
         }
     }
 
     fn map_vertical_striped(&mut self) {
         let amount = self.order.len();
         info!("Mapping {} windows with vertical striped layout.", amount);
+        let screen_size = self.screen_size.borrow_mut();
 
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
             current_window.set_bounds(
-                (i * self.width as usize / amount) as i32 + self.x,
-                self.y,
-                (self.width as usize / amount) as u32,
-                self.height
+                (i * screen_size.ws_width as usize / amount) as i32 + screen_size.ws_pos_x,
+                screen_size.ws_pos_y,
+                (screen_size.ws_width as usize / amount) as u32,
+                screen_size.ws_height
             ).draw();
         }
     }
@@ -254,14 +287,15 @@ impl Workspace {
     fn map_horizontal_striped(&mut self) {
         let amount = self.order.len();
         info!("Mapping {} windows with horizontal striped layout.", amount);
+        let screen_size = self.screen_size.borrow_mut();
 
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
             current_window.set_bounds(
-                self.x,
-                (i * self.height as usize / amount) as i32 + self.y,
-                self.width,
-                (self.height as usize / amount) as u32,
+                screen_size.ws_pos_x,
+                (i * screen_size.ws_height as usize / amount) as i32 + screen_size.ws_pos_y,
+                screen_size.ws_width,
+                (screen_size.ws_height as usize / amount) as u32,
             ).draw();
         }
     }

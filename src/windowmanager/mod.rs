@@ -2,9 +2,9 @@ pub mod enums_windowmanager;
 
 use self::enums_windowmanager::Movement;
 
-use std::collections::HashMap;
-use std::error::Error;
-use std::process::exit;
+use std::{collections::HashMap};
+use std::sync::{Mutex,Arc};
+use std::sync::mpsc::Sender;
 use std::{cell::RefCell, rc::Rc};
 use serde::Serialize;
 
@@ -12,21 +12,15 @@ use log::{warn, error, info, debug};
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::ConnectionExt;
 use x11rb::{
-    protocol::{
-        ErrorKind,
-        Event
-    },
     protocol::xproto::*,
     rust_connection::{
-        ConnectionError,
         RustConnection,
-        ReplyError
     }
 };
 
 use crate::{
+    eventhandler::events::EnumEventType,
     auxiliary::exec_user_command,
-    keybindings::KeyBindings,
     screeninfo::ScreenInfo,
     config::Config,
     atom::Atom,
@@ -46,7 +40,7 @@ pub struct WindowManagerState {
 
 #[derive(Debug, Clone)]
 pub struct WindowManager {
-    pub connection: Rc<RefCell<RustConnection>>,
+    pub connection: Arc<RustConnection>,
     pub screeninfo: HashMap<u32, ScreenInfo>,
     pub config: Rc<RefCell<Config>>,
     pub focused_screen: u32,
@@ -56,8 +50,7 @@ pub struct WindowManager {
 
 
 impl WindowManager {
-    pub fn new(keybindings: &KeyBindings, config: Rc<RefCell<Config>>) -> WindowManager {
-        let connection = Rc::new(RefCell::new(RustConnection::connect(None).unwrap().0));
+    pub fn new(connection:Arc<RustConnection>, config: Rc<RefCell<Config>>) -> WindowManager {
         let screeninfo = HashMap::new();
 
         let focused_screen = 0;
@@ -75,37 +68,33 @@ impl WindowManager {
         };
 
         manager.setup_screens();
-        manager.update_root_window_event_masks();
-        manager.grab_keys(keybindings).expect("Failed to grab Keys");
-        let result = manager.connection.borrow().flush();
+        manager.autostart_exec();
+        manager.autostart_exec_always();
+        let result = manager.connection.flush();
         if result.is_err() {
             info!("Failed to flush rust connection");
         }
 
-        manager.autostart_exec();
-        manager.autostart_exec_always();
-        manager.connection.borrow_mut().flush().unwrap();
-
         manager
     }
 
-    pub fn restart_wm(&mut self, keybindings: &KeyBindings, config: Rc<RefCell<Config>>) {
+    pub fn restart_wm(&mut self, config: Rc<RefCell<Config>>) {
         self.config = config;
-        //self.keybindings = KeyBindings::new(&self.config.borrow());
-        self.grab_keys(keybindings).expect("Failed to grab Keys");
         self.autostart_exec_always();
-        self.connection.borrow_mut().flush().unwrap();
+        self.connection.flush().unwrap();
         self.restart = false;
     }
 
     fn autostart_exec(&self) {
         for command in &self.config.borrow().exec {
+            info!("executing exec, command: {}", command);
             exec_user_command(&Some(command.clone()));
         }
     }
 
     fn autostart_exec_always(&self) {
         for command in &self.config.borrow().exec_always {
+            info!("executing exec always, command: {}", command);
             exec_user_command(&Some(command.clone()));
         }
     }
@@ -118,38 +107,35 @@ impl WindowManager {
         }
     }
 
-    fn grab_keys(&self, keybindings: &KeyBindings) -> Result<(), Box<dyn Error>> {
-        info!("grabbing keys");
-        //TODO check if the the screen iterations should be merged
-        for screen in self.connection.borrow().setup().roots.iter() {
-            for modifier in [0, u16::from(ModMask::M2)] {
-                for keyevent in keybindings.events_vec.iter() {
-                    self.connection.borrow().grab_key(
-                        false,
-                        screen.root,
-                        (keyevent.keycode.mask | modifier).into(),
-                        keyevent.keycode.code,
-                        GrabMode::ASYNC,
-                        GrabMode::ASYNC,
-                    )?;
-                }
+    pub fn run_event_proxy(connection: Arc<RustConnection>,queue: Arc<Mutex<Sender<EnumEventType>>>){
+        debug!("Started waiting for X-Event");
+
+        loop{
+            match connection.wait_for_event(){
+            Ok(event) => {
+                debug!("Transvering X-Event into Queue {:?}", event);
+                
+                let event_typ = EnumEventType::X11rbEvent(event);
+                if let Err(error) = queue.lock().unwrap().send(event_typ) {
+                    warn!("Could not insert event into event queue {}", error);
+                };
+
+            },
+            Err(error) => {
+                error!("Error retreiving Event from Window manager {:?}", error);
             }
-        }
-        Ok(())
+        };
+        };
     }
 
     fn get_active_workspace(&mut self) -> &mut Workspace {
         let screen_info = self.screeninfo.get_mut(&self.focused_screen).unwrap();
-        screen_info.get_active_workspace()
+        screen_info.get_active_workspace().unwrap()
     }
 
     fn get_focused_window(&mut self) -> Option<u32> {
         let workspace = self.get_active_workspace();
         workspace.get_focused_window()
-    }
-
-    pub fn poll_for_event(&self)->Result<Option<Event>, ConnectionError>{
-        self.connection.borrow().poll_for_event()
     }
       
     pub fn handle_keypress_focus(&mut self, args_option: Option<String>) {
@@ -203,7 +189,7 @@ impl WindowManager {
                 }
                 active_workspace.set_layout(layout.unwrap());
             },
-            None => warn!("No argument provided"), 
+            None => active_workspace.next_layout(),
         }
     }
 
@@ -213,7 +199,9 @@ impl WindowManager {
         if let Some(screen) = screen_option {
             let arg_option = EnumWorkspaceNavigation::parse_enum_workspace_navigation(args_option);
             if let Ok(arg) = arg_option{
-                screen.switch_workspace(arg);        
+                if let Err(error) = screen.switch_workspace(arg) {
+                    warn!("Could not go to workspace {}", error);
+                }
             }else if let Err(error) = arg_option{
                 warn!("Could not go to workspace {}", error);
             }
@@ -228,7 +216,9 @@ impl WindowManager {
         if let Some(screen) = screen_option {
             let arg_option = EnumWorkspaceNavigation::parse_enum_workspace_navigation(args_option);
             if let Ok(arg) = arg_option{       
-                screen.move_window_to_workspace(arg);
+                if let Err(error) = screen.move_window_to_workspace(arg){
+                    warn!("failed to move window to workspace {}", error);
+                }
             }else if let Err(error) = arg_option{
                 warn!("Could not move to workspace {}", error);
             }
@@ -243,7 +233,9 @@ impl WindowManager {
         if let Some(screen) = screen_option {
             let arg_option = EnumWorkspaceNavigation::parse_enum_workspace_navigation(args_option);
             if let Ok(arg) = arg_option{       
-                screen.move_window_to_workspace_and_follow(arg);
+                if let Err(error) = screen.move_window_to_workspace_and_follow(arg){
+                    warn!("failed to move window to workspace and follow {}", error);
+                }
             }else if let Err(error) = arg_option{
                 warn!("Could not move to workspace {}", error);
             }
@@ -252,57 +244,40 @@ impl WindowManager {
         }
     }
 
+    pub fn handle_move_to_or_create_workspace(&mut self, args_option: Option<String>){
+
+    }
+
+    pub fn handle_quit_workspace(&mut self){
+        let active_workspace_name = self.get_active_workspace().name;
+
+        if let Some(screen_info) = self.screeninfo.get_mut(&self.focused_screen){
+            info!("quitting workspace {}", active_workspace_name);
+            if let Err(error) = screen_info.quit_workspace(active_workspace_name){
+                warn!("could not quit workspace {error}");
+            }
+        }else{
+            warn!("No screen was focused");
+        }
+    }
+
+    pub fn handle_keypress_fullscreen(&mut self) {
+        self.get_active_workspace().toggle_fullscreen();
+    }
+
     fn setup_screens(&mut self) {
-        for screen in self.connection.borrow().setup().roots.iter() {
+        for screen in self.connection.setup().roots.iter() {
             let screen_ref = Rc::new(RefCell::new(screen.clone()));
-            let mut screenstruct = ScreenInfo::new(
+            let screenstruct = ScreenInfo::new(
                 self.connection.clone(),
                 screen_ref.clone(),
                 screen.width_in_pixels as u32,
                 screen.height_in_pixels as u32,
             );
-            screenstruct.create_new_workspace();    // Todo Js remove this
             self.screeninfo.insert(screen.root, screenstruct);
             self.focused_screen = screen.root;
             debug!("screen widht: {} screen height: {}", screen.width_in_pixels, screen.height_in_pixels);
         }
-    }
-
-    fn update_root_window_event_masks(&self) {
-        let mask = ChangeWindowAttributesAux::default()
-                   .event_mask(
-                        EventMask::SUBSTRUCTURE_REDIRECT |
-                        EventMask::SUBSTRUCTURE_NOTIFY |
-                        EventMask::BUTTON_MOTION |
-                        EventMask::FOCUS_CHANGE |
-                        //EventMask::ENTER_WINDOW |
-                        //EventMask::LEAVE_WINDOW | //this applies only to the rootwin
-                        EventMask::PROPERTY_CHANGE
-                    );
-
-        for screen in self.connection.borrow().setup().roots.iter() {
-            self.set_mask(screen, mask).unwrap();
-        }
-    }
-
-    fn set_mask(
-        &self,
-        screen: &Screen,
-        mask: ChangeWindowAttributesAux
-    ) -> Result<(), ReplyError> {
-        let update_result = self.connection.borrow().change_window_attributes(
-                                screen.root,
-                                &mask
-                            )?.check();
-
-        if let Err(ReplyError::X11Error(ref error)) = update_result {
-            if error.error_kind == ErrorKind::Access {
-                error!("Access to X11 Client Api denied!");
-                exit(1);
-            }
-        }
-
-        update_result
     }
 
     pub fn handle_event_enter_notify(&mut self, event: &EnterNotifyEvent) {
@@ -322,32 +297,31 @@ impl WindowManager {
     }
 
 
-    pub fn handle_event_unmap_notify(&mut self, event: &UnmapNotifyEvent) {
+    pub fn handle_event_destroy_notify(&mut self, event: &DestroyNotifyEvent) {
         let active_workspace = self.get_active_workspace();
         active_workspace.remove_window(&event.window);
     }
 
     pub fn atom_name(&self, id: u32) -> String {
-        let reply = self.connection.borrow().get_atom_name(id).unwrap().reply().unwrap();
-        self.connection.borrow().flush().unwrap();
+        let reply = self.connection.get_atom_name(id).unwrap().reply().unwrap();
+        self.connection.flush().unwrap();
         String::from_utf8(reply.name).unwrap()
     }
 
     //Note to get general atoms look at
     //https://github.com/sminez/penrose/blob/develop/src/x11rb/mod.rs lines 404-500
     pub fn atom_window_type_dock(&self, winid: u32) -> bool {
-        let binding = self.connection.borrow();
-        let atom_intern = binding.intern_atom(false, Atom::NetWmWindowType.as_ref().as_bytes()).unwrap().reply().unwrap().atom;
+        let atom_intern = self.connection.intern_atom(false, Atom::NetWmWindowType.as_ref().as_bytes()).unwrap().reply().unwrap().atom;
 
-        self.connection.borrow().flush().unwrap();
-        let atom_reply = binding.get_property(false,
+        self.connection.flush().unwrap();
+        let atom_reply = self.connection.get_property(false,
                                               winid,
                                               atom_intern,
                                               AtomEnum::ANY,
                                               0,
                                               1024).unwrap().reply();
         if let Ok(atom_reply) = atom_reply {
-            self.connection.borrow().flush().unwrap();
+            self.connection.flush().unwrap();
 
             let prop_type = match atom_reply.type_ {
                 0 => return false, // Null response

@@ -7,9 +7,6 @@ enum WmCommands {
     Resize,
     Quit,
     Restart,
-    MoveToWorkspace,
-    GoToWorkspace,
-    MoveToWorkspaceAndFollow,
 }
 
 #[derive(Debug)]
@@ -21,8 +18,8 @@ struct WmCommand {
 
 #[derive(Debug)]
 struct UserCommand {
-    keys: Vec<char>,
-    command: String,
+    _keys: Vec<char>,
+    _command: String,
 }
 
 #[derive(Debug)]
@@ -178,9 +175,6 @@ pub fn get_keyevents_vec() -> Vec<KeyEvent> {
                 WmCommands::Restart => placeholder,
                 WmCommands::Move => placeholder,
                 WmCommands::Resize => placeholder,
-                WmCommands::MoveToWorkspace => placeholder,
-                WmCommands::GoToWorkspace => placeholder,
-                WmCommands::MoveToWorkspaceAndFollow => placeholder,
             },
         });
     }

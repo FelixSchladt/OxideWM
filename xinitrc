@@ -1,1 +1,1 @@
-RUST_LOG=debug ./target/debug/oxide
+RUST_LOG=debug RUST_BACKTRACE=1 ./target/debug/oxide
