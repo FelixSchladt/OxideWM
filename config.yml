@@ -61,7 +61,8 @@ cmds:
     command: GoToWorkspace
     args: "previous"
 
-exec: ["./target/debug/oxide-bar"]
+      #exec: ["./target/debug/oxide-bar"]
+exec: []
 exec_always: []
 border_with: 8
 border_color: "0x008000" # yellow
