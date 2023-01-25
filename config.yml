@@ -198,6 +198,42 @@ cmds:
     command: MoveToOrCreateWorkspace
     args: "right"
 
+  - keys: ["C", "A", "S", "1"]
+    command: MoveToOrCreateWorkspace
+    args: "1"
+
+  - keys: ["C", "A", "S", "2"]
+    command: MoveToOrCreateWorkspace
+    args: "2"
+
+  - keys: ["C", "A", "S", "3"]
+    command: MoveToOrCreateWorkspace
+    args: "3"
+
+  - keys: ["C", "A", "S", "4"]
+    command: MoveToOrCreateWorkspace
+    args: "4"
+
+  - keys: ["C", "A", "S", "5"]
+    command: MoveToOrCreateWorkspace
+    args: "5"
+
+  - keys: ["C", "A", "S", "6"]
+    command: MoveToOrCreateWorkspace
+    args: "6"
+
+  - keys: ["C", "A", "S", "7"]
+    command: MoveToOrCreateWorkspace
+    args: "7"
+
+  - keys: ["C", "A", "S", "8"]
+    command: MoveToOrCreateWorkspace
+    args: "8"
+
+  - keys: ["C", "A", "S", "9"]
+    command: MoveToOrCreateWorkspace
+    args: "9"
+
   # QuitWorkspace Command
   - keys: ["C", "A", "Down"]
     command: QuitWorkspace

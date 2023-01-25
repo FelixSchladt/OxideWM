@@ -245,7 +245,22 @@ impl WindowManager {
     }
 
     pub fn handle_move_to_or_create_workspace(&mut self, args_option: Option<String>){
-
+        let arg_option = EnumWorkspaceNavigation::parse_enum_workspace_navigation(args_option);
+        match arg_option {
+            Ok(arg) => {
+                let screen = match self.screeninfo.get_mut(&self.focused_screen) {
+                    Some(screen) => screen,
+                    None => {
+                        warn!("No focused screen");
+                        return;
+                    },
+                };
+                if let Err(error) = screen.move_to_or_create_workspace(arg){
+                    warn!("{error}")
+                }
+            },
+            Err(error) => warn!("could not parse arguments {}", error)
+        };
     }
 
     pub fn handle_quit_workspace(&mut self){

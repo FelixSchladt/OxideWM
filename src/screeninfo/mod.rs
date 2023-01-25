@@ -249,6 +249,46 @@ impl ScreenInfo {
         Ok(())
     }
 
+    pub fn move_to_or_create_workspace(&mut self, arg: EnumWorkspaceNavigation) -> Result<(),MoveError> {
+        let workspace_nr = match arg {
+            EnumWorkspaceNavigation::Next => {
+                let highest_workspace = self.workspaces.keys().max();
+                if let Some(workspace_nr) = highest_workspace {
+                    *workspace_nr
+                } else {
+                    LOWEST_WORKSPACE_NR
+                }
+            },
+            EnumWorkspaceNavigation::Previous => {
+                if self.active_workspace <= LOWEST_WORKSPACE_NR {
+                    let highest_workspace = self.workspaces.keys().max();
+                    if let Some(workspace_nr) = highest_workspace {
+                        *workspace_nr
+                    } else {
+                        LOWEST_WORKSPACE_NR
+                    }
+                }else{
+                    self.active_workspace - 1
+                }
+            },
+            EnumWorkspaceNavigation::Number(number) => {
+                if number < LOWEST_WORKSPACE_NR {
+                    let error_msg =format!("workspace nr {} has to be greater than or equal to {}", number, LOWEST_WORKSPACE_NR); 
+                    return Err(MoveError::new(error_msg));
+                }
+                number
+            },
+        };
+        if !self.workspaces.contains_key(&workspace_nr) {
+            self.create_workspace(workspace_nr);
+        }
+        if self.set_workspace(workspace_nr).is_err() {
+            let error_msg =format!("failed to set workspace {}", workspace_nr); 
+            return Err(MoveError::new(error_msg));
+        }
+        Ok(())
+    }
+
     pub fn switch_workspace(&mut self, arg: EnumWorkspaceNavigation) -> Result<(),MoveError> {
         let new_workspace_nr = match self.get_next_workspace_nr(arg) {
             Ok(next_workspace) => next_workspace,

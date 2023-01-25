@@ -221,7 +221,7 @@ fn do_draw(
         }
         cr.move_to(x, 20.0);
         cr.set_font_size(15.0);
-        cr.show_text(&ws)?;
+        cr.show_text(&ws.to_string())?;
         x += 20.0;
     }
 
