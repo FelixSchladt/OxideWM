@@ -1,18 +1,21 @@
 pub mod error;
 
+use self::error::{MoveError, QuitError};
+
+use crate::{
+    config::Config,
+    windowstate::WindowState,
+    workspace::{Workspace, enum_workspace_navigation::EnumWorkspaceNavigation},
+};
+
 use x11rb::rust_connection::RustConnection;
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
 use serde::Serialize;
-
-use crate::windowstate::WindowState;
 use std::{cell::RefCell, collections::HashMap};
 use std::sync::Arc;
 use std::rc::Rc;
 use log::{info, debug, warn};
-use crate::workspace::{Workspace, enum_workspace_navigation::EnumWorkspaceNavigation};
-
-use self::error::{MoveError, QuitError};
 
 const LOWEST_WORKSPACE_NR: u16 = 1;
 
@@ -48,12 +51,20 @@ pub struct ScreenInfo {
     workspaces: HashMap<u16, Workspace>,
     pub active_workspace: u16,
     #[serde(skip_serializing)]
+    config: Rc<RefCell<Config>>,
+    #[serde(skip_serializing)]
     pub screen_size: Rc<RefCell<ScreenSize>>,
     pub status_bar: Option<WindowState>,
 }
 
 impl ScreenInfo {
-    pub fn new(connection: Arc<RustConnection>, screen_ref: Rc<RefCell<Screen>>, width: u32, height: u32) -> ScreenInfo {
+    pub fn new(
+        connection: Arc<RustConnection>,
+        screen_ref: Rc<RefCell<Screen>>,
+        config: Rc<RefCell<Config>>,
+        width: u32,
+        height: u32
+    ) -> ScreenInfo {
         let active_workspace = LOWEST_WORKSPACE_NR;
         let workspaces = HashMap::new();
         let screen_size = Rc::new(RefCell::new(ScreenSize::default(width, height)));
@@ -62,6 +73,7 @@ impl ScreenInfo {
             screen_ref,
             workspaces,
             active_workspace,
+            config,
             screen_size,
             status_bar: None,
         };
@@ -79,7 +91,12 @@ impl ScreenInfo {
     }
 
     pub fn add_status_bar(&mut self, event: &CreateNotifyEvent) {
-        self.status_bar = Some(WindowState::new(self.connection.clone(), self.screen_ref.clone(), event.window));
+        self.status_bar = Some(WindowState::new(
+            self.connection.clone(),
+            self.screen_ref.clone(),
+            self.config.clone(),
+            event.window
+        ));
         
         {
             let mut screen_size = self.screen_size.borrow_mut();
@@ -117,6 +134,7 @@ impl ScreenInfo {
             self.connection.clone(),
             self.screen_ref.clone(),
             self.screen_size.clone(),
+            self.config.clone(),
         );
 
         self.workspaces.entry(workspace_nr).or_insert(new_workspace)
@@ -244,7 +262,12 @@ impl ScreenInfo {
 
         active_workspace.remove_window(&active_window);
 
-        let windowsate = WindowState::new(self.connection.clone(), self.screen_ref.clone(), active_window);
+        let windowsate = WindowState::new(
+            self.connection.clone(),
+            self.screen_ref.clone(),
+            self.config.clone(),
+            active_window
+        );
 
         let new_workspace = match self.get_workspace(new_workspace_nr) {
             Some(workspace) => workspace,

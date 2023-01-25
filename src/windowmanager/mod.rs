@@ -48,7 +48,6 @@ pub struct WindowManager {
     pub restart: bool,
 }
 
-
 impl WindowManager {
     pub fn new(connection:Arc<RustConnection>, config: Rc<RefCell<Config>>) -> WindowManager {
         let screeninfo = HashMap::new();
@@ -137,7 +136,7 @@ impl WindowManager {
         let workspace = self.get_active_workspace();
         workspace.get_focused_window()
     }
-      
+
     pub fn handle_keypress_focus(&mut self, args_option: Option<String>) {
         if let Some(args) = args_option {
             match Movement::try_from(args.as_str()) {
@@ -177,7 +176,7 @@ impl WindowManager {
         }
     }
 
-    pub fn handle_keypress_layout(&mut self, args: Option<String>) {    
+    pub fn handle_keypress_layout(&mut self, args: Option<String>) {
         let active_workspace = self.get_active_workspace();
 
         match args {
@@ -286,6 +285,7 @@ impl WindowManager {
             let screenstruct = ScreenInfo::new(
                 self.connection.clone(),
                 screen_ref.clone(),
+                self.config.clone(),
                 screen.width_in_pixels as u32,
                 screen.height_in_pixels as u32,
             );
@@ -366,6 +366,6 @@ impl WindowManager {
     pub fn handle_map_request(&mut self, event: &MapRequestEvent) {
         if !self.atom_window_type_dock(event.window.clone()) {
             self.screeninfo.get_mut(&event.parent.clone()).unwrap().on_map_request(event);
-        } 
+        }
     }
 }
