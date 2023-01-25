@@ -1,5 +1,4 @@
 // This code is derived from https://github.com/psychon/x11rb/blob/c3894c092101a16cedf4c45e487652946a3c4284/cairo-example/src/main.rs
-//
 mod xcb_visualtype;
 
 //use cairo::glib::subclass::shared::RefCounted;
@@ -89,11 +88,11 @@ impl OxideBar {
             cairo_surface,
             composite_mgr,
         };
-        //bar.composite_manager_running(screen_num);
+        bar.composite_manager_running(screen_num);
         bar.create_window(screen_num).unwrap();
         bar.create_cairo_surface();
         bar.draw(oxideipc::get_state_struct());
-        //println!("Bar: {:#?}", bar);
+    
         return bar;
     }
 
@@ -123,8 +122,8 @@ impl OxideBar {
                 self.screen,
                 0,
                 0,
-                self.config.width,
-                self.config.height,
+                1000,//self.config.width,
+                50,//self.config.height,
                 0,
                 WindowClass::INPUT_OUTPUT,
                 self.visual_id,
@@ -235,11 +234,11 @@ impl OxideBar {
                         println!("Oxide-bar exiting");
                         std::process::exit(0);
                     }
-                }
+                },
             x11rb::protocol::Event::Error(error) => {
                 println!("Error: {:?}", error);
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 
@@ -249,7 +248,9 @@ impl OxideBar {
 fn get_x11rb_events(connection: Arc<XCBConnection>, event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
     loop{
         match connection.wait_for_event() {
-            Ok(event) => event_sender_mutex.lock().unwrap().send(EventType::X11rbEvent(event)).unwrap(),
+            Ok(event) => {
+                event_sender_mutex.lock().unwrap().send(EventType::X11rbEvent(event)).unwrap();
+            },
             Err(error) => println!("Error: {}", error),
         }
     };
@@ -289,10 +290,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let event_sender_clone = event_sender_mutex.clone();
     thread::spawn( move || get_state(event_sender_clone));
-
-    thread::spawn( move || get_x11rb_events(conn, event_sender_mutex));
+    let conn_clone = conn.clone();
+    thread::spawn( move || get_x11rb_events(conn_clone, event_sender_mutex));
 
     loop {
+        conn.flush();
         if let Ok(event_type) = event_receiver_mutex.lock().unwrap().recv() {
             match event_type {
                 EventType::X11rbEvent(event) => bar.handle_x_event(event),
