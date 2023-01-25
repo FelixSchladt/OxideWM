@@ -96,7 +96,7 @@ fn convert_to_keycode(keys: &mut Vec<String>, keymap: &HashMap<String, u8>) -> K
     };
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct KeyBindings {
     pub events_map: HashMap<u8, Vec<KeyEvent>>,
     pub events_vec: Vec<KeyEvent>,

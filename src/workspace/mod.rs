@@ -15,12 +15,13 @@ use x11rb::CURRENT_TIME;
 use std::collections::HashMap;
 use serde::Serialize;
 use std::{cell::RefCell, rc::Rc};
+use std::sync::Arc;
 use log::{error, info, debug};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
     #[serde(skip_serializing)]
-    pub connection:  Rc<RefCell<RustConnection>>,
+    pub connection:  Arc<RustConnection>,
     pub name: String,
     #[serde(skip_serializing)]
     pub root_screen: Rc<RefCell<Screen>>,
@@ -39,7 +40,7 @@ pub struct Workspace {
 
 impl Workspace {
     pub fn new(name:String, 
-               connection: Rc<RefCell<RustConnection>>, 
+               connection: Arc<RustConnection>, 
                root_screen: Rc<RefCell<Screen>>, 
                screen_size: Rc<RefCell<ScreenSize>> 
                ) -> Workspace 
@@ -170,8 +171,8 @@ impl Workspace {
         //TODO implement soft kill via client message over x
         //(Tell window to close itself)
         //https://github.com/DHBW-FN/OxideWM/issues/46
-        self.connection.borrow().kill_client(*winid).expect("Could not kill client");
-        self.connection.borrow().flush().unwrap();
+        self.connection.kill_client(*winid).expect("Could not kill client");
+        self.connection.flush().unwrap();
         self.remove_window(winid);
     }
 
@@ -192,7 +193,7 @@ impl Workspace {
     pub fn focus_window(&mut self, winid: u32) {
         debug!("focus_window");
         self.focused_window = Some(winid);
-        self.connection.borrow().set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
+        self.connection.set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
         //TODO: Change color of border to focus color
     }
 
@@ -216,16 +217,15 @@ impl Workspace {
 
     pub fn unmap_windows(&mut self){
         debug!("Unmapping {} Windows from workspace {}", self.windows.len(), self.name);
-        let conn = self.connection.borrow();
-        conn.grab_server().unwrap();
+        self.connection.grab_server().unwrap();
         for window_id in self.windows.keys() {
-            let resp = &conn.unmap_window(*window_id as Window);
+            let resp = &self.connection.unmap_window(*window_id as Window);
             if resp.is_err() {
                 error!("An error occured while trying to unmap window");
             }
         }
-        conn.ungrab_server().unwrap();
-        conn.flush().unwrap();
+        self.connection.ungrab_server().unwrap();
+        self.connection.flush().unwrap();
     }
 
     pub fn remap_windows(&mut self) {
@@ -239,7 +239,7 @@ impl Workspace {
                 screen_size.width as u32,
                 screen_size.height as u32,
             ).draw();
-            self.connection.borrow().flush().unwrap();
+            self.connection.flush().unwrap();
         } else {
             match self.layout {
                 //Layout::Tiled => {},

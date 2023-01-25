@@ -1,11 +1,11 @@
 pub mod commands;
 pub mod events;
 
-use self::events::{IpcEvent, WmActionEvent};
+use self::events::{IpcEvent, WmActionEvent, EnumEventType};
 
 use log::{info, debug, trace};
 use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
-use std::process;
+use std::{process, sync::{mpsc::{Receiver, Sender}, Mutex, Arc}};
 use log::error;
 
 use crate::{
@@ -29,15 +29,30 @@ impl EventHandler<'_> {
         }
     }
 
-    pub fn handle_event(&mut self, event: &Event) {
+    pub fn run_event_loop(
+        &mut self, 
+        receive_channel: Arc<Mutex<Receiver<EnumEventType>>>,
+        status_send_channel: Arc<Mutex<Sender<String>>>
+    ){
+        loop {
+            if let Ok(event_type) = receive_channel.lock().unwrap().recv() {
+                match event_type {
+                    EnumEventType::X11rbEvent(event) => self.handle_x_event(&event),
+                    EnumEventType::OxideEvent(event) => self.handle_ipc_event(event, status_send_channel.clone()),
+                }
+            }
+
+            if self.window_manager.restart {
+                break;
+            }
+        }
+    }
+
+    fn handle_x_event(&mut self, event: &Event) {
         let log_msg = "Received Event: ";
         match event {
             Event::Expose(_event) => info!("{} Expose", log_msg),
-            /*
-            Event::UnmapNotify(_event) => {
-                info!("{} UnmapNotify", log_msg);
-                self.window_manager.handle_event_unmap_notify(_event);
-            },*/
+            Event::UnmapNotify(_event) => info!("{} UnmapNotify", log_msg),
             Event::ButtonPress(_event) => info!("{} ButtonPress", log_msg),
             Event::MotionNotify(_event) => info!("{} MotionNotify", log_msg),
             Event::ButtonRelease(_event) => info!("{} ButtonRelease", log_msg),
@@ -51,7 +66,10 @@ impl EventHandler<'_> {
                 info!("{} KeyPress", log_msg);
                 self.handle_keypress(_event);
             },
-            Event::DestroyNotify(_event) => info!("{} DestroyNotify", log_msg),
+            Event::DestroyNotify(_event) => {
+                info!("{} DestroyNotify", log_msg);
+                self.window_manager.handle_event_destroy_notify(_event);
+            },
             Event::PropertyNotify(_event) => info!("{} PropertyNotify", log_msg),
             Event::EnterNotify(_event) => {
                 info!("{} EnterNotify!!!", log_msg);
@@ -96,10 +114,17 @@ impl EventHandler<'_> {
         }
     }
 
-    pub fn handle_ipc_event(&mut self, event: IpcEvent) {
+    fn handle_ipc_event(&mut self, event: IpcEvent, status_send_channel: Arc<Mutex<Sender<String>>>) {
         trace!("IpcEvent: {:?}", event);
         if let Some(command) = event.event {
             self.handle_wm_command(command)
+        }
+
+        if event.status {
+            let wm_state = self.window_manager.get_state();
+            let j = serde_json::to_string(&wm_state).unwrap();
+            trace!("IPC status request");
+            status_send_channel.lock().unwrap().send(j).unwrap();
         }
     }
 
