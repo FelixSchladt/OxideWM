@@ -1,15 +1,16 @@
 use rudg::rs2dot;
 use std::fs;
+use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
 const SRC_DIR : &str = "src/";
+const DIAG_TYPE : &str = "png";
 
 /// The class diagramm is generated from the source path into the destionation path
 fn generate_class_diagramm(src: &Path, dest: &Path){
     println!("generating class diagrams");
-    let unescaped_results = rs2dot(src);
-    let results = escape_results(&unescaped_results);
-
+    let results = rs2dot(src);
 
     let mut target_name = PathBuf::new();
     target_name.push(Path::new("target/docs/diagrams/class-diagram")
@@ -17,34 +18,52 @@ fn generate_class_diagramm(src: &Path, dest: &Path){
         .join(src.file_stem().unwrap()));
     target_name.set_extension("dot");
 
-
     fs::create_dir_all(target_name.clone().parent().unwrap()).expect("failed to create directories");
-    fs::File::create(target_name.clone()).expect("failed to create file");
-    println!("generating class diagrams done");
+    write_to_file(target_name.clone(), results);
 
-    match fs::write(&target_name, results) {
-        Ok(_) => println!("File successfully written to {:?}", target_name),
+    let dot_file_name = target_name.clone().into_os_string().into_string().unwrap();
+    let svg_file_name = dot_file_name.replace("dot", DIAG_TYPE);
+
+    match Command::new("dot").spawn() {
+        Ok(_) => {
+            println!("converting {dot_file_name} to {svg_file_name}");
+            converte_to_svg(dot_file_name, svg_file_name);
+        },
+        Err(_) => {
+            println!("Not converting graphviz files")
+        }
+    };
+}
+
+fn write_to_file(target_name: PathBuf, results: String){
+    let mut file = fs::File::create(target_name.clone()).expect("failed to create file");
+
+    match file.write_all(results.as_bytes()) {
+        Ok(_) => {
+            println!("File successfully written to {:?}", target_name);
+        },
         Err(e) => {
             println!("target_name is {:?}", target_name);
             println!("{:?}", e);
+            return;
         }
     }
 }
 
-fn escape_results(results:&String)->String{
-    let mut escaped_str = "".to_string();
-    let lines = results.split_inclusive("\n");
-    for result in lines {
-        let mut splits  = result.split_inclusive("label");
-        escaped_str = escaped_str + splits.next().unwrap();
-        for split in splits{
-            let escaped = split.replace("<", "\\<")
-                .replace(">", "\\>");
-            escaped_str = escaped_str + &escaped;
-        }
-    }
+fn converte_to_svg(input_file_path:String, output_file_path:String){
+    let file = fs::File::create(output_file_path.clone()).expect("failed to create file");
+    drop(file);
 
-    escaped_str
+    // Do not insert space between -o{value} und -T{value}
+    let result = Command::new("dot")
+        .arg(input_file_path.clone())
+        .arg(format!("-T{DIAG_TYPE}"))
+        .arg(format!("-o{output_file_path}"))
+        .spawn();
+
+    if let Err(error)=result{
+        panic!("failed to converte {input_file_path} to {output_file_path} {error}");
+    }
 }
 
 fn main() {

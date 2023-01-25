@@ -14,6 +14,7 @@ pub enum WmCommands {
     GoToWorkspace,
     MoveToWorkspaceAndFollow,
     Exec,
+    Fullscreen,
 }
 
 impl TryFrom<&str> for WmCommands {
@@ -31,6 +32,7 @@ impl TryFrom<&str> for WmCommands {
             "gotoworkspace" => Ok(WmCommands::GoToWorkspace),
             "movetoworkspaceandfollow" => Ok(WmCommands::MoveToWorkspaceAndFollow),
             "exec" => Ok(WmCommands::Exec),
+            "fullscreen" => Ok(WmCommands::Fullscreen),
             _ => Err(format!("{} is not a valid command", value)),
         }
     }

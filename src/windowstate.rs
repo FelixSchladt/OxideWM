@@ -4,14 +4,16 @@ use x11rb::rust_connection::RustConnection;
 use x11rb::connection::Connection;
 use x11rb::COPY_DEPTH_FROM_PARENT;
 use serde::Serialize;
-use std::{cell::RefCell, rc::Rc};
+use std::sync::Arc;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 use crate::config::Config;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct WindowState {
     #[serde(skip_serializing)]
-    pub connection: Rc<RefCell<RustConnection>>,
+    pub connection: Arc<RustConnection>,
     #[serde(skip_serializing)]
     pub config: Rc<RefCell<Config>>,
     pub frame: Window,
@@ -28,9 +30,8 @@ pub struct WindowState {
 }
 
 impl WindowState {
-    pub fn new(connection: Rc<RefCell<RustConnection>>, root_screen: &Screen, config: Rc<RefCell<Config>>, window: Window) -> WindowState {
-        let title = connection.borrow()
-                              .get_property(
+    pub fn new(connection: Arc<RustConnection>, root_screen: &Screen, config: Rc<RefCell<Config>>, window: Window) -> WindowState {
+        let title = connection.get_property(
                                   false,
                                   window,
                                   AtomEnum::WM_NAME,
@@ -51,8 +52,8 @@ impl WindowState {
         let border_width = config.borrow().border_width;
         let gap_size = config.borrow().gap;
 
-        let frame = connection.borrow().generate_id().unwrap();
-        connection.borrow().create_window(
+        let frame = connection.generate_id().unwrap();
+        connection.create_window(
             COPY_DEPTH_FROM_PARENT,
             frame,
             root_screen.root,
@@ -68,7 +69,7 @@ impl WindowState {
 
         let mask = ChangeWindowAttributesAux::default()
             .event_mask(EventMask::ENTER_WINDOW | EventMask::LEAVE_WINDOW );
-        let res = connection.borrow().change_window_attributes(window, &mask).unwrap().check();
+        let res = connection.change_window_attributes(window, &mask).unwrap().check();
         if let Err(e) = res {
             error!("Error couldn change mask: {:?}", e);
             panic!("Error couldnt change mask");
@@ -104,20 +105,19 @@ impl WindowState {
             .width(width - (self.border_width*2) - (self.gap_size*2))
             .height(height - (self.border_width*2) - (self.gap_size*2));
 
-        self.connection.borrow().configure_window(self.frame, &frame_aux).unwrap();
-        self.connection.borrow().configure_window(self.window, &window_aux).unwrap();
+        self.connection.configure_window(self.frame, &frame_aux).unwrap();
+        self.connection.configure_window(self.window, &window_aux).unwrap();
 
         return self;
     }
 
     pub fn draw(&self) {
-        let con_b = self.connection.borrow();
-        con_b.grab_server().unwrap();
+        self.connection.grab_server().unwrap();
 
-        con_b.map_window(self.frame).unwrap();
-        con_b.map_window(self.window).unwrap();
+        self.connection.map_window(self.frame).unwrap();
+        self.connection.map_window(self.window).unwrap();
 
-        con_b.ungrab_server().unwrap();
-        con_b.flush().unwrap();
+        self.connection.ungrab_server().unwrap();
+        self.connection.flush().unwrap();
     }
 }
