@@ -294,7 +294,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     thread::spawn( move || get_x11rb_events(conn_clone, event_sender_mutex));
 
     loop {
-        conn.flush();
+        conn.flush().ok();
         if let Ok(event_type) = event_receiver_mutex.lock().unwrap().recv() {
             match event_type {
                 EventType::X11rbEvent(event) => bar.handle_x_event(event),
