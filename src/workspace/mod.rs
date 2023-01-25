@@ -5,6 +5,7 @@ use self::enums_workspace::Layout;
 use crate::{
     windowmanager::enums_windowmanager::Movement,
     windowstate::WindowState,
+    config::Config,
     screeninfo::ScreenSize,
 };
 
@@ -22,9 +23,13 @@ use log::{error, info, debug};
 pub struct Workspace {
     #[serde(skip_serializing)]
     pub connection:  Arc<RustConnection>,
-    pub name: String,
     #[serde(skip_serializing)]
     pub root_screen: Rc<RefCell<Screen>>,
+    #[serde(skip_serializing)]
+    pub screen_size: Rc<RefCell<ScreenSize>>,
+    #[serde(skip_serializing)]
+    pub config: Rc<RefCell<Config>>,
+    pub name: String,
     pub visible: bool,
     pub focused: bool,
     pub focused_window: Option<u32>,
@@ -33,8 +38,6 @@ pub struct Workspace {
     pub windows: HashMap<u32, WindowState>,
     pub order: Vec<u32>,
     pub layout: Layout,
-    #[serde(skip_serializing)]
-    pub screen_size: Rc<RefCell<ScreenSize>>,
 }
 
 
@@ -42,13 +45,16 @@ impl Workspace {
     pub fn new(name:String, 
                connection: Arc<RustConnection>, 
                root_screen: Rc<RefCell<Screen>>, 
-               screen_size: Rc<RefCell<ScreenSize>> 
+               screen_size: Rc<RefCell<ScreenSize>>,
+               config: Rc<RefCell<Config>>
                ) -> Workspace 
     {
         Workspace {
-            connection: connection,
-            name: name,
-            root_screen: root_screen,
+            connection,
+            name,
+            root_screen,
+            screen_size,
+            config,
             visible: false,
             focused: false,
             focused_window: None,
@@ -57,7 +63,6 @@ impl Workspace {
             windows: HashMap::new(),
             order: Vec::new(),
             layout: Layout::HorizontalStriped,
-            screen_size: screen_size,
         }
     }
 
@@ -183,7 +188,7 @@ impl Workspace {
     }
 
     pub fn new_window(&mut self, window: Window) {
-        let windowstruct = WindowState::new(self.connection.clone(), &self.root_screen.borrow(), window);
+        let windowstruct = WindowState::new(self.connection.clone(), &self.root_screen.borrow(), self.config.clone(), window);
         self.add_window(windowstruct);
     }
 

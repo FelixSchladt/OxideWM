@@ -5,10 +5,11 @@ use serde::Serialize;
 
 use crate::workspace::Workspace;
 use crate::windowstate::WindowState;
-use std::{cell::RefCell, collections::HashMap};
+use crate::config::Config;
+use std::{cell::RefCell, rc::Rc, collections::HashMap};
 use std::sync::Arc;
-use std::rc::Rc;
 use log::{info, debug};
+
 
 #[derive(Debug)]
 pub struct ScreenSize {
@@ -39,15 +40,17 @@ pub struct ScreenInfo {
     connection: Arc<RustConnection>,
     #[serde(skip_serializing)]
     screen_ref: Rc<RefCell<Screen>>,
-    workspaces: HashMap<u16, Workspace>,
-    pub active_workspace: u16,
     #[serde(skip_serializing)]
     pub screen_size: Rc<RefCell<ScreenSize>>,
+    #[serde(skip_serializing)]
+    config: Rc<RefCell<Config>>,
+    workspaces: HashMap<u16, Workspace>,
+    pub active_workspace: u16,
     pub status_bar: Option<WindowState>,
 }
 
 impl ScreenInfo {
-    pub fn new(connection: Arc<RustConnection>, screen_ref: Rc<RefCell<Screen>>, width: u32, height: u32) -> ScreenInfo {
+    pub fn new(connection: Arc<RustConnection>, screen_ref: Rc<RefCell<Screen>>, config: Rc<RefCell<Config>>, width: u32, height: u32) -> ScreenInfo {
         let active_workspace = 1;
         let workspaces = HashMap::new();
         let screen_size = Rc::new(RefCell::new(ScreenSize::default(width, height)));
@@ -55,8 +58,9 @@ impl ScreenInfo {
             connection,
             screen_ref,
             workspaces,
-            active_workspace,
             screen_size,
+            config,
+            active_workspace,
             status_bar: None,
         };
         screen_info.create_workspace(active_workspace);
@@ -73,8 +77,7 @@ impl ScreenInfo {
     }
 
     pub fn add_status_bar(&mut self, event: &CreateNotifyEvent) {
-        self.status_bar = Some(WindowState::new(self.connection.clone(), &self.screen_ref.borrow(), event.window));
-        
+        self.status_bar = Some(WindowState::new(self.connection.clone(), &self.screen_ref.borrow(), self.config.clone(), event.window));
         {
             let mut screen_size = self.screen_size.borrow_mut();
 
@@ -128,6 +131,7 @@ impl ScreenInfo {
             self.connection.clone(),
             self.screen_ref.clone(),
             self.screen_size.clone(),
+            self.config.clone(),
         );
         self.workspaces.insert(workspace_nr, new_workspace);
     }
@@ -140,7 +144,7 @@ impl ScreenInfo {
         }
     }
 
-    
+
     pub fn on_map_request(&mut self, event: &MapRequestEvent) {
         info!("WINMAN: MapRequestEvent: {:?}", event);
         let workspace_option = self.workspaces.get_mut(&self.active_workspace.clone());
@@ -173,7 +177,7 @@ impl ScreenInfo {
         new_workspace.remap_windows();
         new_workspace.focused = true;
         new_workspace
-        
+
     }
 
     pub fn get_workspace_count(&self) -> usize{
