@@ -2,8 +2,6 @@ mod ipc;
 pub mod state;
 
 
-use std::collections::HashMap;
-
 use ipc::{get_state_async, sent_event_async};
 use state::*;
 use oxide::eventhandler::events::WmActionEvent;
@@ -19,19 +17,7 @@ pub fn sent_event(command: &str, args: Option<String>) {
 }
 
 pub fn get_state_struct() -> OxideState {
-    match serde_json::from_str(&get_state()){
-        Ok(state) => state,
-        Err(error)=>{
-            println!("{}",get_state());
-            println!("{error}");
-            OxideState{
-                screeninfo: HashMap::new(),
-                config: Config { cmds: [].to_vec(), exec: [].to_vec(), exec_always: [].to_vec(), border_width: 0, 
-                    border_color: "".to_string(), border_focus_color: "".to_string(), gap: 0 },
-                focused_screen: 2,
-            }
-        }
-    }
+    serde_json::from_str(&get_state()).unwrap()
 }
 
 

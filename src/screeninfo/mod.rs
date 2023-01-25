@@ -111,17 +111,6 @@ impl ScreenInfo {
         }
     }
 
-    fn create_new_workspace(&mut self) -> &mut Workspace{
-        let mut index = u16::MAX;
-        for i in 1..u16::MAX{
-            if !self.workspaces.contains_key(&i){
-                index = i;
-                break;
-            }
-        }
-        self.create_workspace(index)
-    }
-
     fn create_workspace(&mut self, workspace_nr: u16) -> &mut Workspace {
         let new_workspace = Workspace::new(
             workspace_nr,
@@ -157,12 +146,26 @@ impl ScreenInfo {
         match self.workspaces.remove(&workspace_name) {
             Some(mut workspace) => {
                 workspace.kill_all_windows();
-                println!("this is a test");
-                if self.workspaces.is_empty() {
-                    let new_workspace = self.create_new_workspace().name;
-                    if self.set_workspace(new_workspace).is_err() {
-                        return Err(QuitError::new(format!("failed to set new workspace, after no workspace was present")));
-                    }
+                let new_workspace = match self.find_next_lowest_workspace_nr(){
+                    Some(number) => {
+                        debug!("using next lowest workspace {}", number);
+                        number
+                    },
+                    None => match self.find_next_highest_workspace_nr(){
+                        Some(number) =>{
+                            debug!("using next highest workspace {}", number);
+                            number
+                        },
+                        None => {
+                            // removed last workspace
+                            debug!("quit last workspace, creating {}", LOWEST_WORKSPACE_NR);
+                            self.create_workspace(LOWEST_WORKSPACE_NR).name
+                        },
+                    },
+                };
+                info!("quit workspace {}, switching to {}", self.active_workspace, new_workspace);
+                if self.set_workspace(new_workspace).is_err() {
+                    return Err(QuitError::new(format!("failed to set new workspace, after no workspace was present")));
                 }
                 Ok(())
             }
@@ -252,18 +255,21 @@ impl ScreenInfo {
     pub fn move_to_or_create_workspace(&mut self, arg: EnumWorkspaceNavigation) -> Result<(),MoveError> {
         let workspace_nr = match arg {
             EnumWorkspaceNavigation::Next => {
-                let highest_workspace = self.workspaces.keys().max();
-                if let Some(workspace_nr) = highest_workspace {
-                    *workspace_nr
-                } else {
+                if self.active_workspace == u16::MAX{
                     LOWEST_WORKSPACE_NR
+                }else{
+                    self.active_workspace + 1
                 }
             },
             EnumWorkspaceNavigation::Previous => {
                 if self.active_workspace <= LOWEST_WORKSPACE_NR {
                     let highest_workspace = self.workspaces.keys().max();
                     if let Some(workspace_nr) = highest_workspace {
-                        *workspace_nr
+                        if *workspace_nr == u16::MAX{
+                            *workspace_nr
+                        }else{
+                            *workspace_nr + 1
+                        }
                     } else {
                         LOWEST_WORKSPACE_NR
                     }
@@ -366,13 +372,10 @@ impl ScreenInfo {
     pub fn set_workspace(&mut self, workspace_nr: u16) -> Result<(),()>{
         debug!("Changing workspace from {} to {}", self.active_workspace, workspace_nr);
 
-        let active_workspace = match self.workspaces.get_mut(&self.active_workspace) {
-            Some(workspace)=> workspace,
-            None=> return Err(())
+        if let Some(active_workspace) = self.workspaces.get_mut(&self.active_workspace) {
+            active_workspace.unmap_windows();
+            active_workspace.focused = false;    
         };
-
-        active_workspace.unmap_windows();
-        active_workspace.focused = false;
 
         let new_workspace = match self.workspaces.get_mut(&workspace_nr) {
             Some(workspace)=> workspace,

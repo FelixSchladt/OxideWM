@@ -18,7 +18,7 @@ use std::collections::{HashMap, HashSet};
 use serde::Serialize;
 use std::{cell::RefCell, rc::Rc};
 use std::sync::Arc;
-use log::{error, info, debug};
+use log::{error, info, debug, warn};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
@@ -174,18 +174,30 @@ impl Workspace {
             .map(|window| (*window).clone())
             .collect();
 
-        windows.iter()
-            .map(|window| self.kill_window(window))
-            .collect()
+        self.windows.clear();
+        self.order.clear();
+
+        for window in windows.iter(){
+            if self.connection.unmap_window(*window).is_err() {
+                warn!("failed to unmap window {}",window);
+            }
+            if self.connection.kill_client(*window).is_err() {
+                warn!("failed to kill client {}",window);
+            }
+        }
+
+        if self.connection.flush().is_err() {
+            warn!("failed to flush connection")
+        }
     }
 
     pub fn kill_window(&mut self, winid: &u32) {
         //TODO implement soft kill via client message over x
         //(Tell window to close itself)
         //https://github.com/DHBW-FN/OxideWM/issues/46
+        self.remove_window(winid);
         self.connection.kill_client(*winid).expect("Could not kill client");
         self.connection.flush().unwrap();
-        self.remove_window(winid);
     }
 
     pub fn remove_window(&mut self, win_id: &u32) {
@@ -212,7 +224,13 @@ impl Workspace {
     pub fn focus_window(&mut self, winid: u32) {
         debug!("focus_window");
         self.focused_window = Some(winid);
-        self.connection.set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
+        if let Ok(result) = self.connection.set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME) {
+            if let Err(_) = result.check() {
+                warn!("Failed to focus window");
+            }
+        }else{
+            warn!("Failed to focus window");
+        }
         //TODO: Change color of border to focus color
     }
 

@@ -192,11 +192,11 @@ cmds:
   # MoveOrCreateWorkspace Commands
   - keys: ["C", "A", "S", "Left"]
     command: MoveToOrCreateWorkspace
-    args: "left"
+    args: "previous"
 
   - keys: ["C", "A", "S", "Right"]
     command: MoveToOrCreateWorkspace
-    args: "right"
+    args: "next"
 
   - keys: ["C", "A", "S", "1"]
     command: MoveToOrCreateWorkspace

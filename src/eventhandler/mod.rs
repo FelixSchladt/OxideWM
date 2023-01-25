@@ -79,8 +79,8 @@ impl EventHandler<'_> {
                 info!("{} LeaveNotify", log_msg);
                 self.window_manager.handle_event_leave_notify(_event);
             },
-            Event::FocusIn(_event) => println!("FocusIn"),
-            Event::FocusOut(_event) => println!("FocusOut"),
+            Event::FocusIn(_event) => info!("FocusIn"),
+            Event::FocusOut(_event) => info!("FocusOut"),
             Event::CreateNotify(_event) => {
                 println!("CreateNotify");
                 self.window_manager.handle_create_notify(_event);
