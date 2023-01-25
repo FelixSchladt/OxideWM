@@ -246,6 +246,7 @@ impl WindowManager {
             let mut screenstruct = ScreenInfo::new(
                 self.connection.clone(),
                 screen_ref.clone(),
+                self.config.clone(),
                 screen.width_in_pixels as u32,
                 screen.height_in_pixels as u32,
             );

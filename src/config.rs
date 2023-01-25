@@ -41,7 +41,7 @@ pub struct Config {
     pub exec_always: Vec<String>,
 
     #[serde(default = "default_border_width")]
-    pub border_width: u8,
+    pub border_width: u32,
 
     #[serde(default = "default_border_color")]
     pub border_color: String,
@@ -50,7 +50,7 @@ pub struct Config {
     pub border_focus_color: String,
 
     #[serde(default = "default_gap")]
-    pub gap: u8,
+    pub gap: u32,
 }
 
 
@@ -80,8 +80,7 @@ impl Config {
                     Ok(config)  => return config,
                     Err(err)    => {
                         let err_msg = error!("Error in '{}': {}", chosen_config.unwrap(), err);
-                        //TODO: Write this error to a log file
-                        println!("ERR: {:?}", err_msg);
+                        error!("ERR: {:?}", err_msg);
                     }
                 }
             },
@@ -110,7 +109,7 @@ fn default_exec_always() -> Vec<String> {
     vec!["H".to_string(), "I".to_string()]
 }
 
-fn default_border_width() -> u8 { 3 }
+fn default_border_width() -> u32 { 3 }
 fn default_border_color() -> String { "0xFFFFFF".to_string() } // white
 fn default_border_focus_color() -> String { "0x000000".to_string() } // black
-fn default_gap() -> u8 { 3 }
+fn default_gap() -> u32 { 3 }

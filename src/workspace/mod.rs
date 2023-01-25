@@ -5,6 +5,7 @@ use self::enums_workspace::Layout;
 use crate::{
     windowmanager::enums_windowmanager::Movement,
     windowstate::WindowState,
+    config::Config,
 };
 
 use x11rb::connection::Connection;
@@ -20,9 +21,11 @@ use log::{error, info, debug};
 pub struct Workspace {
     #[serde(skip_serializing)]
     pub connection:  Rc<RefCell<RustConnection>>,
-    pub name: String,
     #[serde(skip_serializing)]
     pub root_screen: Rc<RefCell<Screen>>,
+    #[serde(skip_serializing)]
+    pub config: Rc<RefCell<Config>>,
+    pub name: String,
     pub visible: bool,
     pub focused: bool,
     pub focused_window: Option<u32>,
@@ -38,11 +41,12 @@ pub struct Workspace {
 
 
 impl Workspace {
-    pub fn new(name:String ,connection: Rc<RefCell<RustConnection>>,root_screen: Rc<RefCell<Screen>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
+    pub fn new(name:String ,connection: Rc<RefCell<RustConnection>>,root_screen: Rc<RefCell<Screen>>, config: Rc<RefCell<Config>>, x: i32, y: i32, height: u32, width: u32) -> Workspace {
         Workspace {
-            connection: connection,
-            name: name,
-            root_screen: root_screen,
+            connection,
+            name,
+            root_screen,
+            config,
             visible: false,
             focused: false,
             focused_window: None,
@@ -171,7 +175,7 @@ impl Workspace {
     }
 
     pub fn new_window(&mut self, window: Window) {
-        let windowstruct = WindowState::new(self.connection.clone(), &self.root_screen.borrow(), window);
+        let windowstruct = WindowState::new(self.connection.clone(), &self.root_screen.borrow(), self.config.clone(), window);
         self.add_window(windowstruct);
     }
 

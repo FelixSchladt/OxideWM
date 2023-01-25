@@ -5,6 +5,7 @@ use serde::Serialize;
 
 use crate::workspace::Workspace;
 use crate::windowstate::WindowState;
+use crate::config::Config;
 use std::{cell::RefCell, rc::Rc, collections::HashMap};
 use log::{info, debug};
 
@@ -15,6 +16,8 @@ pub struct ScreenInfo {
     _connection: Rc<RefCell<RustConnection>>,
     #[serde(skip_serializing)]
     _screen_ref: Rc<RefCell<Screen>>,
+    #[serde(skip_serializing)]
+    config: Rc<RefCell<Config>>,
     workspaces: HashMap<u16, Workspace>,
     pub active_workspace: u16,
     pub ws_pos_x: i32,
@@ -27,12 +30,13 @@ pub struct ScreenInfo {
 }
 
 impl ScreenInfo {
-    pub fn new(connection: Rc<RefCell<RustConnection>>, screen_ref: Rc<RefCell<Screen>>, height: u32, width: u32) -> ScreenInfo {
+    pub fn new(connection: Rc<RefCell<RustConnection>>, screen_ref: Rc<RefCell<Screen>>, config: Rc<RefCell<Config>>, height: u32, width: u32) -> ScreenInfo {
         let active_workspace = 1;
         let workspaces = HashMap::new();
         let mut screen_info = ScreenInfo {
             _connection: connection,
             _screen_ref: screen_ref,
+            config,
             workspaces,
             active_workspace,
             ws_pos_x: 0,
@@ -58,7 +62,7 @@ impl ScreenInfo {
     }
 
     pub fn add_status_bar(&mut self, event: &CreateNotifyEvent) {
-        self.status_bar = Some(WindowState::new(self._connection.clone(), &self._screen_ref.borrow(), event.window));
+        self.status_bar = Some(WindowState::new(self._connection.clone(), &self._screen_ref.borrow(), self.config.clone(), event.window));
 
         //TODO: if the status bar is on the left or right
         //if the status bar is on the bottom
@@ -109,6 +113,7 @@ impl ScreenInfo {
             workspace_nr.to_string(),
             self._connection.clone(),
             self._screen_ref.clone(),
+            self.config.clone(),
             self.ws_pos_x,
             self.ws_pos_y,
             self.ws_width,
@@ -125,7 +130,7 @@ impl ScreenInfo {
         }
     }
 
-    
+
     pub fn on_map_request(&mut self, event: &MapRequestEvent) {
         info!("WINMAN: MapRequestEvent: {:?}", event);
         let workspace_option = self.workspaces.get_mut(&self.active_workspace.clone());
@@ -158,7 +163,7 @@ impl ScreenInfo {
         new_workspace.remap_windows();
         new_workspace.focused = true;
         new_workspace
-        
+
     }
 
     pub fn get_workspace_count(&self) -> usize{

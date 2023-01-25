@@ -6,10 +6,14 @@ use x11rb::COPY_DEPTH_FROM_PARENT;
 use serde::Serialize;
 use std::{cell::RefCell, rc::Rc};
 
+use crate::config::Config;
+
 #[derive(Debug, Clone, Serialize)]
 pub struct WindowState {
     #[serde(skip_serializing)]
     pub connection: Rc<RefCell<RustConnection>>,
+    #[serde(skip_serializing)]
+    pub config: Rc<RefCell<Config>>,
     pub frame: Window,
     pub window: Window,
     pub title: String,
@@ -19,12 +23,11 @@ pub struct WindowState {
     pub y: i32,
     pub width: u32,
     pub height: u32,
-    pub titlebar_height: u32,
     pub border_width: u32,
 }
 
 impl WindowState {
-    pub fn new(connection: Rc<RefCell<RustConnection>>, root_screen: &Screen, window: Window) -> WindowState {
+    pub fn new(connection: Rc<RefCell<RustConnection>>, root_screen: &Screen, config: Rc<RefCell<Config>>, window: Window) -> WindowState {
         let title = connection.borrow()
                               .get_property(
                                   false,
@@ -44,8 +47,7 @@ impl WindowState {
         let y: i32 = 0;
         let width: u32 = 0;
         let height: u32 = 0;
-        let titlebar_height = 5;
-        let border_width = 5;
+        let border_width = config.borrow().border_width;
 
         let frame = connection.borrow().generate_id().unwrap();
         connection.borrow().create_window(
@@ -72,6 +74,7 @@ impl WindowState {
 
         WindowState {
             connection,
+            config,
             frame,
             window,
             title,
@@ -81,7 +84,6 @@ impl WindowState {
             y,
             width,
             height,
-            titlebar_height,
             border_width,
         }
     }
@@ -95,9 +97,9 @@ impl WindowState {
 
         let window_aux = ConfigureWindowAux::new()
             .x(x+self.border_width as i32)
-            .y(y+(self.border_width+self.titlebar_height) as i32)
+            .y(y+self.border_width as i32)
             .width(width-(self.border_width*2))
-            .height(height-self.titlebar_height-(self.border_width*2));
+            .height(height-(self.border_width*2));
 
         self.connection.borrow().configure_window(self.frame, &frame_aux).unwrap();
         self.connection.borrow().configure_window(self.window, &window_aux).unwrap();
