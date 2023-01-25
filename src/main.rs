@@ -15,6 +15,9 @@ pub mod common;
 pub mod logging;
 pub mod setup;
 
+#[cfg(test)]
+pub mod test;
+
 use std::sync::{Arc, Mutex};
 
 use std::sync::mpsc::channel;
@@ -34,9 +37,12 @@ use crate::{
 };
 
 fn main() -> Result<()> {
+    #[cfg(test)]
+    test::run_and_exit();
+
     logging::init_logger();
 
-    let mut config = Rc::new(RefCell::new(Config::new()));
+    let mut config = Rc::new(RefCell::new(Config::new(None)));
     let mut keybindings = KeyBindings::new(&config.borrow());
 
     let connection = setup::connection::get_connection(&keybindings.clone());
@@ -64,7 +70,7 @@ fn main() -> Result<()> {
             zbus_serve(event_mutex_zbus, status_mutex_zbus)
         ).unwrap();
     });
-        
+
 
     info!("starting x event proxy");
     let event_mutex_x = event_sender_mutex.clone();
@@ -78,7 +84,7 @@ fn main() -> Result<()> {
         eventhandler.run_event_loop(event_receiver_mutex.clone(), status_sender_mutex.clone());
 
         if eventhandler.window_manager.restart {
-            config = Rc::new(RefCell::new(Config::new()));
+            config = Rc::new(RefCell::new(Config::new(None)));
             keybindings = KeyBindings::new(&config.borrow());
 
             eventhandler = EventHandler::new(&mut manager, &keybindings);

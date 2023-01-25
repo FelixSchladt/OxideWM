@@ -1,0 +1,12 @@
+# This is the config file for OxideWM.
+# Here you can freely configure your window manager.
+# Please keep in mind that you have to configure every value properly for the WM to run.
+# Otherwise the programm will crash.
+
+cmds: 999
+exec: [999,999]
+exec_always: 999
+border_with: "wide"
+border_color: 999
+border_focus_color: 0xFFFF00
+gap: "small"
