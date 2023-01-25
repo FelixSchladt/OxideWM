@@ -112,19 +112,19 @@ impl WindowManager {
 
         loop{
             match connection.wait_for_event(){
-            Ok(event) => {
-                debug!("Transvering X-Event into Queue {:?}", event);
-                
-                let event_typ = EnumEventType::X11rbEvent(event);
-                if let Err(error) = queue.lock().unwrap().send(event_typ) {
-                    warn!("Could not insert event into event queue {}", error);
-                };
+                Ok(event) => {
+                    debug!("Transvering X-Event into Queue {:?}", event);
+                    
+                    let event_typ = EnumEventType::X11rbEvent(event);
+                    if let Err(error) = queue.lock().unwrap().send(event_typ) {
+                        warn!("Could not insert event into event queue {}", error);
+                    };
 
-            },
-            Err(error) => {
-                error!("Error retreiving Event from Window manager {:?}", error);
-            }
-        };
+                },
+                Err(error) => {
+                    error!("Error retreiving Event from Window manager {:?}", error);
+                }
+            };
         };
     }
 

@@ -15,6 +15,9 @@ pub mod common;
 pub mod logging;
 pub mod setup;
 
+#[cfg(test)]
+pub mod test;
+
 use std::sync::{Arc, Mutex};
 
 use std::sync::mpsc::channel;
@@ -36,7 +39,9 @@ use crate::{
 fn main() -> Result<()> {
     logging::init_logger();
 
-    let mut config = Rc::new(RefCell::new(Config::new()));
+    logging::init_logger();
+
+    let mut config = Rc::new(RefCell::new(Config::new(None)));
     let mut keybindings = KeyBindings::new(&config.borrow());
 
     let (event_sender, event_receiver) = channel::<EnumEventType>();
@@ -74,7 +79,7 @@ fn main() -> Result<()> {
         eventhandler.run_event_loop(event_receiver_mutex.clone(), status_sender_mutex.clone());
 
         if eventhandler.window_manager.restart {
-            config = Rc::new(RefCell::new(Config::new()));
+            config = Rc::new(RefCell::new(Config::new(None)));
             keybindings = KeyBindings::new(&config.borrow());
 
             eventhandler = EventHandler::new(&mut manager, &keybindings);

@@ -62,6 +62,7 @@ cmds:
     command: GoToWorkspace
     args: "previous"
 
+<<<<<<< HEAD
   - keys: ["C","A", "1"]
     command: GoToWorkspace
     args: "1"
@@ -239,6 +240,8 @@ cmds:
     command: QuitWorkspace
     args: None
 
+=======
+>>>>>>> main
   # Execute Commands
   - keys: ["A", "d"]
     command: Exec

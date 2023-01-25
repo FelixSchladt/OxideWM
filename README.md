@@ -2,7 +2,10 @@
 
 
 ![workflow](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust.yml/badge.svg)
+<<<<<<< HEAD
 ![clippy](https://github.com/DHBW-FN/OxideWM/actions/workflows/Rust-Clippy-Check.yml/badge.svg)
+=======
+>>>>>>> main
 [![Rust-Tests](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust_test.yml/badge.svg)](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust_test.yml)
 <!--![release](/github/v/release/DHBW-FN/OxideWM?display_name=tag) -->
 
