@@ -7,8 +7,7 @@ use std::path::Path;
 use crate::eventhandler::commands::WmCommands;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
-where
-    D: Deserializer<'de>,
+where D: Deserializer<'de>,
 {
     let args = Option::<String>::deserialize(deserializer)?;
     let args = args.unwrap_or("".to_string());
@@ -40,7 +39,7 @@ pub struct Config {
     pub exec_always: Vec<String>,
 
     #[serde(default = "default_border_width")]
-    pub border_width: u8,
+    pub border_width: u32,
 
     #[serde(default = "default_border_color")]
     pub border_color: u32,
@@ -49,7 +48,7 @@ pub struct Config {
     pub border_focus_color: u32,
 
     #[serde(default = "default_gap")]
-    pub gap: u8,
+    pub gap: u32,
 }
 
 
@@ -85,8 +84,7 @@ impl Config {
                     Ok(config)  => return config,
                     Err(err)    => {
                         let err_msg = error!("Error in '{}': {}", chosen_config.unwrap(), err);
-                        //TODO: Write this error to a log file
-                        println!("ERR: {:?}", err_msg);
+                        error!("ERR: {:?}", err_msg);
                     }
                 }
             },
@@ -115,7 +113,7 @@ fn default_exec_always() -> Vec<String> {
     Vec::<String>::new()
 }
 
-fn default_border_width() -> u8 { 3 }
+fn default_border_width() -> u32 { 3 }
 fn default_border_color() -> u32 { 0xFFFFFF } // white
 fn default_border_focus_color() -> u32 { 0x000000 } // black
-fn default_gap() -> u8 { 3 }
+fn default_gap() -> u32 { 3 }
