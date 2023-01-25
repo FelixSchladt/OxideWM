@@ -43,10 +43,10 @@ pub struct Config {
     pub border_width: u8,
 
     #[serde(default = "default_border_color")]
-    pub border_color: String,
+    pub border_color: u32,
 
     #[serde(default = "default_border_focus_color")]
-    pub border_focus_color: String,
+    pub border_focus_color: u32,
 
     #[serde(default = "default_gap")]
     pub gap: u8,
@@ -116,6 +116,6 @@ fn default_exec_always() -> Vec<String> {
 }
 
 fn default_border_width() -> u8 { 3 }
-fn default_border_color() -> String { "0xFFFFFF".to_string() } // white
-fn default_border_focus_color() -> String { "0x000000".to_string() } // black
+fn default_border_color() -> u32 { 0xFFFFFF } // white
+fn default_border_focus_color() -> u32 { 0x000000 } // black
 fn default_gap() -> u8 { 3 }
