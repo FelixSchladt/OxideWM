@@ -24,6 +24,7 @@ pub struct WindowState {
     pub width: u32,
     pub height: u32,
     pub border_width: u32,
+    pub gap_size: u32,
 }
 
 impl WindowState {
@@ -48,6 +49,7 @@ impl WindowState {
         let width: u32 = 0;
         let height: u32 = 0;
         let border_width = config.borrow().border_width;
+        let gap_size = config.borrow().gap;
 
         let frame = connection.borrow().generate_id().unwrap();
         connection.borrow().create_window(
@@ -85,21 +87,22 @@ impl WindowState {
             width,
             height,
             border_width,
+            gap_size,
         }
     }
 
     pub fn set_bounds(&self, x: i32, y: i32, width: u32, height: u32) -> &WindowState {
         let frame_aux = ConfigureWindowAux::new()
-            .x(x)
-            .y(y)
-            .width(width)
-            .height(height);
+            .x(x+self.gap_size as i32)
+            .y(y+self.gap_size as i32)
+            .width(width - (self.gap_size*2))
+            .height(height - (self.gap_size*2));
 
         let window_aux = ConfigureWindowAux::new()
-            .x(x+self.border_width as i32)
-            .y(y+self.border_width as i32)
-            .width(width-(self.border_width*2))
-            .height(height-(self.border_width*2));
+            .x(x+(self.border_width + self.gap_size) as i32)
+            .y(y+(self.border_width + self.gap_size) as i32)
+            .width(width - (self.border_width*2) - (self.gap_size*2))
+            .height(height - (self.border_width*2) - (self.gap_size*2));
 
         self.connection.borrow().configure_window(self.frame, &frame_aux).unwrap();
         self.connection.borrow().configure_window(self.window, &window_aux).unwrap();
