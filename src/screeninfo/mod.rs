@@ -176,6 +176,9 @@ impl ScreenInfo {
     pub fn move_window_to_workspace_and_follow(&mut self, arg: EnumWorkspaceNavigation) -> Result<(),MoveError> {
         match self.get_next_workspace_nr(arg) {
             Ok(next_workspace) => {
+                if !self.workspaces.contains_key(&next_workspace) {
+                    self.create_workspace(next_workspace);
+                }
                 if self.move_window_to_workspace_nr(next_workspace).is_err() {
                     let error_msg =format!("failed to move window to workspace nr {}", next_workspace); 
                     return Err(MoveError::new(error_msg));
