@@ -1,5 +1,3 @@
-use log::error;
-
 use super::parse_error::ParseError;
 
 pub enum WorkspaceNavigation {
@@ -28,16 +26,11 @@ impl TryFrom<&str> for WorkspaceNavigation {
     type Error = String;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         if value.len() == 1 {
-            if let Some(character) = value.chars().next() {
-                if let Some(digit) = character.to_digit(10) {
-                    if let Ok(digit_u16) = u16::try_from(digit){
-                        return Ok(WorkspaceNavigation::Number(digit_u16));
-                    }else{
-                        error!("Number to big for workspace :'{}'",digit);
-                        return Err(format!("Number to big for workspace :'{}'",digit));
-                    }
-                }
-            }
+            let character = value.chars().next().unwrap_or('_');
+            if let Some(digit) = character.to_digit(10) {
+                let digit_u16 = u16::try_from(digit).unwrap();
+                return Ok(WorkspaceNavigation::Number(digit_u16));
+            }    
         }
 
         match value.to_lowercase().as_str() {
