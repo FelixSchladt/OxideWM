@@ -39,8 +39,6 @@ use crate::{
 fn main() -> Result<()> {
     logging::init_logger();
 
-    logging::init_logger();
-
     let mut config = Rc::new(RefCell::new(Config::new(None)));
     let mut keybindings = KeyBindings::new(&config.borrow());
 
