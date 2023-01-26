@@ -12,7 +12,7 @@ use x11rb::rust_connection::RustConnection;
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
 use serde::Serialize;
-use std::{cell::RefCell, collections::HashMap};
+use std::{cell::RefCell, collections::HashMap, sync::{Mutex, Condvar}};
 use std::sync::Arc;
 use std::rc::Rc;
 use log::{info, debug, warn};
@@ -55,6 +55,8 @@ pub struct ScreenInfo {
     #[serde(skip_serializing)]
     pub screen_size: Rc<RefCell<ScreenSize>>,
     pub status_bar: Option<WindowState>,
+    #[serde(skip_serializing)]
+    pub wm_state_change: Arc<(Mutex<bool>, Condvar)>,
 }
 
 impl ScreenInfo {
@@ -63,7 +65,8 @@ impl ScreenInfo {
         screen_ref: Rc<RefCell<Screen>>,
         config: Rc<RefCell<Config>>,
         width: u32,
-        height: u32
+        height: u32,
+        wm_state_change: Arc<(Mutex<bool>, Condvar)>
     ) -> ScreenInfo {
         let active_workspace = LOWEST_WORKSPACE_NR;
         let workspaces = HashMap::new();
@@ -76,6 +79,7 @@ impl ScreenInfo {
             config,
             screen_size,
             status_bar: None,
+            wm_state_change,
         };
         screen_info.create_workspace(LOWEST_WORKSPACE_NR);
         screen_info
@@ -87,7 +91,6 @@ impl ScreenInfo {
         self.connection.configure_window(event.window, &window_aux).unwrap();
         self.connection.map_window(event.window).unwrap();
         self.connection.flush().unwrap();
-
     }
 
     pub fn add_status_bar(&mut self, event: &CreateNotifyEvent) {
@@ -126,6 +129,13 @@ impl ScreenInfo {
         for (_, workspace) in self.workspaces.iter_mut() {
             workspace.remap_windows();
         }
+    }
+
+    fn state_changed(&self){
+        let (lock, cvar) = &*self.wm_state_change.clone();
+        let mut wm_changed_state = lock.lock().unwrap();
+        *wm_changed_state = true;
+        cvar.notify_one();
     }
 
     fn create_workspace(&mut self, workspace_nr: u16) -> &mut Workspace {
@@ -411,6 +421,7 @@ impl ScreenInfo {
         self.active_workspace = workspace_nr;
         new_workspace.remap_windows();
         new_workspace.focused = true;
+        self.state_changed();
         Ok(())
     }
 

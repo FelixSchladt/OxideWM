@@ -19,8 +19,8 @@ pub struct OxideWindow {
     pub y: i32,
     pub width: u32,
     pub height: u32,
-    pub titlebar_height: u32,
     pub border_width: u32,
+    pub gap_size: u32,
 }
 
 #[derive(Debug, Clone, Deserialize)]
