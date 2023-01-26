@@ -197,12 +197,13 @@ impl WindowManager {
             .get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
-            if let Ok(arg) = arg_option{
-                if let Err(error) = screen.switch_workspace(arg) {
-                    warn!("Could not go to workspace {}", error);
-                }
-            }else if let Err(error) = arg_option{
-                warn!("Could not go to workspace {}", error);
+            match arg_option{
+                Ok(arg) =>{
+                    if let Err(error) = screen.switch_workspace(arg) {
+                        warn!("Could not go to workspace {}", error);
+                    }
+                },
+                Err(error) => warn!("Could not go to workspace {}", error),
             }
         }else{
             warn!("Could not switch workspace, no screen was focused");
@@ -214,12 +215,13 @@ impl WindowManager {
             .get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
-            if let Ok(arg) = arg_option{       
-                if let Err(error) = screen.move_window_to_workspace(arg){
-                    warn!("failed to move window to workspace {}", error);
-                }
-            }else if let Err(error) = arg_option{
-                warn!("Could not move to workspace {}", error);
+            match arg_option{
+                Ok(arg) => {       
+                    if let Err(error) = screen.move_window_to_workspace(arg){
+                        warn!("failed to move window to workspace {}", error);
+                    }
+                },
+                Err(error) => warn!("Could not move to workspace {}", error),
             }
         }else{
             warn!("Could not move to workspace, no screen was focused");
