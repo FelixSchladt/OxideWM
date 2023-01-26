@@ -1,40 +1,93 @@
 # Config
 
 In our config file, you can configure OxideWM as you like.
-Please keep in mind that you have to configure every value properly for the WM to run, otherwise the programm will crash.
+Please keep in mind that you have to configure every value properly for the WM to run, otherwise the programm will use a default value.
+Default Values:
+
+- cmds:
+  - A + t, for opening a new kitty window
+- exec:
+- exec_always:
+- border_witdh:
+- border_color: 0xFFFFFF (white)
+- border_focus_color: 0x000000 (black)
+- gap: 3
+
+## Key shortcuts:
 
 OxideWM uses the 'Alt' key as the meta key
-Key shortcuts:
 
 - A -> ALT
 - C -> CONTROL
 - S -> SHIFT
 
-Move commands:
+## Move commands:
 
 - left
 - right
 - up
 - down
 
-WmCommands:
+## WmCommands:
 
-- Exec
-- Focus
-- GoToWorkspace
-- Kill, kill the focused window
-- Layout, args: horizontal, Vertical
-- Move, args: left, right, up, down
-- MoveToWorkspace
-- MoveToWorkspaceAndFollow
-- Quit; quit the window manager
-- Resize
-- Restart, restart the window manager
+- Exec:
 
-In 'cmds' all keybinding for the WM are defined.
+  - Lets you atart an application
+
+- Focus:
+
+  - Makes you switch between applications
+
+- GoToWorkspace:
+
+  - Makes you switch to another workspace
+
+- Kill:
+
+  - Kill the focused window
+
+- Layout:
+
+  - Changes the layout of the currently focused application
+  - args:
+    - horizontal
+    - vertical
+
+- Move:
+
+  - Moves the window to one of the following directions
+  - args:
+    - left,
+    - right,
+    - up,
+    - down:
+
+- MoveToWorkspace:
+
+  - Moves the selected application to the selected workspace
+  - args:
+    - Number of your workspace
+
+- MoveToWorkspaceAndFollow:
+
+  - Moves your focused application to the selected workspace and changes the focus to the according one
+
+- Quit:
+
+  - Quit the window manager:
+
+- Resize:
+
+  - Lets you resize your window
+
+- Restart:
+
+  - Restarts the window manager
+
+In the 'cmds' field of the configuration all keybinding for the WM are defined.
 A Command consists of an array of keys, the command, some optional arguments and should be configured like the following:
+In this example, the command opens a kitty window.
 
 - keys: ["A", "t"]
   command: Exec
   args: "kitty"
-  In this example, the command opens a kitty window.
