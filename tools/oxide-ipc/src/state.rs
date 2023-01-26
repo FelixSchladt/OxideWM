@@ -45,8 +45,8 @@ pub struct Config {
     pub exec: Vec<String>,
     pub exec_always: Vec<String>,
     pub border_width: u8,
-    pub border_color: String,
-    pub border_focus_color: String,
+    pub border_color: u32,
+    pub border_focus_color: u32,
     pub gap: u8,
 }
 

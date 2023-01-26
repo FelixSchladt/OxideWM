@@ -51,6 +51,11 @@ impl WindowState {
         let height: u32 = 0;
         let border_width = config.borrow().border_width;
         let gap_size = config.borrow().gap;
+        let border_color = config.borrow().border_color;
+
+        let colormap = connection.generate_id().unwrap();
+        connection.create_colormap(ColormapAlloc::ALL, colormap, root_screen.root, root_screen.root_visual).unwrap();
+        connection.alloc_color(colormap, 255, 0, 0).unwrap();
 
         let frame = connection.generate_id().unwrap();
         connection.create_window(
@@ -64,7 +69,7 @@ impl WindowState {
             0,
             WindowClass::INPUT_OUTPUT,
             0,
-            &CreateWindowAux::new().background_pixel(root_screen.black_pixel),
+            &CreateWindowAux::new().background_pixel(colormap),
         ).unwrap();
 
         let mask = ChangeWindowAttributesAux::default()
