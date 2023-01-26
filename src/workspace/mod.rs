@@ -1,11 +1,11 @@
-pub mod enum_workspace_layout;
-pub mod enum_workspace_navigation;
+pub mod workspace_layout;
+pub mod workspace_navigation;
 pub mod parse_error;
 
-use self::enum_workspace_layout::EnumWorkspaceLayout;
+use self::workspace_layout::WorkspaceLayout;
 
 use crate::{
-    windowmanager::enums_windowmanager::Movement,
+    windowmanager::movement::Movement,
     windowstate::WindowState,
     config::Config,
     screeninfo::ScreenSize,
@@ -39,7 +39,7 @@ pub struct Workspace {
     pub urgent: bool,
     pub windows: HashMap<u32, WindowState>,
     pub order: Vec<u32>,
-    pub layout: EnumWorkspaceLayout,
+    pub layout: WorkspaceLayout,
 }
 
 
@@ -64,7 +64,7 @@ impl Workspace {
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
-            layout: EnumWorkspaceLayout::HorizontalStriped,
+            layout: WorkspaceLayout::HorizontalStriped,
         }
     }
 
@@ -249,15 +249,15 @@ impl Workspace {
         //TODO: Change color of border to unfocus color
     }
 
-    pub fn set_layout(&mut self, layout: EnumWorkspaceLayout) {
+    pub fn set_layout(&mut self, layout: WorkspaceLayout) {
         self.layout = layout;
         self.remap_windows();
     }
 
     pub fn next_layout(&mut self) {
         match self.layout {
-            EnumWorkspaceLayout::HorizontalStriped => self.set_layout(EnumWorkspaceLayout::VerticalStriped),
-            EnumWorkspaceLayout::VerticalStriped => self.set_layout(EnumWorkspaceLayout::HorizontalStriped),
+            WorkspaceLayout::HorizontalStriped => self.set_layout(WorkspaceLayout::VerticalStriped),
+            WorkspaceLayout::VerticalStriped => self.set_layout(WorkspaceLayout::HorizontalStriped),
         }
         self.remap_windows();
     }
@@ -290,8 +290,8 @@ impl Workspace {
         } else {
             match self.layout {
                 //Layout::Tiled => {},
-                EnumWorkspaceLayout::VerticalStriped => self.map_vertical_striped(),
-                EnumWorkspaceLayout::HorizontalStriped => self.map_horizontal_striped(),
+                WorkspaceLayout::VerticalStriped => self.map_vertical_striped(),
+                WorkspaceLayout::HorizontalStriped => self.map_horizontal_striped(),
             }
         }
     }

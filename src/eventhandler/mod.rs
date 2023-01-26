@@ -1,7 +1,7 @@
 pub mod commands;
 pub mod events;
 
-use self::events::{IpcEvent, WmActionEvent, EnumEventType};
+use self::events::{IpcEvent, WmActionEvent, EventType};
 
 use log::{info, debug, trace};
 use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
@@ -31,14 +31,14 @@ impl EventHandler<'_> {
 
     pub fn run_event_loop(
         &mut self, 
-        receive_channel: Arc<Mutex<Receiver<EnumEventType>>>,
+        receive_channel: Arc<Mutex<Receiver<EventType>>>,
         status_send_channel: Arc<Mutex<Sender<String>>>
     ){
         loop {
             if let Ok(event_type) = receive_channel.lock().unwrap().recv() {
                 match event_type {
-                    EnumEventType::X11rbEvent(event) => self.handle_x_event(&event),
-                    EnumEventType::OxideEvent(event) => self.handle_ipc_event(event, status_send_channel.clone()),
+                    EventType::X11rbEvent(event) => self.handle_x_event(&event),
+                    EventType::OxideEvent(event) => self.handle_ipc_event(event, status_send_channel.clone()),
                 }
             }
 

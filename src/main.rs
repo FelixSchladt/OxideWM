@@ -29,7 +29,7 @@ use log::info;
 use serde_json::Result;
 
 use crate::{
-    eventhandler::events::EnumEventType,
+    eventhandler::events::EventType,
     windowmanager::WindowManager,
     eventhandler::EventHandler,
     keybindings::KeyBindings,
@@ -42,7 +42,7 @@ fn main() -> Result<()> {
     let mut config = Rc::new(RefCell::new(Config::new(None)));
     let mut keybindings = KeyBindings::new(&config.borrow());
 
-    let (event_sender, event_receiver) = channel::<EnumEventType>();
+    let (event_sender, event_receiver) = channel::<EventType>();
     let (status_sender, status_receiver) = channel::<String>();
 
 

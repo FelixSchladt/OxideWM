@@ -5,7 +5,7 @@ use self::error::{MoveError, QuitError};
 use crate::{
     config::Config,
     windowstate::WindowState,
-    workspace::{Workspace, enum_workspace_navigation::EnumWorkspaceNavigation},
+    workspace::{Workspace, workspace_navigation::WorkspaceNavigation},
 };
 
 use x11rb::rust_connection::RustConnection;
@@ -191,7 +191,7 @@ impl ScreenInfo {
         }
     }
 
-    pub fn move_window_to_workspace_and_follow(&mut self, arg: EnumWorkspaceNavigation) -> Result<(),MoveError> {
+    pub fn move_window_to_workspace_and_follow(&mut self, arg: WorkspaceNavigation) -> Result<(),MoveError> {
         match self.get_next_workspace_nr(arg) {
             Ok(next_workspace) => {
                 if !self.workspaces.contains_key(&next_workspace) {
@@ -212,7 +212,7 @@ impl ScreenInfo {
     }
 
 
-    pub fn move_window_to_workspace(&mut self, arg: EnumWorkspaceNavigation) -> Result<(),MoveError> {
+    pub fn move_window_to_workspace(&mut self, arg: WorkspaceNavigation) -> Result<(),MoveError> {
         match self.get_next_workspace_nr(arg) {
             Ok(next_workspace) => {
                 if self.move_window_to_workspace_nr(next_workspace).is_err() {
@@ -225,11 +225,11 @@ impl ScreenInfo {
         }
     }
 
-    fn get_next_workspace_nr(&self, arg: EnumWorkspaceNavigation) -> Result<u16,MoveError> {
+    fn get_next_workspace_nr(&self, arg: WorkspaceNavigation) -> Result<u16,MoveError> {
         match arg {
-            EnumWorkspaceNavigation::Next => Ok(self.find_next_workspace()),
-            EnumWorkspaceNavigation::Previous => Ok(self.find_previous_workspace()),
-            EnumWorkspaceNavigation::Number(number) => {
+            WorkspaceNavigation::Next => Ok(self.find_next_workspace()),
+            WorkspaceNavigation::Previous => Ok(self.find_previous_workspace()),
+            WorkspaceNavigation::Number(number) => {
                 if number >= LOWEST_WORKSPACE_NR {
                     Ok(number)
                 }else{
@@ -278,16 +278,16 @@ impl ScreenInfo {
         Ok(())
     }
 
-    pub fn move_to_or_create_workspace(&mut self, arg: EnumWorkspaceNavigation) -> Result<(),MoveError> {
+    pub fn move_to_or_create_workspace(&mut self, arg: WorkspaceNavigation) -> Result<(),MoveError> {
         let workspace_nr = match arg {
-            EnumWorkspaceNavigation::Next => {
+            WorkspaceNavigation::Next => {
                 if self.active_workspace == u16::MAX{
                     LOWEST_WORKSPACE_NR
                 }else{
                     self.active_workspace + 1
                 }
             },
-            EnumWorkspaceNavigation::Previous => {
+            WorkspaceNavigation::Previous => {
                 if self.active_workspace <= LOWEST_WORKSPACE_NR {
                     let highest_workspace = self.workspaces.keys().max();
                     if let Some(workspace_nr) = highest_workspace {
@@ -303,7 +303,7 @@ impl ScreenInfo {
                     self.active_workspace - 1
                 }
             },
-            EnumWorkspaceNavigation::Number(number) => {
+            WorkspaceNavigation::Number(number) => {
                 if number < LOWEST_WORKSPACE_NR {
                     let error_msg =format!("workspace nr {} has to be greater than or equal to {}", number, LOWEST_WORKSPACE_NR); 
                     return Err(MoveError::new(error_msg));
@@ -321,7 +321,7 @@ impl ScreenInfo {
         Ok(())
     }
 
-    pub fn switch_workspace(&mut self, arg: EnumWorkspaceNavigation) -> Result<(),MoveError> {
+    pub fn switch_workspace(&mut self, arg: WorkspaceNavigation) -> Result<(),MoveError> {
         let new_workspace_nr = match self.get_next_workspace_nr(arg) {
             Ok(next_workspace) => next_workspace,
             Err(error) => return Err(error)

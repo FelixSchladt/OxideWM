@@ -1,7 +1,7 @@
 use crate::eventhandler::commands::WmCommands;
 use zbus::zvariant::{DeserializeDict, SerializeDict, Type};
 
-pub enum EnumEventType {
+pub enum EventType {
     X11rbEvent(x11rb::protocol::Event),
     OxideEvent(crate::eventhandler::events::IpcEvent)
 }

@@ -1,6 +1,6 @@
-pub mod enums_windowmanager;
+pub mod movement;
 
-use self::enums_windowmanager::Movement;
+use self::movement::Movement;
 
 use std::{collections::HashMap};
 use std::sync::{Mutex,Arc};
@@ -19,15 +19,15 @@ use x11rb::{
 };
 
 use crate::{
-    eventhandler::events::EnumEventType,
+    eventhandler::events::EventType,
     auxiliary::exec_user_command,
     screeninfo::ScreenInfo,
     config::Config,
     atom::Atom,
     workspace::{
         Workspace,
-        enum_workspace_layout::EnumWorkspaceLayout,
-        enum_workspace_navigation::EnumWorkspaceNavigation,
+        workspace_layout::WorkspaceLayout,
+        workspace_navigation::WorkspaceNavigation,
     }
 };
 
@@ -106,7 +106,7 @@ impl WindowManager {
         }
     }
 
-    pub fn run_event_proxy(connection: Arc<RustConnection>,queue: Arc<Mutex<Sender<EnumEventType>>>){
+    pub fn run_event_proxy(connection: Arc<RustConnection>,queue: Arc<Mutex<Sender<EventType>>>){
         debug!("Started waiting for X-Event");
 
         loop{
@@ -114,7 +114,7 @@ impl WindowManager {
                 Ok(event) => {
                     debug!("Transvering X-Event into Queue {:?}", event);
                     
-                    let event_typ = EnumEventType::X11rbEvent(event);
+                    let event_typ = EventType::X11rbEvent(event);
                     if let Err(error) = queue.lock().unwrap().send(event_typ) {
                         warn!("Could not insert event into event queue {}", error);
                     };
@@ -181,7 +181,7 @@ impl WindowManager {
 
         match args {
             Some(args) => {
-                let layout = EnumWorkspaceLayout::try_from(args.as_str());
+                let layout = WorkspaceLayout::try_from(args.as_str());
                 if layout.is_err(){
                     warn!("Layout could not be parsed from argument {}", args);
                     return;
@@ -196,7 +196,7 @@ impl WindowManager {
         let screen_option = self.screeninfo
             .get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
-            let arg_option = EnumWorkspaceNavigation::parse_enum_workspace_navigation(args_option);
+            let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
             if let Ok(arg) = arg_option{
                 if let Err(error) = screen.switch_workspace(arg) {
                     warn!("Could not go to workspace {}", error);
@@ -213,7 +213,7 @@ impl WindowManager {
         let screen_option = self.screeninfo
             .get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
-            let arg_option = EnumWorkspaceNavigation::parse_enum_workspace_navigation(args_option);
+            let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
             if let Ok(arg) = arg_option{       
                 if let Err(error) = screen.move_window_to_workspace(arg){
                     warn!("failed to move window to workspace {}", error);
@@ -230,7 +230,7 @@ impl WindowManager {
         let screen_option = self.screeninfo
             .get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
-            let arg_option = EnumWorkspaceNavigation::parse_enum_workspace_navigation(args_option);
+            let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
             if let Ok(arg) = arg_option{       
                 if let Err(error) = screen.move_window_to_workspace_and_follow(arg){
                     warn!("failed to move window to workspace and follow {}", error);
@@ -244,7 +244,7 @@ impl WindowManager {
     }
 
     pub fn handle_move_to_or_create_workspace(&mut self, args_option: Option<String>){
-        let arg_option = EnumWorkspaceNavigation::parse_enum_workspace_navigation(args_option);
+        let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
         match arg_option {
             Ok(arg) => {
                 let screen = match self.screeninfo.get_mut(&self.focused_screen) {
