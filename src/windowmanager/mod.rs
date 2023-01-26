@@ -3,10 +3,10 @@ pub mod enums_windowmanager;
 use self::enums_windowmanager::Movement;
 
 use std::{collections::HashMap};
-use std::sync::{Mutex,Arc};
 use std::sync::mpsc::Sender;
 use std::{cell::RefCell, rc::Rc};
 use serde::Serialize;
+use std::sync::{Mutex, Condvar, Arc};
 
 use log::{warn, error, info, debug};
 use x11rb::connection::Connection;
@@ -48,7 +48,11 @@ pub struct WindowManager {
 }
 
 impl WindowManager {
-    pub fn new(connection:Arc<RustConnection>, config: Rc<RefCell<Config>>) -> WindowManager {
+    pub fn new(
+        connection:Arc<RustConnection>,
+        config: Rc<RefCell<Config>>,
+        wm_state_change: Arc<(Mutex<bool>, Condvar
+    )>) -> WindowManager {
         let screeninfo = HashMap::new();
 
         let focused_screen = 0;
@@ -65,7 +69,7 @@ impl WindowManager {
             restart: false,
         };
 
-        manager.setup_screens();
+        manager.setup_screens(wm_state_change);
         manager.autostart_exec();
         manager.autostart_exec_always();
         let result = manager.connection.flush();
@@ -229,7 +233,7 @@ impl WindowManager {
         self.get_active_workspace().toggle_fullscreen();
     }
 
-    fn setup_screens(&mut self) {
+    fn setup_screens(&mut self, wm_state_change: Arc<(Mutex<bool>, Condvar)>) {
         for screen in self.connection.setup().roots.iter() {
             let screen_ref = Rc::new(RefCell::new(screen.clone()));
             let mut screenstruct = ScreenInfo::new(
@@ -238,6 +242,7 @@ impl WindowManager {
                 self.config.clone(),
                 screen.width_in_pixels as u32,
                 screen.height_in_pixels as u32,
+                wm_state_change.clone(),
             );
             screenstruct.create_new_workspace();    // Todo Js remove this
             self.screeninfo.insert(screen.root, screenstruct);

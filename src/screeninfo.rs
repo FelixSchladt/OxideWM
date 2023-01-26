@@ -3,11 +3,13 @@ use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
 use serde::Serialize;
 
+
+use std::sync::{Mutex, Condvar, Arc};
+
 use crate::workspace::Workspace;
 use crate::windowstate::WindowState;
 use crate::config::Config;
 use std::{cell::RefCell, rc::Rc, collections::HashMap};
-use std::sync::Arc;
 use log::{info, debug};
 
 
@@ -47,10 +49,19 @@ pub struct ScreenInfo {
     workspaces: HashMap<u16, Workspace>,
     pub active_workspace: u16,
     pub status_bar: Option<WindowState>,
+    #[serde(skip_serializing)]
+    pub wm_state_change: Arc<(Mutex<bool>, Condvar)>,
 }
 
 impl ScreenInfo {
-    pub fn new(connection: Arc<RustConnection>, screen_ref: Rc<RefCell<Screen>>, config: Rc<RefCell<Config>>, width: u32, height: u32) -> ScreenInfo {
+    pub fn new(
+        connection: Arc<RustConnection>,
+        screen_ref: Rc<RefCell<Screen>>,
+        config: Rc<RefCell<Config>>,
+        width: u32,
+        height: u32,
+        wm_state_change: Arc<(Mutex<bool>, Condvar)>
+) -> ScreenInfo {
         let active_workspace = 1;
         let workspaces = HashMap::new();
         let screen_size = Rc::new(RefCell::new(ScreenSize::default(width, height)));
@@ -62,6 +73,7 @@ impl ScreenInfo {
             config,
             active_workspace,
             status_bar: None,
+            wm_state_change,
         };
         screen_info.create_workspace(active_workspace);
         screen_info
@@ -168,7 +180,8 @@ impl ScreenInfo {
         active_workspace.unmap_windows();
         active_workspace.focused = false;
 
-        if !self.workspaces.contains_key(&workspace_nr){
+
+                if !self.workspaces.contains_key(&workspace_nr){
             self.create_workspace(workspace_nr)
         }
 
@@ -176,6 +189,13 @@ impl ScreenInfo {
         let new_workspace = self.workspaces.get_mut(&self.active_workspace).unwrap();
         new_workspace.remap_windows();
         new_workspace.focused = true;
+
+        let (lock, cvar) = &*self.wm_state_change.clone();
+        let mut wm_changed_state = lock.lock().unwrap();
+        *wm_changed_state = true;
+        cvar.notify_one();
+
+
         new_workspace
 
     }
