@@ -27,5 +27,4 @@ async fn main() -> Result<()>  {
         println!("{:?}", rep);
         println!("{:?}", rep.args());
     }
-    Ok(())
 }

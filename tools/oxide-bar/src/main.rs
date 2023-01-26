@@ -38,8 +38,8 @@ pub enum EventType {
 struct Config {
     width: u16,
     height: u16,
-    color_bg: String,
-    color_txt: String,
+    _color_bg: String,
+    _color_txt: String,
 }
 
 impl Config {
@@ -47,8 +47,8 @@ impl Config {
         Config {
             width,
             height: 30,
-            color_bg: "test".to_string(),
-            color_txt: "test".to_string(),
+            _color_bg: "test".to_string(),
+            _color_txt: "test".to_string(),
         }
     }
 }

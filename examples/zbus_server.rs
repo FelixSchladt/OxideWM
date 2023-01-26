@@ -1,6 +1,6 @@
-use std::{error::Error, future::pending};
+use std::error::Error;
 use zbus::{ConnectionBuilder, dbus_interface};
-use zbus::{ObjectServer, SignalContext, MessageHeader};
+use zbus::SignalContext;
 
 use std::time::Duration;
 
@@ -38,9 +38,6 @@ async fn test() -> Result<(), Box<dyn Error>> {
         Greeter::test_signal(&signal_cntx, greeter.count.clone()).await?;
         greeter.count += 1;
     }
-
-
-    Ok(())
 }
 
 /*
