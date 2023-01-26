@@ -1,4 +1,4 @@
-name: Clippy
+name: Rust-Tests
 
 on:
   push:
@@ -10,12 +10,11 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  check:
+  build:
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
-    - name: Check
-    - continue-on-error: true
-      run: cargo clippy --verbose
+    - name: Build
+      run: cargo test --verbose

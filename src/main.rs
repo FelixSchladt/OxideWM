@@ -13,77 +13,101 @@ pub mod atom;
 pub mod constants;
 pub mod common;
 pub mod logging;
+pub mod setup;
+
+#[cfg(test)]
+pub mod test;
 
 use std::sync::{Arc, Mutex, Condvar};
-
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{channel, Sender, Receiver};
 use std::thread;
-use std::{cell::RefCell, rc::Rc};
 
 use config::Config;
+use log::info;
 use serde_json::Result;
-use log::{error, trace};
+use x11rb::rust_connection::RustConnection;
+use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-    logging::init_logger,
+    eventhandler::events::EnumEventType,
     windowmanager::WindowManager,
     eventhandler::EventHandler,
     keybindings::KeyBindings,
-    eventhandler::events::IpcEvent,
     ipc::zbus_serve,
 };
 
-fn main() -> Result<()> {
-    init_logger();
+fn get_status_channel()->(Arc<Mutex<Sender<String>>>,Arc<Mutex<Receiver<String>>>){
+    let (status_sender, status_receiver) = channel::<String>();
+    let status_sender_mutex = Arc::new(Mutex::new(status_sender));
+    let status_receiver_mutex = Arc::new(Mutex::new(status_receiver));
+    (status_sender_mutex, status_receiver_mutex)
+}
 
-    let mut config = Rc::new(RefCell::new(Config::new()));
-    let mut keybindings = KeyBindings::new(&config.borrow());
-    
-    let wm_state_change_ipc = Arc::new((Mutex::new(false), Condvar::new()));
-    let wm_state_change = Rc::new(RefCell::new(wm_state_change_ipc.clone()));
+fn get_event_channel()->(Arc<Mutex<Sender<EnumEventType>>>,Arc<Mutex<Receiver<EnumEventType>>>){
+    let (event_sender, event_receiver) = channel::<EnumEventType>();
+    let event_sender_mutex = Arc::new(Mutex::new(event_sender));
+    let event_receiver_mutex = Arc::new(Mutex::new(event_receiver));
+    (event_sender_mutex, event_receiver_mutex)
+}
 
-    let mut manager = WindowManager::new(&keybindings, config.clone(), wm_state_change);
-    let mut eventhandler = EventHandler::new(&mut manager, &keybindings);
-
-    let (ipc_sender, wm_receiver) = channel::<IpcEvent>();
-    let (wm_sender, ipc_receiver) = channel::<String>();
-
-
-    let ipc_sender_mutex = Arc::new(Mutex::new(ipc_sender));
-    let ipc_receiver_mutex = Arc::new(Mutex::new(ipc_receiver));
-
-
+fn start_zbus_thread(
+    event_sender_mutex:Arc<Mutex<Sender<EnumEventType>>>,
+    status_receiver_mutex: Arc<Mutex<Receiver<String>>>,
+    wm_state_change :Arc<(Mutex<bool>, Condvar)>
+){
+    info!("starting zbus serve");
     thread::spawn(move || {
-        async_std::task::block_on(zbus_serve(ipc_sender_mutex, ipc_receiver_mutex, wm_state_change_ipc)).unwrap();
+        // as seperate thread to speed up boot time
+        async_std::task::block_on(
+            zbus_serve(event_sender_mutex, status_receiver_mutex, wm_state_change)
+        ).unwrap();
     });
+}
+
+fn start_x_event_thread(
+    connection: Arc<RustConnection>,
+    event_sender_mutex:Arc<Mutex<Sender<EnumEventType>>>,
+){
+    info!("starting x event proxy");
+    thread::spawn(move || {
+        WindowManager::run_event_proxy(connection, event_sender_mutex);
+    });
+}
+
+fn main() -> Result<()> {
+    #[cfg(test)]
+    test::run_and_exit();
+
+    logging::init_logger();
+
+    let mut config = Rc::new(RefCell::new(Config::new(None)));
+    let mut keybindings = KeyBindings::new(&config.borrow());
+    let connection = setup::connection::get_connection(&keybindings.clone());
+    let wm_state_change = Arc::new((Mutex::new(false), Condvar::new()));
+
+    let mut manager = WindowManager::new(connection.clone(), config.clone(),wm_state_change.clone());
+    let binding = keybindings.clone();
+    let mut eventhandler = EventHandler::new(&mut manager, &binding);
+
+    let (event_sender_mutex, event_receiver_mutex) = get_event_channel();
+    let (status_sender_mutex, status_receiver_mutex) = get_status_channel();
+
+    start_zbus_thread(event_sender_mutex.clone(), status_receiver_mutex.clone(), wm_state_change.clone());
+    start_x_event_thread(connection.clone(), event_sender_mutex.clone());
 
     loop {
-        let result = eventhandler.window_manager.poll_for_event();
-        if let Ok(Some(event)) = result {
-            eventhandler.handle_event(&event);
-        } else {
-            if let Some(error) = result.err(){
-                error!("Error retreiving Event from Window manager {:?}", error);
-            }
-        }
-
-        if let Ok(event) = wm_receiver.try_recv() {
-            if event.status {
-                let wm_state = eventhandler.window_manager.get_state();
-                let j = serde_json::to_string(&wm_state)?;
-                trace!("IPC status request");
-                wm_sender.send(j).unwrap();
-            } else {
-                eventhandler.handle_ipc_event(event);
-            }
-        }
+        info!("starting event loop");
+        eventhandler.run_event_loop(event_receiver_mutex.clone(), status_sender_mutex.clone());
 
         if eventhandler.window_manager.restart {
-            config = Rc::new(RefCell::new(Config::new()));
+            config = Rc::new(RefCell::new(Config::new(None)));
             keybindings = KeyBindings::new(&config.borrow());
 
             eventhandler = EventHandler::new(&mut manager, &keybindings);
-            eventhandler.window_manager.restart_wm(&keybindings, config.clone());
+            eventhandler.window_manager.restart_wm(config.clone());
+        }else{
+            break;
         }
     }
+    Ok(())
 }

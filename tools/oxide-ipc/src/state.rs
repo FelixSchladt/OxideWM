@@ -6,8 +6,6 @@ use itertools::Itertools;
 pub struct ScreenInfo {
     pub workspaces: HashMap<u16, Workspace>,
     pub active_workspace: usize,
-    pub width: u32,
-    pub height: u32,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -20,7 +18,6 @@ pub struct OxideWindow {
     pub y: u32,
     pub width: u32,
     pub height: u32,
-    pub titlebar_height: u32,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -33,10 +30,6 @@ pub struct Workspace {
     pub windows: HashMap<u32, OxideWindow>,
     pub order: Vec<u32>,
     pub layout: String,
-    pub x: u32,
-    pub y: u32,
-    pub height: u32,
-    pub width: u32,
 }
 
 #[derive(Debug, Clone, Deserialize)]
