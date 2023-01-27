@@ -1,11 +1,11 @@
 // This file exists so oxide-msg can import from oxidewm
-pub mod eventhandler;
-pub mod windowmanager;
-pub mod workspace;
-pub mod screeninfo;
-pub mod keybindings;
-pub mod config;
-pub mod windowstate;
-pub mod auxiliary;
 pub mod atom;
+pub mod auxiliary;
+pub mod config;
 pub mod constants;
+pub mod eventhandler;
+pub mod keybindings;
+pub mod screeninfo;
+pub mod windowmanager;
+pub mod windowstate;
+pub mod workspace;

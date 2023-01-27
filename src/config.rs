@@ -1,13 +1,14 @@
-use std::fs::File;
 use log::{error, info};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
+use std::fs::File;
 use std::path::Path;
 
 use crate::eventhandler::commands::WmCommands;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
-where D: Deserializer<'de>,
+where
+    D: Deserializer<'de>,
 {
     let args = Option::<String>::deserialize(deserializer)?;
     let args = args.unwrap_or("".to_string());
@@ -16,7 +17,6 @@ where D: Deserializer<'de>,
     } else {
         Ok(Some(args))
     }
-
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -51,10 +51,12 @@ pub struct Config {
     pub gap: u32,
 }
 
-
 impl Config {
     pub fn new(source_file: Option<&str>) -> Config {
-        let home_config = &format!("{}/.config/oxide/config.yml", std::env::var("HOME").unwrap());
+        let home_config = &format!(
+            "{}/.config/oxide/config.yml",
+            std::env::var("HOME").unwrap()
+        );
 
         #[cfg(not(debug_assertions))]
         let mut paths = vec![home_config, "/etc/oxide/config.yml"];
@@ -83,13 +85,13 @@ impl Config {
                 let user_config = serde_yaml::from_reader(config_file);
 
                 match user_config {
-                    Ok(config)  => return config,
-                    Err(err)    => {
+                    Ok(config) => return config,
+                    Err(err) => {
                         let err_msg = error!("Error in '{}': {}", config_path, err);
                         error!("ERR: {:?}", err_msg);
                     }
                 }
-            },
+            }
             None => {
                 error!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", paths);
             }
@@ -100,10 +102,10 @@ impl Config {
 
 // Defining default values
 fn default_cmds() -> Vec<WmCommand> {
-    vec![WmCommand{
+    vec![WmCommand {
         keys: vec!["A".to_string(), "t".to_string()],
         command: WmCommands::Exec,
-        args: Some("kitty".to_string())
+        args: Some("kitty".to_string()),
     }]
 }
 
@@ -115,7 +117,15 @@ fn default_exec_always() -> Vec<String> {
     Vec::<String>::new()
 }
 
-fn default_border_width() -> u32 { 3 }
-fn default_border_color() -> String { "0xFFFFFF".to_string() } // white
-fn default_border_focus_color() -> String { "0x000000".to_string() } // black
-fn default_gap() -> u32 { 3 }
+fn default_border_width() -> u32 {
+    3
+}
+fn default_border_color() -> String {
+    "0xFFFFFF".to_string()
+} // white
+fn default_border_focus_color() -> String {
+    "0x000000".to_string()
+} // black
+fn default_gap() -> u32 {
+    3
+}

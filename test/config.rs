@@ -1,9 +1,16 @@
 use crate::*;
 
+pub fn get_file_path(filename: &str) -> String {
+    format!(
+        "{}/test/test_files/{}",
+        std::env::var("PWD").unwrap(),
+        filename
+    )
+}
+
 #[test]
 pub fn load_config_from_file() {
-    let mock_file_path = &format!("{}/test/test_files/config.yml", std::env::var("PWD").unwrap());
-    let cfg = Config::new(Some(mock_file_path));
+    let cfg = Config::new(Some(&get_file_path("config.yml")));
 
     assert_eq!(cfg.cmds.len(), 1);
     assert_eq!(cfg.exec.len(), 1);
@@ -21,8 +28,7 @@ pub fn load_config_from_file() {
 
 #[test]
 pub fn load_config_from_wrong_datatype_file() {
-    let mock_file_path = &format!("{}/test/test_files/invalid_datatypes.yml", std::env::var("PWD").unwrap());
-    let cfg = Config::new(Some(mock_file_path));
+    let cfg = Config::new(Some(&get_file_path("invalid_datatypes.yml")));
 
     assert_eq!(cfg.cmds.len(), 1);
     assert_eq!(cfg.exec.len(), 0);
@@ -38,8 +44,7 @@ pub fn load_config_from_wrong_datatype_file() {
 
 #[test]
 pub fn load_config_with_missing_values() {
-    let mock_file_path = &format!("{}/test/test_files/missing_values.yml", std::env::var("PWD").unwrap());
-    let cfg = Config::new(Some(mock_file_path));
+    let cfg = Config::new(Some(&get_file_path("missing_values.yml")));
 
     assert_eq!(cfg.cmds.len(), 1);
     assert_eq!(cfg.exec.len(), 0);
