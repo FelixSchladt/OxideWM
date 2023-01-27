@@ -12,6 +12,7 @@ enum BarWidgets {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Config {
+
     width: u16,
     height: u16,
 
@@ -26,7 +27,7 @@ struct Config {
 }
 
 impl Config {
-    pub fn new(source_file: Option<&str>) -> Config {
+    pub fn new(width: u16, height: u16) -> Config {
         let home_config = &format!(
             "{}/.config/oxide/bar_config.yml",
             std::env::var("HOME").unwrap()
@@ -37,10 +38,6 @@ impl Config {
 
         #[cfg(debug_assertions)]
         let mut paths = vec!["./bar_config.yml", home_config, "/etc/oxide/bar_config.yml"];
-
-        if let Some(path) = source_file {
-            paths.insert(0, path);
-        }
 
         let mut chosen_config: Option<&str> = None;
         let mut file_option: Option<File> = None;
@@ -57,7 +54,11 @@ impl Config {
                 // Reads the values from the 'bar_config' struct in bar_config.yml
                 let user_config = serde_yaml::from_reader(file_option);
                 match user_config {
-                    Ok(config) => return config,
+                    Ok(config) => {
+                        config.widthu = width;
+                        config.height = height;
+                        return config;
+                    }
                     Err(err) => {
                         let err_msg = error!("Error in '{}': {}", chosen_config.unwrap(), err);
                         error!("ERR: {:?}", err_msg);
@@ -72,13 +73,5 @@ impl Config {
     }
 }
 // Defining defualt Values
-fn default_width() -> u16 {}
-fn default_height() -> u16 {
-    8
-}
-fn default_color_bg() -> String {
-    "0x000000".to_string()
-} // black
-fn default_color_txt() -> String {
-    "0xFFFFFF".to_string()
-} // white
+fn default_color_bg() -> String { "0x000000".to_string() } // black
+fn default_color_txt() -> String { "0xFFFFFF".to_string() } // white
