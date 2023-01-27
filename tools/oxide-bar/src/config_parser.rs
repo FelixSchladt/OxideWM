@@ -4,18 +4,15 @@ use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
 use std::path::Path;
 
-use crate::windowmanager::enums_windowmanager
-
-enum Workspace{}
-//FIXME: Use already existing enums for workspaces
-enum BarWidgets{}
+enum BarWidgets{
+    Workspaces,
+    Battery,
+    Time,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Config {
-    #[serde(default = "default_width")]
     width: u16,
-
-    #[serde(default = "default_height")]
     height: u16,
 
     #[serde(default = "default_color_bg")]
@@ -24,7 +21,7 @@ struct Config {
     #[serde(default = "default_color_txt")]
     _color_txt: String,
 
-    module_left: Vec<Workspace>,
+    module_left: Vec<BarWidgets>,
     module_right: Vec<BarWidgets>,
 }
 
@@ -72,7 +69,7 @@ impl Config {
     }
 }
 // Defining defualt Values
-fn default_width() -> u16 { 10 }
+fn default_width() -> u16 {  }
 fn default_height() -> u16 { 8 }
 fn default_color_bg() -> String { "0x000000".to_string() } // black
 fn default_color_txt() -> String { "0xFFFFFF".to_string() } // white
