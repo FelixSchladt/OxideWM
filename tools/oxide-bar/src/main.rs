@@ -1,6 +1,6 @@
 // This code is derived from https://github.com/psychon/x11rb/blob/c3894c092101a16cedf4c45e487652946a3c4284/cairo-example/src/main.rs
-mod xcb_visualtype;
 pub mod config_parser;
+mod xcb_visualtype;
 
 //use cairo::glib::subclass::shared::RefCounted;
 use x11rb::atom_manager;
