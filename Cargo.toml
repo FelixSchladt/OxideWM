@@ -3,7 +3,7 @@ name = "oxide"
 version = "0.1.0"
 edition = "2021"
 build = "build.rs"
-include = ["src/**/*", "test/**/*", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE"]
+include = ["src/**/*", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE"]
 
 [workspace]
 members = ["tools/oxide-ipc", "tools/oxide-msg", "tools/oxide-bar"]
