@@ -1,6 +1,6 @@
 # Config
 
-In our config file, you can configure OxideWM as you like.
+In this file, you can configure OxideWM as you like.
 Please keep in mind that you have to configure every value properly for the WM to run, otherwise the programm will crash.
 
 Please note that you have to set values for exec and exec_always.
@@ -9,10 +9,10 @@ If you do not configure the other fields, a default value will be used.
 ## Default Values:
 
 - cmds:
-  - A + t, for opening a new kitty window
+  - A + t, for opening a new application window
 - exec:
 - exec_always:
-- border_witdh:
+- border_witdh: 3
 - border_color: 0xFFFFFF (white)
 - border_focus_color: 0x000000 (black)
 - gap: 3
@@ -88,7 +88,7 @@ OxideWM uses the 'Alt' key as the meta key
 
   - Restarts the window manager
 
-In the 'cmds' field of the configuration all keybinding for the WM are defined.
+Inside the 'cmds' field of the configuration all keybinding for the WM are defined.
 A Command consists of an array of keys, the command, some optional arguments and should be configured like the following:
 In this example, the command opens a kitty window.
 
