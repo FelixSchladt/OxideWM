@@ -1,7 +1,7 @@
 pub mod commands;
 pub mod events;
 
-use self::events::{IpcEvent, WmActionEvent, EnumEventType};
+use self::events::{IpcEvent, WmActionEvent, EventType};
 
 use log::{info, debug, trace};
 use x11rb::protocol::{Event, xproto::{KeyPressEvent, ModMask}};
@@ -31,14 +31,14 @@ impl EventHandler<'_> {
 
     pub fn run_event_loop(
         &mut self, 
-        receive_channel: Arc<Mutex<Receiver<EnumEventType>>>,
+        receive_channel: Arc<Mutex<Receiver<EventType>>>,
         status_send_channel: Arc<Mutex<Sender<String>>>
     ){
         loop {
             if let Ok(event_type) = receive_channel.lock().unwrap().recv() {
                 match event_type {
-                    EnumEventType::X11rbEvent(event) => self.handle_x_event(&event),
-                    EnumEventType::OxideEvent(event) => self.handle_ipc_event(event, status_send_channel.clone()),
+                    EventType::X11rbEvent(event) => self.handle_x_event(&event),
+                    EventType::OxideEvent(event) => self.handle_ipc_event(event, status_send_channel.clone()),
                 }
             }
 
@@ -79,8 +79,8 @@ impl EventHandler<'_> {
                 info!("{} LeaveNotify", log_msg);
                 self.window_manager.handle_event_leave_notify(_event);
             },
-            Event::FocusIn(_event) => println!("FocusIn"),
-            Event::FocusOut(_event) => println!("FocusOut"),
+            Event::FocusIn(_event) => info!("FocusIn"),
+            Event::FocusOut(_event) => info!("FocusOut"),
             Event::CreateNotify(_event) => {
                 println!("CreateNotify");
                 self.window_manager.handle_create_notify(_event);
@@ -129,49 +129,22 @@ impl EventHandler<'_> {
     }
 
     fn handle_wm_command(&mut self, command: WmActionEvent) {
-        let log_msg = "Handle wm command";
-         match command.command {
-            WmCommands::Move => {
-                info!("{} Move", log_msg);
-                self.window_manager.handle_keypress_move(command.args.clone());
-            },
-            WmCommands::Focus => {
-                info!("{} Focus", log_msg);
-                self.window_manager.handle_keypress_focus(command.args.clone());
-            },
-            WmCommands::Resize => {
-                info!("{} Resize", log_msg);
-            },
-            WmCommands::Quit => {
-                 info!("{} Quit", log_msg);
-                 process::exit(0);
-            },
-            WmCommands::Kill => {
-                info!("{} Kill", log_msg);
-                self.window_manager.handle_keypress_kill();
-            },
-            WmCommands::Layout => {
-                info!("{} Layout", log_msg);
-                self.window_manager.handle_keypress_layout(command.args.clone());
-            },
-            WmCommands::Restart => {
-                info!("{} Restart", log_msg);
-                self.window_manager.restart = true;
-            },
-            WmCommands::GoToWorkspace =>{
-                self.window_manager.handle_keypress_go_to_workspace(command.args.clone());
-            },
-            WmCommands::Exec => {
-                info!("{} Exec", log_msg);
-                exec_user_command(&command.args);
-            },
-            WmCommands::Fullscreen => {
-                info!("{} Fullscreen", log_msg);
-                self.window_manager.handle_keypress_fullscreen();
-            },
-            _ => {
-                info!("{} Unimplemented", log_msg);
-            }
+        info!("Handle wm command {command}");
+        match command.command {
+            WmCommands::Move => self.window_manager.handle_keypress_move(command.args.clone()),
+            WmCommands::Focus => self.window_manager.handle_keypress_focus(command.args.clone()),
+            WmCommands::Resize => info!("Resize"),
+            WmCommands::Quit => process::exit(0),
+            WmCommands::Kill => self.window_manager.handle_keypress_kill(),
+            WmCommands::Layout => self.window_manager.handle_keypress_layout(command.args.clone()),
+            WmCommands::Restart => self.window_manager.restart = true,
+            WmCommands::GoToWorkspace => self.window_manager.handle_keypress_go_to_workspace(command.args.clone()),
+            WmCommands::MoveToWorkspace => self.window_manager.handle_move_to_workspace(command.args.clone()),
+            WmCommands::MoveToWorkspaceAndFollow => self.window_manager.handle_move_to_workspace_follow(command.args.clone()),
+            WmCommands::MoveToOrCreateWorkspace => self.window_manager.handle_move_to_or_create_workspace(command.args.clone()),
+            WmCommands::QuitWorkspace => self.window_manager.handle_quit_workspace(),
+            WmCommands::Exec => exec_user_command(&command.args),
+            WmCommands::Fullscreen => self.window_manager.handle_keypress_fullscreen()
         }
     }
 }

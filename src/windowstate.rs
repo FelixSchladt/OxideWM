@@ -4,9 +4,9 @@ use x11rb::rust_connection::RustConnection;
 use x11rb::connection::Connection;
 use x11rb::COPY_DEPTH_FROM_PARENT;
 use serde::Serialize;
-use std::sync::Arc;
-use std::rc::Rc;
 use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::config::Config;
 
@@ -30,7 +30,7 @@ pub struct WindowState {
 }
 
 impl WindowState {
-    pub fn new(connection: Arc<RustConnection>, root_screen: &Screen, config: Rc<RefCell<Config>>, window: Window) -> WindowState {
+    pub fn new(connection: Arc<RustConnection>, root_screen: Rc<RefCell<Screen>>, config: Rc<RefCell<Config>>, window: Window) -> WindowState {
         let title = connection.get_property(
                                   false,
                                   window,
@@ -56,7 +56,7 @@ impl WindowState {
         connection.create_window(
             COPY_DEPTH_FROM_PARENT,
             frame,
-            root_screen.root,
+            root_screen.borrow().root,
             x as i16,
             y as i16,
             width as u16,
@@ -64,7 +64,7 @@ impl WindowState {
             0,
             WindowClass::INPUT_OUTPUT,
             0,
-            &CreateWindowAux::new().background_pixel(root_screen.black_pixel),
+            &CreateWindowAux::new().background_pixel(root_screen.borrow().black_pixel),
         ).unwrap();
 
         let mask = ChangeWindowAttributesAux::default()

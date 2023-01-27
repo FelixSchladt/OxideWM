@@ -3,19 +3,19 @@ use std::sync::{Arc, Mutex, Condvar};
 
 use std::error::Error;
 
-use crate::eventhandler::events::{IpcEvent, WmActionEvent,EnumEventType};
+use crate::eventhandler::events::{IpcEvent, WmActionEvent,EventType};
 
 use zbus::{ConnectionBuilder, dbus_interface, SignalContext};
 
 struct WmInterface {
-    event_send_channel: Arc<Mutex<Sender<EnumEventType>>>,
+    event_send_channel: Arc<Mutex<Sender<EventType>>>,
     status_receive_channel: Arc<Mutex<Receiver<String>>>,
 }
 
 #[dbus_interface(name = "org.oxide.interface")]
 impl WmInterface {
     fn get_status(&mut self) -> String {
-        let event = EnumEventType::OxideEvent(IpcEvent { status: true, event: None });
+        let event = EventType::OxideEvent(IpcEvent { status: true, event: None });
         //send state request to wm manager via channel
         self.event_send_channel.lock().unwrap().send(event).unwrap();
         //block om receiving channel until state has been sent by the wm
@@ -23,7 +23,7 @@ impl WmInterface {
     }
 
     fn sent_event(&mut self, event: WmActionEvent) {
-        let event = EnumEventType::OxideEvent(IpcEvent { status: true, event: Some(event) });
+        let event = EventType::OxideEvent(IpcEvent { status: true, event: Some(event) });
         //sent event to wm manager via channel
         self.event_send_channel.lock().unwrap().send(event).unwrap();
     }
@@ -33,7 +33,7 @@ impl WmInterface {
 }
 
 pub async fn zbus_serve(
-    event_send_channel: Arc<Mutex<Sender<EnumEventType>>>,
+    event_send_channel: Arc<Mutex<Sender<EventType>>>,
     status_receive_channel: Arc<Mutex<Receiver<String>>>,
     wm_state_change: Arc<(Mutex<bool>, Condvar)>,
 ) -> Result<(), Box<dyn Error>> {
@@ -63,7 +63,7 @@ pub async fn zbus_serve(
         *changed = false;
 
         log::info!("state change signal");
-        event_send_channel.lock().unwrap().send(EnumEventType::OxideEvent(IpcEvent {status: true, event: None}))?;
+        event_send_channel.lock().unwrap().send(EventType::OxideEvent(IpcEvent {status: true, event: None}))?;
         let state = status_receive_channel.lock().unwrap().recv()?;
         
 

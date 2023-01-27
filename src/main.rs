@@ -29,7 +29,7 @@ use x11rb::rust_connection::RustConnection;
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-    eventhandler::events::EnumEventType,
+    eventhandler::events::EventType,
     windowmanager::WindowManager,
     eventhandler::EventHandler,
     keybindings::KeyBindings,
@@ -43,15 +43,15 @@ fn get_status_channel()->(Arc<Mutex<Sender<String>>>,Arc<Mutex<Receiver<String>>
     (status_sender_mutex, status_receiver_mutex)
 }
 
-fn get_event_channel()->(Arc<Mutex<Sender<EnumEventType>>>,Arc<Mutex<Receiver<EnumEventType>>>){
-    let (event_sender, event_receiver) = channel::<EnumEventType>();
+fn get_event_channel()->(Arc<Mutex<Sender<EventType>>>,Arc<Mutex<Receiver<EventType>>>){
+    let (event_sender, event_receiver) = channel::<EventType>();
     let event_sender_mutex = Arc::new(Mutex::new(event_sender));
     let event_receiver_mutex = Arc::new(Mutex::new(event_receiver));
     (event_sender_mutex, event_receiver_mutex)
 }
 
 fn start_zbus_thread(
-    event_sender_mutex:Arc<Mutex<Sender<EnumEventType>>>,
+    event_sender_mutex:Arc<Mutex<Sender<EventType>>>,
     status_receiver_mutex: Arc<Mutex<Receiver<String>>>,
     wm_state_change :Arc<(Mutex<bool>, Condvar)>
 ){
@@ -66,7 +66,7 @@ fn start_zbus_thread(
 
 fn start_x_event_thread(
     connection: Arc<RustConnection>,
-    event_sender_mutex:Arc<Mutex<Sender<EnumEventType>>>,
+    event_sender_mutex:Arc<Mutex<Sender<EventType>>>,
 ){
     info!("starting x event proxy");
     thread::spawn(move || {
@@ -75,9 +75,6 @@ fn start_x_event_thread(
 }
 
 fn main() -> Result<()> {
-    #[cfg(test)]
-    test::run_and_exit();
-
     logging::init_logger();
 
     let mut config = Rc::new(RefCell::new(Config::new(None)));

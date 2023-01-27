@@ -211,7 +211,7 @@ impl OxideBar {
             }
             cr.move_to(x, 20.0);
             cr.set_font_size(15.0);
-            cr.show_text(&ws).unwrap();
+            cr.show_text(&ws.to_string()).unwrap();
             x += 20.0;
         }
         self.cairo_surface.as_ref().unwrap().flush();
