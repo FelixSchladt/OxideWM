@@ -78,7 +78,7 @@ impl Config {
             Some(config_path) => {
                 info!("using config {config_path}");
 
-                // Reads the values from the 'config' struct in config.yml 
+                // Reads the values from the 'config' struct in config.yml
                 let config_file = File::open(config_path).unwrap();
                 let user_config = serde_yaml::from_reader(config_file);
 
