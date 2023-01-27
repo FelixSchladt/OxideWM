@@ -4,12 +4,18 @@ use x11rb::rust_connection::RustConnection;
 use x11rb::connection::Connection;
 use x11rb::COPY_DEPTH_FROM_PARENT;
 use serde::Serialize;
-use std::{cell::RefCell, rc::Rc};
+use std::sync::Arc;
+use std::rc::Rc;
+use std::cell::RefCell;
+
+use crate::config::Config;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct WindowState {
     #[serde(skip_serializing)]
-    pub connection: Rc<RefCell<RustConnection>>,
+    pub connection: Arc<RustConnection>,
+    #[serde(skip_serializing)]
+    pub config: Rc<RefCell<Config>>,
     pub frame: Window,
     pub window: Window,
     pub title: String,
@@ -19,14 +25,13 @@ pub struct WindowState {
     pub y: i32,
     pub width: u32,
     pub height: u32,
-    pub titlebar_height: u32,
     pub border_width: u32,
+    pub gap_size: u32,
 }
 
 impl WindowState {
-    pub fn new(connection: Rc<RefCell<RustConnection>>, root_screen: &Screen, window: Window) -> WindowState {
-        let title = connection.borrow()
-                              .get_property(
+    pub fn new(connection: Arc<RustConnection>, root_screen: &Screen, config: Rc<RefCell<Config>>, window: Window) -> WindowState {
+        let title = connection.get_property(
                                   false,
                                   window,
                                   AtomEnum::WM_NAME,
@@ -44,11 +49,11 @@ impl WindowState {
         let y: i32 = 0;
         let width: u32 = 0;
         let height: u32 = 0;
-        let titlebar_height = 5;
-        let border_width = 5;
+        let border_width = config.borrow().border_width;
+        let gap_size = config.borrow().gap;
 
-        let frame = connection.borrow().generate_id().unwrap();
-        connection.borrow().create_window(
+        let frame = connection.generate_id().unwrap();
+        connection.create_window(
             COPY_DEPTH_FROM_PARENT,
             frame,
             root_screen.root,
@@ -64,7 +69,7 @@ impl WindowState {
 
         let mask = ChangeWindowAttributesAux::default()
             .event_mask(EventMask::ENTER_WINDOW | EventMask::LEAVE_WINDOW );
-        let res = connection.borrow().change_window_attributes(window, &mask).unwrap().check();
+        let res = connection.change_window_attributes(window, &mask).unwrap().check();
         if let Err(e) = res {
             error!("Error couldn change mask: {:?}", e);
             panic!("Error couldnt change mask");
@@ -72,6 +77,7 @@ impl WindowState {
 
         WindowState {
             connection,
+            config,
             frame,
             window,
             title,
@@ -81,38 +87,37 @@ impl WindowState {
             y,
             width,
             height,
-            titlebar_height,
             border_width,
+            gap_size,
         }
     }
 
     pub fn set_bounds(&self, x: i32, y: i32, width: u32, height: u32) -> &WindowState {
         let frame_aux = ConfigureWindowAux::new()
-            .x(x)
-            .y(y)
-            .width(width)
-            .height(height);
+            .x(x+self.gap_size as i32)
+            .y(y+self.gap_size as i32)
+            .width(width - (self.gap_size*2))
+            .height(height - (self.gap_size*2));
 
         let window_aux = ConfigureWindowAux::new()
-            .x(x+self.border_width as i32)
-            .y(y+(self.border_width+self.titlebar_height) as i32)
-            .width(width-(self.border_width*2))
-            .height(height-self.titlebar_height-(self.border_width*2));
+            .x(x+(self.border_width + self.gap_size) as i32)
+            .y(y+(self.border_width + self.gap_size) as i32)
+            .width(width - (self.border_width*2) - (self.gap_size*2))
+            .height(height - (self.border_width*2) - (self.gap_size*2));
 
-        self.connection.borrow().configure_window(self.frame, &frame_aux).unwrap();
-        self.connection.borrow().configure_window(self.window, &window_aux).unwrap();
+        self.connection.configure_window(self.frame, &frame_aux).unwrap();
+        self.connection.configure_window(self.window, &window_aux).unwrap();
 
         return self;
     }
 
     pub fn draw(&self) {
-        let con_b = self.connection.borrow();
-        con_b.grab_server().unwrap();
+        self.connection.grab_server().unwrap();
 
-        con_b.map_window(self.frame).unwrap();
-        con_b.map_window(self.window).unwrap();
+        self.connection.map_window(self.frame).unwrap();
+        self.connection.map_window(self.window).unwrap();
 
-        con_b.ungrab_server().unwrap();
-        con_b.flush().unwrap();
+        self.connection.ungrab_server().unwrap();
+        self.connection.flush().unwrap();
     }
 }

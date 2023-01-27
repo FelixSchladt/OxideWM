@@ -2,7 +2,7 @@
 
 
 ![workflow](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust.yml/badge.svg)
-![clippy](https://github.com/DHBW-FN/OxideWM/actions/workflows/Rust-Clippy-Check.yml/badge.svg)
+[![Rust-Tests](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust_test.yml/badge.svg)](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust_test.yml)
 <!--![release](/github/v/release/DHBW-FN/OxideWM?display_name=tag) -->
 
 ## Project Status
@@ -49,6 +49,4 @@ This project idea is inspired by the DWM, leftWM and i3WM.
 ## Logging
 To change log level, set environment variable `RUST_LOG=[error, info, debug, trace]`.
 Logs will always be written to `/var/log/syslog`.
-When project is build without `--release` flag, the logs are additionally written to `stdout` and to `log/*.log.
-
-
+When project is build without `--release` flag, the logs are additionally written to `stdout` and to `log/*.log`.

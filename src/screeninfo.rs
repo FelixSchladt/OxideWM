@@ -3,45 +3,77 @@ use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
 use serde::Serialize;
 
+
+use std::sync::{Mutex, Condvar, Arc};
+
 use crate::workspace::Workspace;
 use crate::windowstate::WindowState;
+use crate::config::Config;
 use std::{cell::RefCell, rc::Rc, collections::HashMap};
 use log::{info, debug};
 
 
-#[derive(Debug, Clone, Serialize)]
-pub struct ScreenInfo {
-    #[serde(skip_serializing)]
-    _connection: Rc<RefCell<RustConnection>>,
-    #[serde(skip_serializing)]
-    _screen_ref: Rc<RefCell<Screen>>,
-    workspaces: HashMap<u16, Workspace>,
-    pub active_workspace: u16,
+#[derive(Debug)]
+pub struct ScreenSize {
+    pub width: u32,
+    pub height: u32,
     pub ws_pos_x: i32,
     pub ws_pos_y: i32,
     pub ws_width: u32,
     pub ws_height: u32,
-    pub width: u32,
-    pub height: u32,
-    pub status_bar: Option<WindowState>,
 }
 
-impl ScreenInfo {
-    pub fn new(connection: Rc<RefCell<RustConnection>>, screen_ref: Rc<RefCell<Screen>>, height: u32, width: u32) -> ScreenInfo {
-        let active_workspace = 1;
-        let workspaces = HashMap::new();
-        let mut screen_info = ScreenInfo {
-            _connection: connection,
-            _screen_ref: screen_ref,
-            workspaces,
-            active_workspace,
+impl ScreenSize {
+    pub fn default(width: u32, height: u32) -> ScreenSize {
+        ScreenSize {
+            width,
+            height,
             ws_pos_x: 0,
             ws_pos_y: 0,
             ws_width: width,
             ws_height: height,
-            width,
-            height,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ScreenInfo {
+    #[serde(skip_serializing)]
+    connection: Arc<RustConnection>,
+    #[serde(skip_serializing)]
+    screen_ref: Rc<RefCell<Screen>>,
+    #[serde(skip_serializing)]
+    pub screen_size: Rc<RefCell<ScreenSize>>,
+    #[serde(skip_serializing)]
+    config: Rc<RefCell<Config>>,
+    workspaces: HashMap<u16, Workspace>,
+    pub active_workspace: u16,
+    pub status_bar: Option<WindowState>,
+    #[serde(skip_serializing)]
+    pub wm_state_change: Arc<(Mutex<bool>, Condvar)>,
+}
+
+impl ScreenInfo {
+    pub fn new(
+        connection: Arc<RustConnection>,
+        screen_ref: Rc<RefCell<Screen>>,
+        config: Rc<RefCell<Config>>,
+        width: u32,
+        height: u32,
+        wm_state_change: Arc<(Mutex<bool>, Condvar)>
+) -> ScreenInfo {
+        let active_workspace = 1;
+        let workspaces = HashMap::new();
+        let screen_size = Rc::new(RefCell::new(ScreenSize::default(width, height)));
+        let mut screen_info = ScreenInfo {
+            connection,
+            screen_ref,
+            workspaces,
+            screen_size,
+            config,
+            active_workspace,
             status_bar: None,
+            wm_state_change,
         };
         screen_info.create_workspace(active_workspace);
         screen_info
@@ -49,40 +81,41 @@ impl ScreenInfo {
 
     fn create_status_bar_window(&mut self, event: &CreateNotifyEvent) {
         let status_bar = self.status_bar.as_mut().unwrap();
-        let conn = self._connection.borrow_mut();
         let window_aux = ConfigureWindowAux::new().x(status_bar.x).y(status_bar.y).width(event.width as u32).height(event.height as u32);
-        conn.configure_window(event.window, &window_aux).unwrap();
-        conn.map_window(event.window).unwrap();
-        conn.flush().unwrap();
+        self.connection.configure_window(event.window, &window_aux).unwrap();
+        self.connection.map_window(event.window).unwrap();
+        self.connection.flush().unwrap();
 
     }
 
     pub fn add_status_bar(&mut self, event: &CreateNotifyEvent) {
-        self.status_bar = Some(WindowState::new(self._connection.clone(), &self._screen_ref.borrow(), event.window));
+        self.status_bar = Some(WindowState::new(self.connection.clone(), &self.screen_ref.borrow(), self.config.clone(), event.window));
+        {
+            let mut screen_size = self.screen_size.borrow_mut();
 
-        //TODO: if the status bar is on the left or right
-        //if the status bar is on the bottom
-        let status_bar = self.status_bar.as_mut().unwrap();
-        if event.y as i32 == (self.height - (event.height as u32)) as i32 {
-            self.ws_height = self.height - event.height as u32;
-            self.ws_pos_y = status_bar.height as i32;
-        } //everything else will land on the top position
-        else {
-            self.ws_pos_y = event.height as i32;
-            self.ws_height = self.height - event.height as u32;
-            status_bar.x = 0;
-            status_bar.y = 0;
+            //TODO: if the status bar is on the left or right
+            //if the status bar is on the bottom
+            let mut status_bar = self.status_bar.as_mut().unwrap();
+            if event.y as i32 == (screen_size.height - (event.height as u32)) as i32 {
+                screen_size.ws_height = screen_size.height - event.height as u32;
+                screen_size.ws_pos_y = status_bar.height as i32;
+            } //everything else will land on the top position
+            else {
+                screen_size.ws_pos_y = event.height as i32;
+                screen_size.ws_height = screen_size.height - event.height as u32;
+                status_bar.x = 0;
+                status_bar.y = 0;
+            }
+            status_bar.width = event.width as u32;
+            status_bar.height = event.height as u32;
+            info!("Workspaceposition updated to x: {}, y: {}, width: {}, height: {}", screen_size.ws_pos_x, screen_size.ws_pos_y, screen_size.ws_width, screen_size.ws_height);
         }
-        status_bar.width = event.width as u32;
-        status_bar.height = event.height as u32;
 
         self.create_status_bar_window(event);
         self.status_bar.as_mut().unwrap().draw();
 
-        info!("Workspaceposition updated to x: {}, y: {}, width: {}, height: {}", self.ws_pos_x, self.ws_pos_y, self.ws_width, self.ws_height);
         //update the workspaces
         for (_, workspace) in self.workspaces.iter_mut() {
-            workspace.set_bounds(self.ws_pos_x, self.ws_pos_y, self.ws_width, self.ws_height);
             workspace.remap_windows();
         }
     }
@@ -107,12 +140,10 @@ impl ScreenInfo {
 
         let new_workspace = Workspace::new(
             workspace_nr.to_string(),
-            self._connection.clone(),
-            self._screen_ref.clone(),
-            self.ws_pos_x,
-            self.ws_pos_y,
-            self.ws_width,
-            self.ws_height,
+            self.connection.clone(),
+            self.screen_ref.clone(),
+            self.screen_size.clone(),
+            self.config.clone(),
         );
         self.workspaces.insert(workspace_nr, new_workspace);
     }
@@ -125,7 +156,7 @@ impl ScreenInfo {
         }
     }
 
-    
+
     pub fn on_map_request(&mut self, event: &MapRequestEvent) {
         info!("WINMAN: MapRequestEvent: {:?}", event);
         let workspace_option = self.workspaces.get_mut(&self.active_workspace.clone());
@@ -149,7 +180,8 @@ impl ScreenInfo {
         active_workspace.unmap_windows();
         active_workspace.focused = false;
 
-        if !self.workspaces.contains_key(&workspace_nr){
+
+                if !self.workspaces.contains_key(&workspace_nr){
             self.create_workspace(workspace_nr)
         }
 
@@ -157,8 +189,15 @@ impl ScreenInfo {
         let new_workspace = self.workspaces.get_mut(&self.active_workspace).unwrap();
         new_workspace.remap_windows();
         new_workspace.focused = true;
+
+        let (lock, cvar) = &*self.wm_state_change.clone();
+        let mut wm_changed_state = lock.lock().unwrap();
+        *wm_changed_state = true;
+        cvar.notify_one();
+
+
         new_workspace
-        
+
     }
 
     pub fn get_workspace_count(&self) -> usize{
