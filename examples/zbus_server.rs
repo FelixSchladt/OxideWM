@@ -1,12 +1,12 @@
 use std::error::Error;
-use zbus::{ConnectionBuilder, dbus_interface};
 use zbus::SignalContext;
+use zbus::{dbus_interface, ConnectionBuilder};
 
 use std::time::Duration;
 
 #[derive(Debug, Clone)]
 struct Greeter {
-    count: u64
+    count: u64,
 }
 
 #[dbus_interface(name = "org.zbus.MyGreeter1")]

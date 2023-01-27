@@ -16,7 +16,6 @@ pub fn empty_test() {
     assert_eq!(true, true);
 }
 
-
 #[test]
 pub fn load_config_from_file() {
     let mock_file_path = &format!("{}/test_files/config.yml", std::env::var("PWD").unwrap());
@@ -38,7 +37,10 @@ pub fn load_config_from_file() {
 
 #[test]
 pub fn load_config_from_wrong_datatype_file() {
-    let mock_file_path = &format!("{}/test_files/invalid_datatypes.yml", std::env::var("PWD").unwrap());
+    let mock_file_path = &format!(
+        "{}/test_files/invalid_datatypes.yml",
+        std::env::var("PWD").unwrap()
+    );
     let cfg = Config::new(Some(mock_file_path));
 
     assert_eq!(cfg.cmds.len(), 1);
