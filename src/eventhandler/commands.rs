@@ -13,6 +13,8 @@ pub enum WmCommands {
     MoveToWorkspace,
     GoToWorkspace,
     MoveToWorkspaceAndFollow,
+    QuitWorkspace,
+    MoveToOrCreateWorkspace,
     Exec,
     Fullscreen,
 }

@@ -1,5 +1,5 @@
 use std::fs::File;
-use log::error;
+use log::{error, info};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
 use std::path::Path;
@@ -7,8 +7,7 @@ use std::path::Path;
 use crate::eventhandler::commands::WmCommands;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
-where
-    D: Deserializer<'de>,
+where D: Deserializer<'de>,
 {
     let args = Option::<String>::deserialize(deserializer)?;
     let args = args.unwrap_or("".to_string());
@@ -40,7 +39,7 @@ pub struct Config {
     pub exec_always: Vec<String>,
 
     #[serde(default = "default_border_width")]
-    pub border_width: u8,
+    pub border_width: u32,
 
     #[serde(default = "default_border_color")]
     pub border_color: String,
@@ -49,7 +48,7 @@ pub struct Config {
     pub border_focus_color: String,
 
     #[serde(default = "default_gap")]
-    pub gap: u8,
+    pub gap: u32,
 }
 
 
@@ -68,25 +67,26 @@ impl Config {
         }
 
         let mut chosen_config: Option<&str> = None;
-        let mut file_option: Option<File> = None;
         for path in paths.clone() {
             if Path::new(path).exists() {
-                file_option = Some(File::open(path.clone()).unwrap());
                 chosen_config = Some(path);
                 break;
             }
         }
 
-        match file_option {
-            Some(file_option) => {
-                // Reads the values from the 'config' struct in config.yml
-                let user_config = serde_yaml::from_reader(file_option);
+        match chosen_config {
+            Some(config_path) => {
+                info!("using config {config_path}");
+
+                // Reads the values from the 'config' struct in config.yml 
+                let config_file = File::open(config_path).unwrap();
+                let user_config = serde_yaml::from_reader(config_file);
+
                 match user_config {
                     Ok(config)  => return config,
                     Err(err)    => {
-                        let err_msg = error!("Error in '{}': {}", chosen_config.unwrap(), err);
-                        //TODO: Write this error to a log file
-                        println!("ERR: {:?}", err_msg);
+                        let err_msg = error!("Error in '{}': {}", config_path, err);
+                        error!("ERR: {:?}", err_msg);
                     }
                 }
             },
@@ -115,7 +115,7 @@ fn default_exec_always() -> Vec<String> {
     Vec::<String>::new()
 }
 
-fn default_border_width() -> u8 { 3 }
+fn default_border_width() -> u32 { 3 }
 fn default_border_color() -> String { "0xFFFFFF".to_string() } // white
 fn default_border_focus_color() -> String { "0x000000".to_string() } // black
-fn default_gap() -> u8 { 3 }
+fn default_gap() -> u32 { 3 }

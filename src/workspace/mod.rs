@@ -1,10 +1,13 @@
-pub mod enums_workspace;
+pub mod workspace_layout;
+pub mod workspace_navigation;
+pub mod parse_error;
 
-use self::enums_workspace::Layout;
+use self::workspace_layout::WorkspaceLayout;
 
 use crate::{
-    windowmanager::enums_windowmanager::Movement,
+    windowmanager::movement::Movement,
     windowstate::WindowState,
+    config::Config,
     screeninfo::ScreenSize,
 };
 
@@ -12,19 +15,23 @@ use x11rb::connection::Connection;
 use x11rb::rust_connection::RustConnection;
 use x11rb::protocol::xproto::*;
 use x11rb::CURRENT_TIME;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use serde::Serialize;
 use std::{cell::RefCell, rc::Rc};
 use std::sync::Arc;
-use log::{error, info, debug};
+use log::{error, info, debug, warn};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
     #[serde(skip_serializing)]
     pub connection:  Arc<RustConnection>,
-    pub name: String,
+    pub name: u16,
     #[serde(skip_serializing)]
     pub root_screen: Rc<RefCell<Screen>>,
+    #[serde(skip_serializing)]
+    pub screen_size: Rc<RefCell<ScreenSize>>,
+    #[serde(skip_serializing)]
+    pub config: Rc<RefCell<Config>>,
     pub visible: bool,
     pub focused: bool,
     pub focused_window: Option<u32>,
@@ -32,23 +39,24 @@ pub struct Workspace {
     pub urgent: bool,
     pub windows: HashMap<u32, WindowState>,
     pub order: Vec<u32>,
-    pub layout: Layout,
-    #[serde(skip_serializing)]
-    pub screen_size: Rc<RefCell<ScreenSize>>,
+    pub layout: WorkspaceLayout,
 }
 
 
 impl Workspace {
-    pub fn new(name:String, 
+    pub fn new(name:u16, 
                connection: Arc<RustConnection>, 
                root_screen: Rc<RefCell<Screen>>, 
-               screen_size: Rc<RefCell<ScreenSize>> 
+               screen_size: Rc<RefCell<ScreenSize>>,
+               config: Rc<RefCell<Config>>
                ) -> Workspace 
     {
         Workspace {
-            connection: connection,
-            name: name,
-            root_screen: root_screen,
+            connection,
+            name,
+            root_screen,
+            screen_size,
+            config,
             visible: false,
             focused: false,
             focused_window: None,
@@ -56,8 +64,7 @@ impl Workspace {
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
-            layout: Layout::HorizontalStriped,
-            screen_size: screen_size,
+            layout: WorkspaceLayout::HorizontalStriped,
         }
     }
 
@@ -139,7 +146,7 @@ impl Workspace {
         return move_occured;
     }
 
-    pub fn rename(&mut self, name: String) {
+    pub fn rename(&mut self, name: u16) {
         //TODO: Check if name is already taken
         //TODO: Check if name is valid (not too long, etc.)
         self.name = name;
@@ -167,23 +174,57 @@ impl Workspace {
 
     }
 
+    pub fn kill_all_windows(&mut self){
+        let windows:HashSet<u32> = self.windows.keys()
+            .map(|window| (*window).clone())
+            .collect();
+
+        self.windows.clear();
+        self.order.clear();
+
+        for window in windows.iter(){
+            if self.connection.unmap_window(*window).is_err() {
+                warn!("failed to unmap window {}",window);
+            }
+            if self.connection.kill_client(*window).is_err() {
+                warn!("failed to kill client {}",window);
+            }
+        }
+
+        if self.connection.flush().is_err() {
+            warn!("failed to flush connection")
+        }
+    }
+
     pub fn kill_window(&mut self, winid: &u32) {
         //TODO implement soft kill via client message over x
         //(Tell window to close itself)
         //https://github.com/DHBW-FN/OxideWM/issues/46
+        self.remove_window(winid);
         self.connection.kill_client(*winid).expect("Could not kill client");
         self.connection.flush().unwrap();
-        self.remove_window(winid);
     }
 
     pub fn remove_window(&mut self, win_id: &u32) {
         self.windows.remove(&win_id);
         self.order.retain(|&x| x != *win_id);
         self.remap_windows();
+        self.connection.grab_server().unwrap();
+        let resp = &self.connection.unmap_window(*win_id as Window);
+        if resp.is_err() {
+            error!("An error occured while trying to unmap window");
+        }
+        self.connection.ungrab_server().unwrap();
+        self.connection.flush().unwrap();
     }
 
     pub fn new_window(&mut self, window: Window) {
-        let windowstruct = WindowState::new(self.connection.clone(), &self.root_screen.borrow(), window);
+        let windowstruct = WindowState::new(
+            self.connection.clone(),
+            self.root_screen.clone(),
+            self.config.clone(),
+            window
+        );
         self.add_window(windowstruct);
     }
 
@@ -193,7 +234,13 @@ impl Workspace {
     pub fn focus_window(&mut self, winid: u32) {
         debug!("focus_window");
         self.focused_window = Some(winid);
-        self.connection.set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME).unwrap().check().unwrap();
+        if let Ok(result) = self.connection.set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME) {
+            if let Err(_) = result.check() {
+                warn!("Failed to focus window");
+            }
+        }else{
+            warn!("Failed to focus window");
+        }
         //TODO: Change color of border to focus color
     }
 
@@ -202,15 +249,15 @@ impl Workspace {
         //TODO: Change color of border to unfocus color
     }
 
-    pub fn set_layout(&mut self, layout: Layout) {
+    pub fn set_layout(&mut self, layout: WorkspaceLayout) {
         self.layout = layout;
         self.remap_windows();
     }
 
     pub fn next_layout(&mut self) {
         match self.layout {
-            Layout::HorizontalStriped => self.set_layout(Layout::VerticalStriped),
-            Layout::VerticalStriped => self.set_layout(Layout::HorizontalStriped),
+            WorkspaceLayout::HorizontalStriped => self.set_layout(WorkspaceLayout::VerticalStriped),
+            WorkspaceLayout::VerticalStriped => self.set_layout(WorkspaceLayout::HorizontalStriped),
         }
         self.remap_windows();
     }
@@ -243,8 +290,8 @@ impl Workspace {
         } else {
             match self.layout {
                 //Layout::Tiled => {},
-                Layout::VerticalStriped => self.map_vertical_striped(),
-                Layout::HorizontalStriped => self.map_horizontal_striped(),
+                WorkspaceLayout::VerticalStriped => self.map_vertical_striped(),
+                WorkspaceLayout::HorizontalStriped => self.map_horizontal_striped(),
             }
         }
     }
