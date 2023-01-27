@@ -16,7 +16,8 @@ pub mod logging;
 pub mod setup;
 
 #[cfg(test)]
-pub mod test;
+#[path= "../test/mod.rs"]
+mod test;
 
 use std::sync::{Arc, Mutex, Condvar};
 use std::sync::mpsc::{channel, Sender, Receiver};

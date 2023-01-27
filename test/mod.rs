@@ -1,23 +1,5 @@
 use crate::*;
 
-pub fn run_and_exit() {
-    empty_test();
-
-    //Config Loading
-    load_config_from_file();
-    load_config_from_wrong_datatype_file();
-    load_config_with_missing_values();
-
-    println!("Test runs finished.");
-    std::process::exit(0);
-}
-
-#[test]
-pub fn empty_test() {
-    assert_eq!(true, true);
-}
-
-
 #[test]
 pub fn load_config_from_file() {
     let mock_file_path = &format!("{}/test_files/config.yml", std::env::var("PWD").unwrap());
