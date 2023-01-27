@@ -92,7 +92,7 @@ impl OxideBar {
         bar.create_window(screen_num).unwrap();
         bar.create_cairo_surface();
         bar.draw(oxideipc::get_state_struct());
-    
+
         return bar;
     }
 
@@ -113,7 +113,7 @@ impl OxideBar {
             .border_pixel(screen.white_pixel)
             //.background_pixel(screen.white_pixel)
             .colormap(colormap);
-        
+
         println!("Visual id: {:#x}", self.visual_id);
 
         self.conn.create_window(
@@ -129,7 +129,7 @@ impl OxideBar {
                 self.visual_id,
                 &win_aux,
             )?;
-        
+
         let title = "OxideBar";
         self.conn.change_property8(
             PropMode::REPLACE,
@@ -166,7 +166,7 @@ impl OxideBar {
             AtomEnum::ATOM,
             &[self.atoms._NET_WM_WINDOW_TYPE_DOCK],
         )?;
-        
+
         self.conn.map_window(self.window)?;
         self.conn.as_ref().flush()?;
         Ok(())
@@ -198,10 +198,10 @@ impl OxideBar {
             cr.set_operator(cairo::Operator::Over);
         }
         cr.show_text("Hi there").unwrap();
-    
+
         let ws_vec = state.workspace_tuple(self.screen);
         println!("ws_vec: {:?}", ws_vec);
-    
+
         let mut x = 10.0;
         for (visible, ws) in ws_vec {
             if visible {
@@ -215,7 +215,7 @@ impl OxideBar {
             x += 20.0;
         }
         self.cairo_surface.as_ref().unwrap().flush();
-    
+
     }
 
     pub fn handle_oxide_state_event(&mut self, state: OxideState) {
@@ -270,7 +270,7 @@ fn get_state(event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
             event_sender_mutex.lock().unwrap().send(EventType::OxideState(event)).unwrap();
         }
     }
-} 
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (connection, screen_num) = XCBConnection::connect(None)?;
