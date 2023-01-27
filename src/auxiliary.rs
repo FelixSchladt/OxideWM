@@ -1,7 +1,7 @@
-use std::process::{Command, Stdio};
 use log::error;
+use std::process::{Command, Stdio};
 
-pub fn exec_user_command(args: &Option<String>){
+pub fn exec_user_command(args: &Option<String>) {
     match args {
         Some(args) => {
             let mut args = args.split_whitespace();
@@ -22,7 +22,7 @@ pub fn exec_user_command(args: &Option<String>){
                 Ok(_) => (),
                 Err(_) => error!("Command {} not found", command),
             }
-        },
+        }
         None => error!("User command called without values"),
     }
 }

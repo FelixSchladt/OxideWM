@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use serde::Deserialize;
 use itertools::Itertools;
+use serde::Deserialize;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct ScreenInfo {
@@ -10,23 +10,26 @@ pub struct ScreenInfo {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct OxideWindow {
+    pub frame: u32,
     pub window: u32,
     pub title: String,
     pub visible: bool,
     pub urgent: bool,
-    pub x: u32,
-    pub y: u32,
+    pub x: i32,
+    pub y: i32,
     pub width: u32,
     pub height: u32,
-    pub titlebar_height: u32,
+    pub border_width: u32,
+    pub gap_size: u32,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Workspace {
-    pub name: String,
+    pub name: u16,
     pub visible: bool,
     pub focused: bool,
     pub focused_window: Option<u32>,
+    pub fullscreen: Option<u32>,
     pub urgent: bool,
     pub windows: HashMap<u32, OxideWindow>,
     pub order: Vec<u32>,
@@ -65,7 +68,7 @@ impl OxideState {
         self.screeninfo.get(&screen).unwrap().workspaces.clone()
     }
 
-    pub fn workspace_tuple(&self, screen: u32) -> Vec<(bool, String)> {
+    pub fn workspace_tuple(&self, screen: u32) -> Vec<(bool, u16)> {
         let workspaces = self.get_workspaces(screen);
         let workspaces_sorted = workspaces.iter().sorted_by_key(|w| w.0);
         let mut vec = Vec::new();
@@ -75,6 +78,3 @@ impl OxideState {
         vec
     }
 }
-
-
-

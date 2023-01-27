@@ -3,12 +3,11 @@ use x11rb::protocol::xproto::*;
 
 use crate::keybindings::KeyEvent;
 
-pub fn keypress(
-    event: &KeyReleaseEvent,
-    keyevent: HashMap<u8, Vec<KeyEvent>>,
-    ) {
+pub fn keypress(event: &KeyReleaseEvent, keyevent: HashMap<u8, Vec<KeyEvent>>) {
     //println!("Key pressed: {:?}", event);
-    let keys = keyevent.get(&event.detail).expect("Registered key not found");
+    let keys = keyevent
+        .get(&event.detail)
+        .expect("Registered key not found");
     //println!("Key: {:?}", keys);
     for key in keys {
         let state = u16::from(event.state);
@@ -17,5 +16,4 @@ pub fn keypress(
             (key.event)(key.args.clone());
         }
     }
-    
 }
