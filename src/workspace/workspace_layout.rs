@@ -1,12 +1,11 @@
 use serde::Serialize;
 
-
 #[derive(Debug, Clone, Serialize)]
 pub enum WorkspaceLayout {
     //Tiled, //blocked by https://github.com/DHBW-FN/OxideWM/issues/70
-    VerticalStriped,   //  |
+    VerticalStriped, //  |
     HorizontalStriped, // ---
-    //Different layout modes and better names wanted C:
+                     //Different layout modes and better names wanted C:
 }
 
 impl TryFrom<&str> for WorkspaceLayout {

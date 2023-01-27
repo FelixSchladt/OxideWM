@@ -1,6 +1,6 @@
 #[derive(Debug)]
 pub struct MoveError {
-    reason: String
+    reason: String,
 }
 
 impl std::fmt::Display for MoveError {
@@ -10,14 +10,14 @@ impl std::fmt::Display for MoveError {
 }
 
 impl MoveError {
-    pub fn new(reason:String) -> MoveError{
+    pub fn new(reason: String) -> MoveError {
         MoveError { reason }
     }
 }
 
 #[derive(Debug)]
 pub struct QuitError {
-    reason: String
+    reason: String,
 }
 
 impl std::fmt::Display for QuitError {
@@ -27,7 +27,7 @@ impl std::fmt::Display for QuitError {
 }
 
 impl QuitError {
-    pub fn new(reason:String) -> QuitError{
+    pub fn new(reason: String) -> QuitError {
         QuitError { reason }
     }
 }

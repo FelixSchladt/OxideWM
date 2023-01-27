@@ -2,33 +2,26 @@ pub mod movement;
 
 use self::movement::Movement;
 
-use std::{collections::HashMap};
-use std::sync::mpsc::Sender;
-use std::{cell::RefCell, rc::Rc};
 use serde::Serialize;
-use std::sync::{Mutex, Condvar, Arc};
+use std::collections::HashMap;
+use std::sync::mpsc::Sender;
+use std::sync::{Arc, Condvar, Mutex};
+use std::{cell::RefCell, rc::Rc};
 
-use log::{warn, error, info, debug};
+use log::{debug, error, info, warn};
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::ConnectionExt;
-use x11rb::{
-    protocol::xproto::*,
-    rust_connection::{
-        RustConnection,
-    }
-};
+use x11rb::{protocol::xproto::*, rust_connection::RustConnection};
 
 use crate::{
-    eventhandler::events::EventType,
-    auxiliary::exec_user_command,
-    screeninfo::ScreenInfo,
-    config::Config,
     atom::Atom,
+    auxiliary::exec_user_command,
+    config::Config,
+    eventhandler::events::EventType,
+    screeninfo::ScreenInfo,
     workspace::{
-        Workspace,
-        workspace_layout::WorkspaceLayout,
-        workspace_navigation::WorkspaceNavigation,
-    }
+        workspace_layout::WorkspaceLayout, workspace_navigation::WorkspaceNavigation, Workspace,
+    },
 };
 
 #[derive(Debug, Serialize)]
@@ -50,10 +43,10 @@ pub struct WindowManager {
 
 impl WindowManager {
     pub fn new(
-        connection:Arc<RustConnection>,
+        connection: Arc<RustConnection>,
         config: Rc<RefCell<Config>>,
-        wm_state_change: Arc<(Mutex<bool>, Condvar
-    )>) -> WindowManager {
+        wm_state_change: Arc<(Mutex<bool>, Condvar)>,
+    ) -> WindowManager {
         let screeninfo = HashMap::new();
 
         let focused_screen = 0;
@@ -110,25 +103,24 @@ impl WindowManager {
         }
     }
 
-    pub fn run_event_proxy(connection: Arc<RustConnection>,queue: Arc<Mutex<Sender<EventType>>>){
+    pub fn run_event_proxy(connection: Arc<RustConnection>, queue: Arc<Mutex<Sender<EventType>>>) {
         debug!("Started waiting for X-Event");
 
-        loop{
-            match connection.wait_for_event(){
+        loop {
+            match connection.wait_for_event() {
                 Ok(event) => {
                     debug!("Transvering X-Event into Queue {:?}", event);
-                    
+
                     let event_typ = EventType::X11rbEvent(event);
                     if let Err(error) = queue.lock().unwrap().send(event_typ) {
                         warn!("Could not insert event into event queue {}", error);
                     };
-
-                },
+                }
                 Err(error) => {
                     error!("Error retreiving Event from Window manager {:?}", error);
                 }
             };
-        };
+        }
     }
 
     fn get_active_workspace(&mut self) -> &mut Workspace {
@@ -147,7 +139,7 @@ impl WindowManager {
                 Ok(movement) => {
                     let workspace = self.get_active_workspace();
                     workspace.move_focus(movement);
-                },
+                }
                 Err(_) => warn!("Could not parse movement from argument {}", args),
             }
         } else {
@@ -161,7 +153,7 @@ impl WindowManager {
                 Ok(movement) => {
                     let workspace = self.get_active_workspace();
                     workspace.move_window(movement);
-                },
+                }
                 Err(_) => warn!("Could not parse movement from argument {}", args),
             }
         } else {
@@ -173,8 +165,7 @@ impl WindowManager {
         let focused_window = self.get_focused_window();
         debug!("Focused window: {:?}", focused_window);
         if let Some(winid) = focused_window {
-            self.get_active_workspace()
-                .kill_window(&winid);
+            self.get_active_workspace().kill_window(&winid);
         } else {
             error!("ERROR: No window to kill \nShould only happen on an empty screen");
         }
@@ -186,70 +177,67 @@ impl WindowManager {
         match args {
             Some(args) => {
                 let layout = WorkspaceLayout::try_from(args.as_str());
-                if layout.is_err(){
+                if layout.is_err() {
                     warn!("Layout could not be parsed from argument {}", args);
                     return;
                 }
                 active_workspace.set_layout(layout.unwrap());
-            },
+            }
             None => active_workspace.next_layout(),
         }
     }
 
-    pub fn handle_keypress_go_to_workspace(&mut self, args_option: Option<String>){
-        let screen_option = self.screeninfo
-            .get_mut(&self.focused_screen);
+    pub fn handle_keypress_go_to_workspace(&mut self, args_option: Option<String>) {
+        let screen_option = self.screeninfo.get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
-            match arg_option{
-                Ok(arg) =>{
+            match arg_option {
+                Ok(arg) => {
                     if let Err(error) = screen.switch_workspace(arg) {
                         warn!("Could not go to workspace {}", error);
                     }
-                },
+                }
                 Err(error) => warn!("Could not go to workspace {}", error),
             }
-        }else{
+        } else {
             warn!("Could not switch workspace, no screen was focused");
         }
     }
 
-    pub fn handle_move_to_workspace(&mut self, args_option: Option<String>){
-        let screen_option = self.screeninfo
-            .get_mut(&self.focused_screen);
+    pub fn handle_move_to_workspace(&mut self, args_option: Option<String>) {
+        let screen_option = self.screeninfo.get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
-            match arg_option{
-                Ok(arg) => {       
-                    if let Err(error) = screen.move_window_to_workspace(arg){
+            match arg_option {
+                Ok(arg) => {
+                    if let Err(error) = screen.move_window_to_workspace(arg) {
                         warn!("failed to move window to workspace {}", error);
                     }
-                },
+                }
                 Err(error) => warn!("Could not move to workspace {}", error),
             }
-        }else{
+        } else {
             warn!("Could not move to workspace, no screen was focused");
         }
     }
 
-    pub fn handle_move_to_workspace_follow(&mut self, args_option: Option<String>){
-        let screen_option = self.screeninfo
-            .get_mut(&self.focused_screen);
+    pub fn handle_move_to_workspace_follow(&mut self, args_option: Option<String>) {
+        let screen_option = self.screeninfo.get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
-            if let Ok(arg) = arg_option{       
-                if let Err(error) = screen.move_window_to_workspace_and_follow(arg){
+            if let Ok(arg) = arg_option {
+                if let Err(error) = screen.move_window_to_workspace_and_follow(arg) {
                     warn!("failed to move window to workspace and follow {}", error);
                 }
-            }else if let Err(error) = arg_option{
+            } else if let Err(error) = arg_option {
                 warn!("Could not move to workspace {}", error);
             }
-        }else{
+        } else {
             warn!("Could not move to workspace, no screen was focused");
         }
     }
 
-    pub fn handle_move_to_or_create_workspace(&mut self, args_option: Option<String>){
+    pub fn handle_move_to_or_create_workspace(&mut self, args_option: Option<String>) {
         let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
         match arg_option {
             Ok(arg) => {
@@ -258,25 +246,25 @@ impl WindowManager {
                     None => {
                         warn!("No focused screen");
                         return;
-                    },
+                    }
                 };
-                if let Err(error) = screen.move_to_or_create_workspace(arg){
+                if let Err(error) = screen.move_to_or_create_workspace(arg) {
                     warn!("{error}")
                 }
-            },
-            Err(error) => warn!("could not parse arguments {}", error)
+            }
+            Err(error) => warn!("could not parse arguments {}", error),
         };
     }
 
-    pub fn handle_quit_workspace(&mut self){
+    pub fn handle_quit_workspace(&mut self) {
         let active_workspace_name = self.get_active_workspace().name;
 
-        if let Some(screen_info) = self.screeninfo.get_mut(&self.focused_screen){
+        if let Some(screen_info) = self.screeninfo.get_mut(&self.focused_screen) {
             info!("quitting workspace {}", active_workspace_name);
-            if let Err(error) = screen_info.quit_workspace(active_workspace_name){
+            if let Err(error) = screen_info.quit_workspace(active_workspace_name) {
                 warn!("could not quit workspace {error}");
             }
-        }else{
+        } else {
             warn!("No screen was focused");
         }
     }
@@ -298,14 +286,17 @@ impl WindowManager {
             );
             self.screeninfo.insert(screen.root, screenstruct);
             self.focused_screen = screen.root;
-            debug!("screen widht: {} screen height: {}", screen.width_in_pixels, screen.height_in_pixels);
+            debug!(
+                "screen widht: {} screen height: {}",
+                screen.width_in_pixels, screen.height_in_pixels
+            );
         }
     }
 
     pub fn handle_event_enter_notify(&mut self, event: &EnterNotifyEvent) {
         let mut winid = event.event;
         if self.moved_window.is_some() {
-            winid =  self.moved_window.unwrap();
+            winid = self.moved_window.unwrap();
             self.moved_window = None;
         }
 
@@ -317,7 +308,6 @@ impl WindowManager {
         let active_workspace = self.get_active_workspace();
         active_workspace.unfocus_window();
     }
-
 
     pub fn handle_event_destroy_notify(&mut self, event: &DestroyNotifyEvent) {
         let active_workspace = self.get_active_workspace();
@@ -333,15 +323,20 @@ impl WindowManager {
     //Note to get general atoms look at
     //https://github.com/sminez/penrose/blob/develop/src/x11rb/mod.rs lines 404-500
     pub fn atom_window_type_dock(&self, winid: u32) -> bool {
-        let atom_intern = self.connection.intern_atom(false, Atom::NetWmWindowType.as_ref().as_bytes()).unwrap().reply().unwrap().atom;
+        let atom_intern = self
+            .connection
+            .intern_atom(false, Atom::NetWmWindowType.as_ref().as_bytes())
+            .unwrap()
+            .reply()
+            .unwrap()
+            .atom;
 
         self.connection.flush().unwrap();
-        let atom_reply = self.connection.get_property(false,
-                                              winid,
-                                              atom_intern,
-                                              AtomEnum::ANY,
-                                              0,
-                                              1024).unwrap().reply();
+        let atom_reply = self
+            .connection
+            .get_property(false, winid, atom_intern, AtomEnum::ANY, 0, 1024)
+            .unwrap()
+            .reply();
         if let Ok(atom_reply) = atom_reply {
             self.connection.flush().unwrap();
 
@@ -352,7 +347,9 @@ impl WindowManager {
 
             let wm_type = Atom::NetWindowTypeDock.as_ref();
             if prop_type == "ATOM" {
-                let atoms = atom_reply.value32().unwrap()
+                let atoms = atom_reply
+                    .value32()
+                    .unwrap()
                     .map(|a| self.atom_name(a))
                     .collect::<Vec<String>>();
                 if atoms.contains(&wm_type.to_string()) {
@@ -366,13 +363,19 @@ impl WindowManager {
 
     pub fn handle_create_notify(&mut self, event: &CreateNotifyEvent) {
         if self.atom_window_type_dock(event.window) {
-            self.screeninfo.get_mut(&event.parent.clone()).unwrap().add_status_bar(event);
+            self.screeninfo
+                .get_mut(&event.parent.clone())
+                .unwrap()
+                .add_status_bar(event);
         }
     }
 
     pub fn handle_map_request(&mut self, event: &MapRequestEvent) {
         if !self.atom_window_type_dock(event.window.clone()) {
-            self.screeninfo.get_mut(&event.parent.clone()).unwrap().on_map_request(event);
+            self.screeninfo
+                .get_mut(&event.parent.clone())
+                .unwrap()
+                .on_map_request(event);
         }
     }
 }

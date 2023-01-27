@@ -1,9 +1,9 @@
 extern crate log;
 
-use syslog::{Facility, Formatter3164, BasicLogger};
-use log::{LevelFilter, info};
+use log::{info, LevelFilter};
+use syslog::{BasicLogger, Facility, Formatter3164};
 
-fn main (){
+fn main() {
     let formatter = Formatter3164 {
         facility: Facility::LOG_USER,
         hostname: None,
@@ -12,11 +12,15 @@ fn main (){
     };
 
     let logger = match syslog::unix(formatter) {
-        Err(e) => { println!("impossible to connect to syslog: {:?}", e); return; },
+        Err(e) => {
+            println!("impossible to connect to syslog: {:?}", e);
+            return;
+        }
         Ok(logger) => logger,
     };
     log::set_boxed_logger(Box::new(BasicLogger::new(logger)))
-            .map(|()| log::set_max_level(LevelFilter::Info)).expect("failed to set boxed logger");
+        .map(|()| log::set_max_level(LevelFilter::Info))
+        .expect("failed to set boxed logger");
 
     info!("hello world");
     println!("something was logged")

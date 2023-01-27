@@ -1,30 +1,28 @@
+pub mod parse_error;
 pub mod workspace_layout;
 pub mod workspace_navigation;
-pub mod parse_error;
 
 use self::workspace_layout::WorkspaceLayout;
 
 use crate::{
-    windowmanager::movement::Movement,
+    config::Config, screeninfo::ScreenSize, windowmanager::movement::Movement,
     windowstate::WindowState,
-    config::Config,
-    screeninfo::ScreenSize,
 };
 
-use x11rb::connection::Connection;
-use x11rb::rust_connection::RustConnection;
-use x11rb::protocol::xproto::*;
-use x11rb::CURRENT_TIME;
-use std::collections::{HashMap, HashSet};
+use log::{debug, error, info, warn};
 use serde::Serialize;
-use std::{cell::RefCell, rc::Rc};
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
-use log::{error, info, debug, warn};
+use std::{cell::RefCell, rc::Rc};
+use x11rb::connection::Connection;
+use x11rb::protocol::xproto::*;
+use x11rb::rust_connection::RustConnection;
+use x11rb::CURRENT_TIME;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
     #[serde(skip_serializing)]
-    pub connection:  Arc<RustConnection>,
+    pub connection: Arc<RustConnection>,
     pub name: u16,
     #[serde(skip_serializing)]
     pub root_screen: Rc<RefCell<Screen>>,
@@ -42,15 +40,14 @@ pub struct Workspace {
     pub layout: WorkspaceLayout,
 }
 
-
 impl Workspace {
-    pub fn new(name:u16, 
-               connection: Arc<RustConnection>, 
-               root_screen: Rc<RefCell<Screen>>, 
-               screen_size: Rc<RefCell<ScreenSize>>,
-               config: Rc<RefCell<Config>>
-               ) -> Workspace 
-    {
+    pub fn new(
+        name: u16,
+        connection: Arc<RustConnection>,
+        root_screen: Rc<RefCell<Screen>>,
+        screen_size: Rc<RefCell<ScreenSize>>,
+        config: Rc<RefCell<Config>>,
+    ) -> Workspace {
         Workspace {
             connection,
             name,
@@ -86,20 +83,20 @@ impl Workspace {
                     } else {
                         self.focus_window(self.order[pos - 1]);
                     }
-                },
+                }
                 Movement::Right => {
                     if pos == len - 1 {
                         self.focus_window(self.order[0]);
                     } else {
                         self.focus_window(self.order[pos + 1]);
                     }
-                },
+                }
                 Movement::Up => {
                     //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                },
+                }
                 Movement::Down => {
                     //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                },
+                }
             }
         } else {
             //Shouldnt really happen but just in case
@@ -125,7 +122,7 @@ impl Workspace {
                         self.order.swap(pos, pos - 1);
                     }
                     move_occured = Some(focused_win);
-                },
+                }
                 Movement::Right => {
                     if pos == self.order.len() - 1 {
                         self.order.swap(pos, 0);
@@ -133,10 +130,10 @@ impl Workspace {
                         self.order.swap(pos, pos + 1);
                     }
                     move_occured = Some(focused_win);
-                },
+                }
                 Movement::Up => {
                     //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
-                },
+                }
                 Movement::Down => {
                     //TODO: blocked by https://github.com/DHBW-FN/OxideWM/issues/25
                 }
@@ -162,7 +159,7 @@ impl Workspace {
             match self.fullscreen {
                 Some(_) => {
                     self.fullscreen = None;
-                },
+                }
                 None => {
                     self.fullscreen = Some(focused_win);
                 }
@@ -171,23 +168,24 @@ impl Workspace {
         } else {
             error!("No window focused");
         }
-
     }
 
-    pub fn kill_all_windows(&mut self){
-        let windows:HashSet<u32> = self.windows.keys()
+    pub fn kill_all_windows(&mut self) {
+        let windows: HashSet<u32> = self
+            .windows
+            .keys()
             .map(|window| (*window).clone())
             .collect();
 
         self.windows.clear();
         self.order.clear();
 
-        for window in windows.iter(){
+        for window in windows.iter() {
             if self.connection.unmap_window(*window).is_err() {
-                warn!("failed to unmap window {}",window);
+                warn!("failed to unmap window {}", window);
             }
             if self.connection.kill_client(*window).is_err() {
-                warn!("failed to kill client {}",window);
+                warn!("failed to kill client {}", window);
             }
         }
 
@@ -201,7 +199,9 @@ impl Workspace {
         //(Tell window to close itself)
         //https://github.com/DHBW-FN/OxideWM/issues/46
         self.remove_window(winid);
-        self.connection.kill_client(*winid).expect("Could not kill client");
+        self.connection
+            .kill_client(*winid)
+            .expect("Could not kill client");
         self.connection.flush().unwrap();
     }
 
@@ -223,22 +223,29 @@ impl Workspace {
             self.connection.clone(),
             self.root_screen.clone(),
             self.config.clone(),
-            window
+            window,
         );
         self.add_window(windowstruct);
     }
 
-    pub fn show() { panic!("Not implemented"); }
-    pub fn hide() { panic!("Not implemented"); }
+    pub fn show() {
+        panic!("Not implemented");
+    }
+    pub fn hide() {
+        panic!("Not implemented");
+    }
 
     pub fn focus_window(&mut self, winid: u32) {
         debug!("focus_window");
         self.focused_window = Some(winid);
-        if let Ok(result) = self.connection.set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME) {
+        if let Ok(result) = self
+            .connection
+            .set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME)
+        {
             if let Err(_) = result.check() {
                 warn!("Failed to focus window");
             }
-        }else{
+        } else {
             warn!("Failed to focus window");
         }
         //TODO: Change color of border to focus color
@@ -262,8 +269,12 @@ impl Workspace {
         self.remap_windows();
     }
 
-    pub fn unmap_windows(&mut self){
-        debug!("Unmapping {} Windows from workspace {}", self.windows.len(), self.name);
+    pub fn unmap_windows(&mut self) {
+        debug!(
+            "Unmapping {} Windows from workspace {}",
+            self.windows.len(),
+            self.name
+        );
         self.connection.grab_server().unwrap();
         for window_id in self.windows.keys() {
             let resp = &self.connection.unmap_window(*window_id as Window);
@@ -280,12 +291,9 @@ impl Workspace {
             self.unmap_windows();
             let screen_size = self.screen_size.borrow();
             let window = self.windows.get_mut(&fs_win).unwrap();
-            window.set_bounds(
-                0,
-                0,
-                screen_size.width as u32,
-                screen_size.height as u32,
-            ).draw();
+            window
+                .set_bounds(0, 0, screen_size.width as u32, screen_size.height as u32)
+                .draw();
             self.connection.flush().unwrap();
         } else {
             match self.layout {
@@ -303,12 +311,14 @@ impl Workspace {
 
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
-            current_window.set_bounds(
-                (i * screen_size.ws_width as usize / amount) as i32 + screen_size.ws_pos_x,
-                screen_size.ws_pos_y,
-                (screen_size.ws_width as usize / amount) as u32,
-                screen_size.ws_height
-            ).draw();
+            current_window
+                .set_bounds(
+                    (i * screen_size.ws_width as usize / amount) as i32 + screen_size.ws_pos_x,
+                    screen_size.ws_pos_y,
+                    (screen_size.ws_width as usize / amount) as u32,
+                    screen_size.ws_height,
+                )
+                .draw();
         }
     }
 
@@ -319,12 +329,14 @@ impl Workspace {
 
         for (i, id) in self.order.iter().enumerate() {
             let current_window = self.windows.get_mut(id).unwrap();
-            current_window.set_bounds(
-                screen_size.ws_pos_x,
-                (i * screen_size.ws_height as usize / amount) as i32 + screen_size.ws_pos_y,
-                screen_size.ws_width,
-                (screen_size.ws_height as usize / amount) as u32,
-            ).draw();
+            current_window
+                .set_bounds(
+                    screen_size.ws_pos_x,
+                    (i * screen_size.ws_height as usize / amount) as i32 + screen_size.ws_pos_y,
+                    screen_size.ws_width,
+                    (screen_size.ws_height as usize / amount) as u32,
+                )
+                .draw();
         }
     }
 }
