@@ -6,7 +6,6 @@ use x11rb::errors::ReplyError;
 use x11rb::protocol::render::{self, ConnectionExt as _, PictType};
 use x11rb::protocol::xproto::*;
 
-
 /// A rust version of XCB's `xcb_visualtype_t` struct. This is used in a FFI-way.
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
@@ -38,7 +37,8 @@ impl From<Visualtype> for xcb_visualtype_t {
 
 /// Find a `xcb_visualtype_t` based on its ID number
 pub fn find_xcb_visualtype(conn: &impl Connection, visual_id: u32) -> Option<xcb_visualtype_t> {
-    return conn.setup()
+    return conn
+        .setup()
         .roots
         .iter()
         .flat_map(|root| root.allowed_depths.iter())
@@ -49,7 +49,10 @@ pub fn find_xcb_visualtype(conn: &impl Connection, visual_id: u32) -> Option<xcb
 
 /// Choose a visual to use. This function tries to find a depth=32 visual and falls back to the
 /// screen's default visual.
-pub fn choose_visual(conn: &impl Connection, screen_num: usize) -> Result<(u8, Visualid), ReplyError> {
+pub fn choose_visual(
+    conn: &impl Connection,
+    screen_num: usize,
+) -> Result<(u8, Visualid), ReplyError> {
     let depth = 32;
     let screen = &conn.setup().roots[screen_num];
 
