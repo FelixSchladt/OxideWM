@@ -106,8 +106,7 @@ fn main() -> Result<()> {
 
         if eventhandler.window_manager.restart {
             setup::connection::ungrab_keys(connection.clone(), &keybindings).unwrap();
-            connection.flush();
-            
+
             config = Rc::new(RefCell::new(Config::new(None)));
             keybindings = KeyBindings::new(&config.borrow());
             setup::connection::grab_keys(connection.clone(), &keybindings.clone()).unwrap();

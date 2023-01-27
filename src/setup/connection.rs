@@ -42,7 +42,10 @@ pub fn grab_keys(
     connection.flush()
 }
 
-pub fn ungrab_keys(connection: Arc<RustConnection>, keybindings: &KeyBindings) -> Result<(), ConnectionError> {
+pub fn ungrab_keys(
+    connection: Arc<RustConnection>,
+    keybindings: &KeyBindings,
+) -> Result<(), ConnectionError> {
     info!("ungrabbing keys");
     for screen in connection.setup().roots.iter() {
         for modifier in [0, u16::from(ModMask::M2)] {
