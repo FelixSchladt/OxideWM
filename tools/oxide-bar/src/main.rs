@@ -36,25 +36,6 @@ pub enum EventType {
 }
 
 #[derive(Debug)]
-struct Config {
-    width: u16,
-    height: u16,
-    _color_bg: String,
-    _color_txt: String,
-}
-
-impl Config {
-    pub fn default(width: u16) -> Config {
-        Config {
-            width,
-            height: 30,
-            _color_bg: "test".to_string(),
-            _color_txt: "test".to_string(),
-        }
-    }
-}
-
-#[derive(Debug)]
 struct OxideBar {
     conn: Arc<XCBConnection>,
     window: Window,
