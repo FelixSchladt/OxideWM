@@ -25,7 +25,6 @@ pub fn grab_keys(
     keybindings: &KeyBindings,
 ) -> Result<(), ConnectionError> {
     info!("grabbing keys");
-    //TODO check if the the screen iterations should be merged
     for screen in connection.setup().roots.iter() {
         for modifier in [0, u16::from(ModMask::M2)] {
             for keyevent in keybindings.events_vec.iter() {
@@ -45,7 +44,6 @@ pub fn grab_keys(
 
 pub fn ungrab_keys(connection: Arc<RustConnection>, keybindings: &KeyBindings) -> Result<(), ConnectionError> {
     info!("ungrabbing keys");
-    //TODO check if the the screen iterations should be merged
     for screen in connection.setup().roots.iter() {
         for modifier in [0, u16::from(ModMask::M2)] {
             for keyevent in keybindings.events_vec.iter() {
