@@ -6,6 +6,7 @@ pub fn run_and_exit() {
     //Config Loading
     load_config_from_file();
     load_config_from_wrong_datatype_file();
+    load_config_with_missing_values();
 
     println!("Test runs finished.");
     std::process::exit(0);
@@ -39,6 +40,24 @@ pub fn load_config_from_file() {
 #[test]
 pub fn load_config_from_wrong_datatype_file() {
     let mock_file_path = &format!("{}/test_files/invalid_datatypes.yml", std::env::var("PWD").unwrap());
+    let cfg = Config::new(Some(mock_file_path));
+
+    assert_eq!(cfg.cmds.len(), 1);
+    assert_eq!(cfg.exec.len(), 0);
+    assert_eq!(cfg.exec_always.len(), 0);
+    assert_eq!(cfg.cmds[0].keys.len(), 1);
+    assert_eq!(cfg.cmds[0].keys[0], "A".to_string());
+    assert_eq!(cfg.cmds[0].keys[1], "t".to_string());
+    assert_eq!(cfg.cmds[0].args, Some("kitty".to_string()));
+    assert_eq!(cfg.border_width, 3);
+    assert_eq!(cfg.border_color, "0xFFFFFF");
+    assert_eq!(cfg.border_focus_color, "0x000000");
+    assert_eq!(cfg.gap, 3);
+}
+
+#[test]
+pub fn load_config_with_missing_values() {
+    let mock_file_path = &format!("{}/test_files/missing_values.yml", std::env::var("PWD").unwrap());
     let cfg = Config::new(Some(mock_file_path));
 
     assert_eq!(cfg.cmds.len(), 1);
