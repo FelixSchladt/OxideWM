@@ -11,10 +11,10 @@ use x11rb::wrapper::ConnectionExt;
 use x11rb::xcb_ffi::XCBConnection;
 
 use std::sync::mpsc::{channel, Sender};
-use std::thread;
 use std::sync::{Arc, Mutex};
+use std::thread;
 
-use crate::xcb_visualtype::{ find_xcb_visualtype, choose_visual};
+use crate::xcb_visualtype::{choose_visual, find_xcb_visualtype};
 use oxideipc;
 use oxideipc::state::OxideState;
 
@@ -44,7 +44,7 @@ struct Config {
 }
 
 impl Config {
-    pub fn default(width: u16) -> Config  {
+    pub fn default(width: u16) -> Config {
         Config {
             width,
             height: 30,
@@ -53,7 +53,6 @@ impl Config {
         }
     }
 }
-
 
 #[derive(Debug)]
 struct OxideBar {
@@ -99,14 +98,27 @@ impl OxideBar {
 
     fn composite_manager_running(&mut self, screen_num: usize) {
         let atom = format!("_NET_WM_CM_S{}", screen_num);
-        let atom = self.conn.intern_atom(false, atom.as_bytes()).unwrap().reply().unwrap().atom;
-        let owner = self.conn.get_selection_owner(atom).unwrap().reply().unwrap();
+        let atom = self
+            .conn
+            .intern_atom(false, atom.as_bytes())
+            .unwrap()
+            .reply()
+            .unwrap()
+            .atom;
+        let owner = self
+            .conn
+            .get_selection_owner(atom)
+            .unwrap()
+            .reply()
+            .unwrap();
         self.composite_mgr = owner.owner != x11rb::NONE;
     }
 
-    fn create_window(&mut self, screen_num: usize) -> Result <(), ReplyOrIdError> {
+    fn create_window(&mut self, screen_num: usize) -> Result<(), ReplyOrIdError> {
         let colormap = self.conn.generate_id().unwrap();
-        self.conn.create_colormap(ColormapAlloc::NONE, colormap, self.screen, self.visual_id).unwrap();
+        self.conn
+            .create_colormap(ColormapAlloc::NONE, colormap, self.screen, self.visual_id)
+            .unwrap();
         let screen = &self.conn.setup().roots[screen_num];
         let win_aux = CreateWindowAux::new()
             .event_mask(EventMask::EXPOSURE | EventMask::STRUCTURE_NOTIFY)
@@ -118,18 +130,18 @@ impl OxideBar {
         println!("Visual id: {:#x}", self.visual_id);
 
         self.conn.create_window(
-                self.depth,
-                self.window,
-                self.screen,
-                0,
-                0,
-                self.config.width,
-                self.config.height,
-                0,
-                WindowClass::INPUT_OUTPUT,
-                self.visual_id,
-                &win_aux,
-            )?;
+            self.depth,
+            self.window,
+            self.screen,
+            0,
+            0,
+            self.config.width,
+            self.config.height,
+            0,
+            WindowClass::INPUT_OUTPUT,
+            self.visual_id,
+            &win_aux,
+        )?;
 
         let title = "OxideBar";
         self.conn.change_property8(
@@ -175,19 +187,24 @@ impl OxideBar {
 
     fn create_cairo_surface(&mut self) {
         let mut visual = find_xcb_visualtype(self.conn.as_ref(), self.visual_id).unwrap();
-        let cairo_conn = unsafe { cairo::XCBConnection::from_raw_none(self.conn.get_raw_xcb_connection() as _) };
+        let cairo_conn =
+            unsafe { cairo::XCBConnection::from_raw_none(self.conn.get_raw_xcb_connection() as _) };
         let visual = unsafe { cairo::XCBVisualType::from_raw_none(&mut visual as *mut _ as _) };
-        self.cairo_surface = Some(cairo::XCBSurface::create(
-            &cairo_conn,
-            &cairo::XCBDrawable(self.window),
-            &visual,
-            self.config.width.into(),
-            self.config.height.into(),
-        ).unwrap());
+        self.cairo_surface = Some(
+            cairo::XCBSurface::create(
+                &cairo_conn,
+                &cairo::XCBDrawable(self.window),
+                &visual,
+                self.config.width.into(),
+                self.config.height.into(),
+            )
+            .unwrap(),
+        );
     }
 
     fn draw(&mut self, state: OxideState) {
-        let cr = cairo::Context::new(self.cairo_surface.as_ref().unwrap()).expect("failed to create cairo context");
+        let cr = cairo::Context::new(self.cairo_surface.as_ref().unwrap())
+            .expect("failed to create cairo context");
         if self.composite_mgr {
             cr.set_operator(cairo::Operator::Source);
             cr.set_source_rgba(0.9, 1.0, 0.9, 0.5);
@@ -212,11 +229,10 @@ impl OxideBar {
             }
             cr.move_to(x, 20.0);
             cr.set_font_size(15.0);
-            cr.show_text(&ws).unwrap();
+            cr.show_text(&ws.to_string()).unwrap();
             x += 20.0;
         }
         self.cairo_surface.as_ref().unwrap().flush();
-
     }
 
     pub fn handle_oxide_state_event(&mut self, state: OxideState) {
@@ -227,34 +243,39 @@ impl OxideBar {
     pub fn handle_x_event(&mut self, event: x11rb::protocol::Event) {
         match event {
             x11rb::protocol::Event::ClientMessage(event) => {
-                    let data = event.data.as_data32();
-                    if event.format == 32
-                        && event.window == self.window
-                        && data[0] == self.atoms.WM_DELETE_WINDOW
-                    {
-                        println!("Oxide-bar exiting");
-                        std::process::exit(0);
-                    }
-                },
+                let data = event.data.as_data32();
+                if event.format == 32
+                    && event.window == self.window
+                    && data[0] == self.atoms.WM_DELETE_WINDOW
+                {
+                    println!("Oxide-bar exiting");
+                    std::process::exit(0);
+                }
+            }
             x11rb::protocol::Event::Error(error) => {
                 println!("Error: {:?}", error);
-            },
-            _ => {},
+            }
+            _ => {}
         }
     }
-
 }
 
-
-fn get_x11rb_events(connection: Arc<XCBConnection>, event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
-    loop{
+fn get_x11rb_events(
+    connection: Arc<XCBConnection>,
+    event_sender_mutex: Arc<Mutex<Sender<EventType>>>,
+) {
+    loop {
         match connection.wait_for_event() {
             Ok(event) => {
-                event_sender_mutex.lock().unwrap().send(EventType::X11rbEvent(event)).unwrap();
-            },
+                event_sender_mutex
+                    .lock()
+                    .unwrap()
+                    .send(EventType::X11rbEvent(event))
+                    .unwrap();
+            }
             Err(error) => println!("Error: {}", error),
         }
-    };
+    }
 }
 
 fn get_state(event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
@@ -268,7 +289,11 @@ fn get_state(event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
 
     loop {
         if let Ok(event) = event_receiver.recv() {
-            event_sender_mutex.lock().unwrap().send(EventType::OxideState(event)).unwrap();
+            event_sender_mutex
+                .lock()
+                .unwrap()
+                .send(EventType::OxideState(event))
+                .unwrap();
         }
     }
 }
@@ -283,16 +308,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut bar = OxideBar::new(conn.clone(), config, screen_num);
 
-
     let (event_sender, event_receiver) = channel::<EventType>();
 
     let event_sender_mutex = Arc::new(Mutex::new(event_sender));
     let event_receiver_mutex = Arc::new(Mutex::new(event_receiver));
 
     let event_sender_clone = event_sender_mutex.clone();
-    thread::spawn( move || get_state(event_sender_clone));
+    thread::spawn(move || get_state(event_sender_clone));
     let conn_clone = conn.clone();
-    thread::spawn( move || get_x11rb_events(conn_clone, event_sender_mutex));
+    thread::spawn(move || get_x11rb_events(conn_clone, event_sender_mutex));
 
     loop {
         conn.flush().ok();

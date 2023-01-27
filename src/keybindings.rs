@@ -4,10 +4,7 @@ use std::process::Command;
 use log::debug;
 use x11rb::protocol::xproto::{KeyPressEvent, ModMask};
 
-use crate::{
-    config::Config,
-    eventhandler::commands::WmCommands,
-};
+use crate::{config::Config, eventhandler::commands::WmCommands};
 
 #[derive(Debug)]
 pub enum ModifierKey {
@@ -20,10 +17,10 @@ pub enum ModifierKey {
 impl From<ModifierKey> for u16 {
     fn from(key: ModifierKey) -> u16 {
         (match key {
-            ModifierKey::Shift  =>  1,
-            ModifierKey::Ctrl   =>  4,
-            ModifierKey::Alt    =>  8,
-            ModifierKey::Meta   =>  64,
+            ModifierKey::Shift => 1,
+            ModifierKey::Ctrl => 4,
+            ModifierKey::Alt => 8,
+            ModifierKey::Meta => 64,
         }) as u16
     }
 }
@@ -32,31 +29,27 @@ impl TryFrom<String> for ModifierKey {
     type Error = &'static str;
     fn try_from(key: String) -> Result<Self, Self::Error> {
         match key.as_str() {
-            "C"     => Ok(ModifierKey::Ctrl),
-            "A"     => Ok(ModifierKey::Alt),
-            "S"     => Ok(ModifierKey::Shift),
-            "M"     => Ok(ModifierKey::Meta),
-            _       => Err("Invalid modifier key"),
+            "C" => Ok(ModifierKey::Ctrl),
+            "A" => Ok(ModifierKey::Alt),
+            "S" => Ok(ModifierKey::Shift),
+            "M" => Ok(ModifierKey::Meta),
+            _ => Err("Invalid modifier key"),
         }
     }
 }
 
-#[derive(Debug)]
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct KeyCode {
     pub mask: u16,
     pub code: u8,
 }
 
-
-#[derive(Debug)]
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct KeyEvent {
     pub keycode: KeyCode,
     pub args: Option<String>,
     pub event: WmCommands,
 }
-
 
 fn keycodes_map() -> HashMap<String, u8> {
     let output = Command::new("xmodmap")
@@ -67,16 +60,18 @@ fn keycodes_map() -> HashMap<String, u8> {
     let m = String::from_utf8(output).unwrap();
     let mut keycodes_map: HashMap<String, u8> = HashMap::new();
     for line in m.lines() {
-            let words: Vec<&str> = line.split_whitespace().collect();
-            if words.len() > 3 {
-                keycodes_map.insert(words[3].to_string(), words[1].parse().unwrap());
-            }
+        let words: Vec<&str> = line.split_whitespace().collect();
+        if words.len() > 3 {
+            keycodes_map.insert(words[3].to_string(), words[1].parse().unwrap());
         }
-    return keycodes_map; 
+    }
+    return keycodes_map;
 }
 
 fn keyname_to_keycode(keyname: &str, keymap: &HashMap<String, u8>) -> u8 {
-    return *keymap.get(keyname).unwrap_or_else(|| panic!("Key {} has no corresponding keysym", keyname));
+    return *keymap
+        .get(keyname)
+        .unwrap_or_else(|| panic!("Key {} has no corresponding keysym", keyname));
 }
 
 //TODO ERROR handling
@@ -108,7 +103,7 @@ impl KeyBindings {
             events_map: HashMap::new(),
             events_vec: Vec::new(),
         };
-        
+
         let keymap = keycodes_map();
 
         //add wm commands
@@ -120,7 +115,8 @@ impl KeyBindings {
                 event: cmd.command.clone(),
             };
             keybindings.events_vec.push(kevent.clone());
-            keybindings.events_map
+            keybindings
+                .events_map
                 .entry(keycode.code)
                 .or_insert(Vec::new())
                 .push(kevent);
@@ -128,14 +124,13 @@ impl KeyBindings {
         keybindings
     }
 
-    pub fn retreive_cmd(&self, event: &KeyPressEvent) -> Option<KeyEvent>{
-        let keys = self.events_map
-            .get(&event.detail);
+    pub fn retreive_cmd(&self, event: &KeyPressEvent) -> Option<KeyEvent> {
+        let keys = self.events_map.get(&event.detail);
         if keys.is_none() {
             debug!("Found no matching key for event {}", event.detail);
-            return None
+            return None;
         }
-        
+
         //NOTE: IF you get the error above, this is probably cause by an inconsistency
         // in the Connection. Most likely you did something with the connection that
         // left it in a weird state. This **must not be** directly connected to this
@@ -145,8 +140,7 @@ impl KeyBindings {
 
         for key in keys.unwrap().clone() {
             let state = u16::from(event.state);
-            if state == key.keycode.mask
-            || state == key.keycode.mask | u16::from(ModMask::M2) {
+            if state == key.keycode.mask || state == key.keycode.mask | u16::from(ModMask::M2) {
                 debug!("Key: {:?}", key);
                 return Some(key);
             }

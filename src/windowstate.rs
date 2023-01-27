@@ -1,12 +1,12 @@
 use log::error;
+use serde::Serialize;
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::Arc;
+use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
 use x11rb::rust_connection::RustConnection;
-use x11rb::connection::Connection;
 use x11rb::COPY_DEPTH_FROM_PARENT;
-use serde::Serialize;
-use std::sync::Arc;
-use std::rc::Rc;
-use std::cell::RefCell;
 
 use crate::config::Config;
 
@@ -30,18 +30,18 @@ pub struct WindowState {
 }
 
 impl WindowState {
-    pub fn new(connection: Arc<RustConnection>, root_screen: &Screen, config: Rc<RefCell<Config>>, window: Window) -> WindowState {
-        let title = connection.get_property(
-                                  false,
-                                  window,
-                                  AtomEnum::WM_NAME,
-                                  AtomEnum::STRING,
-                                  0,
-                                  1024
-                              ).unwrap()
-                               .reply()
-                               .unwrap()
-                               .value;
+    pub fn new(
+        connection: Arc<RustConnection>,
+        root_screen: Rc<RefCell<Screen>>,
+        config: Rc<RefCell<Config>>,
+        window: Window,
+    ) -> WindowState {
+        let title = connection
+            .get_property(false, window, AtomEnum::WM_NAME, AtomEnum::STRING, 0, 1024)
+            .unwrap()
+            .reply()
+            .unwrap()
+            .value;
         let title = String::from_utf8(title).unwrap();
         let visible = true;
         let urgent = false;
@@ -53,23 +53,28 @@ impl WindowState {
         let gap_size = config.borrow().gap;
 
         let frame = connection.generate_id().unwrap();
-        connection.create_window(
-            COPY_DEPTH_FROM_PARENT,
-            frame,
-            root_screen.root,
-            x as i16,
-            y as i16,
-            width as u16,
-            height as u16,
-            0,
-            WindowClass::INPUT_OUTPUT,
-            0,
-            &CreateWindowAux::new().background_pixel(root_screen.black_pixel),
-        ).unwrap();
+        connection
+            .create_window(
+                COPY_DEPTH_FROM_PARENT,
+                frame,
+                root_screen.borrow().root,
+                x as i16,
+                y as i16,
+                width as u16,
+                height as u16,
+                0,
+                WindowClass::INPUT_OUTPUT,
+                0,
+                &CreateWindowAux::new().background_pixel(root_screen.borrow().black_pixel),
+            )
+            .unwrap();
 
         let mask = ChangeWindowAttributesAux::default()
-            .event_mask(EventMask::ENTER_WINDOW | EventMask::LEAVE_WINDOW );
-        let res = connection.change_window_attributes(window, &mask).unwrap().check();
+            .event_mask(EventMask::ENTER_WINDOW | EventMask::LEAVE_WINDOW);
+        let res = connection
+            .change_window_attributes(window, &mask)
+            .unwrap()
+            .check();
         if let Err(e) = res {
             error!("Error couldn change mask: {:?}", e);
             panic!("Error couldnt change mask");
@@ -94,19 +99,23 @@ impl WindowState {
 
     pub fn set_bounds(&self, x: i32, y: i32, width: u32, height: u32) -> &WindowState {
         let frame_aux = ConfigureWindowAux::new()
-            .x(x+self.gap_size as i32)
-            .y(y+self.gap_size as i32)
-            .width(width - (self.gap_size*2))
-            .height(height - (self.gap_size*2));
+            .x(x + self.gap_size as i32)
+            .y(y + self.gap_size as i32)
+            .width(width - (self.gap_size * 2))
+            .height(height - (self.gap_size * 2));
 
         let window_aux = ConfigureWindowAux::new()
-            .x(x+(self.border_width + self.gap_size) as i32)
-            .y(y+(self.border_width + self.gap_size) as i32)
-            .width(width - (self.border_width*2) - (self.gap_size*2))
-            .height(height - (self.border_width*2) - (self.gap_size*2));
+            .x(x + (self.border_width + self.gap_size) as i32)
+            .y(y + (self.border_width + self.gap_size) as i32)
+            .width(width - (self.border_width * 2) - (self.gap_size * 2))
+            .height(height - (self.border_width * 2) - (self.gap_size * 2));
 
-        self.connection.configure_window(self.frame, &frame_aux).unwrap();
-        self.connection.configure_window(self.window, &window_aux).unwrap();
+        self.connection
+            .configure_window(self.frame, &frame_aux)
+            .unwrap();
+        self.connection
+            .configure_window(self.window, &window_aux)
+            .unwrap();
 
         return self;
     }

@@ -1,5 +1,5 @@
-use zbus::{Connection, Result, dbus_proxy};
 use async_std::stream::StreamExt;
+use zbus::{dbus_proxy, Connection, Result};
 
 #[dbus_proxy(
     interface = "org.zbus.MyGreeter1",
@@ -14,7 +14,7 @@ trait MyGreeter {
 
 // Although we use `async-std` here, you can use any async runtime of choice.
 #[async_std::main]
-async fn main() -> Result<()>  {
+async fn main() -> Result<()> {
     let connection = Connection::session().await?;
 
     // `dbus_proxy` macro creates `MyGreaterProxy` based on `Notifications` trait.
