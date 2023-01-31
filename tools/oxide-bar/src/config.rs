@@ -51,7 +51,8 @@ impl Config {
         match file_option {
             Some(file_option) => {
                 // Reads the values from the 'bar_config' struct in bar_config.yml
-                let user_config: Result<Config, serde_yaml::Error> = serde_yaml::from_reader(file_option);
+                let user_config: Result<Config, serde_yaml::Error> =
+                    serde_yaml::from_reader(file_option);
                 match user_config {
                     Ok(config) => {
                         let mut config: _ = config;
