@@ -19,18 +19,33 @@ where
     }
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct WmCommandArgument {
+    pub command: WmCommands,
+    #[serde(default, deserialize_with = "deserialize_optional_string")]
+    pub args: Option<String>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct WmCommand {
     pub keys: Vec<String>,
-    pub command: WmCommands,
-    #[serde(deserialize_with = "deserialize_optional_string")]
-    pub args: Option<String>,
+    pub commands: Vec<WmCommandArgument>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct EnumCmd {
+    pub from: u8,
+    pub to: u8,
+    pub command: WmCommand,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     #[serde(default = "default_cmds")]
     pub cmds: Vec<WmCommand>,
+
+    #[serde(default = "default_ecmds")]
+    pub enum_cmds: Vec<EnumCmd>,
 
     #[serde(default = "default_exec")]
     pub exec: Vec<String>,
@@ -82,10 +97,14 @@ impl Config {
 
                 // Reads the values from the 'config' struct in config.yml
                 let config_file = File::open(config_path).unwrap();
-                let user_config = serde_yaml::from_reader(config_file);
+                let user_config: Result<Config, serde_yaml::Error> =
+                    serde_yaml::from_reader(config_file);
 
                 match user_config {
-                    Ok(config) => return config,
+                    Ok(mut config) => {
+                        config.parse_enum_cmds();
+                        return config;
+                    }
                     Err(err) => {
                         let err_msg = error!("Error in '{}': {}", config_path, err);
                         error!("ERR: {:?}", err_msg);
@@ -98,6 +117,27 @@ impl Config {
         }
         panic!("Failed to parse config from file.");
     }
+
+    fn parse_enum_cmds(&mut self) {
+        println!("cmds: {:?}", self.cmds);
+        for ecmd in &self.enum_cmds {
+            let start = ecmd.from;
+            let end = ecmd.to;
+            for i in start..=end {
+                let mut cmd = ecmd.command.clone();
+                for key in cmd.keys.iter_mut() {
+                    *key = key.replace("$VAL", &i.to_string());
+                }
+                for command in cmd.commands.iter_mut() {
+                    if let Some(args) = &mut command.args {
+                        *args = args.replace("$VAL", &i.to_string());
+                    }
+                }
+                self.cmds.push(cmd);
+            }
+        }
+        println!("cmds: {:?}", self.cmds);
+    }
 }
 
 // Maybe a function checking the datatype can send notifications to the user
@@ -107,9 +147,27 @@ fn value_checker() {}
 fn default_cmds() -> Vec<WmCommand> {
     vec![WmCommand {
         keys: vec!["A".to_string(), "t".to_string()],
-        command: WmCommands::Exec,
-        args: Some("kitty".to_string()),
+        commands: vec![WmCommandArgument {
+            command: WmCommands::Exec,
+            args: Some("kitty".to_string()),
+        }],
     }]
+}
+
+fn default_ecmds() -> Vec<EnumCmd> {
+    /*
+    vec![EnumCmd {
+        start: 1,
+        cmds: vec![WmCommand {
+            keys: vec!["A".to_string(), "COUNTER"],
+            commands: vec![WmCommandArgument {
+                command: WmCommands::Exec,
+                args: Some("COUNTER".to_string()),
+            }],
+        }],
+    }]
+    */
+    vec![]
 }
 
 fn default_exec() -> Vec<String> {
