@@ -199,6 +199,7 @@ impl WindowManager {
                 }
                 Err(error) => warn!("Could not go to workspace {}", error),
             }
+            screen.state_changed();
         } else {
             warn!("Could not switch workspace, no screen was focused");
         }
@@ -216,6 +217,7 @@ impl WindowManager {
                 }
                 Err(error) => warn!("Could not move to workspace {}", error),
             }
+            screen.state_changed();
         } else {
             warn!("Could not move to workspace, no screen was focused");
         }
@@ -232,6 +234,7 @@ impl WindowManager {
             } else if let Err(error) = arg_option {
                 warn!("Could not move to workspace {}", error);
             }
+            screen.state_changed();
         } else {
             warn!("Could not move to workspace, no screen was focused");
         }
@@ -251,6 +254,7 @@ impl WindowManager {
                 if let Err(error) = screen.move_to_or_create_workspace(arg) {
                     warn!("{error}")
                 }
+                screen.state_changed();
             }
             Err(error) => warn!("could not parse arguments {}", error),
         };
@@ -259,11 +263,12 @@ impl WindowManager {
     pub fn handle_quit_workspace(&mut self) {
         let active_workspace_name = self.get_active_workspace().name;
 
-        if let Some(screen_info) = self.screeninfo.get_mut(&self.focused_screen) {
+        if let Some(screen) = self.screeninfo.get_mut(&self.focused_screen) {
             info!("quitting workspace {}", active_workspace_name);
-            if let Err(error) = screen_info.quit_workspace(active_workspace_name) {
+            if let Err(error) = screen.quit_workspace(active_workspace_name) {
                 warn!("could not quit workspace {error}");
             }
+            screen.state_changed();
         } else {
             warn!("No screen was focused");
         }
