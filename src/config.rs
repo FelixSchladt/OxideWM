@@ -33,9 +33,8 @@ pub struct WmCommand {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct EnumCmd {
-    pub from: u8,
-    pub to: u8,
+pub struct IterCmd {
+    pub iter: Vec<String>,
     pub command: WmCommand,
 }
 
@@ -44,8 +43,8 @@ pub struct Config {
     #[serde(default = "default_cmds")]
     pub cmds: Vec<WmCommand>,
 
-    #[serde(default = "default_ecmds")]
-    pub enum_cmds: Vec<EnumCmd>,
+    #[serde(default = "default_icmds")]
+    pub iter_cmds: Vec<IterCmd>,
 
     #[serde(default = "default_exec")]
     pub exec: Vec<String>,
@@ -102,7 +101,7 @@ impl Config {
 
                 match user_config {
                     Ok(mut config) => {
-                        config.parse_enum_cmds();
+                        config.parse_iter_cmds();
                         return config;
                     }
                     Err(err) => {
@@ -118,19 +117,17 @@ impl Config {
         panic!("Failed to parse config from file.");
     }
 
-    fn parse_enum_cmds(&mut self) {
+    fn parse_iter_cmds(&mut self) {
         println!("cmds: {:?}", self.cmds);
-        for ecmd in &self.enum_cmds {
-            let start = ecmd.from;
-            let end = ecmd.to;
-            for i in start..=end {
-                let mut cmd = ecmd.command.clone();
+        for icmd in &self.iter_cmds {
+            for i in &icmd.iter {
+                let mut cmd = icmd.command.clone();
                 for key in cmd.keys.iter_mut() {
-                    *key = key.replace("$VAL", &i.to_string());
+                    *key = key.replace("$VAR", i);
                 }
                 for command in cmd.commands.iter_mut() {
                     if let Some(args) = &mut command.args {
-                        *args = args.replace("$VAL", &i.to_string());
+                        *args = args.replace("$VAR", i);
                     }
                 }
                 self.cmds.push(cmd);
@@ -154,19 +151,7 @@ fn default_cmds() -> Vec<WmCommand> {
     }]
 }
 
-fn default_ecmds() -> Vec<EnumCmd> {
-    /*
-    vec![EnumCmd {
-        start: 1,
-        cmds: vec![WmCommand {
-            keys: vec!["A".to_string(), "COUNTER"],
-            commands: vec![WmCommandArgument {
-                command: WmCommands::Exec,
-                args: Some("COUNTER".to_string()),
-            }],
-        }],
-    }]
-    */
+fn default_icmds() -> Vec<IterCmd> {
     vec![]
 }
 
