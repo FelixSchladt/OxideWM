@@ -107,10 +107,18 @@ enum_cmds:
   - from: 1
     to: 9
     command:
+      keys: ["A", "C", "$VAL"]
+      commands:
+        - command: MoveToWorkspace
+          args: "$VAL"
+  - from: 1
+    to: 9
+    command:
       keys: ["A", "$VAL"]
       commands:
         - command: GoToWorkspace 
           args: "$VAL"
+
 
 exec: ["./target/debug/oxide-bar"]
 exec_always: []
