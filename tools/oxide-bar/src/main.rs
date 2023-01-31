@@ -1,5 +1,5 @@
 // This code is derived from https://github.com/psychon/x11rb/blob/c3894c092101a16cedf4c45e487652946a3c4284/cairo-example/src/main.rs
-mod config_parser;
+mod config;
 mod xcb_visualtype;
 
 //use cairo::glib::subclass::shared::RefCounted;
@@ -17,6 +17,8 @@ use std::thread;
 use crate::xcb_visualtype::{choose_visual, find_xcb_visualtype};
 use oxideipc;
 use oxideipc::state::OxideState;
+
+use crate::config::Config;
 
 // A collection of the atoms we will need.
 atom_manager! {
@@ -285,7 +287,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let screen = &conn.setup().roots[screen_num];
 
-    let config: Config = Config::default(screen.width_in_pixels);
+    let config: Config = Config::new(screen.width_in_pixels);
 
     let mut bar = OxideBar::new(conn.clone(), config, screen_num);
 

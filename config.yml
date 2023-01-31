@@ -1,0 +1,256 @@
+# This is the config file for OxideWM.
+# Here you can freely configure your window manager.
+# Please keep in mind that you have to configure every value properly for the WM to run.
+# Otherwise the programm will crash.
+
+cmds:
+  #WM Commands
+  - keys: ["A", "S", "e"]
+    command: Quit
+    args: None
+
+  - keys: ["A", "S", "r"]
+    command: Restart
+    args: None
+
+  - keys: ["A", "S", "q"]
+    command: Kill
+    args: None
+
+  # Move Focus
+  - keys: ["A", "l"]
+    command: Focus
+    args: "right"
+
+  - keys: ["A", "h"]
+    command: Focus
+    args: "left"
+
+  # Move Windows
+  - keys: ["A", "S", "l"]
+    command: Move
+    args: "right"
+
+  - keys: ["A", "S", "h"]
+    command: Move
+    args: "left"
+
+  # Toggle Fullscreen
+  - keys: ["A", "f"]
+    command: Fullscreen
+    args: None
+
+  # Change Layout
+  - keys: ["A", "u"]
+    command: Layout
+    args: None
+
+  - keys: ["A", "i"]
+    command: Layout
+    args: "Vertical"
+
+  - keys: ["A", "S", "i"]
+    command: Layout
+    args: "horizontal"
+
+  #Workspace keys configuration
+  - keys: ["C","A", "Right"]
+    command: GoToWorkspace
+    args: "next"
+
+  - keys: ["C","A", "Left"]
+    command: GoToWorkspace
+    args: "previous"
+
+  - keys: ["C","A", "1"]
+    command: GoToWorkspace
+    args: "1"
+
+  - keys: ["C","A", "2"]
+    command: GoToWorkspace
+    args: "2"
+
+  - keys: ["C","A", "3"]
+    command: GoToWorkspace
+    args: "3"
+
+  - keys: ["C","A", "4"]
+    command: GoToWorkspace
+    args: "4"
+
+  - keys: ["C","A", "5"]
+    command: GoToWorkspace
+    args: "5"
+
+  - keys: ["C","A", "6"]
+    command: GoToWorkspace
+    args: "6"
+
+  - keys: ["C","A", "7"]
+    command: GoToWorkspace
+    args: "7"
+
+  - keys: ["C","A", "8"]
+    command: GoToWorkspace
+    args: "8"
+
+  - keys: ["C","A", "9"]
+    command: GoToWorkspace
+    args: "9"
+
+    
+  #MoveToWorkspace keys configuration
+  - keys: ["A", "Right"]
+    command: MoveToWorkspace
+    args: "next"
+
+  - keys: ["A", "Left"]
+    command: MoveToWorkspace
+    args: "previous"
+
+  - keys: ["A", "1"]
+    command: MoveToWorkspace
+    args: "1"
+
+  - keys: ["A", "2"]
+    command: MoveToWorkspace
+    args: "2"
+
+  - keys: ["A", "3"]
+    command: MoveToWorkspace
+    args: "3"
+
+  - keys: ["A", "4"]
+    command: MoveToWorkspace
+    args: "4"
+
+  - keys: ["A", "5"]
+    command: MoveToWorkspace
+    args: "5"
+
+  - keys: ["A", "6"]
+    command: MoveToWorkspace
+    args: "6"
+
+  - keys: ["A", "7"]
+    command: MoveToWorkspace
+    args: "7"
+
+  - keys: ["A", "8"]
+    command: MoveToWorkspace
+    args: "8"
+
+  - keys: ["A", "9"]
+    command: MoveToWorkspace
+    args: "9"
+
+  #MoveToWorkspaceAndFollow keys configuration
+  - keys: ["A", "S", "Right"]
+    command: MoveToWorkspaceAndFollow
+    args: "next"
+
+  - keys: ["A", "S", "Left"]
+    command: MoveToWorkspaceAndFollow
+    args: "previous"
+
+  - keys: ["A", "S", "1"]
+    command: MoveToWorkspaceAndFollow
+    args: "1"
+
+  - keys: ["A", "S", "2"]
+    command: MoveToWorkspaceAndFollow
+    args: "2"
+
+  - keys: ["A", "S", "3"]
+    command: MoveToWorkspaceAndFollow
+    args: "3"
+
+  - keys: ["A", "S", "4"]
+    command: MoveToWorkspaceAndFollow
+    args: "4"
+
+  - keys: ["A", "S", "5"]
+    command: MoveToWorkspaceAndFollow
+    args: "5"
+
+  - keys: ["A", "S", "6"]
+    command: MoveToWorkspaceAndFollow
+    args: "6"
+
+  - keys: ["A", "S", "7"]
+    command: MoveToWorkspaceAndFollow
+    args: "7"
+
+  - keys: ["A", "S", "8"]
+    command: MoveToWorkspaceAndFollow
+    args: "8"
+
+  - keys: ["A", "S", "9"]
+    command: MoveToWorkspaceAndFollow
+    args: "9"
+
+  # MoveOrCreateWorkspace Commands
+  - keys: ["C", "A", "S", "Left"]
+    command: MoveToOrCreateWorkspace
+    args: "previous"
+
+  - keys: ["C", "A", "S", "Right"]
+    command: MoveToOrCreateWorkspace
+    args: "next"
+
+  - keys: ["C", "A", "S", "1"]
+    command: MoveToOrCreateWorkspace
+    args: "1"
+
+  - keys: ["C", "A", "S", "2"]
+    command: MoveToOrCreateWorkspace
+    args: "2"
+
+  - keys: ["C", "A", "S", "3"]
+    command: MoveToOrCreateWorkspace
+    args: "3"
+
+  - keys: ["C", "A", "S", "4"]
+    command: MoveToOrCreateWorkspace
+    args: "4"
+
+  - keys: ["C", "A", "S", "5"]
+    command: MoveToOrCreateWorkspace
+    args: "5"
+
+  - keys: ["C", "A", "S", "6"]
+    command: MoveToOrCreateWorkspace
+    args: "6"
+
+  - keys: ["C", "A", "S", "7"]
+    command: MoveToOrCreateWorkspace
+    args: "7"
+
+  - keys: ["C", "A", "S", "8"]
+    command: MoveToOrCreateWorkspace
+    args: "8"
+
+  - keys: ["C", "A", "S", "9"]
+    command: MoveToOrCreateWorkspace
+    args: "9"
+
+  # QuitWorkspace Command
+  - keys: ["C", "A", "Down"]
+    command: QuitWorkspace
+    args: None
+
+  # Execute Commands
+  - keys: ["A", "d"]
+    command: Exec
+    args: "dmenu_run"
+
+  - keys: ["A", "t"]
+    command: Exec
+    args: "kitty"
+
+exec: ["./target/debug/oxide-bar"]
+exec_always: []
+border_width: 8
+border_color: "0x008000" # yellow
+border_focus_color: "0xFFFF00" # green
+gap: 8
