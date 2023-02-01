@@ -33,10 +33,10 @@ impl Config {
         );
 
         #[cfg(not(debug_assertions))]
-        let paths = vec![home_config, "/etc/oxide/bar_config.yml"];
+        let paths: Vec<&str> = vec![home_config, "/etc/oxide/bar_config.yml"];
 
         #[cfg(debug_assertions)]
-        let paths = vec!["./bar_config.yml", home_config, "/etc/oxide/bar_config.yml"];
+        let paths: Vec<&str> = vec!["./bar_config.yml", home_config, "/etc/oxide/bar_config.yml"];
 
         let mut chosen_config: Option<&str> = None;
         let mut file_option: Option<File> = None;

@@ -59,10 +59,10 @@ impl Config {
         );
 
         #[cfg(not(debug_assertions))]
-        let mut paths = vec![home_config, "/etc/oxide/config.yml"];
+        let mut paths: Vec<&str> = vec![home_config, "/etc/oxide/config.yml"];
 
         #[cfg(debug_assertions)]
-        let mut paths = vec!["./config.yml", home_config, "/etc/oxide/config.yml"];
+        let mut paths: Vec<&str> = vec!["./config.yml", home_config, "/etc/oxide/config.yml"];
 
         if let Some(path) = source_file {
             paths.insert(0, path);
