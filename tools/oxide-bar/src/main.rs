@@ -53,6 +53,7 @@ impl Config {
     }
 }
 
+
 #[derive(Debug)]
 struct OxideBar {
     conn: Arc<XCBConnection>,
@@ -214,10 +215,12 @@ impl OxideBar {
         if self.composite_mgr {
             cr.set_operator(cairo::Operator::Over);
         }
-        cr.show_text("Hi there").unwrap();
 
         let ws_vec = state.workspace_tuple(self.screen);
         println!("ws_vec: {:?}", ws_vec);
+
+
+        cr.set_font_size(15.0);
 
         let mut x = 10.0;
         for (visible, ws) in ws_vec {
@@ -231,6 +234,9 @@ impl OxideBar {
             cr.show_text(&ws.to_string()).unwrap();
             x += 20.0;
         }
+
+
+
         self.cairo_surface.as_ref().unwrap().flush();
     }
 
