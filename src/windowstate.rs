@@ -65,7 +65,7 @@ impl WindowState {
                 0,
                 WindowClass::INPUT_OUTPUT,
                 0,
-                &CreateWindowAux::new().background_pixel(root_screen.borrow().black_pixel),
+                &CreateWindowAux::new().background_pixel(root_screen.borrow().white_pixel),
             )
             .unwrap();
 
