@@ -16,7 +16,8 @@ pub mod windowstate;
 pub mod workspace;
 
 #[cfg(test)]
-pub mod test;
+#[path = "../test/mod.rs"]
+mod test;
 
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, Condvar, Mutex};

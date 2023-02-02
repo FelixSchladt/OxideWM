@@ -40,3 +40,7 @@ uninstall:
 		$(SHARE_DIR)/xsessions/oxide.desktop\
 		$(CONFIG_DIR)/oxide/config.yml
 	@echo -e  "\x1b[1m\x1b[36m#- Oxide has been successfully uninstalled -#\x1b[0m"
+
+.PHONY: test
+test:
+	$(ROOT_DIR)/test/resources/run_tests.sh
