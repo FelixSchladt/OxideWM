@@ -16,13 +16,13 @@ use std::sync::Arc;
 use std::{cell::RefCell, rc::Rc};
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
-use x11rb::rust_connection::RustConnection;
+use x11rb::xcb_ffi::XCBConnection;
 use x11rb::CURRENT_TIME;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Workspace {
     #[serde(skip_serializing)]
-    pub connection: Arc<RustConnection>,
+    pub connection: Arc<XCBConnection>,
     pub name: u16,
     #[serde(skip_serializing)]
     pub root_screen: Rc<RefCell<Screen>>,
@@ -43,7 +43,7 @@ pub struct Workspace {
 impl Workspace {
     pub fn new(
         name: u16,
-        connection: Arc<RustConnection>,
+        connection: Arc<XCBConnection>,
         root_screen: Rc<RefCell<Screen>>,
         screen_size: Rc<RefCell<ScreenSize>>,
         config: Rc<RefCell<Config>>,

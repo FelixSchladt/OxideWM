@@ -19,7 +19,7 @@ use std::{
 };
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
-use x11rb::rust_connection::RustConnection;
+use x11rb::xcb_ffi::XCBConnection;
 
 const LOWEST_WORKSPACE_NR: u16 = 1;
 
@@ -49,7 +49,7 @@ impl ScreenSize {
 #[derive(Debug, Clone, Serialize)]
 pub struct ScreenInfo {
     #[serde(skip_serializing)]
-    connection: Arc<RustConnection>,
+    connection: Arc<XCBConnection>,
     #[serde(skip_serializing)]
     screen_ref: Rc<RefCell<Screen>>,
     workspaces: HashMap<u16, Workspace>,
@@ -65,7 +65,7 @@ pub struct ScreenInfo {
 
 impl ScreenInfo {
     pub fn new(
-        connection: Arc<RustConnection>,
+        connection: Arc<XCBConnection>,
         screen_ref: Rc<RefCell<Screen>>,
         config: Rc<RefCell<Config>>,
         width: u32,

@@ -11,7 +11,7 @@ use std::{cell::RefCell, rc::Rc};
 use log::{debug, error, info, warn};
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::ConnectionExt;
-use x11rb::{protocol::xproto::*, rust_connection::RustConnection};
+use x11rb::{protocol::xproto::*, xcb_ffi::XCBConnection};
 
 use crate::{
     atom::Atom,
@@ -33,7 +33,7 @@ pub struct WindowManagerState {
 
 #[derive(Debug, Clone)]
 pub struct WindowManager {
-    pub connection: Arc<RustConnection>,
+    pub connection: Arc<XCBConnection>,
     pub screeninfo: HashMap<u32, ScreenInfo>,
     pub config: Rc<RefCell<Config>>,
     pub focused_screen: u32,
@@ -43,7 +43,7 @@ pub struct WindowManager {
 
 impl WindowManager {
     pub fn new(
-        connection: Arc<RustConnection>,
+        connection: Arc<XCBConnection>,
         config: Rc<RefCell<Config>>,
         wm_state_change: Arc<(Mutex<bool>, Condvar)>,
     ) -> WindowManager {
@@ -103,7 +103,7 @@ impl WindowManager {
         }
     }
 
-    pub fn run_event_proxy(connection: Arc<RustConnection>, queue: Arc<Mutex<Sender<EventType>>>) {
+    pub fn run_event_proxy(connection: Arc<XCBConnection>, queue: Arc<Mutex<Sender<EventType>>>) {
         debug!("Started waiting for X-Event");
 
         loop {

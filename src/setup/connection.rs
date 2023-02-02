@@ -7,13 +7,14 @@ use x11rb::{
         xproto::{ChangeWindowAttributesAux, ConnectionExt, EventMask, GrabMode, ModMask, Screen},
         ErrorKind,
     },
-    rust_connection::{ConnectionError, ReplyError, RustConnection},
+    rust_connection::{ConnectionError, ReplyError},
+    xcb_ffi::XCBConnection,
 };
 
 use crate::keybindings::KeyBindings;
 
-pub fn get_connection(keybindings: &KeyBindings) -> Arc<RustConnection> {
-    let rc = RustConnection::connect(None).unwrap().0;
+pub fn get_connection(keybindings: &KeyBindings) -> Arc<XCBConnection> {
+    let rc = XCBConnection::connect(None).unwrap().0;
     let rust_connection = Arc::new(rc);
     grab_keys(rust_connection.clone(), keybindings).expect("failed to grab keys");
     update_root_window_event_masks(rust_connection.clone());
@@ -21,7 +22,7 @@ pub fn get_connection(keybindings: &KeyBindings) -> Arc<RustConnection> {
 }
 
 pub fn grab_keys(
-    connection: Arc<RustConnection>,
+    connection: Arc<XCBConnection>,
     keybindings: &KeyBindings,
 ) -> Result<(), ConnectionError> {
     info!("grabbing keys");
@@ -43,7 +44,7 @@ pub fn grab_keys(
 }
 
 pub fn ungrab_keys(
-    connection: Arc<RustConnection>,
+    connection: Arc<XCBConnection>,
     keybindings: &KeyBindings,
 ) -> Result<(), ConnectionError> {
     info!("ungrabbing keys");
@@ -61,7 +62,7 @@ pub fn ungrab_keys(
     connection.flush()
 }
 
-fn update_root_window_event_masks(connection: Arc<RustConnection>) {
+fn update_root_window_event_masks(connection: Arc<XCBConnection>) {
     let mask = ChangeWindowAttributesAux::default().event_mask(
         EventMask::SUBSTRUCTURE_REDIRECT |
                     EventMask::SUBSTRUCTURE_NOTIFY |
@@ -78,7 +79,7 @@ fn update_root_window_event_masks(connection: Arc<RustConnection>) {
 }
 
 fn set_mask(
-    connection: Arc<RustConnection>,
+    connection: Arc<XCBConnection>,
     screen: &Screen,
     mask: ChangeWindowAttributesAux,
 ) -> Result<(), ReplyError> {

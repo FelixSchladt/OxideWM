@@ -27,7 +27,7 @@ use config::Config;
 use log::info;
 use serde_json::Result;
 use std::{cell::RefCell, rc::Rc};
-use x11rb::rust_connection::RustConnection;
+use x11rb::xcb_ffi::XCBConnection;
 
 use crate::{
     eventhandler::events::EventType, eventhandler::EventHandler, ipc::zbus_serve,
@@ -69,7 +69,7 @@ fn start_zbus_thread(
 }
 
 fn start_x_event_thread(
-    connection: Arc<RustConnection>,
+    connection: Arc<XCBConnection>,
     event_sender_mutex: Arc<Mutex<Sender<EventType>>>,
 ) {
     info!("starting x event proxy");

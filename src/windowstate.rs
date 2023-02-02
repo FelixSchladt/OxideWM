@@ -5,7 +5,7 @@ use std::rc::Rc;
 use std::sync::Arc;
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
-use x11rb::rust_connection::RustConnection;
+use x11rb::xcb_ffi::XCBConnection;
 use x11rb::COPY_DEPTH_FROM_PARENT;
 
 use crate::config::Config;
@@ -13,7 +13,7 @@ use crate::config::Config;
 #[derive(Debug, Clone, Serialize)]
 pub struct WindowState {
     #[serde(skip_serializing)]
-    pub connection: Arc<RustConnection>,
+    pub connection: Arc<XCBConnection>,
     #[serde(skip_serializing)]
     pub config: Rc<RefCell<Config>>,
     pub frame: Window,
@@ -31,7 +31,7 @@ pub struct WindowState {
 
 impl WindowState {
     pub fn new(
-        connection: Arc<RustConnection>,
+        connection: Arc<XCBConnection>,
         root_screen: Rc<RefCell<Screen>>,
         config: Rc<RefCell<Config>>,
         window: Window,
