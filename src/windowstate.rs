@@ -65,22 +65,26 @@ impl WindowState {
                 0,
                 WindowClass::INPUT_OUTPUT,
                 0,
-                &CreateWindowAux::new().background_pixel(root_screen.borrow().black_pixel),
+                &CreateWindowAux::new().border_pixel(root_screen.borrow().white_pixel),
             )
             .unwrap();
 
+        connection.reparent_window(window, frame, 0, 0).unwrap();
+
         let mask = ChangeWindowAttributesAux::default()
             .event_mask(EventMask::ENTER_WINDOW | EventMask::LEAVE_WINDOW);
+
         let res = connection
             .change_window_attributes(window, &mask)
             .unwrap()
             .check();
+
         if let Err(e) = res {
-            error!("Error couldn change mask: {:?}", e);
-            panic!("Error couldnt change mask");
+            error!("Error: couldnt change mask: {:?}", e);
+            panic!("Error: couldnt change mask");
         }
 
-        WindowState {
+        let windowstate = WindowState {
             connection,
             config,
             frame,
@@ -94,7 +98,10 @@ impl WindowState {
             height,
             border_width,
             gap_size,
-        }
+        };
+
+        windowstate.draw();
+        windowstate
     }
 
     pub fn set_bounds(&self, x: i32, y: i32, width: u32, height: u32) -> &WindowState {
@@ -116,17 +123,16 @@ impl WindowState {
         self.connection
             .configure_window(self.window, &window_aux)
             .unwrap();
+        self.connection.flush().unwrap();
 
         return self;
     }
 
     pub fn draw(&self) {
         self.connection.grab_server().unwrap();
-
         self.connection.map_window(self.frame).unwrap();
         self.connection.map_window(self.window).unwrap();
-
-        self.connection.ungrab_server().unwrap();
         self.connection.flush().unwrap();
+        self.connection.ungrab_server().unwrap();
     }
 }
