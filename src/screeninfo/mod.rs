@@ -148,7 +148,7 @@ impl ScreenInfo {
         }
     }
 
-    fn state_changed(&self) {
+    pub fn state_changed(&self) {
         let (lock, cvar) = &*self.wm_state_change.clone();
         let mut wm_changed_state = lock.lock().unwrap();
         *wm_changed_state = true;
