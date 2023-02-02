@@ -118,7 +118,6 @@ impl Config {
     }
 
     fn parse_iter_cmds(&mut self) {
-        println!("cmds: {:?}", self.cmds);
         for icmd in &self.iter_cmds {
             for i in &icmd.iter {
                 let mut cmd = icmd.command.clone();
@@ -133,7 +132,6 @@ impl Config {
                 self.cmds.push(cmd);
             }
         }
-        println!("cmds: {:?}", self.cmds);
     }
 }
 
