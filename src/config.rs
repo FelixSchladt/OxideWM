@@ -19,6 +19,21 @@ where
     }
 }
 
+fn deserialize_u32_gap<'de, D>(deserializer: D) -> Result<u32, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let args = u32::deserialize(deserializer);
+    println!("Args {:?}", args);
+    match args {
+        Ok(value) => Ok(value),
+        Err(error) => {
+            error!("Wrong datatype");
+            Err(error)
+        }
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct WmCommandArgument {
     pub command: WmCommands,
@@ -61,7 +76,7 @@ pub struct Config {
     #[serde(default = "default_border_focus_color")]
     pub border_focus_color: String,
 
-    #[serde(default = "default_gap")]
+    #[serde(default = "default_gap", deserialize_with = "deserialize_u32_gap")]
     pub gap: u32,
 }
 
@@ -134,9 +149,6 @@ impl Config {
         }
     }
 }
-
-// Maybe a function checking the datatype can send notifications to the user
-fn value_checker() {}
 
 // Defining default values
 fn default_cmds() -> Vec<WmCommand> {
