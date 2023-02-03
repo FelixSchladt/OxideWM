@@ -6,12 +6,9 @@
 
 ## Fundamental
 
-- starting and quiting applications
-- dynamic tiling
-- movement of applications
-- floating/Static applications
-- keyboard input handling
-- window focusing
+The Oxide Windowmanager should give the user the ability to start and quit applications easily through its interface. The software itself is supposed to support dynamic tiling, allowing the user to arrange multiple applications in a grid-like arrangement optimizing screen space utilization. Along with this it should support both floating and static applications, giving the user flexibility in his window management.
+Therefore applications are expected to be moved around the screen by the user to different tiled positions or to float as a separate window.
+Keyboard inputs are to be handled effectively, allowing the user to control all aspects of the applications by using keyboard shortcuts. The software should support focusing on different windows, allowing the user to easily switch between applications.
 
 ## Basic
 
