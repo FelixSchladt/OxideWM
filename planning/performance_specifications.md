@@ -35,15 +35,15 @@ Also the software will not include floating functions, meaning that applications
 
 ### 2.1. Applications
 
-- daily use on desktop computers
+The product is to be for the daily use on desktop computers.
 
 ### 2.2. Target group
 
-- power user with advanced Linux knowledge
+Target group constains power users with advanced Linux knowledge.
 
 ### 2.3 Service conditions
 
-- personal computer
+- desktop computer
 - posix system with Xorg
 - usage is not limited
 - monitoring the running system is not necessary
