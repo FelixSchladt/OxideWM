@@ -5,7 +5,11 @@
 # NAME
 oxide-msg - ipc
 
+# SYNOPSIS
+**oxide-msg** [-h][-v] [-c command] [-a argument] 
 
+# OPTIONS
+**-h**, **--help**
 
 # oxide-msg
 
