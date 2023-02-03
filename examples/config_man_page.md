@@ -1,25 +1,44 @@
-# config(1) -- configuration for OxideWM
+% OXIDE-CONFIG(1) oxide-config 0.1.0
+% Philipp Kalinowski
+% February 2023
 
-## Description
+# NAME
 
-- Inside config file, you can configure OxideWM as you like.
-- Please keep in mind that you have to configure every value properly for the WM to run, otherwise the programm will crash.
+oxide-config - config
 
-Please note that you have to set values for exec and exec_always.
-If you do not configure the other fields, a default value will be used.
+# FILES
 
-## DEFAULT VALUES
+**~/.config/oxide/config.yml**
+: Home config file
 
-- cmds:
-  - A + t, for opening a new application window
-- exec:
-- exec_always:
-- border_witdh:
-- border_color: 0xFFFFFF (white)
-- border_focus_color: 0x000000 (black)
-- gap: 10
+**/etc/oxide/config.yml**
+: System config file
 
-## KEY SHORTCUT
+# Description
+
+Define the behaviour of oxidewm. You can change style, layout, keybindings and more.
+The config file is written using YAML syntax.
+If the home config file is not existing, default values will be used but commands like `exec` and `exec_always` will not be working.
+
+# KEYBINDING
+
+## EXAMPLES
+
+```yaml
+cmds:
+  - keys: ["A", "t"]
+    command: Exec
+    args: "firefox"
+```
+
+### KEY
+
+The keys need at least one MODIFIER and one normal key such as 't'
+
+### MODIFIER
+
+**M**
+: Meta key
 
 **A**
 : ALT key
@@ -30,68 +49,69 @@ If you do not configure the other fields, a default value will be used.
 **S**
 : SHIFT key
 
-## MOVE COMMANDS:
+### COMMAND
 
-- left
-- right
-- up
-- down
-
-## WMCOMMANDS:
-
-Exec
-: Lets you atart an application
-
-Focus
-: Makes you switch between applications
-
-GoToWorkspace
-: Makes you switch to another workspace
-
-Kill
-: Kill the focused window
-
-Layout
-: Changes the layout of the currently focused application
-
-args:
-
-- horizontal
-- vertical
-
-- Move:
-
-  - Moves the window to one of the following directions
-  - args:
-    - left,
-    - right,
-    - up,
-    - down:
-
-- MoveToWorkspace:
-
-  - Moves the selected application to the selected workspace
-  - args:
-    - Number of your workspace
-
-MoveToWorkspaceAndFollow
-: Moves your focused application to the selected workspace and changes the focus to the according one
+Focus **args** [MOVEMENT]
+: Move Focus
 
 Quit
-: Quit the window manager:
+: Quit the window manager
 
-Resize
-: Lets you resize your window
+Kill
+: Kill the currently focused window
 
 Restart
-: Restarts the window manager
+: Reloads the config and restarts components
 
-In the 'cmds' field of the configuration all keybinding for the WM are defined.
-A Command consists of an array of keys, the command, some optional arguments and should be configured like the following:
-In this example, the command opens a kitty window.
+Layout **args** [LAYOUT]
+: Change the current layout
 
-## EXAMPLES
+GoToWorkspace **args** [WORKSPACE_ARGS]
+: Change the current workspace
 
-- keys: ["A", "t"]
-  command: Exec
-  args: "kitty"
+MoveToWorkspace **args** [WORKSPACE_ARGS]
+: Move the focused window to a different workspace
+
+MoveToWorkspaceAndFollow **args** [WORKSPACE_ARGS]
+: Move the focused window to and select a different workspace
+
+Exec **args** <COMMAND>
+: Execute a given command
+
+Fullscreen
+: Toggle fullscreen mode for the focused window
+
+## ARGS
+
+### MOVEMENT:
+
+Left
+: Moves to the left
+
+right
+: Moves to the right
+
+## LAYOUT
+
+VerticalStriped
+: windows vertically next to each other
+
+HorizontalStriped
+: windows a horizontally underneath each other
+
+None
+: if no argument is provided, the next layout is chosen
+
+## WORKSPACE_ARGS
+
+Next
+: next initialized workspace with a higher index than the current workspace
+
+Previous
+: next initialized workspace with a lower index than the current workspace
+
+New
+: newly initialized workspace
+
+Index
+: workspace with the given index
