@@ -1,4 +1,3 @@
-use anyhow::Ok;
 use log::{error, info};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
@@ -28,7 +27,11 @@ where
     println!("Args {:?}", args);
     match args {
         Ok(value) => Ok(value),
-        Err(error) => Ok(default_gap()),
+        Err(error) => {
+            println!("Error: {:?}", error);
+            error!("Wrong Datatype for 'Gap' field. Using default value");
+            return Ok(8);
+        }
     }
 }
 
