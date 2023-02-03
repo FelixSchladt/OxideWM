@@ -7,8 +7,27 @@ use std::path::Path;
 
 use crate::eventhandler::commands::WmCommands;
 
+const DEFAULT_CMDS: Vec<WmCommand> = vec![WmCommand {
+    keys: vec!["A".to_string(), "t".to_string()],
+    commands: vec![WmCommandArgument {
+        command: WmCommands::Exec,
+        args: Some("kitty".to_string()),
+    }],
+}];
 
-const u8 DEFAULT_GAP = 10;
+const DEFAULT_ICDMS: Vec<IterCmd> = vec![];
+
+const DEFAULT_EXEC: Vec<String> = Vec::<String>::new();
+
+const DEFAULT_EXEC_ALWAYS: Vec<String> = Vec::<String>::new();
+
+const DEFAULT_BORDER_WIDTH: u32 = 3;
+
+const DEFAULT_BORDER_COLOR: String = "0xFFFFFF".to_string(); // white
+
+const DEFAULT_BORDER_FOCUS_COLOR: String = "0x000000".to_string(); // black
+
+const DEFAULT_GAP: u32 = 10;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where
@@ -163,36 +182,26 @@ impl Config {
 
 // Defining default values
 fn default_cmds() -> Vec<WmCommand> {
-    vec![WmCommand {
-        keys: vec!["A".to_string(), "t".to_string()],
-        commands: vec![WmCommandArgument {
-            command: WmCommands::Exec,
-            args: Some("kitty".to_string()),
-        }],
-    }]
+    DEFAULT_CMDS
 }
-
 fn default_icmds() -> Vec<IterCmd> {
-    vec![]
+    DEFAULT_ICDMS
 }
-
 fn default_exec() -> Vec<String> {
-    Vec::<String>::new()
+    DEFAULT_EXEC
 }
-
 fn default_exec_always() -> Vec<String> {
-    Vec::<String>::new()
+    DEFAULT_EXEC_ALWAYS
 }
-
 fn default_border_width() -> u32 {
-    3
+    DEFAULT_BORDER_WIDTH
 }
 fn default_border_color() -> String {
-    "0xFFFFFF".to_string()
-} // white
+    DEFAULT_BORDER_COLOR
+}
 fn default_border_focus_color() -> String {
-    "0x000000".to_string()
-} // black
+    DEFAULT_BORDER_FOCUS_COLOR
+}
 fn default_gap() -> u32 {
     DEFAULT_GAP
 }
