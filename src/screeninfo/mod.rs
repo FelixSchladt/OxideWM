@@ -471,13 +471,15 @@ impl ScreenInfo {
             self.active_workspace, workspace_nr
         );
 
-        let mut active_ws_name: Option<u16> = None;
+        let mut quit_ws: Option<u16> = None;
         if let Some(active_workspace) = self.workspaces.get_mut(&self.active_workspace) {
             active_workspace.unmap_windows();
-            active_ws_name = Some(active_workspace.name);
+            if active_workspace.windows.is_empty() {
+                quit_ws = Some(active_workspace.name);
+            }
         };
 
-        if let Some(name) = active_ws_name {
+        if let Some(name) = quit_ws {
             if let Err(error) = self.quit_workspace(name) {
                 warn!("failed to quit empty workspace {}", error)
             }
