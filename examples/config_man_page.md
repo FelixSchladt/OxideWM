@@ -1,7 +1,9 @@
 # config(1) -- configuration for OxideWM
 
-Inside config file, you can configure OxideWM as you like.
-Please keep in mind that you have to configure every value properly for the WM to run, otherwise the programm will crash.
+## Description
+
+- Inside config file, you can configure OxideWM as you like.
+- Please keep in mind that you have to configure every value properly for the WM to run, otherwise the programm will crash.
 
 Please note that you have to set values for exec and exec_always.
 If you do not configure the other fields, a default value will be used.
@@ -17,13 +19,16 @@ If you do not configure the other fields, a default value will be used.
 - border_focus_color: 0x000000 (black)
 - gap: 10
 
-## KEY SHORTCUS
+## KEY SHORTCUT
 
-OxideWM uses the 'Alt' key as the meta key
+**A**
+: ALT key
 
-- A -> ALT
-- C -> CONTROL
-- S -> SHIFT
+**C**
+: CONTROL key
+
+**S**
+: SHIFT key
 
 ## MOVE COMMANDS:
 
@@ -49,10 +54,10 @@ Kill
 Layout
 : Changes the layout of the currently focused application
 
-- args:
+args:
 
-  - horizontal
-  - vertical
+- horizontal
+- vertical
 
 - Move:
 
