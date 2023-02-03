@@ -1,25 +1,10 @@
 use log::{error, info};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
-use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 
 use crate::eventhandler::commands::WmCommands;
-
-const DEFAULT_CMDS: &'static [WmCommand] = &[WmCommand {
-    keys: vec!["A".to_string(), "t".to_string()],
-    commands: vec![WmCommandArgument {
-        command: WmCommands::Exec,
-        args: Some("kitty".to_string()),
-    }],
-}];
-
-const DEFAULT_ICDMS: Vec<IterCmd> = vec![];
-
-const DEFAULT_EXEC: Vec<String> = Vec::<String>::new();
-
-const DEFAULT_EXEC_ALWAYS: Vec<String> = Vec::<String>::new();
 
 const DEFAULT_BORDER_WIDTH: u32 = 3;
 
@@ -175,16 +160,22 @@ impl Config {
 
 // Defining default values
 fn default_cmds() -> Vec<WmCommand> {
-    DEFAULT_CMDS
+    vec![WmCommand {
+        keys: vec!["A".to_string(), "t".to_string()],
+        commands: vec![WmCommandArgument {
+            command: WmCommands::Exec,
+            args: Some("kitty".to_string()),
+        }],
+    }]
 }
 fn default_icmds() -> Vec<IterCmd> {
-    DEFAULT_ICDMS
+    vec![]
 }
 fn default_exec() -> Vec<String> {
-    DEFAULT_EXEC
+    Vec::<String>::new()
 }
 fn default_exec_always() -> Vec<String> {
-    DEFAULT_EXEC_ALWAYS
+    Vec::<String>::new()
 }
 fn default_border_width() -> u32 {
     DEFAULT_BORDER_WIDTH
