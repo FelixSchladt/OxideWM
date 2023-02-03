@@ -1,23 +1,23 @@
-# Config
+# config(1) -- configuration for OxideWM
 
-In our config file, you can configure OxideWM as you like.
+Inside config file, you can configure OxideWM as you like.
 Please keep in mind that you have to configure every value properly for the WM to run, otherwise the programm will crash.
 
 Please note that you have to set values for exec and exec_always.
 If you do not configure the other fields, a default value will be used.
 
-## Default Values:
+## DEFAULT VALUES
 
 - cmds:
-  - A + t, for opening a new kitty window
+  - A + t, for opening a new application window
 - exec:
 - exec_always:
 - border_witdh:
 - border_color: 0xFFFFFF (white)
 - border_focus_color: 0x000000 (black)
-- gap: 3
+- gap: 10
 
-## Key shortcuts:
+## KEY SHORTCUS
 
 OxideWM uses the 'Alt' key as the meta key
 
@@ -25,37 +25,34 @@ OxideWM uses the 'Alt' key as the meta key
 - C -> CONTROL
 - S -> SHIFT
 
-## Move commands:
+## MOVE COMMANDS:
 
 - left
 - right
 - up
 - down
 
-## WmCommands:
+## WMCOMMANDS:
 
-- Exec:
+Exec
+: Lets you atart an application
 
-  - Lets you atart an application
+Focus
+: Makes you switch between applications
 
-- Focus:
+GoToWorkspace
+: Makes you switch to another workspace
 
-  - Makes you switch between applications
+Kill
+: Kill the focused window
 
-- GoToWorkspace:
+Layout
+: Changes the layout of the currently focused application
 
-  - Makes you switch to another workspace
+- args:
 
-- Kill:
-
-  - Kill the focused window
-
-- Layout:
-
-  - Changes the layout of the currently focused application
-  - args:
-    - horizontal
-    - vertical
+  - horizontal
+  - vertical
 
 - Move:
 
@@ -72,25 +69,23 @@ OxideWM uses the 'Alt' key as the meta key
   - args:
     - Number of your workspace
 
-- MoveToWorkspaceAndFollow:
+MoveToWorkspaceAndFollow
+: Moves your focused application to the selected workspace and changes the focus to the according one
 
-  - Moves your focused application to the selected workspace and changes the focus to the according one
+Quit
+: Quit the window manager:
 
-- Quit:
+Resize
+: Lets you resize your window
 
-  - Quit the window manager:
-
-- Resize:
-
-  - Lets you resize your window
-
-- Restart:
-
-  - Restarts the window manager
+Restart
+: Restarts the window manager
 
 In the 'cmds' field of the configuration all keybinding for the WM are defined.
 A Command consists of an array of keys, the command, some optional arguments and should be configured like the following:
 In this example, the command opens a kitty window.
+
+## EXAMPLES
 
 - keys: ["A", "t"]
   command: Exec
