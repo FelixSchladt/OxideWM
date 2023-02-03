@@ -6,7 +6,7 @@
 
 ## Fundamental
 
-The Oxide Windowmanager should give the user the ability to start and quit applications easily through its interface. The software itself is supposed to support dynamic tiling, allowing the user to arrange multiple applications in a grid-like arrangement optimizing screen space utilization. Along with this it should support both floating and static applications, giving the user flexibility in his window management.
+The *Oxide* window manager should give the user the ability to start and quit applications easily through its interface. The software itself is supposed to support dynamic tiling, allowing the user to arrange multiple applications in a grid-like arrangement optimizing screen space utilization. Along with this it should support both floating and static applications, giving the user flexibility in his window management.
 
 Therefore applications are expected to be moved around the screen by the user to different tiled positions or to float as a separate window.
 
