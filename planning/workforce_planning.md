@@ -1,4 +1,4 @@
-# Personnel planning
+# Workforce planning
 
 ## Project manager
 

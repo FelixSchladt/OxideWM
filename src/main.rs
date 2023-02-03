@@ -16,7 +16,8 @@ pub mod windowstate;
 pub mod workspace;
 
 #[cfg(test)]
-pub mod test;
+#[path = "../test/mod.rs"]
+mod test;
 
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, Condvar, Mutex};
@@ -105,8 +106,11 @@ fn main() -> Result<()> {
         eventhandler.run_event_loop(event_receiver_mutex.clone(), status_sender_mutex.clone());
 
         if eventhandler.window_manager.restart {
+            setup::connection::ungrab_keys(connection.clone(), &keybindings).unwrap();
+
             config = Rc::new(RefCell::new(Config::new(None)));
             keybindings = KeyBindings::new(&config.borrow());
+            setup::connection::grab_keys(connection.clone(), &keybindings.clone()).unwrap();
 
             eventhandler = EventHandler::new(&mut manager, &keybindings);
             eventhandler.window_manager.restart_wm(config.clone());

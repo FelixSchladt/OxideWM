@@ -37,10 +37,15 @@ pub struct Workspace {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct Keybinding {
-    pub keys: Vec<String>,
+pub struct Command {
     pub command: String,
     pub args: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Keybinding {
+    pub keys: Vec<String>,
+    pub commands: Vec<Command>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

@@ -1,11 +1,11 @@
-# Product concept catalogue
+# Specification
 
 ## Product goal
 
 Getting to know how window manager and Xorg work.
 Development of a working window manager.
 
-## Traget group
+## Target group
 
 User of different tiling-windowmanagers.
 Experienced linux user.
@@ -17,7 +17,7 @@ Experienced linux user.
 - starting and quiting applications
 - dynamic tiling
 - movement of applications
-- floating/Static applications
+- floating/static applications
 - keyboard input handling
 - window focussing
 
@@ -26,7 +26,7 @@ Experienced linux user.
 - multiple workspaces
 - multiple monitors
 - configuration
-- autostarting of Applications
+- autostarting of applications
 - taskbar support
 - Drun/Rofi/eww support
 
@@ -35,9 +35,9 @@ Experienced linux user.
 - ipc
 - Taskbar
 - config file
-- power management (Screenlocking after timeout)
+- power management (screenlocking after timeout)
 - animations
 
 ### Documentation
 
-- keep track of tickets with timestamps (pref. as PDF)
+- keep track of tickets with timestamps (preferred as PDF)

@@ -1,3 +1,4 @@
+mod events;
 mod ipc;
 pub mod state;
 
@@ -5,8 +6,8 @@ use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
 
 use crate::ipc::state_signal_channel_async;
+use events::*;
 use ipc::{get_state_async, sent_event_async}; //, wait_for_state_change_async};
-use oxide::eventhandler::events::WmActionEvent;
 use state::*;
 
 pub fn get_state() -> String {
@@ -19,7 +20,10 @@ pub fn sent_event(command: &str, args: Option<String>) {
 }
 
 pub fn get_state_struct() -> OxideState {
-    serde_json::from_str(&get_state()).unwrap()
+    match serde_json::from_str(&get_state()) {
+        Ok(state) => state,
+        Err(e) => panic!("Error parsing state: {}", e),
+    }
 }
 
 /*

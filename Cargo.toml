@@ -17,6 +17,7 @@ rudg = { git = "https://github.com/janschaible/rudg-fork", branch = "fix_label_e
 x11rb = "0.11.*"
 thiserror = "1.0.*"
 serde = { version = "1.0", features = ["derive"] }
+oxideipc = { version = "*", path = "tools/oxide-ipc" }
 serde_yaml = "0.8"
 serde_json = "1.0"
 lazy_static = "1.4.0"
