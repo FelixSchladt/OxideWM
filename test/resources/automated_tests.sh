@@ -10,7 +10,7 @@ function run_test() {
     sleep $5
     state="$( ./target/debug/oxide-msg -c state )"
 
-    if [[ -z "$(grep -E '$2' <<< $state)" ]]; then
+    if [[ -z "$(grep '$2' <<< $state)" ]]; then
         echo -e "\x1b[31m\x1b[1mTEST FAILED\x1b[0m  - '$1' - $4\n$state"
     else
         echo -e "\x1b[32m\x1b[1mTEST SUCCESS\x1b[0m - '$1' - $3"
