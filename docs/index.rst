@@ -19,7 +19,7 @@
 
 ## Brief Project Description
 
-The goal is to write a X11 dynamic tiling window manager in the rust programming language.
+The goal is to write an X11 dynamic tiling window manager in the rust programming language.
 This project idea is inspired by the DWM, leftWM and i3WM. 
 
 ## Projected Features
