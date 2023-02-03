@@ -54,17 +54,11 @@ fn get_event_channel() -> (
 fn start_zbus_thread(
     event_sender_mutex: Arc<Mutex<Sender<EventType>>>,
     status_receiver_mutex: Arc<Mutex<Receiver<String>>>,
-    wm_state_change: Arc<(Mutex<bool>, Condvar)>,
 ) {
     info!("starting zbus serve");
     thread::spawn(move || {
         // as seperate thread to speed up boot time
-        async_std::task::block_on(zbus_serve(
-            event_sender_mutex,
-            status_receiver_mutex,
-            wm_state_change,
-        ))
-        .unwrap();
+        async_std::task::block_on(zbus_serve(event_sender_mutex, status_receiver_mutex)).unwrap();
     });
 }
 
@@ -84,21 +78,15 @@ fn main() -> Result<()> {
     let mut config = Rc::new(RefCell::new(Config::new(None)));
     let mut keybindings = KeyBindings::new(&config.borrow());
     let connection = setup::connection::get_connection(&keybindings.clone());
-    let wm_state_change = Arc::new((Mutex::new(false), Condvar::new()));
 
-    let mut manager =
-        WindowManager::new(connection.clone(), config.clone(), wm_state_change.clone());
+    let mut manager = WindowManager::new(connection.clone(), config.clone());
     let binding = keybindings.clone();
     let mut eventhandler = EventHandler::new(&mut manager, &binding);
 
     let (event_sender_mutex, event_receiver_mutex) = get_event_channel();
     let (status_sender_mutex, status_receiver_mutex) = get_status_channel();
 
-    start_zbus_thread(
-        event_sender_mutex.clone(),
-        status_receiver_mutex.clone(),
-        wm_state_change.clone(),
-    );
+    start_zbus_thread(event_sender_mutex.clone(), status_receiver_mutex.clone());
     start_x_event_thread(connection.clone(), event_sender_mutex.clone());
 
     loop {

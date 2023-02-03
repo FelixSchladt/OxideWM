@@ -18,6 +18,7 @@ use crate::{
     auxiliary::exec_user_command,
     config::Config,
     eventhandler::events::EventType,
+    ipc::signal_state_change,
     screeninfo::ScreenInfo,
     workspace::{
         workspace_layout::WorkspaceLayout, workspace_navigation::WorkspaceNavigation, Workspace,
@@ -42,11 +43,7 @@ pub struct WindowManager {
 }
 
 impl WindowManager {
-    pub fn new(
-        connection: Arc<RustConnection>,
-        config: Rc<RefCell<Config>>,
-        wm_state_change: Arc<(Mutex<bool>, Condvar)>,
-    ) -> WindowManager {
+    pub fn new(connection: Arc<RustConnection>, config: Rc<RefCell<Config>>) -> WindowManager {
         let screeninfo = HashMap::new();
 
         let focused_screen = 0;
@@ -63,7 +60,7 @@ impl WindowManager {
             restart: false,
         };
 
-        manager.setup_screens(wm_state_change);
+        manager.setup_screens();
         manager.autostart_exec();
         manager.autostart_exec_always();
         let result = manager.connection.flush();
@@ -200,7 +197,7 @@ impl WindowManager {
                 }
                 Err(error) => warn!("Could not go to workspace {}", error),
             }
-            screen.state_changed();
+            signal_state_change();
         } else {
             warn!("Could not switch workspace, no screen was focused");
         }
@@ -219,7 +216,7 @@ impl WindowManager {
                 }
                 Err(error) => warn!("Could not move to workspace {}", error),
             }
-            screen.state_changed();
+            signal_state_change();
         } else {
             warn!("Could not move to workspace, no screen was focused");
         }
@@ -237,7 +234,7 @@ impl WindowManager {
             } else if let Err(error) = arg_option {
                 warn!("Could not move to workspace {}", error);
             }
-            screen.state_changed();
+            signal_state_change();
         } else {
             warn!("Could not move to workspace, no screen was focused");
         }
@@ -252,7 +249,7 @@ impl WindowManager {
             if let Err(error) = screen.quit_workspace_select_new(active_workspace_name) {
                 warn!("could not quit workspace {error}");
             }
-            screen.state_changed();
+            signal_state_change();
         } else {
             warn!("No screen was focused");
         }
@@ -262,7 +259,7 @@ impl WindowManager {
         self.get_active_workspace().toggle_fullscreen();
     }
 
-    fn setup_screens(&mut self, wm_state_change: Arc<(Mutex<bool>, Condvar)>) {
+    fn setup_screens(&mut self) {
         for screen in self.connection.setup().roots.iter() {
             let screen_ref = Rc::new(RefCell::new(screen.clone()));
             let screenstruct = ScreenInfo::new(
@@ -271,7 +268,6 @@ impl WindowManager {
                 self.config.clone(),
                 screen.width_in_pixels as u32,
                 screen.height_in_pixels as u32,
-                wm_state_change.clone(),
             );
             self.screeninfo.insert(screen.root, screenstruct);
             self.focused_screen = screen.root;

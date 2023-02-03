@@ -51,7 +51,6 @@ pub fn get_screeninfo() -> ScreenInfo {
         setup.config,
         setup.width,
         setup.height,
-        setup.wm_state_change,
     )
 }
 

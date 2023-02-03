@@ -59,8 +59,6 @@ pub struct ScreenInfo {
     #[serde(skip_serializing)]
     pub screen_size: Rc<RefCell<ScreenSize>>,
     pub status_bar: Option<WindowState>,
-    #[serde(skip_serializing)]
-    pub wm_state_change: Arc<(Mutex<bool>, Condvar)>,
 }
 
 impl ScreenInfo {
@@ -70,7 +68,6 @@ impl ScreenInfo {
         config: Rc<RefCell<Config>>,
         width: u32,
         height: u32,
-        wm_state_change: Arc<(Mutex<bool>, Condvar)>,
     ) -> ScreenInfo {
         let active_workspace = LOWEST_WORKSPACE_NR;
         let workspaces = HashMap::new();
@@ -83,7 +80,6 @@ impl ScreenInfo {
             config,
             screen_size,
             status_bar: None,
-            wm_state_change,
         };
         screen_info.create_workspace(LOWEST_WORKSPACE_NR);
         screen_info
@@ -146,15 +142,6 @@ impl ScreenInfo {
         for (_, workspace) in self.workspaces.iter_mut() {
             workspace.remap_windows();
         }
-    }
-
-    pub fn state_changed(&self) {
-        info!("signaling state change");
-        let (lock, cvar) = &*self.wm_state_change.clone();
-        let mut wm_changed_state = lock.lock().unwrap();
-        *wm_changed_state = true;
-        cvar.notify_one();
-        info!("done signaling");
     }
 
     fn create_workspace(&mut self, workspace_nr: u16) -> &mut Workspace {
@@ -503,7 +490,6 @@ impl ScreenInfo {
 
         self.active_workspace = workspace_nr;
         new_workspace.remap_windows();
-        self.state_changed();
         Ok(())
     }
 
