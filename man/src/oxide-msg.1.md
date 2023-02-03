@@ -1,9 +1,9 @@
 % OXIDE-MSG(1) oxide-msg 0.1.0
-% Felix Schladt
+% Felix Schladt <schladt.felix-it21@it.dhbw-ravensburg.de>
 % February 2023
 
 # NAME
-oxide-msg - ipc
+oxide-msg - send messages to oxidewm
 
 # SYNOPSIS
 **oxide-msg** \[**-h**]| \[**-v**] | \[**-c** command] \[**-a** argument] 
@@ -89,7 +89,6 @@ Index
 : workspace with the given index
 
 # EXAMPLES
-**
 ```sh
 cargo run -p oxide-msg -- -c "exec" -a "firefox"
 cargo run -p oxide-msg -- --command "kill"
@@ -98,11 +97,8 @@ cargo run -p oxide-msg -- --command "kill"
 # BUGS
 Please open an issue <https://github.com/DHBW-FN/OxideWM/issues>
 
-# AUTHOR
-Felix Schladt <schladt.felix-it21@it.dhbw-ravensburg.de>
-
 # COPYRIGHT
-Copyright © 2020 Felix Schladt GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+Copyright © 2023 Felix Schladt GPLv3+\: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it. There is NO WARRANTY, to the extent permitted by law.
 
 # SEE ALSO
