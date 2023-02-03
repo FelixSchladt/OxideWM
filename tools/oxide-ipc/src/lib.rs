@@ -1,4 +1,5 @@
 mod ipc;
+mod events;
 pub mod state;
 
 use std::sync::mpsc::Sender;
@@ -6,8 +7,8 @@ use std::sync::{Arc, Mutex};
 
 use crate::ipc::state_signal_channel_async;
 use ipc::{get_state_async, sent_event_async}; //, wait_for_state_change_async};
-use oxide::eventhandler::events::WmActionEvent;
 use state::*;
+use events::*;
 
 pub fn get_state() -> String {
     async_std::task::block_on(get_state_async()).unwrap()
