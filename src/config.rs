@@ -29,7 +29,7 @@ where
         Ok(value) => Ok(value),
         Err(error) => {
             println!("Error: {:?}", error);
-            error!("Wrong Datatype for 'Gap' field. Using default value");
+            error!("Wrong Datatype for {} field in line {}. Entered {} but {} is expected.", error.path, error.line, error.invalid_type, error.expected);
             return Ok(8);
         }
     }
