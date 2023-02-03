@@ -5,8 +5,9 @@
 
 cmds:
   - keys: ["A", "t"]
-    command: Exec
-    args: "kitty"
+    commands:
+      - command: Exec
+        args: "kitty"
 
 exec: ["./target/debug/oxide-bar"]
 exec_always: []
