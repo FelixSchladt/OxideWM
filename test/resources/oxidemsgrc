@@ -1,15 +1,4 @@
-which feh &>/dev/null && feh -g 511x50 -d -S ./test/resources/wallpaper.png &>/dev/null
+which feh      &>/dev/null && feh -g 511x50 -d -S   ./test/resources/wallpaper.png &>/dev/null
 which nitrogen &>/dev/null && nitrogen --set-scaled ./test/resources/wallpaper.png &>/dev/null
-cargo build &>/dev/null
-./target/debug/oxide  &>/dev/null &
 
-cargo build -p oxide-msg &>/dev/null
-stateerror=$( ./target/debug/oxide-msg -c state | grep "MethodError" )
-
-if [[ -z $stateerror ]]; then
-    echo -e "\x1b[32m\x1b[1mTEST SUCCESS\x1b[0m - 'oxide-msg -c state'"
-else
-    echo -e "\x1b[31m\x1b[1mTEST FAILED\x1b[0m - Could not get oxide state\nError Message:\$stateerror"
-fi
-
-exit
+./test/resources/automated_tests.sh
