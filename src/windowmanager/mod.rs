@@ -5,7 +5,7 @@ use self::movement::Movement;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::mpsc::Sender;
-use std::sync::{Arc, Condvar, Mutex};
+use std::sync::{Arc, Mutex};
 use std::{cell::RefCell, rc::Rc};
 
 use log::{debug, error, info, warn};

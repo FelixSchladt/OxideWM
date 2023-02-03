@@ -11,11 +11,7 @@ use crate::{
 use log::{debug, info, warn};
 use serde::Serialize;
 use std::sync::Arc;
-use std::{
-    cell::RefCell,
-    collections::HashMap,
-    sync::{Condvar, Mutex},
-};
+use std::{cell::RefCell, collections::HashMap};
 use std::{collections::HashSet, rc::Rc};
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
@@ -509,6 +505,7 @@ impl ScreenInfo {
             self.create_workspace(ws);
             if first {
                 self.active_workspace = ws;
+                first = false;
             }
         }
     }

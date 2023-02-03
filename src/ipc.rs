@@ -9,12 +9,12 @@ use lazy_static::lazy_static;
 use zbus::{dbus_interface, ConnectionBuilder, SignalContext};
 
 lazy_static! {
-    static ref state_change: Arc<(Mutex<bool>, Condvar)> =
+    static ref STATE_CHANGE: Arc<(Mutex<bool>, Condvar)> =
         Arc::new((Mutex::new(false), Condvar::new()));
 }
 
 pub fn signal_state_change() {
-    let (lock, cvar) = &**state_change;
+    let (lock, cvar) = &**STATE_CHANGE;
     let mut state_changed = lock.lock().unwrap();
     *state_changed = true;
     // We notify the condvar that the value has changed.
@@ -72,7 +72,7 @@ pub async fn zbus_serve(
         .await?;
 
     loop {
-        let (lock, cvar) = &**state_change;
+        let (lock, cvar) = &**STATE_CHANGE;
         let mut changed = lock.lock().unwrap();
 
         while !*changed {

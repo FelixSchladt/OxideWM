@@ -20,7 +20,7 @@ pub mod workspace;
 mod test;
 
 use std::sync::mpsc::{channel, Receiver, Sender};
-use std::sync::{Arc, Condvar, Mutex};
+use std::sync::{Arc, Mutex};
 use std::thread;
 
 use config::Config;
