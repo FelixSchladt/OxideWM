@@ -22,13 +22,10 @@ Inter process communication (IPC) should be used for interacting between differe
 The window manager is supposed to use a config file in which the user can easily manage his preferences and settings. Also power management features should be included, such as screen locking after a specified timeout to help conserve energy and improve security. 
 For improving the overall user experience the software is to include visually appealing animations.
 
-
 ### 1.3. Demarcation criteria
 
-- no compositing
-- no floating functions
-- no got plugging on monitor devices
-- no automatic monitor configuration
+Compositing should be taken over by a compositor. 
+Also the software will not include floating functions, meaning that applications cannot be detached from the main window and positioned independently. Hot plugging will not be supported so the user will have to manually (re-)configure his monitor setup if they change or add a monitor.
 
 ## 2. Product Usage
 
