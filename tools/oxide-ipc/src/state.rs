@@ -26,8 +26,6 @@ pub struct OxideWindow {
 #[derive(Debug, Clone, Deserialize)]
 pub struct Workspace {
     pub name: u16,
-    pub visible: bool,
-    pub focused: bool,
     pub focused_window: Option<u32>,
     pub fullscreen: Option<u32>,
     pub urgent: bool,
@@ -73,13 +71,17 @@ impl OxideState {
         self.screeninfo.get(&screen).unwrap().workspaces.clone()
     }
 
-    pub fn workspace_tuple(&self, screen: u32) -> Vec<(bool, u16)> {
-        let workspaces = self.get_workspaces(screen);
-        let workspaces_sorted = workspaces.iter().sorted_by_key(|w| w.0);
-        let mut vec = Vec::new();
-        for (_, workspace) in workspaces_sorted {
-            vec.push((workspace.focused.clone(), workspace.name.clone()));
-        }
+    pub fn get_workspace_list(&self, screen: u32) -> Vec<u16> {
+        let mut vec = self
+            .get_workspaces(screen)
+            .iter()
+            .map(|(ws, _)| *ws)
+            .collect_vec();
+        vec.sort();
         vec
+    }
+
+    pub fn get_active_workspace(&self, screen: u32) -> u16 {
+        self.screeninfo.get(&screen).unwrap().active_workspace as u16
     }
 }

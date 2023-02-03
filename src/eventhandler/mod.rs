@@ -51,9 +51,11 @@ impl EventHandler<'_> {
                         self.handle_ipc_event(event, status_send_channel.clone())
                     }
                 }
+                debug!("ready to receive another event");
             }
 
             if self.window_manager.restart {
+                info!("exeting event loop");
                 break;
             }
         }

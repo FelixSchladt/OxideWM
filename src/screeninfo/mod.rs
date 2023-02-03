@@ -149,10 +149,12 @@ impl ScreenInfo {
     }
 
     pub fn state_changed(&self) {
+        info!("signaling state change");
         let (lock, cvar) = &*self.wm_state_change.clone();
         let mut wm_changed_state = lock.lock().unwrap();
         *wm_changed_state = true;
         cvar.notify_one();
+        info!("done signaling");
     }
 
     fn create_workspace(&mut self, workspace_nr: u16) -> &mut Workspace {
@@ -200,10 +202,9 @@ impl ScreenInfo {
         }
     }
 
-    pub fn quit_workspace(&mut self, workspace_name: u16) -> Result<(), QuitError> {
-        match self.workspaces.remove(&workspace_name) {
-            Some(mut workspace) => {
-                workspace.kill_all_windows();
+    pub fn quit_workspace_select_new(&mut self, workspace_name: u16) -> Result<(), QuitError> {
+        match self.quit_workspace(workspace_name) {
+            Ok(_) => {
                 let new_workspace = match self.find_next_lowest_workspace_nr() {
                     Some(number) => {
                         debug!("using next lowest workspace {}", number);
@@ -230,6 +231,17 @@ impl ScreenInfo {
                         "failed to set new workspace, after no workspace was present"
                     )));
                 }
+                Ok(())
+            }
+            Err(err) => Err(err),
+        }
+    }
+
+    fn quit_workspace(&mut self, workspace_name: u16) -> Result<(), QuitError> {
+        info!("quitting workspace {}", workspace_name);
+        match self.workspaces.remove(&workspace_name) {
+            Some(mut workspace) => {
+                workspace.kill_all_windows();
                 Ok(())
             }
             None => Err(QuitError::new(format!(
@@ -273,6 +285,11 @@ impl ScreenInfo {
     pub fn move_window_to_workspace(&mut self, arg: WorkspaceNavigation) -> Result<(), MoveError> {
         match self.get_next_workspace_nr(arg.clone()) {
             Ok(next_workspace) => {
+                if !self.is_window_on_active_workspace_selected() {
+                    return Err(MoveError::new(
+                        "No window selected on active workspace".to_string(),
+                    ));
+                }
                 if arg.is_create_if_not_exists() && !self.workspaces.contains_key(&next_workspace) {
                     self.create_workspace(next_workspace);
                 }
@@ -467,10 +484,17 @@ impl ScreenInfo {
             self.active_workspace, workspace_nr
         );
 
+        let mut active_ws_name: Option<u16> = None;
         if let Some(active_workspace) = self.workspaces.get_mut(&self.active_workspace) {
             active_workspace.unmap_windows();
-            active_workspace.focused = false;
+            active_ws_name = Some(active_workspace.name);
         };
+
+        if let Some(name) = active_ws_name {
+            if let Err(error) = self.quit_workspace(name) {
+                warn!("failed to quit empty workspace {}", error)
+            }
+        }
 
         let new_workspace = match self.workspaces.get_mut(&workspace_nr) {
             Some(workspace) => workspace,
@@ -479,7 +503,6 @@ impl ScreenInfo {
 
         self.active_workspace = workspace_nr;
         new_workspace.remap_windows();
-        new_workspace.focused = true;
         self.state_changed();
         Ok(())
     }

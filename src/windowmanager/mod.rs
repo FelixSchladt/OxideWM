@@ -249,7 +249,7 @@ impl WindowManager {
 
         if let Some(screen) = self.screeninfo.get_mut(&self.focused_screen) {
             info!("quitting workspace {}", active_workspace_name);
-            if let Err(error) = screen.quit_workspace(active_workspace_name) {
+            if let Err(error) = screen.quit_workspace_select_new(active_workspace_name) {
                 warn!("could not quit workspace {error}");
             }
             screen.state_changed();

@@ -11,3 +11,5 @@ x11rb = { version = "0.11.*", features = ["allow-unsafe-code", "render"] }
 cairo-rs = { version = "0.15.6", features = ["xcb"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
+log4rs = "1.2.*"
+log = "0.4.0"

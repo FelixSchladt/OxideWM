@@ -1,4 +1,4 @@
-use super::{parse_error::ParseError, Workspace};
+use super::parse_error::ParseError;
 
 #[derive(Debug, Clone)]
 pub enum WorkspaceNavigation {
