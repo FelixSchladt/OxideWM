@@ -90,28 +90,20 @@ Index
 
 # EXAMPLES
 **
-
-
-
-# oxide-msg
-
-The `oxide-msg` is an ipc command line and library tool. It aims to provide an easy to use tool to control the window manager via scripts or code.
-
-
-## Usage
-
 ```sh
 cargo run -p oxide-msg -- -c "exec" -a "firefox"
 cargo run -p oxide-msg -- --command "kill"
 ```
 
-for more information run:
+# BUGS
+Please open an issue <https://github.com/DHBW-FN/OxideWM/issues>
 
-```sh
-cargo run -p oxide-msg -- --help
-```
+# AUTHOR
+Felix Schladt <schladt.felix-it21@it.dhbw-ravensburg.de>
 
-## Module
+# COPYRIGHT
+Copyright © 2020 Felix Schladt GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it. There is NO WARRANTY, to the extent permitted by law.
 
-The `oxide-msg` tool is part of this repository as its own workspace and can be found under `tools/oxide-msg`.
-All the typical cargo functionality is available via the `cargo <cmd> -p oxide-msg`.
+# SEE ALSO
+**oxide(1)**, **oxide-config(1)**, **oxide-bar(1)**

@@ -4,6 +4,10 @@ SHARE_DIR := /usr/share
 TARGET_DIR := /usr/bin
 CONFIG_DIR := /etc
 
+define gen_manpages
+	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide-msg.1.md -o $(ROOT_DIR)/man/oxide-msg.1
+endef
+
 run:
 	cd $(ROOT_DIR)
 	@echo -e  "\x1b[1m\x1b[36m#- Thank you for using OxideWM -#\x1b[0m"
@@ -44,3 +48,7 @@ uninstall:
 .PHONY: test
 test:
 	$(ROOT_DIR)/test/resources/run_tests.sh
+
+.PHONY: man
+man:
+	$(call gen_manpages)
