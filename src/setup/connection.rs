@@ -20,12 +20,11 @@ pub fn get_connection(keybindings: &KeyBindings) -> Arc<RustConnection> {
     rust_connection
 }
 
-fn grab_keys(
+pub fn grab_keys(
     connection: Arc<RustConnection>,
     keybindings: &KeyBindings,
 ) -> Result<(), ConnectionError> {
     info!("grabbing keys");
-    //TODO check if the the screen iterations should be merged
     for screen in connection.setup().roots.iter() {
         for modifier in [0, u16::from(ModMask::M2)] {
             for keyevent in keybindings.events_vec.iter() {
@@ -36,6 +35,25 @@ fn grab_keys(
                     keyevent.keycode.code,
                     GrabMode::ASYNC,
                     GrabMode::ASYNC,
+                )?;
+            }
+        }
+    }
+    connection.flush()
+}
+
+pub fn ungrab_keys(
+    connection: Arc<RustConnection>,
+    keybindings: &KeyBindings,
+) -> Result<(), ConnectionError> {
+    info!("ungrabbing keys");
+    for screen in connection.setup().roots.iter() {
+        for modifier in [0, u16::from(ModMask::M2)] {
+            for keyevent in keybindings.events_vec.iter() {
+                connection.ungrab_key(
+                    keyevent.keycode.code,
+                    screen.root,
+                    (keyevent.keycode.mask | modifier).into(),
                 )?;
             }
         }

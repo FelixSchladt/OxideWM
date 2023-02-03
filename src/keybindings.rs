@@ -109,18 +109,21 @@ impl KeyBindings {
         //add wm commands
         for cmd in &config.cmds {
             let keycode = convert_to_keycode(&mut cmd.keys.clone(), &keymap);
-            let kevent = KeyEvent {
-                keycode: keycode.clone(),
-                args: cmd.args.clone(),
-                event: cmd.command.clone(),
-            };
-            keybindings.events_vec.push(kevent.clone());
-            keybindings
-                .events_map
-                .entry(keycode.code)
-                .or_insert(Vec::new())
-                .push(kevent);
+            for command in &cmd.commands {
+                let kevent = KeyEvent {
+                    keycode: keycode.clone(),
+                    args: command.args.clone(),
+                    event: command.command.clone(),
+                };
+                keybindings.events_vec.push(kevent.clone());
+                keybindings
+                    .events_map
+                    .entry(keycode.code)
+                    .or_insert(Vec::new())
+                    .push(kevent);
+            }
         }
+
         keybindings
     }
 

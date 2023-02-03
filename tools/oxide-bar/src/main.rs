@@ -1,4 +1,5 @@
 // This code is derived from https://github.com/psychon/x11rb/blob/c3894c092101a16cedf4c45e487652946a3c4284/cairo-example/src/main.rs
+mod config;
 mod xcb_visualtype;
 
 //use cairo::glib::subclass::shared::RefCounted;
@@ -17,6 +18,8 @@ use crate::xcb_visualtype::{choose_visual, find_xcb_visualtype};
 use oxideipc;
 use oxideipc::state::OxideState;
 
+use crate::config::Config;
+
 // A collection of the atoms we will need.
 atom_manager! {
     pub AtomCollection: AtomCollectionCookie {
@@ -32,25 +35,6 @@ atom_manager! {
 pub enum EventType {
     X11rbEvent(x11rb::protocol::Event),
     OxideState(OxideState),
-}
-
-#[derive(Debug)]
-struct Config {
-    width: u16,
-    height: u16,
-    _color_bg: String,
-    _color_txt: String,
-}
-
-impl Config {
-    pub fn default(width: u16) -> Config {
-        Config {
-            width,
-            height: 30,
-            _color_bg: "test".to_string(),
-            _color_txt: "test".to_string(),
-        }
-    }
 }
 
 #[derive(Debug)]
@@ -303,7 +287,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let screen = &conn.setup().roots[screen_num];
 
-    let config: Config = Config::default(screen.width_in_pixels);
+    let config: Config = Config::new(screen.width_in_pixels);
 
     let mut bar = OxideBar::new(conn.clone(), config, screen_num);
 

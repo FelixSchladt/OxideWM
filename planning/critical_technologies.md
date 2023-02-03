@@ -3,7 +3,7 @@
 ## Programming paradigms
 
 - Client-Server model
-- Event driven, functional, imperative, procedural, structured programming
+- event driven, functional, imperative, procedural, structured programming
 
 ## Programming languages
 

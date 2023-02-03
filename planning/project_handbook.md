@@ -1,4 +1,4 @@
-# Project Handbook
+# Project handbook
 
 ## General project schedule
 
@@ -7,7 +7,7 @@ All research results and discussions will be stored in the `concepts` folder.
 All documents will be written in markdown - there are no other formal restrictions.
 
 ### Ticketing
-Every task will be documented with an Git Issue.
+Every task will be documented with a Git issue.
 The current status will be kept updated for the following states:
 
 - TODO
@@ -38,16 +38,16 @@ Working methods on the feature branches are open to developer.
 
 ## Testing
 All test logs are to be stored in the subdirectory `test_logs`.
-Those will not be published oon GitHub.
-Upcoming issues should be documented with Git-Issues with the following format:
+Those will not be published on GitHub.
+Upcoming issues should be documented with Git-issues with the following format:
 
 ````
-Titel: Error-Code
+Titel: error-code
 
-Error description
+error description
 
 \```
-Stackstrace
+stackstrace
 \```
 
 ````

@@ -20,7 +20,10 @@ pub fn sent_event(command: &str, args: Option<String>) {
 }
 
 pub fn get_state_struct() -> OxideState {
-    serde_json::from_str(&get_state()).unwrap()
+    match serde_json::from_str(&get_state()) {
+        Ok(state) => state,
+        Err(e) => panic!("Error parsing state: {}", e),
+    }
 }
 
 /*
