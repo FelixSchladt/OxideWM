@@ -80,7 +80,6 @@ The config file should be formatted as JSON.
 
 Controlling the window manager will only be possible by using the keyboard.
 
-TODO: is the following correct? 
 A mouse can be used to focus on individal frames and interact with application interfaces like webbrowsers.
 
 ## 9. Non-functional requirements
@@ -91,23 +90,22 @@ An installer with package manager cargo is required.
 
 ### 10.1. Software
 
-The product is supposed to be used on Unix based operating systems with an X11 instance running. Furthermore there is no other running window 
-- no other running window manager
+The product is supposed to be used on Unix based operating systems with an X11 instance running. Furthermore there is no other running window manager accepted.
 
 ### 10.2. Hardware
 
-- monitor
-- keyboard working with your operating system
-- there are no hardware limitations
+Required hardware is at least one monitor as well as a keyboard working with the operating system.
 
-### 10.3 Organisational framework
+There are no hardware limitations.
 
-- since our code is licensed with GPL v3 there are no conflicts with GPL licensed libraries
+### 10.3 Organizational framework
 
-### 10.4 Product Interface
+Since the code is licensed with GPL v3 there are no conflicts with GPL licensed libraries.
 
-- behavior can be changed using config files
-- programm actions will be stored in log files
+### 10.4 Product interface
+
+The behavior of the windowmanager can be customized by changing the config files.
+Program actions will be stored in log files.
 
 ## 11. Special requirements
 
