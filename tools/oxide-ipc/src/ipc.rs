@@ -1,10 +1,10 @@
 use async_std::stream::StreamExt;
-use oxide::eventhandler::events::WmActionEvent;
 use zbus::{dbus_proxy, Connection, Result};
 
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
 
+use crate::events::*;
 use crate::state::OxideState;
 
 #[dbus_proxy(
@@ -19,7 +19,6 @@ trait WmInterface {
     #[dbus_proxy(signal)]
     async fn state_change(&self, state: String) -> Result<()>;
 }
-
 async fn get_proxy() -> Result<WmInterfaceProxy<'static>> {
     let connection = Connection::session().await?;
     Ok(WmInterfaceProxy::new(&connection).await?)
