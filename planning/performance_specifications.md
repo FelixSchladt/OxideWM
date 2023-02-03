@@ -18,12 +18,10 @@ The window manager should integrate a taskbar providing an intuitive and streaml
 
 ### 1.2. Desired criteria
 
-- ipc
-- taskbar
-- config file
-- power management (screenlocking after timeout)
-- animations
-- multi monitor support
+Inter process communication (IPC) should be used for interacting between different applications and services, allowing for a seamless integration with the users workflow.
+The window manager is supposed to use a config file in which the user can easily manage his preferences and settings. Also power management features should be included, such as screen locking after a specified timeout to help conserve energy and improve security. 
+For improving the overall user experience the software is to include visually appealing animations.
+
 
 ### 1.3. Demarcation criteria
 
