@@ -27,6 +27,50 @@ where
     }
 }
 
+fn deserialize_string_border_color<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let args = String::deserialize(deserializer);
+    println!("Args {:?}", args);
+    match args {
+        Ok(value) => Ok(value),
+        Err(error) => {
+            error!("Wrong datatype: {}", error.to_string());
+            return Ok(DEFAULT_BORDER_COLOR.to_string());
+        }
+    }
+}
+
+fn deserialize_string_border_focus_color<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let args = String::deserialize(deserializer);
+    println!("Args {:?}", args);
+    match args {
+        Ok(value) => Ok(value),
+        Err(error) => {
+            error!("Wrong datatype: {}", error.to_string());
+            return Ok(DEFAULT_BORDER_FOCUS_COLOR.to_string());
+        }
+    }
+}
+fn deserialize_u32_border_width<'de, D>(deserializer: D) -> Result<u32, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let args = u32::deserialize(deserializer);
+    println!("Args {:?}", args);
+    match args {
+        Ok(value) => Ok(value),
+        Err(error) => {
+            error!("Wrong datatype: {}", error.to_string());
+            return Ok(DEFAULT_BORDER_WIDTH);
+        }
+    }
+}
+
 fn deserialize_u32_gap<'de, D>(deserializer: D) -> Result<u32, D::Error>
 where
     D: Deserializer<'de>,
@@ -75,13 +119,22 @@ pub struct Config {
     #[serde(default = "default_exec_always")]
     pub exec_always: Vec<String>,
 
-    #[serde(default = "default_border_width")]
+    #[serde(
+        default = "default_border_width",
+        deserialize_with = "deserialize_u32_border_width"
+    )]
     pub border_width: u32,
 
-    #[serde(default = "default_border_color")]
+    #[serde(
+        default = "default_border_color",
+        deserialize_with = "deserialize_string_border_color"
+    )]
     pub border_color: String,
 
-    #[serde(default = "default_border_focus_color")]
+    #[serde(
+        default = "default_border_focus_color",
+        deserialize_with = "deserialize_string_border_focus_color"
+    )]
     pub border_focus_color: String,
 
     #[serde(default = "default_gap", deserialize_with = "deserialize_u32_gap")]
