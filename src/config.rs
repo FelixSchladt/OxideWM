@@ -29,7 +29,7 @@ where
         Ok(value) => Ok(value),
         Err(error) => {
             println!("Error: {:?}", error);
-            error!("Wrong Datatype for {} field in line {}. Entered {} but {} is expected.", error.path, error.line, error.invalid_type, error.expected);
+            error!("Wrong Datatype for {} field in line {}. Entered {} but {} is expected.", Err.path, Err.line, Err.invalid_type, Err.expected);
             return Ok(8);
         }
     }
