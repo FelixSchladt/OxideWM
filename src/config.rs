@@ -1,10 +1,14 @@
 use log::{error, info};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
+use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 
 use crate::eventhandler::commands::WmCommands;
+
+
+const u8 DEFAULT_GAP = 10;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where
@@ -28,8 +32,14 @@ where
     match args {
         Ok(value) => Ok(value),
         Err(error) => {
-            println!("Error: {:?}", error);
-            error!("Wrong Datatype for {} field in line {}. Entered {} but {} is expected.", Err.path, Err.line, Err.invalid_type, Err.expected);
+            //println!("Error: {:?}", error);
+            /*error!(
+                "Wrong Datatype for {} field in line {}. Entered {} but {} is expected.",
+                error.path, error.line, error.invalid_type, error.expected
+            );*/
+            error!("Wrong datatype: {}", error.to_string());
+            //let msg = error.message.unwrap();
+            //println!("Error: {} at ", msg);
             return Ok(8);
         }
     }
@@ -184,5 +194,5 @@ fn default_border_focus_color() -> String {
     "0x000000".to_string()
 } // black
 fn default_gap() -> u32 {
-    3
+    DEFAULT_GAP
 }
