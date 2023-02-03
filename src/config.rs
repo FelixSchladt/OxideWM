@@ -7,7 +7,7 @@ use std::path::Path;
 
 use crate::eventhandler::commands::WmCommands;
 
-const DEFAULT_CMDS: Vec<WmCommand> = vec![WmCommand {
+const DEFAULT_CMDS: &'static [WmCommand] = &[WmCommand {
     keys: vec!["A".to_string(), "t".to_string()],
     commands: vec![WmCommandArgument {
         command: WmCommands::Exec,
@@ -23,9 +23,9 @@ const DEFAULT_EXEC_ALWAYS: Vec<String> = Vec::<String>::new();
 
 const DEFAULT_BORDER_WIDTH: u32 = 3;
 
-const DEFAULT_BORDER_COLOR: String = "0xFFFFFF".to_string(); // white
+const DEFAULT_BORDER_COLOR: &str = "0xFFFFFF"; // white
 
-const DEFAULT_BORDER_FOCUS_COLOR: String = "0x000000".to_string(); // black
+const DEFAULT_BORDER_FOCUS_COLOR: &str = "0x000000"; // black
 
 const DEFAULT_GAP: u32 = 10;
 
@@ -51,15 +51,8 @@ where
     match args {
         Ok(value) => Ok(value),
         Err(error) => {
-            //println!("Error: {:?}", error);
-            /*error!(
-                "Wrong Datatype for {} field in line {}. Entered {} but {} is expected.",
-                error.path, error.line, error.invalid_type, error.expected
-            );*/
             error!("Wrong datatype: {}", error.to_string());
-            //let msg = error.message.unwrap();
-            //println!("Error: {} at ", msg);
-            return Ok(8);
+            return Ok(DEFAULT_GAP);
         }
     }
 }
@@ -197,10 +190,10 @@ fn default_border_width() -> u32 {
     DEFAULT_BORDER_WIDTH
 }
 fn default_border_color() -> String {
-    DEFAULT_BORDER_COLOR
+    DEFAULT_BORDER_COLOR.to_string()
 }
 fn default_border_focus_color() -> String {
-    DEFAULT_BORDER_FOCUS_COLOR
+    DEFAULT_BORDER_FOCUS_COLOR.to_string()
 }
 fn default_gap() -> u32 {
     DEFAULT_GAP
