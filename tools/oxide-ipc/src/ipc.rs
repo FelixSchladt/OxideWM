@@ -4,8 +4,8 @@ use zbus::{dbus_proxy, Connection, Result};
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
 
-use crate::state::OxideState;
 use crate::events::*;
+use crate::state::OxideState;
 
 #[dbus_proxy(
     interface = "org.oxide.interface",

@@ -1,4 +1,6 @@
-use crate::{config::Config, screeninfo::ScreenInfo, workspace::workspace_navigation::WorkspaceNavigation};
+use crate::{
+    config::Config, screeninfo::ScreenInfo, workspace::workspace_navigation::WorkspaceNavigation,
+};
 use std::sync::{Arc, Condvar, Mutex};
 use std::{cell::RefCell, rc::Rc};
 use x11rb::connection::Connection;
@@ -51,16 +53,18 @@ fn move_to_workspace_zero() {
         setup.wm_state_change,
     );
 
-    screeninfo.move_to_or_create_workspace(WorkspaceNavigation::Number(target_workspace)).unwrap();
+    screeninfo
+        .move_to_or_create_workspace(WorkspaceNavigation::Number(target_workspace))
+        .unwrap();
     let active_workspace_nr = screeninfo.get_active_workspace().unwrap().name;
 
     assert_eq!(target_workspace, active_workspace_nr);
 }
 
 #[test]
-fn move_to_workspace_nintynine() {
+fn move_to_workspace_max_value() {
     let setup = Setup::new();
-    let target_workspace = 99;
+    let target_workspace = u16::max_value();
 
     let mut screeninfo = ScreenInfo::new(
         setup.connection,
@@ -71,7 +75,9 @@ fn move_to_workspace_nintynine() {
         setup.wm_state_change,
     );
 
-    screeninfo.move_to_or_create_workspace(WorkspaceNavigation::Number(target_workspace)).unwrap();
+    screeninfo
+        .move_to_or_create_workspace(WorkspaceNavigation::Number(target_workspace))
+        .unwrap();
     let active_workspace_nr = screeninfo.get_active_workspace().unwrap().name;
 
     assert_eq!(target_workspace, active_workspace_nr);
