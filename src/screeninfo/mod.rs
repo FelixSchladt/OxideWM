@@ -10,13 +10,13 @@ use crate::{
 
 use log::{debug, info, warn};
 use serde::Serialize;
-use std::rc::Rc;
 use std::sync::Arc;
 use std::{
     cell::RefCell,
     collections::HashMap,
     sync::{Condvar, Mutex},
 };
+use std::{collections::HashSet, rc::Rc};
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
 use x11rb::rust_connection::RustConnection;
@@ -156,6 +156,7 @@ impl ScreenInfo {
     }
 
     fn create_workspace(&mut self, workspace_nr: u16) -> &mut Workspace {
+        debug!("creating new workspace {}", workspace_nr);
         let new_workspace = Workspace::new(
             workspace_nr,
             self.connection.clone(),
@@ -173,6 +174,18 @@ impl ScreenInfo {
 
     pub fn get_active_workspace(&mut self) -> Option<&mut Workspace> {
         self.get_workspace(self.active_workspace)
+    }
+
+    pub fn is_window_on_active_workspace_selected(&mut self) -> bool {
+        let active_workspace = match self.get_active_workspace() {
+            Some(workspace) => workspace,
+            None => return false,
+        };
+
+        match active_workspace.get_focused_window() {
+            Some(_) => true,
+            None => false,
+        }
     }
 
     pub fn on_map_request(&mut self, event: &MapRequestEvent) {
@@ -230,16 +243,23 @@ impl ScreenInfo {
         &mut self,
         arg: WorkspaceNavigation,
     ) -> Result<(), MoveError> {
-        match self.get_next_workspace_nr(arg) {
+        match self.get_next_workspace_nr(arg.clone()) {
             Ok(next_workspace) => {
-                if !self.workspaces.contains_key(&next_workspace) {
+                if !self.is_window_on_active_workspace_selected() {
+                    return Err(MoveError::new(
+                        "No window selected on active workspace".to_string(),
+                    ));
+                }
+                if arg.is_create_if_not_exists() && !self.workspaces.contains_key(&next_workspace) {
                     self.create_workspace(next_workspace);
                 }
+                debug!("Moveing window to workspace {}", next_workspace);
                 if self.move_window_to_workspace_nr(next_workspace).is_err() {
                     let error_msg =
                         format!("failed to move window to workspace nr {}", next_workspace);
                     return Err(MoveError::new(error_msg));
                 }
+                debug!("Switching to workspace {}", next_workspace);
                 if self.set_workspace(next_workspace).is_err() {
                     let error_msg = format!("failed to set new workspace {}", next_workspace);
                     return Err(MoveError::new(error_msg));
@@ -251,8 +271,12 @@ impl ScreenInfo {
     }
 
     pub fn move_window_to_workspace(&mut self, arg: WorkspaceNavigation) -> Result<(), MoveError> {
-        match self.get_next_workspace_nr(arg) {
+        match self.get_next_workspace_nr(arg.clone()) {
             Ok(next_workspace) => {
+                if arg.is_create_if_not_exists() && !self.workspaces.contains_key(&next_workspace) {
+                    self.create_workspace(next_workspace);
+                }
+                debug!("Moveing window to workspace {}", next_workspace);
                 if self.move_window_to_workspace_nr(next_workspace).is_err() {
                     let error_msg =
                         format!("failed to move window to workspace nr {}", next_workspace);
@@ -268,6 +292,7 @@ impl ScreenInfo {
         match arg {
             WorkspaceNavigation::Next => Ok(self.find_next_workspace()),
             WorkspaceNavigation::Previous => Ok(self.find_previous_workspace()),
+            WorkspaceNavigation::NextFree => Ok(self.find_next_free_workspace()),
             WorkspaceNavigation::Number(number) => {
                 if number >= LOWEST_WORKSPACE_NR {
                     Ok(number)
@@ -325,83 +350,58 @@ impl ScreenInfo {
         Ok(())
     }
 
-    pub fn move_to_or_create_workspace(
-        &mut self,
-        arg: WorkspaceNavigation,
-    ) -> Result<(), MoveError> {
-        let workspace_nr = match arg {
-            WorkspaceNavigation::Next => {
-                if self.active_workspace == u16::MAX {
-                    LOWEST_WORKSPACE_NR
-                } else {
-                    self.active_workspace + 1
-                }
-            }
-            WorkspaceNavigation::Previous => {
-                if self.active_workspace <= LOWEST_WORKSPACE_NR {
-                    let highest_workspace = self.workspaces.keys().max();
-                    if let Some(workspace_nr) = highest_workspace {
-                        if *workspace_nr == u16::MAX {
-                            *workspace_nr
-                        } else {
-                            *workspace_nr + 1
-                        }
-                    } else {
-                        LOWEST_WORKSPACE_NR
-                    }
-                } else {
-                    self.active_workspace - 1
-                }
-            }
-            WorkspaceNavigation::Number(number) => {
-                if number < LOWEST_WORKSPACE_NR {
-                    let error_msg = format!(
-                        "workspace nr {} has to be greater than or equal to {}",
-                        number, LOWEST_WORKSPACE_NR
-                    );
-                    return Err(MoveError::new(error_msg));
-                }
-                number
-            }
-        };
-        if !self.workspaces.contains_key(&workspace_nr) {
-            self.create_workspace(workspace_nr);
-        }
-        if self.set_workspace(workspace_nr).is_err() {
-            let error_msg = format!("failed to set workspace {}", workspace_nr);
-            return Err(MoveError::new(error_msg));
-        }
-        Ok(())
-    }
-
-    pub fn switch_workspace(&mut self, arg: WorkspaceNavigation) -> Result<(), MoveError> {
-        let new_workspace_nr = match self.get_next_workspace_nr(arg) {
+    pub fn go_to_workspace(&mut self, arg: WorkspaceNavigation) -> Result<(), MoveError> {
+        let new_workspace_nr = match self.get_next_workspace_nr(arg.clone()) {
             Ok(next_workspace) => next_workspace,
             Err(error) => return Err(error),
         };
 
+        if arg.is_create_if_not_exists() && !self.workspaces.contains_key(&new_workspace_nr) {
+            self.create_workspace(new_workspace_nr);
+        }
+
         if !self.workspaces.contains_key(&new_workspace_nr) {
             return Err(MoveError::new(format!(
-                "could not move screen, workspace {} does not exist on screen",
+                "could not go to workspace {}, it does not exist on screen",
                 new_workspace_nr
             )));
         }
         if self.active_workspace == new_workspace_nr {
-            info!(
-                "window is already on desired workspace {}",
-                new_workspace_nr
-            );
+            info!("already on desired workspace {}", new_workspace_nr);
             return Ok(());
         }
 
         if self.set_workspace(new_workspace_nr).is_err() {
             return Err(MoveError::new(format!(
-                "could not move set workspace {}",
+                "could not set workspace {}",
                 new_workspace_nr
             )));
         };
 
         Ok(())
+    }
+
+    pub fn find_next_free_workspace(&self) -> u16 {
+        let mut existing_workspaces: Vec<u16> = self.workspaces.keys().map(|ws| *ws).collect();
+        existing_workspaces.sort();
+        if existing_workspaces.is_empty() {
+            return LOWEST_WORKSPACE_NR;
+        }
+
+        let existing_ws_hashmap: HashSet<u16> = existing_workspaces.iter().map(|ws| *ws).collect();
+
+        let mut next_free_workspace = existing_workspaces
+            .get(existing_workspaces.len() - 1)
+            .unwrap()
+            + 1;
+
+        for existing_workspace in existing_workspaces {
+            if !existing_ws_hashmap.contains(&(existing_workspace + 1)) {
+                next_free_workspace = existing_workspace + 1;
+                break;
+            }
+        }
+        next_free_workspace
     }
 
     fn find_next_workspace(&self) -> u16 {
@@ -486,5 +486,23 @@ impl ScreenInfo {
 
     pub fn get_workspace_count(&self) -> usize {
         return self.workspaces.len();
+    }
+}
+
+#[cfg(test)]
+impl ScreenInfo {
+    pub fn set_test_workspaces(&mut self, workspaces: Vec<u16>) {
+        self.workspaces.clear();
+        let mut first = true;
+        for ws in workspaces {
+            self.create_workspace(ws);
+            if first {
+                self.active_workspace = ws;
+            }
+        }
+    }
+
+    pub fn set_test_active_workspace(&mut self, workspace: u16) {
+        self.active_workspace = workspace;
     }
 }

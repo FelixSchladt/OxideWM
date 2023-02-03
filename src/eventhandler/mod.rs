@@ -168,9 +168,6 @@ impl EventHandler<'_> {
             WmCommands::MoveToWorkspaceAndFollow => self
                 .window_manager
                 .handle_move_to_workspace_follow(command.args.clone()),
-            WmCommands::MoveToOrCreateWorkspace => self
-                .window_manager
-                .handle_move_to_or_create_workspace(command.args.clone()),
             WmCommands::QuitWorkspace => self.window_manager.handle_quit_workspace(),
             WmCommands::Exec => exec_user_command(&command.args),
             WmCommands::Fullscreen => self.window_manager.handle_keypress_fullscreen(),

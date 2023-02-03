@@ -188,12 +188,13 @@ impl WindowManager {
     }
 
     pub fn handle_keypress_go_to_workspace(&mut self, args_option: Option<String>) {
+        debug!("handeling keypress go to workspace");
         let screen_option = self.screeninfo.get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
             match arg_option {
                 Ok(arg) => {
-                    if let Err(error) = screen.switch_workspace(arg) {
+                    if let Err(error) = screen.go_to_workspace(arg) {
                         warn!("Could not go to workspace {}", error);
                     }
                 }
@@ -206,6 +207,7 @@ impl WindowManager {
     }
 
     pub fn handle_move_to_workspace(&mut self, args_option: Option<String>) {
+        debug!("handeling keypress move to workspace");
         let screen_option = self.screeninfo.get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
@@ -224,6 +226,7 @@ impl WindowManager {
     }
 
     pub fn handle_move_to_workspace_follow(&mut self, args_option: Option<String>) {
+        debug!("handeling keypress move to workspace and follow");
         let screen_option = self.screeninfo.get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
@@ -240,27 +243,8 @@ impl WindowManager {
         }
     }
 
-    pub fn handle_move_to_or_create_workspace(&mut self, args_option: Option<String>) {
-        let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
-        match arg_option {
-            Ok(arg) => {
-                let screen = match self.screeninfo.get_mut(&self.focused_screen) {
-                    Some(screen) => screen,
-                    None => {
-                        warn!("No focused screen");
-                        return;
-                    }
-                };
-                if let Err(error) = screen.move_to_or_create_workspace(arg) {
-                    warn!("{error}")
-                }
-                screen.state_changed();
-            }
-            Err(error) => warn!("could not parse arguments {}", error),
-        };
-    }
-
     pub fn handle_quit_workspace(&mut self) {
+        debug!("handeling keypress quit workspace");
         let active_workspace_name = self.get_active_workspace().name;
 
         if let Some(screen) = self.screeninfo.get_mut(&self.focused_screen) {
