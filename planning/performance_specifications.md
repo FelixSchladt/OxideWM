@@ -12,12 +12,9 @@ Keyboard inputs are to be handled effectively, allowing the user to control all 
 
 ## Basic
 
-- multiple workspaces
-- multiple monitors
-- configuration
-- autostarting of applications
-- taskbar support
-- Drun/Rofi/eww support
+The software should support multiple workspaces as well as multiple monitors, allowing the user to create and switch between different virtual desktops and to extend their workspace across multiple screens. It is also supposed to provide an interface for configuring various settings and options, such as the number of workspaces, monitor arrangement, and more. 
+Autostarting of applications is supposed to be another feature, allowing the user to specify which applications should start automatically when the software is launched. 
+The window manager should integrate a taskbar providing an intuitive and streamlined way to switch between open applications and workspaces quickly and easily. For this it is necessary to support popular utilities like Drun or Rofi.
 
 ### 1.2. Desired criteria
 
