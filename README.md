@@ -8,7 +8,7 @@
 ## Project Status
 
 ### [Zenhub Board](https://app.zenhub.com/workspaces/oxidewm-635665ffcecdb867786ebd04/board)
-### [ReadTheDocs] (https://oxide.readthedocs.io/en/latest/)
+### [ReadTheDocs](https://oxide.readthedocs.io/en/latest/)
 
 ## Group Members
 1. [Antonia Pawlik](https://github.com/gungula)
