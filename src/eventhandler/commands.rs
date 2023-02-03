@@ -6,13 +6,15 @@ pub enum WmCommands {
     Move, //args: left, up, right, down
     Focus,
     Resize,
-    Quit, // Quit the window manager
-    Kill, // Kill the focused window
+    Quit,    // Quit the window manager
+    Kill,    // Kill the focused window
     Restart, // Restart the window manager
-    Layout, //args: horizontal, vertical
+    Layout,  //args: horizontal, vertical
     MoveToWorkspace,
     GoToWorkspace,
     MoveToWorkspaceAndFollow,
+    QuitWorkspace,
+    MoveToOrCreateWorkspace,
     Exec,
     Fullscreen,
 }

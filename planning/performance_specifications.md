@@ -1,4 +1,4 @@
-# Pflichtenheft
+# Performance specification
 
 ## 1. Objectives
 
@@ -18,7 +18,7 @@
 - multiple workspaces
 - multiple monitors
 - configuration
-- autostarting of Applications
+- autostarting of applications
 - taskbar support
 - Drun/Rofi/eww support
 

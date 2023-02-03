@@ -1,8 +1,8 @@
 use std::fs;
 use std::thread;
 //use std::sync::Arc;
-use std::time::Duration;
 use std::sync::mpsc::{channel, Sender};
+use std::time::Duration;
 
 fn get_filenames(folder: &str) -> Vec<String> {
     let paths = fs::read_dir(folder).unwrap();
@@ -22,7 +22,7 @@ fn get_event(folder: &str) -> Option<String> {
         fs::remove_file(event.as_ref().unwrap().as_str()).unwrap();
     }
     return event;
-} 
+}
 
 fn thread1(tx: Sender<String>) {
     loop {
@@ -51,17 +51,11 @@ fn main() {
     let (tx, rx) = channel();
 
     let ctx = tx.clone();
-    thread::spawn(move|| {
-        thread1(ctx)
-    });
+    thread::spawn(move || thread1(ctx));
 
-    
-    thread::spawn(move|| {
-        thread2(tx)
-    });
+    thread::spawn(move || thread2(tx));
 
     loop {
         println!("Recv: {}", rx.recv().expect("RECEVEIVE FAILED"));
     }
 }
-
