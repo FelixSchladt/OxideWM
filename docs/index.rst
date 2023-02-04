@@ -24,4 +24,14 @@ Getting started
 :doc:`intro/concepts`
         Concepts and terminology used in OxideWM.
 
+Configuration
+=============
 
+.. toctree::
+   :caption: Configuration
+   :hidden:
+
+        config/config
+
+doc:`config/config`
+        Configuration file reference.
