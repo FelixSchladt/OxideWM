@@ -13,6 +13,7 @@ Getting started
 
 .. toctree::
    :caption: Getting Started
+   :hidden:
 
         installation
         concepts
@@ -30,6 +31,7 @@ Configuration
 
 .. toctree::
    :caption: Configuration
+   :hidden:
 
         config
 
