@@ -3,6 +3,7 @@
 
 ![workflow](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust.yml/badge.svg)
 [![Rust-Tests](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust_test.yml/badge.svg)](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust_test.yml)
+![readthedocs](https://readthedocs.org/projects/docs/badge/?version=latest)
 <!--![release](/github/v/release/DHBW-FN/OxideWM?display_name=tag) -->
 
 ## Project status
