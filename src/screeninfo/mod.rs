@@ -130,6 +130,14 @@ impl ScreenInfo {
             }
             status_bar.width = event.width as u32;
             status_bar.height = event.height as u32;
+            status_bar.border_width = 0;
+            status_bar.gap_size = 0;
+
+            info!(
+                "status bar with width {} and height {}",
+                status_bar.width, status_bar.height
+            );
+
             info!(
                 "Workspaceposition updated to x: {}, y: {}, width: {}, height: {}",
                 screen_size.ws_pos_x,
