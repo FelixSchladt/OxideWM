@@ -14,13 +14,13 @@ Getting started
 .. toctree::
    :caption: Getting Started
 
-        intro/installation
-        intro/concepts
+        installation
+        concepts
 
-:doc:`intro/installation`
+:doc:`installation`
         Installation instructions for OxideWM.
 
-:doc:`intro/concepts`
+:doc:`concepts`
         Concepts and terminology used in OxideWM.
 
 .. _section-configuration:
@@ -31,7 +31,7 @@ Configuration
 .. toctree::
    :caption: Configuration
 
-        config/config
+        config
 
-:doc:`config/config`
+:doc:`config`
         Configuration file reference.
