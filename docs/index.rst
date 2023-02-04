@@ -1,3 +1,4 @@
+=====================
 OxideWM documentation
 =====================
 
@@ -30,5 +31,5 @@ Configuration
 
         config/config
 
-doc:`config/config`
+:doc:`config/config`
         Configuration file reference.
