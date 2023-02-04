@@ -3,18 +3,18 @@
 Installation
 ============
 
+1. Clone the oxide git repository:
 .. code-block:: bash
-        :caption: Clone the repository
 
         git clone https://github.com/DHBW-FN/OxideWM.git
 
+2. Install oxide via make:
 .. code-block:: bash
-        :caption: Install via the Makefile
         
         cd OxideWM
         make install
 
 You will require sudo privileges to install OxideWM.
-After installation you can end you current X session, log out and Oxide should be selectable as window manager in your login screen.
+After installation you can quit your current X session, log out and oxide should be selectable as window manager in your login screen.
 
 
