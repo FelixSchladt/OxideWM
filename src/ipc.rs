@@ -19,6 +19,9 @@ impl WmInterface {
             status: true,
             event: None,
         });
+
+        //flushing channel
+        while let Ok(_) = self.status_receive_channel.lock().unwrap().try_recv() {}
         //send state request to wm manager via channel
         self.event_send_channel.lock().unwrap().send(event).unwrap();
         //block om receiving channel until state has been sent by the wm
@@ -66,6 +69,9 @@ pub async fn zbus_serve(
             changed = cvar.wait(changed).unwrap();
         }
         *changed = false;
+
+        //flushing channel
+        while let Ok(_) = self.status_receive_channel.lock().unwrap().try_recv() {}
 
         log::info!("state change signal");
         event_send_channel
