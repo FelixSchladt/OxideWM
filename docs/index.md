@@ -7,14 +7,13 @@ OxideWM |version| documentation
 OxideWM is a tiling window manager for X11. It is written in Rust and uses X11rb.
 This project idea is inspired by 10DWM, leftWM and i3WM.
 
-.. _section-getting-started:
 
 Getting started
 ===============
 
 .. toctree::
-   :maxdepth: 2
    :caption: Getting Started
+   :hidden:
 
         intro/installation
         intro/concepts
@@ -25,14 +24,12 @@ Getting started
 :doc:`intro/concepts`
         Concepts and terminology used in OxideWM.
 
-.. _section-configuration:
-
 Configuration
 =============
 
 .. toctree::
-   :maxdepth: 2
    :caption: Configuration
+   :hidden:
 
         config/config
 
