@@ -1,6 +1,3 @@
-.. _topics-index:
-
-===============================
 OxideWM |version| documentation
 ===============================
 
@@ -18,12 +15,6 @@ Getting started
         intro/installation
         intro/concepts
 
-:doc:`intro/installation`
-        Installation instructions for OxideWM.
-
-:doc:`intro/concepts`
-        Concepts and terminology used in OxideWM.
-
 Configuration
 =============
 
@@ -32,6 +23,3 @@ Configuration
    :hidden:
 
         config/config
-
-doc:`config/config`
-        Configuration file reference.
