@@ -1,5 +1,6 @@
 .. _topics-index:
 
+=====================
 OxideWM documentation
 =====================
 
