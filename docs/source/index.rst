@@ -16,14 +16,8 @@ Getting started
    :caption: Getting Started
    :hidden:
 
-        intro/installation
-        intro/concepts
-
-:doc:`intro/installation`
-        Installation instructions for OxideWM.
-
-:doc:`intro/concepts`
-        Concepts and terminology used in OxideWM.
+        installation
+        concepts
 
 .. _section-configuration:
 
@@ -34,7 +28,4 @@ Configuration
    :caption: Configuration
    :hidden:
 
-        config/config
-
-:doc:`config/config`
-        Configuration file reference.
+        config
