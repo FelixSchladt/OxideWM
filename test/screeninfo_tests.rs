@@ -79,23 +79,23 @@ fn move_to_workspace_max_value() {
 #[test]
 fn test_get_next_free_workspace_nr() {
     let test_cases = vec![
-        (3, 1, vec![1, 2, 4, 5, 6]),
-        (4, 2, vec![1, 2, 3, 5, 6]),
-        (7, 2, vec![1, 2, 3, 4, 5, 6]),
-        (3, 4, vec![1, 2, 4, 5, 6]),
-        (2, 1, vec![1]),
+        (3, vec![1, 2, 4, 5, 6]),
+        (4, vec![1, 2, 3, 5, 6]),
+        (7, vec![1, 2, 3, 4, 5, 6]),
+        (3, vec![1, 2, 4, 5, 6]),
+        (2, vec![1]),
+        (1, vec![5, 8, 9]),
     ];
 
-    for (expected, active_workspace, existing_workspaces) in test_cases {
+    for (expected, existing_workspaces) in test_cases {
         let mut screeninfo = get_screeninfo();
         screeninfo.set_test_workspaces(existing_workspaces.clone());
-        screeninfo.set_test_active_workspace(active_workspace as u16);
 
         let next_free_workspace = screeninfo.find_next_free_workspace();
         assert_eq!(
             expected, next_free_workspace,
-            "present workspaces {:?}, active workspace {}, expected {} but was {}",
-            existing_workspaces, active_workspace, expected, next_free_workspace
+            "present workspaces {:?}, expected {} but was {}",
+            existing_workspaces, expected, next_free_workspace
         );
     }
 }

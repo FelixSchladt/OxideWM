@@ -382,22 +382,12 @@ impl ScreenInfo {
     }
 
     pub fn find_next_free_workspace(&self) -> u16 {
-        let mut existing_workspaces: Vec<u16> = self.workspaces.keys().map(|ws| *ws).collect();
-        existing_workspaces.sort();
-        if existing_workspaces.is_empty() {
-            return LOWEST_WORKSPACE_NR;
-        }
+        let existing_workspaces: HashSet<u16> = self.workspaces.keys().map(|ws| *ws).collect();
 
-        let existing_ws_hashmap: HashSet<u16> = existing_workspaces.iter().map(|ws| *ws).collect();
-
-        let mut next_free_workspace = existing_workspaces
-            .get(existing_workspaces.len() - 1)
-            .unwrap()
-            + 1;
-
-        for existing_workspace in existing_workspaces {
-            if !existing_ws_hashmap.contains(&(existing_workspace + 1)) {
-                next_free_workspace = existing_workspace + 1;
+        let mut next_free_workspace = u16::MAX;
+        for i in LOWEST_WORKSPACE_NR..u16::MAX {
+            if !existing_workspaces.contains(&i) {
+                next_free_workspace = i;
                 break;
             }
         }
