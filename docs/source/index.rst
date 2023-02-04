@@ -1,6 +1,5 @@
 .. _topics-index:
 
-=====================
 OxideWM documentation
 =====================
 
@@ -14,10 +13,15 @@ Getting started
 
 .. toctree::
    :caption: Getting Started
-   :hidden:
 
-        installation
-        concepts
+        intro/installation
+        intro/concepts
+
+:doc:`intro/installation`
+        Installation instructions for OxideWM.
+
+:doc:`intro/concepts`
+        Concepts and terminology used in OxideWM.
 
 .. _section-configuration:
 
@@ -26,6 +30,8 @@ Configuration
 
 .. toctree::
    :caption: Configuration
-   :hidden:
 
-        config
+        config/config
+
+:doc:`config/config`
+        Configuration file reference.
