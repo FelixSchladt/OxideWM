@@ -75,7 +75,7 @@ pub async fn zbus_serve(
         *changed = false;
 
         //flushing channel
-        while let Ok(_) = self.status_receive_channel.lock().unwrap().try_recv() {
+        while let Ok(_) = status_receive_channel.lock().unwrap().try_recv() {
             warn!("There occured a flush of an old state: If this happens often, please open an issue on github");
         }
 
