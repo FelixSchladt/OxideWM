@@ -54,7 +54,7 @@ Please open an issue <https://github.com/DHBW-FN/OxideWM/issues> .
 
 # COPYRIGHT
 Copyright © 2023 Felix Schladt GPLv3+\: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
-This is free software: you are free to change and redistribute it. There is NO WARRANTY to the extent permitted by law.
+This is free software: You are free to change and redistribute it. There is NO WARRANTY to the extent permitted by law.
 
 # SEE ALSO
 **oxide-config(1)**, **oxide-msg**, **oxide-bar(1)**
