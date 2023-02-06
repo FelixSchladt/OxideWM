@@ -11,4 +11,4 @@ xinit ./test/resources/unittestrc -- $XEPHYR :100 -ac -screen 511x50 -host-curso
 echo    "┏━━━━━━━━━━━━━━━━━┓"
 echo -e "┃ \x1b[32m\x1b[1mAUTOMATED TESTS\x1b[0m ┃"
 echo    "┗━━━━━━━━━━━━━━━━━┛"
-xinit ./test/resources/automated_tests -- $XEPHYR :100 -ac -screen 1200x1000 -host-cursor
+xinit ./test/resources/autotestrc -- $XEPHYR :100 -ac -screen 1200x1000 -host-cursor
