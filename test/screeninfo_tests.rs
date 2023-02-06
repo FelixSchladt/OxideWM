@@ -1,7 +1,7 @@
 use crate::{
     config::Config, screeninfo::ScreenInfo, workspace::workspace_navigation::WorkspaceNavigation,
 };
-use std::sync::{Arc, Condvar, Mutex};
+use std::sync::Arc;
 use std::{cell::RefCell, rc::Rc};
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::Screen;
@@ -11,7 +11,6 @@ struct Setup {
     pub connection: Arc<RustConnection>,
     pub screen_ref: Rc<RefCell<Screen>>,
     pub config: Rc<RefCell<Config>>,
-    pub wm_state_change: Arc<(Mutex<bool>, Condvar)>,
     pub width: u32,
     pub height: u32,
 }
@@ -25,36 +24,38 @@ impl Setup {
             "./test/test_files/config.yml".into(),
         )));
         let connection = Arc::new(RustConnection::connect(None).unwrap().0);
-        let wm_state_change = Arc::new((Mutex::new(false), Condvar::new()));
         let screen_ref = Rc::new(RefCell::new(connection.setup().roots[0].clone()));
 
         Self {
             connection,
             screen_ref,
             config,
-            wm_state_change,
             width,
             height,
         }
     }
 }
 
-#[test]
-fn move_to_workspace_zero() {
+pub fn get_screeninfo() -> ScreenInfo {
     let setup = Setup::new();
-    let target_workspace = 1;
 
-    let mut screeninfo = ScreenInfo::new(
+    ScreenInfo::new(
         setup.connection,
         setup.screen_ref,
         setup.config,
         setup.width,
         setup.height,
-        setup.wm_state_change,
-    );
+    )
+}
+
+#[test]
+fn move_to_workspace_zero() {
+    let target_workspace = 1;
+
+    let mut screeninfo = get_screeninfo();
 
     screeninfo
-        .move_to_or_create_workspace(WorkspaceNavigation::Number(target_workspace))
+        .go_to_workspace(WorkspaceNavigation::Number(target_workspace))
         .unwrap();
     let active_workspace_nr = screeninfo.get_active_workspace().unwrap().name;
 
@@ -63,22 +64,38 @@ fn move_to_workspace_zero() {
 
 #[test]
 fn move_to_workspace_max_value() {
-    let setup = Setup::new();
     let target_workspace = u16::max_value();
 
-    let mut screeninfo = ScreenInfo::new(
-        setup.connection,
-        setup.screen_ref,
-        setup.config,
-        setup.width,
-        setup.height,
-        setup.wm_state_change,
-    );
+    let mut screeninfo = get_screeninfo();
 
     screeninfo
-        .move_to_or_create_workspace(WorkspaceNavigation::Number(target_workspace))
+        .go_to_workspace(WorkspaceNavigation::Number(target_workspace))
         .unwrap();
     let active_workspace_nr = screeninfo.get_active_workspace().unwrap().name;
 
     assert_eq!(target_workspace, active_workspace_nr);
+}
+
+#[test]
+fn test_get_next_free_workspace_nr() {
+    let test_cases = vec![
+        (3, vec![1, 2, 4, 5, 6]),
+        (4, vec![1, 2, 3, 5, 6]),
+        (7, vec![1, 2, 3, 4, 5, 6]),
+        (3, vec![1, 2, 4, 5, 6]),
+        (2, vec![1]),
+        (1, vec![5, 8, 9]),
+    ];
+
+    for (expected, existing_workspaces) in test_cases {
+        let mut screeninfo = get_screeninfo();
+        screeninfo.set_test_workspaces(existing_workspaces.clone());
+
+        let next_free_workspace = screeninfo.find_next_free_workspace();
+        assert_eq!(
+            expected, next_free_workspace,
+            "present workspaces {:?}, expected {} but was {}",
+            existing_workspaces, expected, next_free_workspace
+        );
+    }
 }

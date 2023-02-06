@@ -5,7 +5,7 @@ use self::movement::Movement;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::mpsc::Sender;
-use std::sync::{Arc, Condvar, Mutex};
+use std::sync::{Arc, Mutex};
 use std::{cell::RefCell, rc::Rc};
 
 use log::{debug, error, info, warn};
@@ -18,6 +18,7 @@ use crate::{
     auxiliary::exec_user_command,
     config::Config,
     eventhandler::events::EventType,
+    ipc::signal_state_change,
     screeninfo::ScreenInfo,
     workspace::{
         workspace_layout::WorkspaceLayout, workspace_navigation::WorkspaceNavigation, Workspace,
@@ -42,11 +43,7 @@ pub struct WindowManager {
 }
 
 impl WindowManager {
-    pub fn new(
-        connection: Arc<RustConnection>,
-        config: Rc<RefCell<Config>>,
-        wm_state_change: Arc<(Mutex<bool>, Condvar)>,
-    ) -> WindowManager {
+    pub fn new(connection: Arc<RustConnection>, config: Rc<RefCell<Config>>) -> WindowManager {
         let screeninfo = HashMap::new();
 
         let focused_screen = 0;
@@ -63,7 +60,7 @@ impl WindowManager {
             restart: false,
         };
 
-        manager.setup_screens(wm_state_change);
+        manager.setup_screens();
         manager.autostart_exec();
         manager.autostart_exec_always();
         let result = manager.connection.flush();
@@ -188,24 +185,26 @@ impl WindowManager {
     }
 
     pub fn handle_keypress_go_to_workspace(&mut self, args_option: Option<String>) {
+        debug!("handeling keypress go to workspace");
         let screen_option = self.screeninfo.get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
             match arg_option {
                 Ok(arg) => {
-                    if let Err(error) = screen.switch_workspace(arg) {
+                    if let Err(error) = screen.go_to_workspace(arg) {
                         warn!("could not go to workspace {}", error);
                     }
                 }
                 Err(error) => warn!("could not go to workspace {}", error),
             }
-            screen.state_changed();
+            signal_state_change();
         } else {
             warn!("could not switch workspace, no screen was focused");
         }
     }
 
     pub fn handle_move_to_workspace(&mut self, args_option: Option<String>) {
+        debug!("handeling keypress move to workspace");
         let screen_option = self.screeninfo.get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
@@ -217,13 +216,14 @@ impl WindowManager {
                 }
                 Err(error) => warn!("could not move to workspace {}", error),
             }
-            screen.state_changed();
+            signal_state_change();
         } else {
             warn!("could not move to workspace, no screen was focused");
         }
     }
 
     pub fn handle_move_to_workspace_follow(&mut self, args_option: Option<String>) {
+        debug!("handeling keypress move to workspace and follow");
         let screen_option = self.screeninfo.get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
@@ -234,41 +234,22 @@ impl WindowManager {
             } else if let Err(error) = arg_option {
                 warn!("could not move to workspace {}", error);
             }
-            screen.state_changed();
+            signal_state_change();
         } else {
             warn!("could not move to workspace, no screen was focused");
         }
     }
 
-    pub fn handle_move_to_or_create_workspace(&mut self, args_option: Option<String>) {
-        let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
-        match arg_option {
-            Ok(arg) => {
-                let screen = match self.screeninfo.get_mut(&self.focused_screen) {
-                    Some(screen) => screen,
-                    None => {
-                        warn!("no focused screen");
-                        return;
-                    }
-                };
-                if let Err(error) = screen.move_to_or_create_workspace(arg) {
-                    warn!("{error}")
-                }
-                screen.state_changed();
-            }
-            Err(error) => warn!("could not parse arguments {}", error),
-        };
-    }
-
     pub fn handle_quit_workspace(&mut self) {
+        debug!("handeling keypress quit workspace");
         let active_workspace_name = self.get_active_workspace().name;
 
         if let Some(screen) = self.screeninfo.get_mut(&self.focused_screen) {
             info!("quitting workspace {}", active_workspace_name);
-            if let Err(error) = screen.quit_workspace(active_workspace_name) {
+            if let Err(error) = screen.quit_workspace_select_new(active_workspace_name) {
                 warn!("could not quit workspace {error}");
             }
-            screen.state_changed();
+            signal_state_change();
         } else {
             warn!("no screen was focused");
         }
@@ -278,7 +259,7 @@ impl WindowManager {
         self.get_active_workspace().toggle_fullscreen();
     }
 
-    fn setup_screens(&mut self, wm_state_change: Arc<(Mutex<bool>, Condvar)>) {
+    fn setup_screens(&mut self) {
         for screen in self.connection.setup().roots.iter() {
             let screen_ref = Rc::new(RefCell::new(screen.clone()));
             let screenstruct = ScreenInfo::new(
@@ -287,7 +268,6 @@ impl WindowManager {
                 self.config.clone(),
                 screen.width_in_pixels as u32,
                 screen.height_in_pixels as u32,
-                wm_state_change.clone(),
             );
             self.screeninfo.insert(screen.root, screenstruct);
             self.focused_screen = screen.root;
