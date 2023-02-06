@@ -11,41 +11,39 @@ oxide - a dynamic tiling window manager written in rust
 .SH DESCRIPTION
 .SS INTRODUCTION
 .PP
-OxideWm is a dynamic tiling windowmanager for X11.
+Oxide windowmanager is a dynamic tiling windowmanager for X11.
 Windows are automatically arranged in a grid-like fashion.
 The user can then move and resize windows by using keyboard shortcuts.
-The user can also define custom keyboard shortcuts to launch
-applications.
+Defining custom keyboard shortcuts to launch applications is possible, too.
 Oxide tries to maximize the screensize by removing unnecessary borders
-and decorations.
-It also tries to be as keyboard friendly as possible.
-Everything can be done via the keyboard.
+and decorations as well as to be as keyboard friendly as possible.
+Everything can be done via keyboard.
 .SS TERMINOLIGY
 .TP
 \f[B]Window\f[R]
-An X11 application window such as a browser or terminal
+An X11 application window such as a browser or terminal.
 .TP
 \f[B]Workspace\f[R]
 A workspace contains multiple windows.
-The user can switch between mutliple workspaces.
+The user can switch between several workspaces.
 .TP
 \f[B]Layout\f[R]
-Layouts are different algorithms placing you windows.
+Layouts are different algorithms placing windows.
 .SS CONFIG FILE
 .PP
-For a more detailed description of the config see
-\f[B]oxide-config(1)\f[R].
 Oxide can be configured via its config file.
 This includes keybindings, appearance and more.
 Before editing the global config file located under
 \f[B]/etc/oxide/config.yml\f[R] should be copied into the users home
 directory under \f[B]\[ti]/.config/oxide/config.yml\f[R].
+For a more detailed description of the config see
+\f[B]oxide-config(1)\f[R].
 .SS LOGGING
 .PP
 Oxide log messages are written to \f[B]/var/log/syslog\f[R].
 .SS FURTHER DOCUMENTATION
 .PP
-Access the full oxide documentation under
+Access the full Oxide documentation under
 \f[B]https://oxide.readthedocs.io/\f[R].
 .SH FILES
 .TP
@@ -65,7 +63,7 @@ Please open an issue <https://github.com/DHBW-FN/OxideWM/issues>
 Copyright \[co] 2023 Felix Schladt GPLv3+: GNU GPL version 3 or later
 <https://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
+There is NO WARRANTY to the extent permitted by law.
 .SH SEE ALSO
 .PP
 \f[B]oxide-config(1)\f[R], \f[B]oxide-msg\f[R], \f[B]oxide-bar(1)\f[R]
