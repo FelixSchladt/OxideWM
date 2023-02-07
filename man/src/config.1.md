@@ -26,9 +26,10 @@ If the home config file is not existing, default values will be used but command
 
 ```yaml
 cmds:
-  - keys: ["A", "t"]
-    command: Exec
-    args: "firefox"
+  - keys: ["M", "t"]
+    commands:
+      - command: Exec
+        args: "firefox"
 ```
 
 ### KEY
@@ -48,6 +49,10 @@ The keys need at least one MODIFIER and one normal key such as 't'
 
 **S**
 : SHIFT key
+
+### COMMANDS
+
+Commands consist of a command and optional arguments.
 
 ### COMMAND
 
@@ -107,6 +112,9 @@ None
 Next
 : next initialized workspace with a higher index than the current workspace
 
+Next_free
+: next available workspace with a higher index than the current workspace which is not initialized
+
 Previous
 : next initialized workspace with a lower index than the current workspace
 
@@ -115,3 +123,33 @@ New
 
 Index
 : workspace with the given index
+
+## ITERATIONS
+
+iter
+: extention for other commands and has the same basic functionallity. It allows you to iterate between multiple e. g. workspaces
+
+### EXAMPLES
+
+```yaml
+- iter: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  command:
+    keys: ["A", "C", "$VAR"]
+    commands:
+      - command: GoToWorkspace
+        args: "$VAR"
+```
+
+In this example using the ALT and CONTROLL key paired with a number from one to nine, the user can go to the desired workspace.
+`$VAR` is a reference for the entered iterator.
+
+## BORDERS
+
+border_witdh
+: sets the border witdh of windows in pixel
+
+border_color
+: sets the border color and has to be entered in hexadecimal
+
+border_focus_color
+: sets the border color for focused winbdows and has to be entered in hexadecimal
