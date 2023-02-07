@@ -1,8 +1,6 @@
 # Here you can configure your Statusbar for OxideWM.
 
-width: 40
-height: 10
-color_bg: "0x008000"
-color_txt: "0xFFFF00"
+color_bg: "#00800000"
+color_txt: "#FFFF00"
 module_left: []
 module_right: []

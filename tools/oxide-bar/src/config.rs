@@ -12,7 +12,9 @@ pub enum BarWidgets {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    #[serde(default = "default_width")]
     pub width: u16,
+    #[serde(default = "default_height")]
     pub height: u16,
 
     #[serde(default = "default_color_bg")]
@@ -79,3 +81,9 @@ fn default_color_bg() -> String {
 fn default_color_txt() -> String {
     "0xFFFFFF".to_string()
 } // white
+fn default_width() -> u16 {
+    0
+}
+fn default_height() -> u16 {
+    0
+}

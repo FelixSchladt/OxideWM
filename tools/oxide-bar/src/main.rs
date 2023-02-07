@@ -15,6 +15,8 @@ use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
+use color_convert::color::{Color, Error};
+
 use crate::xcb_visualtype::{choose_visual, find_xcb_visualtype};
 use oxideipc;
 use oxideipc::state::OxideState;
@@ -198,13 +200,18 @@ impl OxideBar {
     }
 
     fn draw(&mut self, state: OxideState) {
+        let mut color_bg = Color::new(&self.config.color_bg);
+        info!("RGBA: {:?}", color_bg.to_alpha(true).to_rgb().unwrap());
+        info!("Alpha: {:?}", color_bg.alpha);
         let cr = cairo::Context::new(self.cairo_surface.as_ref().unwrap())
             .expect("failed to create cairo context");
-        if self.composite_mgr {
+        if self.composite_mgr && color_bg.alpha {
             cr.set_operator(cairo::Operator::Source);
-            cr.set_source_rgba(0.9, 1.0, 0.9, 0.5);
+            //cr.set_source_rgba(0.9, 1.0, 0.9, 0.5);
+            cr.set_source_rgba(color_bg.to_alpha(true).to_rgb().unwrap());
         } else {
-            cr.set_source_rgb(0.9, 1.0, 0.9);
+            //cr.set_source_rgb(0.9, 1.0, 0.9);
+            cr.set_source_rgb(color_bg.to_rgb().unwrap());
         }
         cr.paint().unwrap();
         if self.composite_mgr {
@@ -216,7 +223,6 @@ impl OxideBar {
 
         let active_ws = state.get_active_workspace(self.screen);
         info!("active workspace: {}", active_ws);
-
 
         cr.set_font_size(15.0);
 
@@ -232,8 +238,6 @@ impl OxideBar {
             cr.show_text(&ws.to_string()).unwrap();
             x += 20.0;
         }
-
-
 
         self.cairo_surface.as_ref().unwrap().flush();
     }
