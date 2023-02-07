@@ -8,6 +8,8 @@ oxide-config - config
 
 # FILES
 
+When starting, Oxide has two paths it searches for config files.
+
 **~/.config/oxide/config.yml**
 : Home config file
 
@@ -40,7 +42,7 @@ The keys need at least one MODIFIER and one normal key such as 't'
 **S**
 : SHIFT key
 
-### COMMANDS
+## COMMANDS
 
 Commands consist of a command and optional arguments.
 
@@ -119,9 +121,13 @@ Index
 iter
 : iteraates over given number in order to change
 
+# DEFAULT KEYBINDINGS
+
+TODO: DEFAULT KEYBINDINGS
+
 ## EXAMPLES
 
-TODO: DEFAULT BINDINGS AND SAMPLE CONFIG
+TODO: SAMPLE CONFIG
 
 ### KEYBINDINGS
 
@@ -132,6 +138,8 @@ cmds:
       - command: Exec
         args: "firefox"
 ```
+
+In this example pressing the meta key and 't', a new firefox window is opened.
 
 ### ITERATIONS
 
@@ -185,5 +193,4 @@ Access the full Oxide documentation under **https://oxide.readthedocs.io/**.
 
 # SEE ALSO
 
-TODO: READ THE DOCS EINBINDEN
 **oxide(1)**, **oxide-msg**, **oxide-bar(1)**
