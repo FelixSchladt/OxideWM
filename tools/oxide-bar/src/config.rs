@@ -4,10 +4,61 @@ use std::fs::File;
 use std::path::Path;
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct Color {
+    pub red: f64,
+    pub green: f64,
+    pub blue: f64,
+    pub alpha: f64,
+    pub is_alpha: bool,
+}
+
+impl Color {
+    fn new(hex: String) -> Color {
+        let red = u8::from_str_radix(&hex[1..3], 16).unwrap() as f64;
+        let green = u8::from_str_radix(&hex[3..5], 16).unwrap() as f64;
+        let blue = u8::from_str_radix(&hex[5..7], 16).unwrap() as f64;
+        if hex.len() == 9 {
+            let alpha = u8::from_str_radix(&hex[7..9], 16).unwrap() as f64;
+            Color {
+                red,
+                green,
+                blue,
+                alpha,
+                is_alpha: true,
+            }
+        } else {
+            Color {
+                red,
+                green,
+                blue,
+                alpha: 1.0,
+                is_alpha: false,
+            }
+        }
+    }
+    
+    pub fn rgb(&self) -> (f64, f64, f64) {
+        (self.red, self.green, self.blue)
+    }
+    
+    pub fn rgba(&self) -> (f64, f64, f64, f64) {
+        (self.red, self.green, self.blue, self.alpha)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub enum BarWidgets {
     Workspaces,
     Battery,
     Time,
+}
+
+fn deserialize_color<'de, D>(deserializer: D) -> Result<Color, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    Ok(Color::new(s))
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -17,11 +68,14 @@ pub struct Config {
     #[serde(default = "default_height")]
     pub height: u16,
 
-    #[serde(default = "default_color_bg")]
-    pub color_bg: String,
+    #[serde(default = "default_color_bg", deserialize_with = "deserialize_color")]
+    pub color_bg: Color,
 
-    #[serde(default = "default_color_txt")]
-    pub color_txt: String,
+    #[serde(default = "default_color_txt_inactive", deserialize_with = "deserialize_color")]
+    pub color_txt_inactive: Color,
+
+    #[serde(default = "default_color_txt", deserialize_with = "deserialize_color")]
+    pub color_txt: Color,
 
     pub module_left: Vec<BarWidgets>,
     pub module_right: Vec<BarWidgets>,
@@ -75,11 +129,16 @@ impl Config {
     }
 }
 // Defining defualt Values
-fn default_color_bg() -> String {
-    "0x000000".to_string()
+fn default_color_bg() -> Color {
+    Color::new("#000009".to_string())
 } // black
-fn default_color_txt() -> String {
-    "0xFFFFFF".to_string()
+
+fn default_color_txt_inactive() -> Color {
+    Color::new("#606060".to_string())
+} // white
+
+fn default_color_txt() -> Color {
+    Color::new("#FFFFFF".to_string())
 } // white
 fn default_width() -> u16 {
     0

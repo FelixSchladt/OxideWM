@@ -3,7 +3,6 @@ mod config;
 mod xcb_visualtype;
 
 use log::info;
-//use cairo::glib::subclass::shared::RefCounted;
 use x11rb::atom_manager;
 use x11rb::connection::Connection;
 use x11rb::errors::ReplyOrIdError;
@@ -15,13 +14,14 @@ use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-use color_convert::color::{Color, Error};
+use pango::{EllipsizeMode, FontDescription, SCALE};
+use pangocairo::functions::{create_layout, show_layout};
 
 use crate::xcb_visualtype::{choose_visual, find_xcb_visualtype};
 use oxideipc;
 use oxideipc::state::OxideState;
 
-use crate::config::Config;
+use crate::config::{BarWidgets, Color, Config};
 
 #[cfg(debug_assertions)]
 use log4rs::{
@@ -200,24 +200,33 @@ impl OxideBar {
     }
 
     fn draw(&mut self, state: OxideState) {
-        let mut color_bg = Color::new(&self.config.color_bg);
-        info!("RGBA: {:?}", color_bg.to_alpha(true).to_rgb().unwrap());
-        info!("Alpha: {:?}", color_bg.alpha);
         let cr = cairo::Context::new(self.cairo_surface.as_ref().unwrap())
             .expect("failed to create cairo context");
-        if self.composite_mgr && color_bg.alpha {
+
+
+        if self.composite_mgr && self.config.color_bg.is_alpha {
             cr.set_operator(cairo::Operator::Source);
-            //cr.set_source_rgba(0.9, 1.0, 0.9, 0.5);
-            cr.set_source_rgba(color_bg.to_alpha(true).to_rgb().unwrap());
+            let (r, g, b, a) = self.config.color_bg.rgba();
+            cr.set_source_rgba(r, g, b, a);
         } else {
-            //cr.set_source_rgb(0.9, 1.0, 0.9);
-            cr.set_source_rgb(color_bg.to_rgb().unwrap());
+            let (r, g, b) = self.config.color_bg.rgb();
+            cr.set_source_rgb(r, g, b);
         }
         cr.paint().unwrap();
         if self.composite_mgr {
             cr.set_operator(cairo::Operator::Over);
         }
 
+        let (r, g, b) = self.config.color_txt.rgb();
+        cr.set_source_rgb(r, g, b);
+        let layout = create_layout(&cr).unwrap();
+        layout.set_text("TEST");
+        layout.set_ellipsize(EllipsizeMode::End);
+        show_layout(&cr, &layout);
+
+
+
+        /*
         let ws_vec = state.get_workspace_list(self.screen);
         info!("ws_vec: {:?}", ws_vec);
 
@@ -227,9 +236,11 @@ impl OxideBar {
         cr.set_font_size(15.0);
 
         let mut x = 10.0;
+        let (r, g, b) = self.config.color_txt.rgb();
         for ws in ws_vec {
             if ws == active_ws {
-                cr.set_source_rgb(0.0, 0.0, 0.0);
+                cr.set_source_rgb(r, g, b);
+                //cr.set_source_rgb(0.0, 0.0, 0.0);
             } else {
                 cr.set_source_rgb(0.5, 0.5, 0.5);
             }
@@ -238,6 +249,7 @@ impl OxideBar {
             cr.show_text(&ws.to_string()).unwrap();
             x += 20.0;
         }
+        */
 
         self.cairo_surface.as_ref().unwrap().flush();
     }
