@@ -19,18 +19,32 @@ where
     }
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct WmCommandArgument {
+    pub command: WmCommands,
+    #[serde(default, deserialize_with = "deserialize_optional_string")]
+    pub args: Option<String>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct WmCommand {
     pub keys: Vec<String>,
-    pub command: WmCommands,
-    #[serde(deserialize_with = "deserialize_optional_string")]
-    pub args: Option<String>,
+    pub commands: Vec<WmCommandArgument>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct IterCmd {
+    pub iter: Vec<String>,
+    pub command: WmCommand,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     #[serde(default = "default_cmds")]
     pub cmds: Vec<WmCommand>,
+
+    #[serde(default = "default_icmds")]
+    pub iter_cmds: Vec<IterCmd>,
 
     #[serde(default = "default_exec")]
     pub exec: Vec<String>,
@@ -59,10 +73,10 @@ impl Config {
         );
 
         #[cfg(not(debug_assertions))]
-        let mut paths = vec![home_config, "/etc/oxide/config.yml"];
+        let mut paths: Vec<&str> = vec![home_config, "/etc/oxide/config.yml"];
 
         #[cfg(debug_assertions)]
-        let mut paths = vec!["./config.yml", home_config, "/etc/oxide/config.yml"];
+        let mut paths: Vec<&str> = vec!["./config.yml", home_config, "/etc/oxide/config.yml"];
 
         if let Some(path) = source_file {
             paths.insert(0, path);
@@ -82,10 +96,14 @@ impl Config {
 
                 // Reads the values from the 'config' struct in config.yml
                 let config_file = File::open(config_path).unwrap();
-                let user_config = serde_yaml::from_reader(config_file);
+                let user_config: Result<Config, serde_yaml::Error> =
+                    serde_yaml::from_reader(config_file);
 
                 match user_config {
-                    Ok(config) => return config,
+                    Ok(mut config) => {
+                        config.parse_iter_cmds();
+                        return config;
+                    }
                     Err(err) => {
                         let err_msg = error!("Error in '{}': {}", config_path, err);
                         error!("ERR: {:?}", err_msg);
@@ -98,15 +116,41 @@ impl Config {
         }
         panic!("Failed to parse config from file.");
     }
+
+    fn parse_iter_cmds(&mut self) {
+        for icmd in &self.iter_cmds {
+            for i in &icmd.iter {
+                let mut cmd = icmd.command.clone();
+                for key in cmd.keys.iter_mut() {
+                    *key = key.replace("$VAR", i);
+                }
+                for command in cmd.commands.iter_mut() {
+                    if let Some(args) = &mut command.args {
+                        *args = args.replace("$VAR", i);
+                    }
+                }
+                self.cmds.push(cmd);
+            }
+        }
+    }
 }
+
+// Maybe a function checking the datatype can send notifications to the user
+fn _value_checker() {}
 
 // Defining default values
 fn default_cmds() -> Vec<WmCommand> {
     vec![WmCommand {
         keys: vec!["A".to_string(), "t".to_string()],
-        command: WmCommands::Exec,
-        args: Some("kitty".to_string()),
+        commands: vec![WmCommandArgument {
+            command: WmCommands::Exec,
+            args: Some("kitty".to_string()),
+        }],
     }]
+}
+
+fn default_icmds() -> Vec<IterCmd> {
+    vec![]
 }
 
 fn default_exec() -> Vec<String> {

@@ -1,6 +1,8 @@
 // This code is derived from https://github.com/psychon/x11rb/blob/c3894c092101a16cedf4c45e487652946a3c4284/cairo-example/src/main.rs
+mod config;
 mod xcb_visualtype;
 
+use log::info;
 //use cairo::glib::subclass::shared::RefCounted;
 use x11rb::atom_manager;
 use x11rb::connection::Connection;
@@ -16,6 +18,19 @@ use std::thread;
 use crate::xcb_visualtype::{choose_visual, find_xcb_visualtype};
 use oxideipc;
 use oxideipc::state::OxideState;
+
+use crate::config::Config;
+
+#[cfg(debug_assertions)]
+use log4rs::{
+    append::rolling_file::{
+        policy::compound::{
+            roll::fixed_window::FixedWindowRoller, trigger::size::SizeTrigger, CompoundPolicy,
+        },
+        RollingFileAppender,
+    },
+    encode::pattern::PatternEncoder,
+};
 
 // A collection of the atoms we will need.
 atom_manager! {
@@ -35,26 +50,6 @@ pub enum EventType {
 }
 
 #[derive(Debug)]
-struct Config {
-    width: u16,
-    height: u16,
-    _color_bg: String,
-    _color_txt: String,
-}
-
-impl Config {
-    pub fn default(width: u16) -> Config {
-        Config {
-            width,
-            height: 30,
-            _color_bg: "test".to_string(),
-            _color_txt: "test".to_string(),
-        }
-    }
-}
-
-
-#[derive(Debug)]
 struct OxideBar {
     conn: Arc<XCBConnection>,
     window: Window,
@@ -72,7 +67,7 @@ impl OxideBar {
         let window = conn.generate_id().unwrap();
         let screen = conn.setup().roots[screen_num].root;
         let (depth, visual_id) = choose_visual(conn.as_ref(), screen_num).unwrap();
-        println!("Using visual {:#x} with depth {}", visual_id, depth);
+        info!("Using visual {:#x} with depth {}", visual_id, depth);
         let atoms = AtomCollection::new(conn.as_ref()).unwrap().reply().unwrap();
         let cairo_surface = None;
         let composite_mgr = false;
@@ -127,7 +122,7 @@ impl OxideBar {
             //.background_pixel(screen.white_pixel)
             .colormap(colormap);
 
-        println!("Visual id: {:#x}", self.visual_id);
+        info!("Visual id: {:#x}", self.visual_id);
 
         self.conn.create_window(
             self.depth,
@@ -216,15 +211,18 @@ impl OxideBar {
             cr.set_operator(cairo::Operator::Over);
         }
 
-        let ws_vec = state.workspace_tuple(self.screen);
-        println!("ws_vec: {:?}", ws_vec);
+        let ws_vec = state.get_workspace_list(self.screen);
+        info!("ws_vec: {:?}", ws_vec);
+
+        let active_ws = state.get_active_workspace(self.screen);
+        info!("active workspace: {}", active_ws);
 
 
         cr.set_font_size(15.0);
 
         let mut x = 10.0;
-        for (visible, ws) in ws_vec {
-            if visible {
+        for ws in ws_vec {
+            if ws == active_ws {
                 cr.set_source_rgb(0.0, 0.0, 0.0);
             } else {
                 cr.set_source_rgb(0.5, 0.5, 0.5);
@@ -241,7 +239,7 @@ impl OxideBar {
     }
 
     pub fn handle_oxide_state_event(&mut self, state: OxideState) {
-        println!("oxide state event");
+        info!("oxide state event");
         self.draw(state);
     }
 
@@ -253,12 +251,12 @@ impl OxideBar {
                     && event.window == self.window
                     && data[0] == self.atoms.WM_DELETE_WINDOW
                 {
-                    println!("Oxide-bar exiting");
+                    info!("Oxide-bar exiting");
                     std::process::exit(0);
                 }
             }
             x11rb::protocol::Event::Error(error) => {
-                println!("Error: {:?}", error);
+                info!("Error: {:?}", error);
             }
             _ => {}
         }
@@ -278,7 +276,7 @@ fn get_x11rb_events(
                     .send(EventType::X11rbEvent(event))
                     .unwrap();
             }
-            Err(error) => println!("Error: {}", error),
+            Err(error) => info!("Error: {}", error),
         }
     }
 }
@@ -303,13 +301,67 @@ fn get_state(event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
     }
 }
 
+#[cfg(debug_assertions)]
+fn get_log_file_appender() -> RollingFileAppender {
+    let log_file_pattern = format!("{}{}{{}}.{}", "log/bar/", "oxidebar", "log");
+    let log_file = format!("{}{}.{}", "log/bar/", "oxidebar", "log");
+
+    let window_size = 3; // log0, log1, log2
+    let fixed_window_roller = FixedWindowRoller::builder()
+        .build(log_file_pattern.as_str(), window_size)
+        .unwrap();
+
+    let size_limit = 5 * u64::pow(2, 20); // 5MB as max log file size to roll
+    let size_trigger = SizeTrigger::new(size_limit);
+
+    let compound_policy =
+        CompoundPolicy::new(Box::new(size_trigger), Box::new(fixed_window_roller));
+
+    RollingFileAppender::builder()
+        .encoder(Box::new(PatternEncoder::new(
+            "{d(%Y-%m-%d %H:%M:%S)(utc)} - {l}: {m}{n}",
+        )))
+        .build(log_file, Box::new(compound_policy))
+        .unwrap()
+}
+
+#[cfg(debug_assertions)]
+fn init_logger() {
+    use log::LevelFilter;
+    use log4rs::{
+        append::console::ConsoleAppender,
+        config::{Appender, Root},
+    };
+
+    let stdout_appender = ConsoleAppender::builder()
+        .encoder(Box::new(PatternEncoder::new(
+            "{d(%Y-%m-%d %H:%M:%S)(utc)} - [{h({l})}]: {m}{n}",
+        )))
+        .build();
+
+    let config = log4rs::Config::builder()
+        .appender(Appender::builder().build("stdout", Box::new(stdout_appender)))
+        .appender(Appender::builder().build("logfile", Box::new(get_log_file_appender())))
+        .build(
+            Root::builder()
+                .appender("stdout")
+                .appender("logfile")
+                .build(LevelFilter::Debug),
+        )
+        .unwrap();
+    log4rs::init_config(config).unwrap();
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    #[cfg(debug_assertions)]
+    init_logger();
+
     let (connection, screen_num) = XCBConnection::connect(None)?;
     let conn = Arc::new(connection);
 
     let screen = &conn.setup().roots[screen_num];
 
-    let config: Config = Config::default(screen.width_in_pixels);
+    let config: Config = Config::new(screen.width_in_pixels);
 
     let mut bar = OxideBar::new(conn.clone(), config, screen_num);
 

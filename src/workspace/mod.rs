@@ -30,8 +30,6 @@ pub struct Workspace {
     pub screen_size: Rc<RefCell<ScreenSize>>,
     #[serde(skip_serializing)]
     pub config: Rc<RefCell<Config>>,
-    pub visible: bool,
-    pub focused: bool,
     pub focused_window: Option<u32>,
     pub fullscreen: Option<u32>,
     pub urgent: bool,
@@ -54,8 +52,6 @@ impl Workspace {
             root_screen,
             screen_size,
             config,
-            visible: false,
-            focused: false,
             focused_window: None,
             fullscreen: None,
             urgent: false,

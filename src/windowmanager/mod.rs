@@ -5,7 +5,7 @@ use self::movement::Movement;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::mpsc::Sender;
-use std::sync::{Arc, Condvar, Mutex};
+use std::sync::{Arc, Mutex};
 use std::{cell::RefCell, rc::Rc};
 
 use log::{debug, error, info, warn};
@@ -18,6 +18,7 @@ use crate::{
     auxiliary::exec_user_command,
     config::Config,
     eventhandler::events::EventType,
+    ipc::signal_state_change,
     screeninfo::ScreenInfo,
     workspace::{
         workspace_layout::WorkspaceLayout, workspace_navigation::WorkspaceNavigation, Workspace,
@@ -42,11 +43,7 @@ pub struct WindowManager {
 }
 
 impl WindowManager {
-    pub fn new(
-        connection: Arc<RustConnection>,
-        config: Rc<RefCell<Config>>,
-        wm_state_change: Arc<(Mutex<bool>, Condvar)>,
-    ) -> WindowManager {
+    pub fn new(connection: Arc<RustConnection>, config: Rc<RefCell<Config>>) -> WindowManager {
         let screeninfo = HashMap::new();
 
         let focused_screen = 0;
@@ -63,12 +60,12 @@ impl WindowManager {
             restart: false,
         };
 
-        manager.setup_screens(wm_state_change);
+        manager.setup_screens();
         manager.autostart_exec();
         manager.autostart_exec_always();
         let result = manager.connection.flush();
         if result.is_err() {
-            info!("Failed to flush rust connection");
+            info!("failed to flush rust connection");
         }
 
         manager
@@ -104,20 +101,20 @@ impl WindowManager {
     }
 
     pub fn run_event_proxy(connection: Arc<RustConnection>, queue: Arc<Mutex<Sender<EventType>>>) {
-        debug!("Started waiting for X-Event");
+        debug!("started waiting for X-Event");
 
         loop {
             match connection.wait_for_event() {
                 Ok(event) => {
-                    debug!("Transvering X-Event into Queue {:?}", event);
+                    debug!("transferring X-Event into queue {:?}", event);
 
                     let event_typ = EventType::X11rbEvent(event);
                     if let Err(error) = queue.lock().unwrap().send(event_typ) {
-                        warn!("Could not insert event into event queue {}", error);
+                        warn!("could not insert event into event queue {}", error);
                     };
                 }
                 Err(error) => {
-                    error!("Error retreiving Event from Window manager {:?}", error);
+                    error!("error retreiving event from window manager {:?}", error);
                 }
             };
         }
@@ -140,10 +137,10 @@ impl WindowManager {
                     let workspace = self.get_active_workspace();
                     workspace.move_focus(movement);
                 }
-                Err(_) => warn!("Could not parse movement from argument {}", args),
+                Err(_) => warn!("could not parse movement from argument {}", args),
             }
         } else {
-            warn!("Argument must be provided");
+            warn!("argument must be provided");
         }
     }
 
@@ -154,20 +151,20 @@ impl WindowManager {
                     let workspace = self.get_active_workspace();
                     workspace.move_window(movement);
                 }
-                Err(_) => warn!("Could not parse movement from argument {}", args),
+                Err(_) => warn!("could not parse movement from argument {}", args),
             }
         } else {
-            warn!("Argument must be provided");
+            warn!("argument must be provided");
         }
     }
 
     pub fn handle_keypress_kill(&mut self) {
         let focused_window = self.get_focused_window();
-        debug!("Focused window: {:?}", focused_window);
+        debug!("focused window: {:?}", focused_window);
         if let Some(winid) = focused_window {
             self.get_active_workspace().kill_window(&winid);
         } else {
-            error!("ERROR: No window to kill \nShould only happen on an empty screen");
+            error!("ERROR: no window to kill \nshould only happen on an empty screen");
         }
     }
 
@@ -178,7 +175,7 @@ impl WindowManager {
             Some(args) => {
                 let layout = WorkspaceLayout::try_from(args.as_str());
                 if layout.is_err() {
-                    warn!("Layout could not be parsed from argument {}", args);
+                    warn!("layout could not be parsed from argument {}", args);
                     return;
                 }
                 active_workspace.set_layout(layout.unwrap());
@@ -188,23 +185,26 @@ impl WindowManager {
     }
 
     pub fn handle_keypress_go_to_workspace(&mut self, args_option: Option<String>) {
+        debug!("handeling keypress go to workspace");
         let screen_option = self.screeninfo.get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
             match arg_option {
                 Ok(arg) => {
-                    if let Err(error) = screen.switch_workspace(arg) {
-                        warn!("Could not go to workspace {}", error);
+                    if let Err(error) = screen.go_to_workspace(arg) {
+                        warn!("could not go to workspace {}", error);
                     }
                 }
-                Err(error) => warn!("Could not go to workspace {}", error),
+                Err(error) => warn!("could not go to workspace {}", error),
             }
+            signal_state_change();
         } else {
-            warn!("Could not switch workspace, no screen was focused");
+            warn!("could not switch workspace, no screen was focused");
         }
     }
 
     pub fn handle_move_to_workspace(&mut self, args_option: Option<String>) {
+        debug!("handeling keypress move to workspace");
         let screen_option = self.screeninfo.get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
@@ -214,14 +214,16 @@ impl WindowManager {
                         warn!("failed to move window to workspace {}", error);
                     }
                 }
-                Err(error) => warn!("Could not move to workspace {}", error),
+                Err(error) => warn!("could not move to workspace {}", error),
             }
+            signal_state_change();
         } else {
-            warn!("Could not move to workspace, no screen was focused");
+            warn!("could not move to workspace, no screen was focused");
         }
     }
 
     pub fn handle_move_to_workspace_follow(&mut self, args_option: Option<String>) {
+        debug!("handeling keypress move to workspace and follow");
         let screen_option = self.screeninfo.get_mut(&self.focused_screen);
         if let Some(screen) = screen_option {
             let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
@@ -230,42 +232,26 @@ impl WindowManager {
                     warn!("failed to move window to workspace and follow {}", error);
                 }
             } else if let Err(error) = arg_option {
-                warn!("Could not move to workspace {}", error);
+                warn!("could not move to workspace {}", error);
             }
+            signal_state_change();
         } else {
-            warn!("Could not move to workspace, no screen was focused");
+            warn!("could not move to workspace, no screen was focused");
         }
     }
 
-    pub fn handle_move_to_or_create_workspace(&mut self, args_option: Option<String>) {
-        let arg_option = WorkspaceNavigation::parse_workspace_navigation(args_option);
-        match arg_option {
-            Ok(arg) => {
-                let screen = match self.screeninfo.get_mut(&self.focused_screen) {
-                    Some(screen) => screen,
-                    None => {
-                        warn!("No focused screen");
-                        return;
-                    }
-                };
-                if let Err(error) = screen.move_to_or_create_workspace(arg) {
-                    warn!("{error}")
-                }
-            }
-            Err(error) => warn!("could not parse arguments {}", error),
-        };
-    }
-
     pub fn handle_quit_workspace(&mut self) {
+        debug!("handeling keypress quit workspace");
         let active_workspace_name = self.get_active_workspace().name;
 
-        if let Some(screen_info) = self.screeninfo.get_mut(&self.focused_screen) {
+        if let Some(screen) = self.screeninfo.get_mut(&self.focused_screen) {
             info!("quitting workspace {}", active_workspace_name);
-            if let Err(error) = screen_info.quit_workspace(active_workspace_name) {
+            if let Err(error) = screen.quit_workspace_select_new(active_workspace_name) {
                 warn!("could not quit workspace {error}");
             }
+            signal_state_change();
         } else {
-            warn!("No screen was focused");
+            warn!("no screen was focused");
         }
     }
 
@@ -273,7 +259,7 @@ impl WindowManager {
         self.get_active_workspace().toggle_fullscreen();
     }
 
-    fn setup_screens(&mut self, wm_state_change: Arc<(Mutex<bool>, Condvar)>) {
+    fn setup_screens(&mut self) {
         for screen in self.connection.setup().roots.iter() {
             let screen_ref = Rc::new(RefCell::new(screen.clone()));
             let screenstruct = ScreenInfo::new(
@@ -282,7 +268,6 @@ impl WindowManager {
                 self.config.clone(),
                 screen.width_in_pixels as u32,
                 screen.height_in_pixels as u32,
-                wm_state_change.clone(),
             );
             self.screeninfo.insert(screen.root, screenstruct);
             self.focused_screen = screen.root;
@@ -353,7 +338,7 @@ impl WindowManager {
                     .map(|a| self.atom_name(a))
                     .collect::<Vec<String>>();
                 if atoms.contains(&wm_type.to_string()) {
-                    info!("Spawned window is of type _NET_WM_WINDOW_TYPE_DOCK");
+                    info!("spawned window is of type _NET_WM_WINDOW_TYPE_DOCK");
                     return true;
                 }
             }

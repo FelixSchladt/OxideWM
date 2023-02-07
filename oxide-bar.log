@@ -1,9 +1,0 @@
-Using visual 0x60 with depth 32
-Visual id: 0x60
-screen: 1326
-screeninfo: {1326: ScreenInfo { workspaces: {1: Workspace { name: "1", visible: false, focused: false, focused_window: None, urgent: false, windows: {}, order: [], layout: "HorizontalStriped", x: 0, y: 30, height: 970, width: 1000 }, 2: Workspace { name: "2", visible: false, focused: true, focused_window: Some(6291468), urgent: false, windows: {6291468: OxideWindow { window: 6291468, title: "kitty", visible: true, urgent: false, x: 0, y: 0, width: 0, height: 0, titlebar_height: 5 }}, order: [6291468], layout: "HorizontalStriped", x: 0, y: 30, height: 970, width: 1000 }}, active_workspace: 2, width: 1000, height: 1000 }}
-ws_vec: [(false, "1"), (true, "2")]
-Waiting for state change
-screen: 1326
-screeninfo: {1326: ScreenInfo { workspaces: {2: Workspace { name: "2", visible: false, focused: true, focused_window: Some(6291468), urgent: false, windows: {6291468: OxideWindow { window: 6291468, title: "kitty", visible: true, urgent: false, x: 0, y: 0, width: 0, height: 0, titlebar_height: 5 }}, order: [6291468], layout: "HorizontalStriped", x: 0, y: 30, height: 970, width: 1000 }, 1: Workspace { name: "1", visible: false, focused: false, focused_window: None, urgent: false, windows: {}, order: [], layout: "HorizontalStriped", x: 0, y: 30, height: 970, width: 1000 }}, active_workspace: 2, width: 1000, height: 1000 }}
-ws_vec: [(false, "1"), (true, "2")]

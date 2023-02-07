@@ -1,11 +1,27 @@
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::{Arc, Condvar, Mutex};
 
+use log::warn;
+
 use std::error::Error;
 
 use crate::eventhandler::events::{EventType, IpcEvent, WmActionEvent};
 
+use lazy_static::lazy_static;
 use zbus::{dbus_interface, ConnectionBuilder, SignalContext};
+
+lazy_static! {
+    static ref STATE_CHANGE: Arc<(Mutex<bool>, Condvar)> =
+        Arc::new((Mutex::new(false), Condvar::new()));
+}
+
+pub fn signal_state_change() {
+    let (lock, cvar) = &**STATE_CHANGE;
+    let mut state_changed = lock.lock().unwrap();
+    *state_changed = true;
+    // We notify the condvar that the value has changed.
+    cvar.notify_one();
+}
 
 struct WmInterface {
     event_send_channel: Arc<Mutex<Sender<EventType>>>,
@@ -19,6 +35,11 @@ impl WmInterface {
             status: true,
             event: None,
         });
+
+        //flushing channel
+        while let Ok(_) = self.status_receive_channel.lock().unwrap().try_recv() {
+            warn!("There occured a flush of an old state: If this happens often, please open an issue on github");
+        }
         //send state request to wm manager via channel
         self.event_send_channel.lock().unwrap().send(event).unwrap();
         //block om receiving channel until state has been sent by the wm
@@ -41,7 +62,6 @@ impl WmInterface {
 pub async fn zbus_serve(
     event_send_channel: Arc<Mutex<Sender<EventType>>>,
     status_receive_channel: Arc<Mutex<Receiver<String>>>,
-    wm_state_change: Arc<(Mutex<bool>, Condvar)>,
 ) -> Result<(), Box<dyn Error>> {
     let event_send_clone = event_send_channel.clone();
     let status_receive_clone = status_receive_channel.clone();
@@ -59,13 +79,18 @@ pub async fn zbus_serve(
         .await?;
 
     loop {
-        let (lock, cvar) = &*wm_state_change;
+        let (lock, cvar) = &**STATE_CHANGE;
         let mut changed = lock.lock().unwrap();
 
         while !*changed {
             changed = cvar.wait(changed).unwrap();
         }
         *changed = false;
+
+        //flushing channel
+        while let Ok(_) = status_receive_channel.lock().unwrap().try_recv() {
+            warn!("There occured a flush of an old state: If this happens often, please open an issue on github");
+        }
 
         log::info!("state change signal");
         event_send_channel

@@ -6,7 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-oxide = { version = "0.1.*", path = "../../" }
 zbus = { version = "3", default-features = false, features = ["tokio"] }
 async-std = { version = "1", features = ["attributes", "tokio1"] }
 serde = { version = "1", features = ["derive"] }
