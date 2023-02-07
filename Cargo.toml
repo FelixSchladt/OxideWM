@@ -12,6 +12,9 @@ members = ["tools/oxide-ipc", "tools/oxide-msg", "tools/oxide-bar"]
 
 [build-dependencies]
 rudg = { git = "https://github.com/janschaible/rudg-fork", branch = "fix_label_escape" }
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.8"
+sha256 = "1.1.*"
 
 [dependencies]
 x11rb = "0.11.*"
@@ -20,7 +23,7 @@ serde = { version = "1.0", features = ["derive"] }
 oxideipc = { version = "*", path = "tools/oxide-ipc" }
 serde_yaml = "0.8"
 serde_json = "1.0"
-lazy_static = "1.4.0"
+lazy_static = "1.4.*"
 log = "0.4.0"
 log4rs = "1.2.*"
 syslog = "6.0.*"

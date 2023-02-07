@@ -97,18 +97,30 @@ impl WindowState {
         }
     }
 
-    pub fn set_bounds(&self, x: i32, y: i32, width: u32, height: u32) -> &WindowState {
+    pub fn set_bounds(&mut self, x: i32, y: i32, width: u32, height: u32) -> &mut WindowState {
+        self.x = x;
+        self.y = y;
+        self.width = width;
+        self.height = height;
+        return self;
+    }
+
+    pub fn draw(&self) {
+        self.connection.grab_server().unwrap();
+        self.connection.unmap_window(self.frame).unwrap();
+        self.connection.unmap_window(self.window).unwrap();
+
         let frame_aux = ConfigureWindowAux::new()
-            .x(x + self.gap_size as i32)
-            .y(y + self.gap_size as i32)
-            .width(width - (self.gap_size * 2))
-            .height(height - (self.gap_size * 2));
+            .x(self.x + self.gap_size as i32)
+            .y(self.y + self.gap_size as i32)
+            .width(self.width - (self.gap_size * 2))
+            .height(self.height - (self.gap_size * 2));
 
         let window_aux = ConfigureWindowAux::new()
-            .x(x + (self.border_width + self.gap_size) as i32)
-            .y(y + (self.border_width + self.gap_size) as i32)
-            .width(width - (self.border_width * 2) - (self.gap_size * 2))
-            .height(height - (self.border_width * 2) - (self.gap_size * 2));
+            .x(self.x + (self.border_width + self.gap_size) as i32)
+            .y(self.y + (self.border_width + self.gap_size) as i32)
+            .width(self.width - (self.border_width * 2) - (self.gap_size * 2))
+            .height(self.height - (self.border_width * 2) - (self.gap_size * 2));
 
         self.connection
             .configure_window(self.frame, &frame_aux)
@@ -116,12 +128,6 @@ impl WindowState {
         self.connection
             .configure_window(self.window, &window_aux)
             .unwrap();
-
-        return self;
-    }
-
-    pub fn draw(&self) {
-        self.connection.grab_server().unwrap();
 
         self.connection.map_window(self.frame).unwrap();
         self.connection.map_window(self.window).unwrap();
