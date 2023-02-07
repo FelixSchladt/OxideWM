@@ -160,7 +160,7 @@ border_focus_color
 : sets the border color for focused nbdows and has to be entered in hexadecimal
 
 gap
-: gap between windows
+: gap between windows in pixels
 
 ## EXECTUE
 
@@ -170,11 +170,20 @@ exec
 exec_always
 : executes when the windosw manager starts or restarts
 
-# SEE ALSO
+# Bugs
 
-TODO: READ THE DOCS EINBINDEN
-TODO: OTHER MAN PAES REFERENZIEREN
+Please open an issue <https://github.com/DHBW-FN/OxideWM/issues> .
 
 # COPYRIGHT
 
-EINFÜGEN
+Copyright © 2023 Philipp Kalinowski GPLv3+\: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+This is free software: You are free to change and redistribute it. There is NO WARRANTY to the extent permitted by law.
+
+# FURTHER DOCUMENTATION
+
+Access the full Oxide documentation under **https://oxide.readthedocs.io/**.
+
+# SEE ALSO
+
+TODO: READ THE DOCS EINBINDEN
+**oxide(1)**, **oxide-msg**, **oxide-bar(1)**
