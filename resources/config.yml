@@ -4,7 +4,7 @@
 # Otherwise the programm will crash.
 
 cmds:
-  #WM Commands
+  # WM Commands
   - keys: ["A", "S", "e"]
     commands:
       - command: Quit
@@ -64,7 +64,7 @@ cmds:
       - command: Layout
         args: "horizontal"
 
-  #Workspace keys configuration
+  # Workspace keys configuration
   - keys: ["C", "A", "Right"]
     commands:
       - command: GoToWorkspace
@@ -80,7 +80,7 @@ cmds:
       - command: GoToWorkspace
         args: "next_free"
 
-  #MoveToWorkspace keys configuration
+  # MoveToWorkspace keys configuration
   - keys: ["A", "Right"]
     commands:
       - command: MoveToWorkspace
@@ -96,7 +96,7 @@ cmds:
       - command: MoveToWorkspace
         args: "next_free"
 
-  #MoveToWorkspaceAndFollow keys configuration
+  # MoveToWorkspaceAndFollow keys configuration
   - keys: ["A", "S", "Right"]
     commands:
       - command: MoveToWorkspaceAndFollow
