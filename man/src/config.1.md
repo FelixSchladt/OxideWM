@@ -22,17 +22,7 @@ If the home config file is not existing, default values will be used but command
 
 # KEYBINDING
 
-## EXAMPLES
-
-```yaml
-cmds:
-  - keys: ["M", "t"]
-    commands:
-      - command: Exec
-        args: "firefox"
-```
-
-### KEY
+## KEYS
 
 The keys need at least one MODIFIER and one normal key such as 't'
 
@@ -56,6 +46,9 @@ Commands consist of a command and optional arguments.
 
 ### COMMAND
 
+Move **args** [MOVEMENT]
+: Move window
+
 Focus **args** [MOVEMENT]
 : Move Focus
 
@@ -75,7 +68,7 @@ GoToWorkspace **args** [WORKSPACE_ARGS]
 : Change the current workspace
 
 MoveToWorkspace **args** [WORKSPACE_ARGS]
-: Move the focused window to a different workspace
+: Move the used window to a different workspace
 
 MoveToWorkspaceAndFollow **args** [WORKSPACE_ARGS]
 : Move the focused window to and select a different workspace
@@ -112,14 +105,11 @@ None
 Next
 : next initialized workspace with a higher index than the current workspace
 
-Next_free
-: next available workspace with a higher index than the current workspace which is not initialized
-
 Previous
 : next initialized workspace with a lower index than the current workspace
 
-New
-: newly initialized workspace
+Next_free
+: next available workspace with a higher index than the current workspace which is not initialized
 
 Index
 : workspace with the given index
@@ -127,17 +117,32 @@ Index
 ## ITERATIONS
 
 iter
-: extention for other commands and has the same basic functionallity. It allows you to iterate between multiple e. g. workspaces
+: iteraates over given number in order to change
 
-### EXAMPLES
+## EXAMPLES
+
+TODO: DEFAULT BINDINGS AND SAMPLE CONFIG
+
+### KEYBINDINGS
 
 ```yaml
-- iter: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-  command:
-    keys: ["A", "C", "$VAR"]
+cmds:
+  - keys: ["M", "t"]
     commands:
-      - command: GoToWorkspace
-        args: "$VAR"
+      - command: Exec
+        args: "firefox"
+```
+
+### ITERATIONS
+
+```yaml
+iter_cmds:
+  - iter: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    command:
+      keys: ["A", "C", "$VAR"]
+      commands:
+        - command: GoToWorkspace
+          args: "$VAR"
 ```
 
 In this example using the ALT and CONTROLL key paired with a number from one to nine, the user can go to the desired workspace.
@@ -146,10 +151,30 @@ In this example using the ALT and CONTROLL key paired with a number from one to 
 ## BORDERS
 
 border_witdh
-: sets the border witdh of windows in pixel
+: sets the border witdh of windows in
 
 border_color
 : sets the border color and has to be entered in hexadecimal
 
 border_focus_color
-: sets the border color for focused winbdows and has to be entered in hexadecimal
+: sets the border color for focused nbdows and has to be entered in hexadecimal
+
+gap
+: gap between windows
+
+## EXECTUE
+
+exec
+: onetime execution when the window manager starts
+
+exec_always
+: executes when the windosw manager starts or restarts
+
+# SEE ALSO
+
+TODO: READ THE DOCS EINBINDEN
+TODO: OTHER MAN PAES REFERENZIEREN
+
+# COPYRIGHT
+
+EINFÜGEN
