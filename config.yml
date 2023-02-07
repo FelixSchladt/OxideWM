@@ -75,6 +75,11 @@ cmds:
       - command: GoToWorkspace
         args: "previous"
 
+  - keys: ["C","A", "n"]
+    commands: 
+      - command: GoToWorkspace
+        args: "next_free"
+
   #MoveToWorkspace keys configuration
   - keys: ["A", "Right"]
     commands: 
@@ -85,6 +90,27 @@ cmds:
     commands: 
       - command: MoveToWorkspace
         args: "previous"
+
+  - keys: ["A", "n"]
+    commands: 
+      - command: MoveToWorkspace
+        args: "next_free"
+
+  #MoveToWorkspaceAndFollow keys configuration
+  - keys: ["A", "S", "Right"]
+    commands: 
+      - command: MoveToWorkspaceAndFollow
+        args: "next"
+
+  - keys: ["A", "S", "Left"]
+    commands: 
+      - command: MoveToWorkspaceAndFollow
+        args: "previous"
+
+  - keys: ["A", "S", "n"]
+    commands: 
+      - command: MoveToWorkspaceAndFollow
+        args: "next_free"
 
   # QuitWorkspace Command
   - keys: ["C", "A", "Down"]
@@ -108,13 +134,19 @@ iter_cmds:
     command:
       keys: ["A", "C", "$VAR"]
       commands:
-        - command: MoveToWorkspace
+        - command: GoToWorkspace
           args: "$VAR"
   - iter: [1,2,3,4,5,6,7,8,9]
     command:
       keys: ["A", "$VAR"]
       commands:
-        - command: GoToWorkspace 
+        - command: MoveToWorkspace 
+          args: "$VAR"
+  - iter: [1,2,3,4,5,6,7,8,9]
+    command:
+      keys: ["A", "S", "$VAR"]
+      commands:
+        - command: MoveToWorkspaceAndFollow
           args: "$VAR"
 
 
