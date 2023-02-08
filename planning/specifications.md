@@ -61,10 +61,16 @@ This configuration must be human readable or must provide another interface so t
 There must be default values for the configuration elements, so that when a users configuration is incorrect, the windowmanager still starts.<br>
 Furthermore, the configuration must be applied to the windowmanager, every time it is started.
 
-#### 2.3 autostart
+##### 2.2.1 keybindings
+For every command, that the window manager provides, the user must be able to configure a keybinding specified as below.
+A keybinding must contain exactly one none modifier key such as 1,2,A,B,... . 
+It can contain any combination of the following modifiers: Alt, Meta, Command, Shift.
+To enhance the configurability, the user must be able to assign multiple commands to a single keybinding.
+
+#### 2.2.2 autostart
 Autostarting of applications must be supported, allowing the user to specify which applications should start automatically. 
 
-#### 2.4 utilities
+#### 2.3 utilities
 The window manager should integrate a taskbar providing an intuitive and streamlined way to switch between open applications and workspaces quickly and easily.<br>
 For this it is necessary to support popular utilities like Drun or Rofi.
 
