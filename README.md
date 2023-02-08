@@ -1,4 +1,4 @@
-# *Software engineering* project
+# *Software Engineering* project
 
 
 ![workflow](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust.yml/badge.svg)
