@@ -4,12 +4,12 @@
 Installation
 ============
 
-1. Clone the oxide git repository:
+1. Clone the Oxide git repository:
 .. code-block:: bash
 
         git clone https://github.com/DHBW-FN/OxideWM.git
 
-2. Install oxide via make:
+2. Install Oxide via make:
 .. code-block:: bash
         
         cd OxideWM
