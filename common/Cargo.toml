@@ -8,3 +8,5 @@ log4rs = "1.2.*"
 anyhow = "1.0.*"
 syslog = "6.0.*"
 log = "0.4.0"
+serde = { version = "1", features = ["derive"] }
+zbus = { version = "3", default-features = false, features = ["tokio"] }

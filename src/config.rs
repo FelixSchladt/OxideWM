@@ -1,10 +1,9 @@
 use log::{error, info};
+use oxide_common::ipc::commands::WmCommands;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
 use std::fs::File;
 use std::path::Path;
-
-use crate::eventhandler::commands::WmCommands;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where

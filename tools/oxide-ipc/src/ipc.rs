@@ -1,10 +1,10 @@
 use async_std::stream::StreamExt;
+use oxide_common::ipc::action_event::WmActionEvent;
 use zbus::{dbus_proxy, Connection, Result};
 
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
 
-use crate::events::*;
 use crate::state::OxideState;
 
 #[dbus_proxy(
