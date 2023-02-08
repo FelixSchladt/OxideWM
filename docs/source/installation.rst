@@ -16,6 +16,6 @@ Installation
         make install
 
 You will require sudo privileges to install OxideWM.
-After installation you can quit your current X session, log out and oxide should be selectable as window manager in your login screen.
+After installation you can quit your current X session and log out. Subsequently Oxide should be selectable as window manager in your login screen.
 
 
