@@ -6,7 +6,7 @@ build = "build.rs"
 include = ["src/**/*", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE"]
 
 [workspace]
-members = ["tools/oxide-ipc", "tools/oxide-msg", "tools/oxide-bar"]
+members = ["common", "tools/oxide-ipc", "tools/oxide-msg", "tools/oxide-bar"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -17,6 +17,7 @@ serde_yaml = "0.8"
 sha256 = "1.1.*"
 
 [dependencies]
+oxide-common = { version = "0.1.*", path = "common" }
 x11rb = "0.11.*"
 thiserror = "1.0.*"
 serde = { version = "1.0", features = ["derive"] }
@@ -25,9 +26,7 @@ serde_yaml = "0.8"
 serde_json = "1.0"
 lazy_static = "1.4.*"
 log = "0.4.0"
-log4rs = "1.2.*"
 syslog = "6.0.*"
-anyhow = "1.0.*"
 zbus = { version = "3", default-features = false, features = ["tokio"] }
 async-std = { version = "1", features = ["attributes", "tokio1"] }
 strum = { version = "0.24", features = ["derive"] }

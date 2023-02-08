@@ -11,10 +11,6 @@
   dot_hash: 8aec29a01d9945efeb201cd9a6b5d499072b3c4c1fbc5530e99d9544303bcc10
 - diag_file: planning/diagrams/classdg_generated/keybindings.png
   dot_hash: f28884f4b10da837906fd59295144fe1b9b5b3517f5c283b49c9b8ea094f8bf8
-- diag_file: planning/diagrams/classdg_generated/logging/mod.png
-  dot_hash: 0e10f99e848d46ecb171b7dce494f1acddad6b0a5b9a1a64dddf1fad1c3fcb2b
-- diag_file: planning/diagrams/classdg_generated/logging/teelogger.png
-  dot_hash: dd111c8a4275a5ea51b96b173875a5a628f6e037b75be38e0c1873a194cc0c51
 - diag_file: planning/diagrams/classdg_generated/main.png
   dot_hash: f98a8acfaa220c9e0b559a9b7059d9097ba8ae18d6c8f758bede806cd61f24d4
 - diag_file: planning/diagrams/classdg_generated/screeninfo/error.png
