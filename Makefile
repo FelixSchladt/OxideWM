@@ -6,7 +6,7 @@ CONFIG_DIR := /etc
 
 define gen_manpages
 	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide-msg.1.md -o $(ROOT_DIR)/man/oxide-msg.1
-	pandoc --standalone --to man $(ROOT_DIR)/man/src/config.1.md -o $(ROOT_DIR)/man/config.1
+	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide-config.1.md -o $(ROOT_DIR)/man/oxide-config.1
 	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide.1.md -o $(ROOT_DIR)/man/oxide.1
 endef
 
