@@ -195,10 +195,13 @@ impl Config {
                 error!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", paths);
             }
         }
-        Command::new("notify-send").args([
-            "--urgency=critical",
-            "Failed to load config, using defaults!",
-        ]);
+        Command::new("notify-send")
+            .args([
+                "--urgency=critical",
+                "'Failed to load config, using defaults!'",
+            ])
+            .output()
+            .ok();
         Config::default()
     }
 
