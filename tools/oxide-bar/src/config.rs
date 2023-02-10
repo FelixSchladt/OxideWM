@@ -14,9 +14,9 @@ pub struct Color {
 
 impl Color {
     fn new(hex: String) -> Color {
-        let red = u8::from_str_radix(&hex[1..3], 16).unwrap() as f64;
-        let green = u8::from_str_radix(&hex[3..5], 16).unwrap() as f64;
-        let blue = u8::from_str_radix(&hex[5..7], 16).unwrap() as f64;
+        let red = u8::from_str_radix(&hex[1..3], 16).unwrap() as f64 /255.0;
+        let green = u8::from_str_radix(&hex[3..5], 16).unwrap() as f64 / 255.0;
+        let blue = u8::from_str_radix(&hex[5..7], 16).unwrap() as f64 /255.0;
         if hex.len() == 9 {
             let alpha = u8::from_str_radix(&hex[7..9], 16).unwrap() as f64 / 255.0 as f64;
             Color {
