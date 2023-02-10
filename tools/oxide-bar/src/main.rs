@@ -344,8 +344,6 @@ fn thread_timer(event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
     }
 }
 
-
-
 #[cfg(debug_assertions)]
 fn get_log_file_appender() -> RollingFileAppender {
     let log_file_pattern = format!("{}{}{{}}.{}", "log/bar/", "oxidebar", "log");
