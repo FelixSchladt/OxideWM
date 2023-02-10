@@ -5,126 +5,126 @@
 
 cmds:
   # WM Commands
-  - keys: ["A", "S", "e"]
+  - keys: ["M", "S", "e"]
     commands:
       - command: Quit
         args: None
 
-  - keys: ["A", "S", "r"]
+  - keys: ["M", "S", "r"]
     commands:
       - command: Restart
         args: None
 
-  - keys: ["A", "S", "q"]
+  - keys: ["M", "S", "q"]
     commands:
       - command: Kill
         args: None
 
   # Move Focus
-  - keys: ["A", "l"]
+  - keys: ["M", "l"]
     commands:
       - command: Focus
         args: "right"
 
-  - keys: ["A", "h"]
+  - keys: ["M", "h"]
     commands:
       - command: Focus
         args: "left"
 
   # Move Windows
-  - keys: ["A", "S", "l"]
+  - keys: ["M", "S", "l"]
     commands:
       - command: Move
         args: "right"
 
-  - keys: ["A", "S", "h"]
+  - keys: ["M", "S", "h"]
     commands:
       - command: Move
         args: "left"
 
   # Toggle Fullscreen
-  - keys: ["A", "f"]
+  - keys: ["M", "f"]
     commands:
       - command: Fullscreen
         args: None
 
   # Change Layout
-  - keys: ["A", "u"]
+  - keys: ["M", "u"]
     commands:
       - command: Layout
         args: None
 
-  - keys: ["A", "i"]
+  - keys: ["M", "i"]
     commands:
       - command: Layout
         args: "Vertical"
 
-  - keys: ["A", "S", "i"]
+  - keys: ["M", "S", "i"]
     commands:
       - command: Layout
         args: "horizontal"
 
   # Workspace keys configuration
-  - keys: ["A", "Right"]
+  - keys: ["M", "Right"]
     commands:
       - command: GoToWorkspace
         args: "next"
 
-  - keys: ["A", "Left"]
+  - keys: ["M", "Left"]
     commands:
       - command: GoToWorkspace
         args: "previous"
 
-  - keys: ["A", "n"]
+  - keys: ["M", "n"]
     commands:
       - command: GoToWorkspace
         args: "next_free"
 
   # MoveToWorkspace keys configuration
-  - keys: ["C", "A", "Right"]
+  - keys: ["C", "M", "Right"]
     commands:
       - command: MoveToWorkspace
         args: "next"
 
-  - keys: ["C", A", "Left"]
+  - keys: ["C", "M", "Left"]
     commands:
       - command: MoveToWorkspace
         args: "previous"
 
-  - keys: ["C", "A", "n"]
+  - keys: ["C", "M", "n"]
     commands:
       - command: MoveToWorkspace
         args: "next_free"
 
   # MoveToWorkspaceAndFollow keys configuration
-  - keys: ["A", "S", "Right"]
+  - keys: ["M", "S", "Right"]
     commands:
       - command: MoveToWorkspaceAndFollow
         args: "next"
 
-  - keys: ["A", "S", "Left"]
+  - keys: ["M", "S", "Left"]
     commands:
       - command: MoveToWorkspaceAndFollow
         args: "previous"
 
-  - keys: ["A", "S", "n"]
+  - keys: ["M", "S", "n"]
     commands:
       - command: MoveToWorkspaceAndFollow
         args: "next_free"
 
   # QuitWorkspace Command
-  - keys: ["C", "A", "Down"]
+  - keys: ["C", "M", "Down"]
     commands:
       - command: QuitWorkspace
         args: None
 
   # Execute Commands
-  - keys: ["A", "d"]
+  - keys: ["M", "d"]
     commands:
       - command: Exec
         args: "dmenu_run"
 
-  - keys: ["A", "t"]
+  - keys: ["M", "t"]
     commands:
       - command: Exec
         args: "kitty"
@@ -132,19 +132,19 @@ cmds:
 iter_cmds:
   - iter: [1, 2, 3, 4, 5, 6, 7, 8, 9]
     command:
-      keys: ["A", "$VAR"]
+      keys: ["M", "$VAR"]
       commands:
         - command: GoToWorkspace
           args: "$VAR"
   - iter: [1, 2, 3, 4, 5, 6, 7, 8, 9]
     command:
-      keys: ["C", "A", "$VAR"]
+      keys: ["C", "M", "$VAR"]
       commands:
         - command: MoveToWorkspace
           args: "$VAR"
   - iter: [1, 2, 3, 4, 5, 6, 7, 8, 9]
     command:
-      keys: ["A", "S", "$VAR"]
+      keys: ["M", "S", "$VAR"]
       commands:
         - command: MoveToWorkspaceAndFollow
           args: "$VAR"
