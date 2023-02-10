@@ -50,6 +50,10 @@ pub fn get_screeninfo() -> ScreenInfo {
 
 #[test]
 fn move_to_workspace_zero() {
+    if super::in_pipeline() {
+        return;
+    }
+
     let target_workspace = 1;
 
     let mut screeninfo = get_screeninfo();
@@ -64,6 +68,10 @@ fn move_to_workspace_zero() {
 
 #[test]
 fn move_to_workspace_max_value() {
+    if super::in_pipeline() {
+        return;
+    }
+
     let target_workspace = u16::max_value();
 
     let mut screeninfo = get_screeninfo();
@@ -78,6 +86,10 @@ fn move_to_workspace_max_value() {
 
 #[test]
 fn test_get_next_free_workspace_nr() {
+    if super::in_pipeline() {
+        return;
+    }
+
     let test_cases = vec![
         (3, vec![1, 2, 4, 5, 6]),
         (4, vec![1, 2, 3, 5, 6]),

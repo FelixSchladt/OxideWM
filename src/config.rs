@@ -28,6 +28,65 @@ where
     }
 }
 
+// fn deserialize_string_border_color<'de, D>(deserializer: D) -> Result<String, D::Error>
+// where
+//     D: Deserializer<'de>,
+// {
+//     let args = String::deserialize(deserializer);
+//     println!("Args {:?}", args);
+//     match args {
+//         Ok(value) => Ok(value),
+//         Err(error) => {
+//             error!("Wrong datatype: {}", error.to_string());
+//             return Ok(DEFAULT_BORDER_COLOR.to_string());
+//         }
+//     }
+// }
+//
+// fn deserialize_string_border_focus_color<'de, D>(deserializer: D) -> Result<String, D::Error>
+// where
+//     D: Deserializer<'de>,
+// {
+//     let args = String::deserialize(deserializer);
+//     println!("Args {:?}", args);
+//     match args {
+//         Ok(value) => Ok(value),
+//         Err(error) => {
+//             error!("Wrong datatype: {}", error.to_string());
+//             return Ok(DEFAULT_BORDER_FOCUS_COLOR.to_string());
+//         }
+//     }
+// }
+// fn deserialize_u32_border_width<'de, D>(deserializer: D) -> Result<u32, D::Error>
+// where
+//     D: Deserializer<'de>,
+// {
+//     let args = u32::deserialize(deserializer);
+//     println!("Args {:?}", args);
+//     match args {
+//         Ok(value) => Ok(value),
+//         Err(error) => {
+//             error!("Wrong datatype: {}", error.to_string());
+//             return Ok(DEFAULT_BORDER_WIDTH);
+//         }
+//     }
+// }
+//
+// fn deserialize_u32_gap<'de, D>(deserializer: D) -> Result<u32, D::Error>
+// where
+//     D: Deserializer<'de>,
+// {
+//     let args = u32::deserialize(deserializer);
+//     println!("Args {:?}", args);
+//     match args {
+//         Ok(value) => Ok(value),
+//         Err(error) => {
+//             error!("Wrong datatype: {}", error.to_string());
+//             return Ok(DEFAULT_GAP);
+//         }
+//     }
+// }
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct WmCommandArgument {
     pub command: WmCommands,
