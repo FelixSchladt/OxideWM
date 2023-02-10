@@ -1,6 +1,8 @@
 use super::parse_error::ParseError;
 
+#[derive(Debug, Clone)]
 pub enum WorkspaceNavigation {
+    NextFree,
     Next,
     Previous,
     Number(u16),
@@ -25,6 +27,14 @@ impl WorkspaceNavigation {
             Err(ParseError::new(format!("No argument was passed")))
         }
     }
+
+    pub fn is_create_if_not_exists(&self) -> bool {
+        match self {
+            WorkspaceNavigation::NextFree => true,
+            WorkspaceNavigation::Number(_) => true,
+            _ => false,
+        }
+    }
 }
 
 impl TryFrom<&str> for WorkspaceNavigation {
@@ -41,6 +51,7 @@ impl TryFrom<&str> for WorkspaceNavigation {
         match value.to_lowercase().as_str() {
             "next" => Ok(WorkspaceNavigation::Next),
             "previous" => Ok(WorkspaceNavigation::Previous),
+            "next_free" => Ok(WorkspaceNavigation::NextFree),
             _ => Err(format!(
                 "{} is not a valid option for traversing workspaces",
                 value

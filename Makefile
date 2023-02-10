@@ -4,6 +4,11 @@ SHARE_DIR := /usr/share
 TARGET_DIR := /usr/bin
 CONFIG_DIR := /etc
 
+define gen_manpages
+	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide-msg.1.md -o $(ROOT_DIR)/man/oxide-msg.1
+	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide.1.md -o $(ROOT_DIR)/man/oxide.1
+endef
+
 run:
 	cd $(ROOT_DIR)
 	@echo -e  "\x1b[1m\x1b[36m#- Thank you for using OxideWM -#\x1b[0m"
@@ -27,6 +32,8 @@ install:
 		$(ROOT_DIR)/resources/config.yml \
 		$(ROOT_DIR)/bar_config.yml
 	sudo install -Dm644 $(ROOT_DIR)/resources/oxide.desktop $(SHARE_DIR)/xsessions/oxide.desktop
+	$(call gen_manpages)
+	sudo cp $(ROOT_DIR)/man/oxide-msg.1 $(ROOT_DIR)/man/oxide.1 $(SHARE_DIR)/man/man1/
 	cd $(ROOT_DIR) && cargo clean
 	@echo -e  "\x1b[1m\x1b[36m#- Oxide has been successfully installed -#\x1b[0m"
 	@echo -e  "\x1b[1m\x1b[33m#- You can now log out and choose Oxide as you windowmanager -#\x1b[0m"
@@ -44,3 +51,7 @@ uninstall:
 .PHONY: test
 test:
 	$(ROOT_DIR)/test/resources/run_tests.sh
+
+.PHONY: man
+man:
+	$(call gen_manpages)
