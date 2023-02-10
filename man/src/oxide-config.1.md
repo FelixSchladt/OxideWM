@@ -147,7 +147,7 @@ In this example pressing the meta key and 't', a new firefox window is opened.
 iter_cmds:
   - iter: [1, 2, 3, 4, 5, 6, 7, 8, 9]
     command:
-      keys: ["A", "C", "$VAR"]
+      keys: ["M", "C", "$VAR"]
       commands:
         - command: GoToWorkspace
           args: "$VAR"
