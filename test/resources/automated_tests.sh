@@ -39,6 +39,7 @@ else
     echo -e "\x1b[32m\x1b[1mSETUP SUCCESS\x1b[0m - Can grab state from OxideWM"
 fi
 
+# Command - Success requirement - Success message - Failure message - Sleep duration
 run_test "$oxidemsg -c exec --args xterm" "xterm" "Successfully opened a window" "Failed to open a window" 10
 
 exit
