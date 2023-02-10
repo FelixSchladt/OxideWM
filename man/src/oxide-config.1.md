@@ -16,7 +16,7 @@ When starting, Oxide has two paths it searches for config files.
 **/etc/oxide/config.yml**
 : System config file
 
-# Description
+# DESCRIPTION
 
 Define the behaviour of oxidewm. You can change style, layout, keybindings and more.
 The config file is written using YAML syntax.
@@ -28,7 +28,7 @@ If the home config file is not existing, default values will be used but command
 
 The keys need at least one MODIFIER and one normal key such as 't'
 
-### MODIFIER
+## MODIFIER
 
 **M**
 : Meta key
@@ -42,11 +42,11 @@ The keys need at least one MODIFIER and one normal key such as 't'
 **S**
 : SHIFT key
 
-## COMMANDS
+# COMMANDS
 
 Commands consist of a command and optional arguments.
 
-### COMMAND
+## COMMAND
 
 Move **args** [MOVEMENT]
 : Move window
@@ -83,7 +83,9 @@ Fullscreen
 
 ## ARGS
 
-### MOVEMENT:
+Command arguments are necessary for the movement, the layout or to controll workspaces
+
+## MOVEMENT
 
 Left
 : Moves to the left
@@ -194,38 +196,7 @@ Control+Meta+<workspace number>
 Meta+Shift+<workspace number>
 : moves window to workspace <workspace number> and follows it
 
-## EXAMPLES
-
-TODO: SAMPLE CONFIG
-
-### KEYBINDINGS
-
-```yaml
-cmds:
-  - keys: ["M", "t"]
-    commands:
-      - command: Exec
-        args: "firefox"
-```
-
-In this example pressing the meta key and 't', a new firefox window is opened.
-
-### ITERATIONS
-
-```yaml
-iter_cmds:
-  - iter: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    command:
-      keys: ["M", "C", "$VAR"]
-      commands:
-        - command: GoToWorkspace
-          args: "$VAR"
-```
-
-In this example using the ALT and CONTROLL key paired with a number from one to nine, the user can go to the desired workspace.
-`$VAR` is a reference for the entered iterator.
-
-## BORDERS
+# BORDERS
 
 border_witdh
 : sets the border witdh of windows in pixels
@@ -239,13 +210,44 @@ border_focus_color
 gap
 : gap between windows in pixels
 
-## EXECTUE
+# EXECTUE
 
-exec
+exc
 : onetime execution when the window manager starts
 
 exec_always
-: executes when the window manager starts or restarts
+: is executed during start of the window manager and also at each restart
+
+# EXAMPLES
+
+TODO: SAMPLE CONFIG
+
+## KEYBINDINGS
+
+```yaml
+cmds:
+  - keys: ["M", "t"]
+    commands:
+      - command: Exec
+        args: "firefox"
+```
+
+In this example pressing the meta key and 't', a new firefox window is opened.
+
+## ITERATIONS
+
+```yaml
+iter_cmds:
+  - iter: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    command:
+      keys: ["M", "C", "$VAR"]
+      commands:
+        - command: GoToWorkspace
+          args: "$VAR"
+```
+
+In this example using the ALT and CONTROLL key paired with a number from one to nine, the user can go to the desired workspace.
+`$VAR` is a reference for the entered iterator.
 
 # Bugs
 
@@ -262,4 +264,4 @@ Access the full Oxide documentation under **https://oxide.readthedocs.io/**.
 
 # SEE ALSO
 
-**oxide(1)**, **oxide-msg**, **oxide-bar(1)**
+**oxide(1)**, **oxide-msg(1)**, **oxide-bar(1)**
