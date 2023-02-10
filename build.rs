@@ -68,7 +68,7 @@ fn converte_to_svg(input_file_path: String, output_file_path: String) {
         .spawn();
 
     if let Err(error) = result {
-        panic!("failed to converte {input_file_path} to {output_file_path} {error}");
+        println!("failed to converte {input_file_path} to {output_file_path} {error}");
     }
 }
 
@@ -163,8 +163,7 @@ fn format_code() {
     }
 }
 
-fn main() {
-    format_code();
+fn generate_diagrams() {
     let mut dirs = vec![PathBuf::from(SRC_DIR)];
 
     let diag_persistence = get_class_diag_persistence();
@@ -215,4 +214,9 @@ fn main() {
     }
 
     write_diag_persistence(new_persistence);
+}
+
+fn main() {
+    format_code();
+    generate_diagrams();
 }
