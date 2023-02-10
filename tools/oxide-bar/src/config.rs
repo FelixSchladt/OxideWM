@@ -36,11 +36,11 @@ impl Color {
             }
         }
     }
-    
+
     pub fn rgb(&self) -> (f64, f64, f64) {
         (self.red, self.green, self.blue)
     }
-    
+
     pub fn rgba(&self) -> (f64, f64, f64, f64) {
         (self.red, self.green, self.blue, self.alpha)
     }
@@ -71,7 +71,10 @@ pub struct Config {
     #[serde(default = "default_color_bg", deserialize_with = "deserialize_color")]
     pub color_bg: Color,
 
-    #[serde(default = "default_color_txt_inactive", deserialize_with = "deserialize_color")]
+    #[serde(
+        default = "default_color_txt_inactive",
+        deserialize_with = "deserialize_color"
+    )]
     pub color_txt_inactive: Color,
 
     #[serde(default = "default_color_txt", deserialize_with = "deserialize_color")]
