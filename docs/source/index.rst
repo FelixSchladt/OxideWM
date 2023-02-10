@@ -15,3 +15,4 @@ Contents
         installation
         concepts
         config
+        general

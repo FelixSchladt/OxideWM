@@ -9,7 +9,7 @@ oxide-msg - send messages to oxidewm
 **oxide-msg** \[**-h**]| \[**-v**] | \[**-c** command] \[**-a** argument] 
 
 # DESCRIPTION
-The `oxide-msg` is an ipc command tool allowing queriying and messaging to oxidewm via the commandline
+The `oxide-msg` is an ipc command tool allowing queriying and messaging to oxidewm via the commandline.
 
 # OPTIONS
 **-a**, **--argument** <ARGUMENT>
