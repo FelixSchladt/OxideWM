@@ -1,9 +1,22 @@
+function setup_check() {
+    state=`./target/debug/oxide-msg -c state`
+
+    if grep -q "thread 'main' panicked" <<< $state; then
+        echo -e "\x1b[31m\x1b[1mCRITICAL FAILURE\x1b[0m - 'oxide-msg -c state' could not get oxide state - Unable to run tests, aborting..."
+        exit
+    else
+        echo -e "\x1b[32m\x1b[1mSetup Success (1/2)\x1b[0m - Can grab state from OxideWM"
+    fi
+
+    if which xterm; then
+        echo -e "\x1b[32m\x1b[1mSetup Success (2/2)\x1b[0m - 'xterm' is installed."
+    else
+        echo -e "\x1b[31m\x1b[1mCRITICAL FAILURE\x1b[0m - 'xterm' not found - Unable to run tests, aborting..."
+        exit
+    fi
+}
+
 function run_test() {
-    # $1 = Command
-    # $2 = Success requirement
-    # $3 = Success message
-    # $4 = Failure message
-    # $5 = Sleep duration, use when a oxide action takes some time to complete
     cmd=$1
     success_requirement=$2
     success_message=$3
@@ -28,21 +41,11 @@ function run_test() {
 }
 
 echo -e "\x1b[A\x1b[KSetting up tests...\x1b[0m"
-
-# Sleep required as oxide needs a few seconds to set up it's ipc channel
-sleep 5
-
-oxidemsg=./target/debug/oxide-msg
-state=`$oxidemsg -c state`
-
-if grep -q "thread 'main' panicked" <<< $state; then
-    echo -e "\x1b[31m\x1b[1mCRITICAL FAILURE\x1b[0m - 'oxide-msg -c state' could not get oxide state - Unable to run tests, aborting..."
-    exit
-else
-    echo -e "\x1b[32m\x1b[1mSETUP SUCCESS\x1b[0m - Can grab state from OxideWM"
-fi
+sleep 5 # Sleep required as oxide needs a few seconds to set up it's ipc channel
+setup_check
 
 # Command - Success requirement - Success message - Failure message - Sleep duration
+oxidemsg=./target/debug/oxide-msg
 run_test "$oxidemsg -c exec --args xterm" "xterm" "Successfully opened a window" "Failed to open a window" 10
 
 exit
