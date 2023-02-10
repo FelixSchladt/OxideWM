@@ -140,7 +140,20 @@ pub struct Config {
     #[serde(default = "default_gap", deserialize_with = "deserialize_u32_gap")]
     pub gap: u32,
 }
-
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            cmds: default_cmds(),
+            iter_cmds: default_icmds(),
+            exec: default_exec(),
+            exec_always: default_exec_always(),
+            border_width: default_border_width(),
+            border_color: default_border_color(),
+            border_focus_color: default_border_focus_color(),
+            gap: default_gap(),
+        }
+    }
+}
 impl Config {
     pub fn new(source_file: Option<&str>) -> Config {
         let home_config = &format!(
@@ -190,7 +203,7 @@ impl Config {
                 error!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", paths);
             }
         }
-        panic!("Failed to parse config from file.");
+        Config::default()
     }
 
     fn parse_iter_cmds(&mut self) {
