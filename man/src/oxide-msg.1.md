@@ -25,7 +25,7 @@ The `oxide-msg` is an ipc command tool allowing queriying and messaging to oxide
 : output version information and exit
 
 ## WM_COMMAND
-move **-a** [MOVEMENT]
+Move **-a** [MOVEMENT]
 : Move Window
 
 Focus **-a** [MOVEMENT]
