@@ -97,7 +97,7 @@ VerticalStriped
 : windows vertically next to each other
 
 HorizontalStriped
-: windows a horizontally underneath each other
+: windows horizontally underneath each other
 
 None
 : if no argument is provided, the next layout is chosen
@@ -119,7 +119,7 @@ Index
 ## ITERATIONS
 
 iter
-: iteraates over given number in order to change
+: iterates over given number in order to change
 
 # DEFAULT KEYBINDINGS
 
@@ -159,7 +159,7 @@ In this example using the ALT and CONTROLL key paired with a number from one to 
 ## BORDERS
 
 border_witdh
-: sets the border witdh of windows in
+: sets the border witdh of windows in pixels
 
 border_color
 : sets the border color and has to be entered in hexadecimal
@@ -176,7 +176,7 @@ exec
 : onetime execution when the window manager starts
 
 exec_always
-: executes when the windosw manager starts or restarts
+: executes when the window manager starts or restarts
 
 # Bugs
 
