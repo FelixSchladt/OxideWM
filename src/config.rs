@@ -223,9 +223,6 @@ impl Config {
     }
 }
 
-// Maybe a function checking the datatype can send notifications to the user
-fn _value_checker() {}
-
 // Defining default values
 fn default_cmds() -> Vec<WmCommand> {
     vec![WmCommand {
