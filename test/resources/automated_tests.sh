@@ -23,13 +23,13 @@ function run_test() {
     failure_message=$4
     counter=$5
 
-    echo -e "($counter s) Testing: '$cmd'   \t\x1b[A\x1b[K"
+    echo -ne "($counter s) Testing: '$cmd'\n\x1b[A"
     bash -c "$cmd"
 
     while [ $counter -gt 0 ]; do
         sleep 1
         counter=$(( $counter -1 ))
-        echo -e "($counter s) Testing: '$cmd'  \x1b[A\x1b[K"
+        echo -ne "($counter s) Testing: '$cmd'\n\x1b[A"
     done
 
     state=`./target/debug/oxide-msg -c state`
@@ -37,6 +37,7 @@ function run_test() {
         echo -e "\x1b[32m\x1b[1mTEST SUCCESS\x1b[0m - '$cmd' - $success_message"
     else
         echo -e "\x1b[31m\x1b[1mTEST FAILED\x1b[0m  - '$cmd' - $failure_message\n$state"
+        echo -e "Note that this failure might influence further tests."
     fi
 }
 
@@ -48,6 +49,9 @@ echo -e "\nTesting..."
 
 # Command - Success requirement - Success message - Failure message - Sleep duration
 oxidemsg=./target/debug/oxide-msg
-run_test "$oxidemsg -c exec --args xterm" "xterm" "Successfully opened a window" "Failed to open a window" 10
+run_test "$oxidemsg -c exec --args xterm" "xterm" "Successfully opened a window" "Failed to open a window" 7
+run_test "$oxidemsg -c exec --args xterm" "(xterm.*){2}" "Successfully opened a second window" "Failed to open a second window" 7
+run_test "$oxidemsg -c layout --args vertical" "VerticalStriped" "Successfully set layout to 'VerticalStriped'" "Failed to set layout to 'VerticalStriped'" 2
+run_test "$oxidemsg -c layout --args horizontal" "HorizontalStriped" "Successfully set layout to 'HorizontalStriped'" "Failed to set layout to 'HorizontalStriped'" 2
 
 exit
