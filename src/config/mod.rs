@@ -10,6 +10,8 @@ use std::fs::File;
 use std::path::Path;
 use std::process::Command;
 
+use crate::workspace::workspace_layout::WorkspaceLayout;
+
 const DEFAULT_BORDER_WIDTH: u32 = 3;
 
 const DEFAULT_BORDER_COLOR: &str = "0xFFFFFF"; // white
@@ -43,6 +45,9 @@ pub struct Config {
 
     #[serde(default = "default_gap")]
     pub gap: u32,
+
+    #[serde(default = "default_default_layout")]
+    pub default_layout: WorkspaceLayout,
 }
 impl Default for Config {
     fn default() -> Self {
@@ -55,6 +60,7 @@ impl Default for Config {
             border_color: default_border_color(),
             border_focus_color: default_border_focus_color(),
             gap: default_gap(),
+            default_layout: default_default_layout(),
         }
     }
 }
@@ -178,4 +184,8 @@ fn default_border_focus_color() -> String {
 }
 fn default_gap() -> u32 {
     DEFAULT_GAP
+}
+
+fn default_default_layout() -> WorkspaceLayout {
+    WorkspaceLayout::VerticalStriped
 }

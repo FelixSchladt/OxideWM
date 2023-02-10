@@ -47,6 +47,7 @@ impl Workspace {
         screen_size: Rc<RefCell<ScreenSize>>,
         config: Rc<RefCell<Config>>,
     ) -> Workspace {
+        let default_layout = config.borrow().default_layout.clone();
         Workspace {
             connection,
             name,
@@ -58,7 +59,7 @@ impl Workspace {
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
-            layout: WorkspaceLayout::HorizontalStriped,
+            layout: default_layout,
         }
     }
 
