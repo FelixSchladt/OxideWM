@@ -5,7 +5,7 @@ Installation
 ============
 
 1. Clone the Oxide git repository:
-.. code-block:: console
+.. code-block:: bash
 
         git clone https://github.com/DHBW-FN/OxideWM.git
 
