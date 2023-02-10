@@ -167,10 +167,10 @@ impl Config {
 // Defining default values
 fn default_cmds() -> Vec<WmCommand> {
     vec![WmCommand {
-        keys: vec!["A".to_string(), "t".to_string()],
+        keys: vec!["M".to_string(), "t".to_string()],
         commands: vec![WmCommandArgument {
             command: WmCommands::Exec,
-            args: Some("kitty".to_string()),
+            args: Some("firefox".to_string()),
         }],
     }]
 }
