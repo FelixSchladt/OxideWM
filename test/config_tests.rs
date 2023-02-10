@@ -31,7 +31,7 @@ pub fn load_config_from_wrong_datatype_file() {
     assert_eq!(cfg.border_width, 3);
     assert_eq!(cfg.border_color, "0xFFFFFF");
     assert_eq!(cfg.border_focus_color, "0x000000");
-    assert_eq!(cfg.gap, 3);
+    assert_eq!(cfg.gap, 10);
 }
 
 #[test]
