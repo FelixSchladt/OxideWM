@@ -20,7 +20,6 @@ pub fn load_config_from_file() {
     assert_eq!(cfg.cmds[0].keys[1], "t".to_string());
     assert_eq!(cfg.cmds[0].commands[0].args, Some("kitty".to_string()));
     assert_eq!(cfg.exec[0], "./target/debug/oxide-bar".to_string());
-    assert_eq!(cfg.border_width, 8);
     assert_eq!(cfg.border_color, "0x008000");
     assert_eq!(cfg.border_focus_color, "0xFFFF00");
     assert_eq!(cfg.gap, 8);

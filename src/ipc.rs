@@ -48,7 +48,7 @@ impl WmInterface {
 
     fn sent_event(&mut self, event: WmActionEvent) {
         let event = EventType::OxideEvent(IpcEvent {
-            status: true,
+            status: false,
             event: Some(event),
         });
         //sent event to wm manager via channel
