@@ -8,7 +8,7 @@ function setup_check() {
         echo -e "\x1b[32m\x1b[1mSetup Success (1/2)\x1b[0m - Can grab state from OxideWM"
     fi
 
-    if which xterm; then
+    if which xterm 1>/dev/null; then
         echo -e "\x1b[32m\x1b[1mSetup Success (2/2)\x1b[0m - 'xterm' is installed."
     else
         echo -e "\x1b[31m\x1b[1mCRITICAL FAILURE\x1b[0m - 'xterm' not found - Unable to run tests, aborting..."
@@ -43,6 +43,8 @@ function run_test() {
 echo -e "\x1b[A\x1b[KSetting up tests...\x1b[0m"
 sleep 5 # Sleep required as oxide needs a few seconds to set up it's ipc channel
 setup_check
+
+echo -e "\nTesting..."
 
 # Command - Success requirement - Success message - Failure message - Sleep duration
 oxidemsg=./target/debug/oxide-msg
