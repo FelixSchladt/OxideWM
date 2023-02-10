@@ -6,6 +6,14 @@ use std::path::Path;
 
 use crate::eventhandler::commands::WmCommands;
 
+const DEFAULT_BORDER_WIDTH: u32 = 3;
+
+const DEFAULT_BORDER_COLOR: &str = "0xFFFFFF"; // white
+
+const DEFAULT_BORDER_FOCUS_COLOR: &str = "0x000000"; // black
+
+const DEFAULT_GAP: u32 = 10;
+
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where
     D: Deserializer<'de>,
@@ -16,6 +24,65 @@ where
         Ok(None)
     } else {
         Ok(Some(args))
+    }
+}
+
+fn deserialize_string_border_color<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let args = String::deserialize(deserializer);
+    println!("Args {:?}", args);
+    match args {
+        Ok(value) => Ok(value),
+        Err(error) => {
+            error!("Wrong datatype: {}", error.to_string());
+            return Ok(DEFAULT_BORDER_COLOR.to_string());
+        }
+    }
+}
+
+fn deserialize_string_border_focus_color<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let args = String::deserialize(deserializer);
+    println!("Args {:?}", args);
+    match args {
+        Ok(value) => Ok(value),
+        Err(error) => {
+            error!("Wrong datatype: {}", error.to_string());
+            return Ok(DEFAULT_BORDER_FOCUS_COLOR.to_string());
+        }
+    }
+}
+fn deserialize_u32_border_width<'de, D>(deserializer: D) -> Result<u32, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let args = u32::deserialize(deserializer);
+    println!("Args {:?}", args);
+    match args {
+        Ok(value) => Ok(value),
+        Err(error) => {
+            error!("Wrong datatype: {}", error.to_string());
+            return Ok(DEFAULT_BORDER_WIDTH);
+        }
+    }
+}
+
+fn deserialize_u32_gap<'de, D>(deserializer: D) -> Result<u32, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let args = u32::deserialize(deserializer);
+    println!("Args {:?}", args);
+    match args {
+        Ok(value) => Ok(value),
+        Err(error) => {
+            error!("Wrong datatype: {}", error.to_string());
+            return Ok(DEFAULT_GAP);
+        }
     }
 }
 
@@ -52,16 +119,25 @@ pub struct Config {
     #[serde(default = "default_exec_always")]
     pub exec_always: Vec<String>,
 
-    #[serde(default = "default_border_width")]
+    #[serde(
+        default = "default_border_width",
+        deserialize_with = "deserialize_u32_border_width"
+    )]
     pub border_width: u32,
 
-    #[serde(default = "default_border_color")]
+    #[serde(
+        default = "default_border_color",
+        deserialize_with = "deserialize_string_border_color"
+    )]
     pub border_color: String,
 
-    #[serde(default = "default_border_focus_color")]
+    #[serde(
+        default = "default_border_focus_color",
+        deserialize_with = "deserialize_string_border_focus_color"
+    )]
     pub border_focus_color: String,
 
-    #[serde(default = "default_gap")]
+    #[serde(default = "default_gap", deserialize_with = "deserialize_u32_gap")]
     pub gap: u32,
 }
 
@@ -148,28 +224,24 @@ fn default_cmds() -> Vec<WmCommand> {
         }],
     }]
 }
-
 fn default_icmds() -> Vec<IterCmd> {
     vec![]
 }
-
 fn default_exec() -> Vec<String> {
     Vec::<String>::new()
 }
-
 fn default_exec_always() -> Vec<String> {
     Vec::<String>::new()
 }
-
 fn default_border_width() -> u32 {
-    3
+    DEFAULT_BORDER_WIDTH
 }
 fn default_border_color() -> String {
-    "0xFFFFFF".to_string()
-} // white
+    DEFAULT_BORDER_COLOR.to_string()
+}
 fn default_border_focus_color() -> String {
-    "0x000000".to_string()
-} // black
+    DEFAULT_BORDER_FOCUS_COLOR.to_string()
+}
 fn default_gap() -> u32 {
-    3
+    DEFAULT_GAP
 }

@@ -2,7 +2,7 @@
 - diag_file: planning/diagrams/classdg_generated/auxiliary.png
   dot_hash: 69a1b43e9600b9692e50cdf8556e5a31f118c3144509e5acc295c656dc1307b7
 - diag_file: planning/diagrams/classdg_generated/config.png
-  dot_hash: 2e5d98cfe96d3afb24fa7040e459088c44a670dc2a6cdeec14493677e2723272
+  dot_hash: 3acb73f6f73bc8424a963444e3bfa16dda62d9715fee5610bbfad50913933c47
 - diag_file: planning/diagrams/classdg_generated/eventhandler/events.png
   dot_hash: f281e72916262d44e35804df44781d2e98234038adefd57100f1675dc4eff585
 - diag_file: planning/diagrams/classdg_generated/eventhandler/mod.png
