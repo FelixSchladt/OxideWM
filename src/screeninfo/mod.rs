@@ -11,9 +11,9 @@ use crate::{
 use log::{debug, info, warn};
 use oxide_common::ipc::state::{ScreenInfoDto, WorkspaceDto};
 use serde::Serialize;
+use std::sync::Arc;
 use std::{cell::RefCell, collections::HashMap};
 use std::{collections::HashSet, rc::Rc};
-use std::{hash::Hash, sync::Arc};
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
 use x11rb::rust_connection::RustConnection;

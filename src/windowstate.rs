@@ -102,7 +102,7 @@ impl WindowState {
         WindowStateDto {
             frame: self.frame,
             window: self.window,
-            title: self.title,
+            title: self.title.clone(),
             visible: self.visible,
             urgent: self.urgent,
             x: self.x,

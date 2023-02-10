@@ -6,7 +6,6 @@ use oxide_common::ipc::commands::WmCommands;
 use oxide_common::ipc::state::ConfigDto;
 use serde::{Deserialize, Serialize};
 use serde_yaml::{self};
-use std::borrow::Borrow;
 use std::fs::File;
 use std::path::Path;
 use std::process::Command;
@@ -120,15 +119,14 @@ impl Config {
 
     pub fn to_dto(&self) -> ConfigDto {
         let cmds = self.cmds.iter().map(|cmd| cmd.to_dto()).collect();
-        let border_color = self.border_color.borrow().clone();
         ConfigDto {
             cmds: cmds,
             exec: self.exec.clone(),
             exec_always: self.exec_always.clone(),
-            border_width: self.border_width,
-            border_color: border_colorl,
-            border_focus_color: self.border_focus_color,
-            gap: self.gap,
+            border_width: self.border_width.clone(),
+            border_color: self.border_color.clone(),
+            border_focus_color: self.border_focus_color.clone(),
+            gap: self.gap.clone(),
         }
     }
 
