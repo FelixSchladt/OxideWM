@@ -18,7 +18,7 @@ impl Color {
         let green = u8::from_str_radix(&hex[3..5], 16).unwrap() as f64;
         let blue = u8::from_str_radix(&hex[5..7], 16).unwrap() as f64;
         if hex.len() == 9 {
-            let alpha = u8::from_str_radix(&hex[7..9], 16).unwrap() as f64;
+            let alpha = u8::from_str_radix(&hex[7..9], 16).unwrap() as f64 / 255.0 as f64;
             Color {
                 red,
                 green,
@@ -44,13 +44,6 @@ impl Color {
     pub fn rgba(&self) -> (f64, f64, f64, f64) {
         (self.red, self.green, self.blue, self.alpha)
     }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum BarWidgets {
-    Workspaces,
-    Battery,
-    Time,
 }
 
 fn deserialize_color<'de, D>(deserializer: D) -> Result<Color, D::Error>
@@ -79,9 +72,6 @@ pub struct Config {
 
     #[serde(default = "default_color_txt", deserialize_with = "deserialize_color")]
     pub color_txt: Color,
-
-    pub module_left: Vec<BarWidgets>,
-    pub module_right: Vec<BarWidgets>,
 }
 
 impl Config {
@@ -117,6 +107,7 @@ impl Config {
                         let mut config: _ = config;
                         config.width = width;
                         config.height = 30; //This is hardcoded for now
+                        println!("Using config file: {:?}", config);
                         return config;
                     }
                     Err(err) => {

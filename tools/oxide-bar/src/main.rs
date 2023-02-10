@@ -218,19 +218,23 @@ impl OxideBar {
 
         if self.composite_mgr && self.config.color_bg.is_alpha {
             cr.set_operator(cairo::Operator::Source);
+            info!("Using composite manager, disabling background color");
             let (r, g, b, a) = self.config.color_bg.rgba();
             cr.set_source_rgba(r, g, b, a);
         } else {
             let (r, g, b) = self.config.color_bg.rgb();
             cr.set_source_rgb(r, g, b);
         }
+
+        println!("Drawing background {:?}", self.config.color_bg);
         cr.paint().unwrap();
+
         if self.composite_mgr {
             cr.set_operator(cairo::Operator::Over);
         }
 
-        let (r, g, b) = self.config.color_txt.rgb();
-        cr.set_source_rgb(r, g, b);
+        //let (r, g, b) = self.config.color_txt.rgb();
+        //cr.set_source_rgb(r, g, b);
         //let layout = create_layout(&cr).unwrap();
         //println!("pixel size: {:?}", layout.pixel_size());
         //layout.set_ellipsize(EllipsizeMode::End);
@@ -247,17 +251,19 @@ impl OxideBar {
 
         let mut x = 10.0;
         let (r, g, b) = self.config.color_txt.rgb();
+        let (ri, gi, bi) = self.config.color_txt_inactive.rgb();
         for ws in ws_vec {
             if ws == active_ws {
                 cr.set_source_rgb(r, g, b);
             } else {
-                cr.set_source_rgb(0.5, 0.5, 0.5);
+                cr.set_source_rgb(ri, gi, bi);
             }
             cr.move_to(x, 20.0);
             cr.show_text(&ws.to_string()).unwrap();
             x += 20.0;
         }
 
+        cr.set_source_rgb(r, g, b);
         cr.move_to((self.config.width - 140) as f64, 20.0);
         cr.show_text(&get_time_fomat("%d %b %H:%M:%S")).unwrap();
         self.cairo_surface.as_ref().unwrap().flush();
