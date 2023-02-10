@@ -4,74 +4,74 @@
 # Otherwise the programm will crash.
 
 cmds:
-  #WM Commands
+  # WM Commands
   - keys: ["A", "S", "e"]
-    commands: 
+    commands:
       - command: Quit
         args: None
 
   - keys: ["A", "S", "r"]
-    commands: 
+    commands:
       - command: Restart
         args: None
-      
+
   - keys: ["A", "S", "q"]
-    commands: 
+    commands:
       - command: Kill
         args: None
 
   # Move Focus
   - keys: ["A", "l"]
-    commands: 
+    commands:
       - command: Focus
         args: "right"
 
   - keys: ["A", "h"]
-    commands: 
+    commands:
       - command: Focus
         args: "left"
 
   # Move Windows
   - keys: ["A", "S", "l"]
-    commands: 
+    commands:
       - command: Move
         args: "right"
 
   - keys: ["A", "S", "h"]
-    commands: 
+    commands:
       - command: Move
         args: "left"
 
   # Toggle Fullscreen
   - keys: ["A", "f"]
-    commands: 
+    commands:
       - command: Fullscreen
         args: None
 
   # Change Layout
   - keys: ["A", "u"]
-    commands: 
+    commands:
       - command: Layout
         args: None
 
   - keys: ["A", "i"]
-    commands: 
+    commands:
       - command: Layout
         args: "Vertical"
 
   - keys: ["A", "S", "i"]
-    commands: 
+    commands:
       - command: Layout
         args: "horizontal"
 
   #Workspace keys configuration
-  - keys: ["C","A", "Right"]
-    commands: 
+  - keys: ["C", "A", "Right"]
+    commands:
       - command: GoToWorkspace
         args: "next"
 
-  - keys: ["C","A", "Left"]
-    commands: 
+  - keys: ["C", "A", "Left"]
+    commands:
       - command: GoToWorkspace
         args: "previous"
 
@@ -82,12 +82,12 @@ cmds:
 
   #MoveToWorkspace keys configuration
   - keys: ["A", "Right"]
-    commands: 
+    commands:
       - command: MoveToWorkspace
         args: "next"
 
   - keys: ["A", "Left"]
-    commands: 
+    commands:
       - command: MoveToWorkspace
         args: "previous"
 
@@ -114,29 +114,29 @@ cmds:
 
   # QuitWorkspace Command
   - keys: ["C", "A", "Down"]
-    commands: 
+    commands:
       - command: QuitWorkspace
         args: None
 
   # Execute Commands
   - keys: ["A", "d"]
-    commands: 
+    commands:
       - command: Exec
         args: "dmenu_run"
 
   - keys: ["A", "t"]
-    commands: 
+    commands:
       - command: Exec
         args: "kitty"
 
 iter_cmds:
-  - iter: [1,2,3,4,5,6,7,8,9]
+  - iter: [1, 2, 3, 4, 5, 6, 7, 8, 9]
     command:
       keys: ["A", "C", "$VAR"]
       commands:
         - command: GoToWorkspace
           args: "$VAR"
-  - iter: [1,2,3,4,5,6,7,8,9]
+  - iter: [1, 2, 3, 4, 5, 6, 7, 8, 9]
     command:
       keys: ["A", "$VAR"]
       commands:
@@ -149,10 +149,9 @@ iter_cmds:
         - command: MoveToWorkspaceAndFollow
           args: "$VAR"
 
-
 exec: ["./target/debug/oxide-bar"]
 exec_always: []
 border_width: 8
 border_color: "0x008000" # yellow
 border_focus_color: "0xFFFF00" # green
-gap: 8
+gap: "test"

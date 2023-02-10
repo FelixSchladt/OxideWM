@@ -3,8 +3,17 @@ use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
 use std::fs::File;
 use std::path::Path;
+use std::process::Command;
 
 use crate::eventhandler::commands::WmCommands;
+
+const DEFAULT_BORDER_WIDTH: u32 = 3;
+
+const DEFAULT_BORDER_COLOR: &str = "0xFFFFFF"; // white
+
+const DEFAULT_BORDER_FOCUS_COLOR: &str = "0x000000"; // black
+
+const DEFAULT_GAP: u32 = 10;
 
 fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where
@@ -64,7 +73,20 @@ pub struct Config {
     #[serde(default = "default_gap")]
     pub gap: u32,
 }
-
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            cmds: default_cmds(),
+            iter_cmds: default_icmds(),
+            exec: default_exec(),
+            exec_always: default_exec_always(),
+            border_width: default_border_width(),
+            border_color: default_border_color(),
+            border_focus_color: default_border_focus_color(),
+            gap: default_gap(),
+        }
+    }
+}
 impl Config {
     pub fn new(source_file: Option<&str>) -> Config {
         let home_config = &format!(
@@ -114,7 +136,14 @@ impl Config {
                 error!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", paths);
             }
         }
-        panic!("Failed to parse config from file.");
+        Command::new("notify-send")
+            .args([
+                "--urgency=critical",
+                "'Failed to load config, using defaults!'",
+            ])
+            .output()
+            .ok();
+        Config::default()
     }
 
     fn parse_iter_cmds(&mut self) {
@@ -135,9 +164,6 @@ impl Config {
     }
 }
 
-// Maybe a function checking the datatype can send notifications to the user
-fn _value_checker() {}
-
 // Defining default values
 fn default_cmds() -> Vec<WmCommand> {
     vec![WmCommand {
@@ -148,28 +174,24 @@ fn default_cmds() -> Vec<WmCommand> {
         }],
     }]
 }
-
 fn default_icmds() -> Vec<IterCmd> {
     vec![]
 }
-
 fn default_exec() -> Vec<String> {
     Vec::<String>::new()
 }
-
 fn default_exec_always() -> Vec<String> {
     Vec::<String>::new()
 }
-
 fn default_border_width() -> u32 {
-    3
+    DEFAULT_BORDER_WIDTH
 }
 fn default_border_color() -> String {
-    "0xFFFFFF".to_string()
-} // white
+    DEFAULT_BORDER_COLOR.to_string()
+}
 fn default_border_focus_color() -> String {
-    "0x000000".to_string()
-} // black
+    DEFAULT_BORDER_FOCUS_COLOR.to_string()
+}
 fn default_gap() -> u32 {
-    3
+    DEFAULT_GAP
 }
