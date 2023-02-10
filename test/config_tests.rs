@@ -44,5 +44,5 @@ pub fn load_config_with_missing_values() {
     assert_eq!(cfg.border_width, 8);
     assert_eq!(cfg.border_color, "0x008000");
     assert_eq!(cfg.border_focus_color, "0x000000");
-    assert_eq!(cfg.gap, 3);
+    assert_eq!(cfg.gap, 10);
 }

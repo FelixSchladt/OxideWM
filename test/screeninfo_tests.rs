@@ -30,7 +30,6 @@ impl Setup {
             connection,
             screen_ref,
             config,
-            wm_state_change,
             width,
             height,
         }
