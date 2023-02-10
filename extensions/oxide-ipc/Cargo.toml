@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 oxide-common = { version = "0.1.*", path = "../common" }
 log = "0.4.0"
+oxide = { version = "*", path = "../.." }
 zbus = { version = "3", default-features = false, features = ["tokio"] }
 async-std = { version = "1", features = ["attributes", "tokio1"] }
 serde = { version = "1", features = ["derive"] }
