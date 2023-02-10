@@ -123,7 +123,76 @@ iter
 
 # DEFAULT KEYBINDINGS
 
-TODO: DEFAULT KEYBINDINGS
+Here is a short overview of the default keybindings
+
+Meta+Shift+e
+: quits the window manager
+
+Meta+Shift+r
+: restarts the window manager
+
+Meta+Shift+q
+: kills the current window
+
+h/l
+: direction keys (left/right)
+
+Meta+<direction>
+: changes the focus to the <direction> window
+
+Meta+Shift+<direction>
+: moves the window to the <direction>
+
+Meta+f
+: changes the current window to fullscreen
+
+Meta+u
+: switches to the next layout
+
+Meta+i
+: changes the layout to vertical
+
+Meta+Shift+i
+: changes to layout to horizontal
+
+Right/Left;
+: workspace navigation keys (next/previous)
+
+Meta+<workspace direction>
+: changes to the <workspace direction> workspace
+
+Meta+n
+: opens a new workspace
+
+Control+Meta+<workspace direction>
+: moves a window to the <workspace direction> workspace
+
+Control+Meta+n
+: opens a new workspace and moves the window to it
+
+Meta+Shift+<workspace direction>
+: moves the window to the <workspace direction> workspace and follows it
+
+Meta+Shift+n
+: creates a new workspace, moves the window to it and follows
+
+Control+Meta+Down
+: quits the workspace
+
+Meta+t
+: opens a new firefox window
+
+1/2/3/4/5/6/7/8/9;
+: workspace numbers
+
+Meta+<workspace number>
+: switches to workspace <workspace number>
+
+Control+Meta+<workspace number>
+: moves window to workspace <workspace number>
+
+Meta+Shift+<workspace number>
+: moves window to workspace <workspace number> and follows it
 
 ## EXAMPLES
 
