@@ -8,7 +8,8 @@
 The *Oxide* window manager should give the user the ability to start and quit applications through its interface.
 
 #### 1.2 tiling functionality
-The software itself must support dynamic tiling, allowing the user to arrange applications in a grid-like arrangement optimizing screen space utilization. Along with this it shouis supposed to support both floating and static applications, giving the user flexibility in his window management.
+The software itself must support dynamic tiling, allowing the user to arrange applications in a grid-like arrangement optimizing screen space utilization.<br>
+Along with this it shouis supposed to support both floating and static applications, giving the user flexibility in his window management.
 
 #### 1.3 moving windows
 Therefore applications are expected to be moved around the screen by the user to different tiled positions or to float as a separate window.
@@ -42,7 +43,7 @@ When this functionality of the window manager is executed, the window manager mu
 ##### 2.1.3 closing workspaces
 When this functionality of the window manager is executed, the window manager must:
 - close all windows that are currently in this workspace
-- switch to another open one, so that the user is never on "no" workspace
+- switch to another open one, so that the user is never on "no" workspace<br>
 When the last workspace is closed, a new workspace must be created. The windowmanager must then switch to the newly created workspace.
 
 #### 2.2 config
@@ -52,9 +53,9 @@ There must be default values for the configuration elements, so that when a user
 Furthermore, the configuration must be applied to the windowmanager, every time it is started.
 
 ##### 2.2.1 keybindings
-For every command, that the window manager provides, the user must be able to configure a keybinding specified as below.
-A keybinding must contain exactly one none modifier key such as 1, 2, A, B, ...
-It can contain any combination of the following modifiers: Alt, Meta, Command, Shift.
+For every command, that the window manager provides, the user must be able to configure a keybinding specified as below.<br>
+A keybinding must contain exactly one none modifier key such as `1`, `2`, `A`, `B`, ...<br>
+It can contain any combination of the following modifiers: `Alt`, `Meta`, `Command`, `Shift`.<br>
 To enhance the configurability, the user must be able to assign multiple commands to a single keybinding.
 
 ##### 2.2.2 autostart
@@ -87,27 +88,24 @@ Keeping track of tickets with timestamps.
 
 ## 5. Data relevant for the user
 
-The application will be running locally so it needs to be downloaded and installed by the user before using it for the first time.
-
+The application will be running locally so it needs to be downloaded and installed by the user before using it for the first time.<br>
 Files needed for configuration will be stored locally.
 
 ## 6. Product performance - requirements
 
-Claim is having no delay between key inputs and the following action. 
-
+Claim is having no delay between key inputs and the following action.<br>
 If possible, visible tasks should be performed in under a 24th of a second. This is not possible for opening application windows.
 
 TODO: more input!
 
 ## 7. Quality requirements
 
-Randomly crashing must not happen. If configurations are invalid they should be overwritten by default values. 
+Randomly crashing must not happen. If configurations are invalid they should be overwritten by default values.<br>
 The config file should be formatted as JSON.
 
 ## 8. User Interface
 
-Controlling the window manager will only be possible by using the keyboard.
-
+Controlling the window manager will only be possible by using the keyboard.<br>
 A mouse can be used to focus on individal frames and interact with application interfaces like webbrowsers.
 
 ## 9. Non-functional requirements
@@ -118,12 +116,12 @@ An installer with package manager cargo is required.
 
 ### 10.1. Software
 
-The product is supposed to be used on Unix based operating systems with an X11 instance running. Furthermore there is no other running window manager accepted.
+The product is supposed to be used on Unix based operating systems with an X11 instance running.<br>
+Furthermore there is no other running window manager accepted.
 
 ### 10.2. Hardware
 
-Required hardware is at least one monitor as well as a keyboard working with the operating system.
-
+Required hardware is at least one monitor as well as a keyboard working with the operating system.<br>
 There are no hardware limitations.
 
 ### 10.3 Organizational framework
@@ -132,7 +130,7 @@ Since the code is licensed with GPL v3 there are no conflicts with GPL licensed 
 
 ### 10.4 Product interface
 
-The behavior of the window manager can be customized by changing the config files.
+The behavior of the window manager can be customized by changing the config files.<br>
 Program actions will be stored in log files located under TODO .
 
 ## 11. Special requirements
