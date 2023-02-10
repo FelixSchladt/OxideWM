@@ -3,6 +3,7 @@ use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml::{self};
 use std::fs::File;
 use std::path::Path;
+use std::process::Command;
 
 use crate::eventhandler::commands::WmCommands;
 
@@ -194,6 +195,10 @@ impl Config {
                 error!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", paths);
             }
         }
+        Command::new("notify-send").args([
+            "--urgency=critical",
+            "Failed to load config, using defaults!",
+        ]);
         Config::default()
     }
 
