@@ -1,4 +1,4 @@
-# Specification
+# Customer specification
 
 ## Product goal
 
@@ -7,7 +7,7 @@ Development of a working window manager.
 
 ## Target group
 
-Target group constains power users with advanced Linux knowledge..
+Target group contains power users with advanced Linux knowledge.
 
 ## Product functions
 
