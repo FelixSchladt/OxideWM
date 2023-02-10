@@ -149,7 +149,7 @@ iter_cmds:
         - command: MoveToWorkspaceAndFollow
           args: "$VAR"
 
-exec: ["./target/debug/oxide-bar"]
+exec: ["oxide-bar"]
 exec_always: []
 border_width: 8
 border_color: "0x008000" # yellow
