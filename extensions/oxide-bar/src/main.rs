@@ -3,7 +3,10 @@ mod config;
 mod xcb_visualtype;
 
 use log::info;
-use oxide_common::logging::{get_log_level, init_logger};
+use oxide_common::{
+    ipc::state::*,
+    logging::{get_log_level, init_logger},
+};
 //use cairo::glib::subclass::shared::RefCounted;
 use x11rb::atom_manager;
 use x11rb::connection::Connection;
@@ -18,7 +21,6 @@ use std::thread;
 
 use crate::xcb_visualtype::{choose_visual, find_xcb_visualtype};
 use oxideipc;
-use oxideipc::state::OxideState;
 
 use crate::config::Config;
 
@@ -36,7 +38,7 @@ atom_manager! {
 
 pub enum EventType {
     X11rbEvent(x11rb::protocol::Event),
-    OxideState(OxideState),
+    OxideState(OxideStateDto),
 }
 
 #[derive(Debug)]
@@ -187,7 +189,7 @@ impl OxideBar {
         );
     }
 
-    fn draw(&mut self, state: OxideState) {
+    fn draw(&mut self, state: OxideStateDto) {
         let cr = cairo::Context::new(self.cairo_surface.as_ref().unwrap())
             .expect("failed to create cairo context");
         if self.composite_mgr {
@@ -223,7 +225,7 @@ impl OxideBar {
         self.cairo_surface.as_ref().unwrap().flush();
     }
 
-    pub fn handle_oxide_state_event(&mut self, state: OxideState) {
+    pub fn handle_oxide_state_event(&mut self, state: OxideStateDto) {
         info!("oxide state event");
         self.draw(state);
     }
@@ -267,7 +269,7 @@ fn get_x11rb_events(
 }
 
 fn get_state(event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
-    let (event_sender, event_receiver) = channel::<OxideState>();
+    let (event_sender, event_receiver) = channel::<OxideStateDto>();
 
     let ipc_event_sender_mutex = Arc::new(Mutex::new(event_sender));
 

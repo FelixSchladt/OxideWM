@@ -1,8 +1,10 @@
 ---
 - diag_file: planning/diagrams/classdg_generated/auxiliary.png
   dot_hash: 69a1b43e9600b9692e50cdf8556e5a31f118c3144509e5acc295c656dc1307b7
-- diag_file: planning/diagrams/classdg_generated/config.png
-  dot_hash: 69269551c0a9278a3563f5be0029ec1db30d612a73e0a9ee318947b83af093eb
+- diag_file: planning/diagrams/classdg_generated/config/commands.png
+  dot_hash: 2f1d8e31f3b7e364fc23793096e0d97e640832de3674ce2105ae5f0a15ec88eb
+- diag_file: planning/diagrams/classdg_generated/config/mod.png
+  dot_hash: 5f9e625e2b684b07bc47b2e76eba38cfb23010203fd0a524211a2261296e8f52
 - diag_file: planning/diagrams/classdg_generated/eventhandler/events.png
   dot_hash: 56b645cb59a3b035c7ea6d8ae6fda3fca11a516e446507d6d62be91a13316238
 - diag_file: planning/diagrams/classdg_generated/eventhandler/mod.png
@@ -16,15 +18,15 @@
 - diag_file: planning/diagrams/classdg_generated/screeninfo/error.png
   dot_hash: 53eba971eabb50987207e13753db3b784b89cd366c3dec453ce7393c14e49e20
 - diag_file: planning/diagrams/classdg_generated/screeninfo/mod.png
-  dot_hash: 0e76f625af31dc4239f9cd75aaf547d0538904ba86802f4aef4d15002e241bb4
+  dot_hash: d9ed0acdb2cc889d484395c78c1ee579a002bc536e650af5c6528c7a2e748669
 - diag_file: planning/diagrams/classdg_generated/setup/connection.png
   dot_hash: 897e50e517631357d8ca934a8aeb2b91b75db3c0213cad81d4a43d2e856d9b0b
 - diag_file: planning/diagrams/classdg_generated/windowmanager/mod.png
-  dot_hash: e4162ddb34967245ff3b07f5fe4c4954be2a80e66d9d80d6f23395138fb3b83d
+  dot_hash: 2fc6ab9e7efac6f8185caa3a8421aeca6c6622d9988846764368a0decbc2e023
 - diag_file: planning/diagrams/classdg_generated/windowstate.png
-  dot_hash: 748f90505c2a8ea4f403272fa9b58f06e11cdc7593469b120268f1655ae7320e
+  dot_hash: baa93f2d195cf1e062aa56b64fbb111de8a41523265734db290261fa9755de49
 - diag_file: planning/diagrams/classdg_generated/workspace/mod.png
-  dot_hash: 686f72330a8ff56d888e04ccc06bf7574c2b3256b8659021313a053640bee4ba
+  dot_hash: c6ab45ce08b5947c26656f76bcf1189af8aa53c4a18c676c77380cb0ecf75c88
 - diag_file: planning/diagrams/classdg_generated/workspace/parse_error.png
   dot_hash: 12b63b69b92ae8afc2921404f684fc66f3b627b62954a500932c725908ece24d
 - diag_file: planning/diagrams/classdg_generated/workspace/workspace_navigation.png

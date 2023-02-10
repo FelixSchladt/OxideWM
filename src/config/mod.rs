@@ -1,12 +1,15 @@
+pub mod commands;
+
+use commands::{IterCmd, WmCommand, WmCommandArgument};
 use log::{error, info};
 use oxide_common::ipc::commands::WmCommands;
-use serde::{Deserialize, Deserializer, Serialize};
+use oxide_common::ipc::state::ConfigDto;
+use serde::{Deserialize, Serialize};
 use serde_yaml::{self};
+use std::borrow::Borrow;
 use std::fs::File;
 use std::path::Path;
 use std::process::Command;
-
-use crate::eventhandler::commands::WmCommands;
 
 const DEFAULT_BORDER_WIDTH: u32 = 3;
 
@@ -15,97 +18,6 @@ const DEFAULT_BORDER_COLOR: &str = "0xFFFFFF"; // white
 const DEFAULT_BORDER_FOCUS_COLOR: &str = "0x000000"; // black
 
 const DEFAULT_GAP: u32 = 10;
-
-fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let args = Option::<String>::deserialize(deserializer)?;
-    let args = args.unwrap_or("".to_string());
-    if args.is_empty() || args == "None" {
-        Ok(None)
-    } else {
-        Ok(Some(args))
-    }
-}
-
-// fn deserialize_string_border_color<'de, D>(deserializer: D) -> Result<String, D::Error>
-// where
-//     D: Deserializer<'de>,
-// {
-//     let args = String::deserialize(deserializer);
-//     println!("Args {:?}", args);
-//     match args {
-//         Ok(value) => Ok(value),
-//         Err(error) => {
-//             error!("Wrong datatype: {}", error.to_string());
-//             return Ok(DEFAULT_BORDER_COLOR.to_string());
-//         }
-//     }
-// }
-//
-// fn deserialize_string_border_focus_color<'de, D>(deserializer: D) -> Result<String, D::Error>
-// where
-//     D: Deserializer<'de>,
-// {
-//     let args = String::deserialize(deserializer);
-//     println!("Args {:?}", args);
-//     match args {
-//         Ok(value) => Ok(value),
-//         Err(error) => {
-//             error!("Wrong datatype: {}", error.to_string());
-//             return Ok(DEFAULT_BORDER_FOCUS_COLOR.to_string());
-//         }
-//     }
-// }
-// fn deserialize_u32_border_width<'de, D>(deserializer: D) -> Result<u32, D::Error>
-// where
-//     D: Deserializer<'de>,
-// {
-//     let args = u32::deserialize(deserializer);
-//     println!("Args {:?}", args);
-//     match args {
-//         Ok(value) => Ok(value),
-//         Err(error) => {
-//             error!("Wrong datatype: {}", error.to_string());
-//             return Ok(DEFAULT_BORDER_WIDTH);
-//         }
-//     }
-// }
-//
-// fn deserialize_u32_gap<'de, D>(deserializer: D) -> Result<u32, D::Error>
-// where
-//     D: Deserializer<'de>,
-// {
-//     let args = u32::deserialize(deserializer);
-//     println!("Args {:?}", args);
-//     match args {
-//         Ok(value) => Ok(value),
-//         Err(error) => {
-//             error!("Wrong datatype: {}", error.to_string());
-//             return Ok(DEFAULT_GAP);
-//         }
-//     }
-// }
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct WmCommandArgument {
-    pub command: WmCommands,
-    #[serde(default, deserialize_with = "deserialize_optional_string")]
-    pub args: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct WmCommand {
-    pub keys: Vec<String>,
-    pub commands: Vec<WmCommandArgument>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct IterCmd {
-    pub iter: Vec<String>,
-    pub command: WmCommand,
-}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
@@ -204,6 +116,20 @@ impl Config {
             .output()
             .ok();
         Config::default()
+    }
+
+    pub fn to_dto(&self) -> ConfigDto {
+        let cmds = self.cmds.iter().map(|cmd| cmd.to_dto()).collect();
+        let border_color = self.border_color.borrow().clone();
+        ConfigDto {
+            cmds: cmds,
+            exec: self.exec.clone(),
+            exec_always: self.exec_always.clone(),
+            border_width: self.border_width,
+            border_color: border_colorl,
+            border_focus_color: self.border_focus_color,
+            gap: self.gap,
+        }
     }
 
     fn parse_iter_cmds(&mut self) {

@@ -9,10 +9,11 @@ use crate::{
 };
 
 use log::{debug, info, warn};
+use oxide_common::ipc::state::{ScreenInfoDto, WorkspaceDto};
 use serde::Serialize;
-use std::sync::Arc;
 use std::{cell::RefCell, collections::HashMap};
 use std::{collections::HashSet, rc::Rc};
+use std::{hash::Hash, sync::Arc};
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
 use x11rb::rust_connection::RustConnection;
@@ -79,6 +80,18 @@ impl ScreenInfo {
         };
         screen_info.create_workspace(LOWEST_WORKSPACE_NR);
         screen_info
+    }
+
+    pub fn to_dto(&self) -> ScreenInfoDto {
+        let workspaces: HashMap<u16, WorkspaceDto> = self
+            .workspaces
+            .iter()
+            .map(|(key, workspace)| (*key, workspace.to_dto()))
+            .collect();
+        ScreenInfoDto {
+            workspaces: workspaces,
+            active_workspace: self.active_workspace,
+        }
     }
 
     fn create_status_bar_window(&mut self, event: &CreateNotifyEvent) {
