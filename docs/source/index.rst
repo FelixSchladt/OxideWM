@@ -1,9 +1,9 @@
 .. _topics-index:
 
-OxideWM documentation
+*Oxide* documentation
 =====================
 
-OxideWM is a tiling window manager for X11. It is written in Rust and uses X11rb.
+*Oxide* is a tiling window manager for X11. It is written in Rust and uses X11rb.
 This project idea is inspired by 10DWM, leftWM and i3WM.
 
 Contents
@@ -14,5 +14,7 @@ Contents
         Home <self>
         installation
         concepts
-        config
         general
+        config
+        components_behavior
+        flowcharts

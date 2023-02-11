@@ -1,24 +1,24 @@
 .. _general:
 
-============
-General
-============
+===================
+General information
+===================
 
 Introduction
 ------------
-Oxide windowmanager is a dynamic tiling windowmanager for X11. Windows are automatically arranged in a grid-like fashion. The user can then move and resize windows by using keyboard shortcuts. Defining custom keyboard shortcuts to launch applications is possible, too. Oxide tries to maximize the screensize by removing unnecessary borders and decorations as well as to be as keyboard friendly as possible. Everything can be done via the keyboard.
+| *Oxide*  windowmanager is a dynamic tiling windowmanager for X11. 
+| Windows are automatically arranged in a grid-like fashion. The user can then move and resize windows by using keyboard shortcuts. Custom defining of those shortcuts to launch applications is also possible. 
+| *Oxide*  tries to maximize the screensize by removing unnecessary borders and decorations as well as to be as keyboard friendly as possible. Everything can be done via the keyboard.
 
 Terminology
 -----------
-Window: An X11 application window such as a browser or terminal.
-
-Workspace: A workspace contains multiple windows. The user can switch between several workspaces.
-
-Layout: Layouts are different algorithms placing windows.
+| **Window**: An X11 application window such as a browser or terminal.
+| **Workspace**: A workspace contains multiple windows. The user can switch between several workspaces.
+| **Layout**: Layouts are different algorithms placing windows.
 
 Config file
 -----------
-Oxide can be configured via its config file. This includes keybindings, appearance and more. Before editing the global config file located under 
+*Oxide*  can be configured via its config file. This includes keybindings, appearance and more. Before editing, the global config file located under 
 
 .. code-block:: bash
 
@@ -35,15 +35,11 @@ For a more detailed description of the config see oxide-config(1).
 
 Logging
 -------
-Oxide log messages are written to 
+*Oxide*  log messages are written to 
 
 .. code-block:: bash
     
         /var/log/syslog
-
-Further documentation
----------------------
-Access the full Oxide documentation under https://oxide.readthedocs.io/.
 
 Files
 -----
@@ -59,7 +55,7 @@ Global config file:
 
     /etc/oxide/config.yml
 
-Oxide desktop file:
+*Oxide*  desktop file:
 
 .. code-block:: bash
 
@@ -72,19 +68,7 @@ Please open an issue on https://github.com/DHBW-FN/OxideWM/issues .
 Copyright
 ---------
 Copyright © 2023 Felix Schladt GPLv3+: GNU GPL version 3 or later https://gnu.org/licenses/gpl.html. 
-
-.. figure:: ../../source/SoftwareEngineering.png
-    :name: fig-beispiel-bild
-    :alt:  fig-beispiel-bild
-    :align: center
-    :width: 20%
-
-
 This is free software: You are free to change and redistribute it. There is NO WARRANTY to the extent permitted by law.
-
-.. image:: ../../source/SoftwareEngineering.png
-    :align: center
-    :width: 60%
 
 See also
 --------
