@@ -8,10 +8,6 @@ This project idea is inspired by 10DWM, leftWM and i3WM.
 
 .. figure:: ./components.png
 
-
-.. figure:: https://github.com/DHBW-FN/OxideWM/blob/main/planning/diagrams/components.png
-
-
 Contents
 --------
 
