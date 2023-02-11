@@ -73,7 +73,18 @@ Copyright
 ---------
 Copyright © 2023 Felix Schladt GPLv3+: GNU GPL version 3 or later https://gnu.org/licenses/gpl.html. 
 
+.. figure:: ../../source/SoftwareEngineering.png
+    :name: fig-beispiel-bild
+    :alt:  fig-beispiel-bild
+    :align: center
+    :width: 20%
+
+
 This is free software: You are free to change and redistribute it. There is NO WARRANTY to the extent permitted by law.
+
+.. image:: ../../source/SoftwareEngineering.png
+    :align: center
+    :width: 60%
 
 See also
 --------
