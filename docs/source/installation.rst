@@ -23,6 +23,3 @@ After installation you can quit your current X session and log out. Subsequently
 .. image:: https://github.com/DHBW-FN/OxideWM/blob/main/planning/diagrams/components.png
     :align: center
     :width: 60%
-    :alt: components
-
-Component diagram
