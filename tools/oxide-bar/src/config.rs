@@ -74,8 +74,8 @@ impl Config {
 }
 // Defining defualt Values
 fn default_color_bg() -> String {
-    "0x000000".to_string()
-} // black
+    "0x000000".to_string() // black
+}
 fn default_color_txt() -> String {
-    "0xFFFFFF".to_string()
-} // white
+    "0xFFFFFF".to_string() // white
+} 
