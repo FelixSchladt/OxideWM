@@ -6,6 +6,12 @@
 
 oxide-config - config
 
+# DESCRIPTION
+
+Define the behaviour of oxidewm. You can change style, layout, keybindings and more.
+The config file is written using YAML syntax.
+If the home config file is not existing, default values will be used but commands like `exec` and `exec_always` will not be working.
+
 # FILES
 
 When starting, Oxide has two paths it searches for config files.
@@ -15,12 +21,6 @@ When starting, Oxide has two paths it searches for config files.
 
 **/etc/oxide/config.yml**
 : System config file
-
-# DESCRIPTION
-
-Define the behaviour of oxidewm. You can change style, layout, keybindings and more.
-The config file is written using YAML syntax.
-If the home config file is not existing, default values will be used but commands like `exec` and `exec_always` will not be working.
 
 # KEYBINDING
 
