@@ -12,9 +12,7 @@ Contents
 .. toctree::
 
         Home <self>
-        installation
-        concepts
-        general
-        config
-        components_behavior
-        flowcharts
+        01_about
+        02_project_procedure
+        03_diagrams
+        04_using_oxide

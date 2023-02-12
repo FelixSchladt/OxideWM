@@ -1,8 +1,8 @@
-.. _components_behaviour:
+.. _components_behavior:
 
-=================================
-Components and behaviour diagrams
-=================================
+================================
+Components and behavior diagrams
+================================
 The individual components and their behavior in certain situations are shown below.
 
 Components

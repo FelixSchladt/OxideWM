@@ -17,7 +17,7 @@ Installation
         cd OxideWM
         make install
 
-Sudo privileges are required to install *Oxide*. 
+| Sudo privileges are required to install *Oxide*. 
 | After installation you can quit your current X session and log out. Subsequently *Oxide* should be selectable as window manager in your login screen.
 
 
