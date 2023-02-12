@@ -193,4 +193,4 @@ Access the full Oxide documentation under **https://oxide.readthedocs.io/**.
 
 # SEE ALSO
 
-**oxide(1)**, **oxide-msg**, **oxide-bar(1)**
+**oxide(1)**, **oxide-msg(1)**, **oxide-bar(1)**
