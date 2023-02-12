@@ -8,6 +8,7 @@ define gen_manpages
 	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide-msg.1.md -o $(ROOT_DIR)/man/oxide-msg.1
 	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide-config.1.md -o $(ROOT_DIR)/man/oxide-config.1
 	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide.1.md -o $(ROOT_DIR)/man/oxide.1
+	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide-bar.1.md -o $(ROOT_DIR)/man/oxide-bar.1
 endef
 
 run:
