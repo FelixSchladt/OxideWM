@@ -8,8 +8,8 @@ oxide-bar - statusbar for Oxide
 
 # DESCRIPTION
 
-Define the behavior of the statusbar for OxideWm. You can change the colors, heigth and the modules wich are displayed left and right on the statusbar.
-As the config file for oxide, the config for the statusbar is written in YAML.
+Define the behavior of the statusbar for OxideWm. The config file provides the posibillity to customise the text and background color of the oxide statusbar.
+As same as the config file for oxide, the config for the statusbar is written in YAML.
 
 # FILES
 
@@ -21,24 +21,17 @@ When starting, Oxide has to paths it searches for the statusbar config file.
 **/etc/oxide/bar_config.yml**
 : System config file
 
-# LAYOUT
-
-TODO: Is this even necesssary?
-
-You can only customise the height of the statusbar, since the weight is depending on the windows an will be defined trougth Oxide.
-
 # COLORS
 
 You can freely customise the colors of the satus bar. Inside the configuration file, colors have to be entered in hexadecimal.
 If there is no configuration for the colors, the default colors will be used, whereas black is used for the background and white for the text.
 
-# MODULES
-
-TODO: List alls modules available for oxide-bar.
-
 # EXAMPLES
 
-TODO: Add examples
+```yaml
+color_bg: "0x008000" # green
+color_txt: "0xFFFF00" # black
+```
 
 # Bugs
 
