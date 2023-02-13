@@ -1,4 +1,4 @@
-.. _general:
+.. _about:
 
 =============
 About *Oxide*
