@@ -9,7 +9,6 @@ cmds:
       - command: Exec
         args: "kitty"
 
-
 exec: ["./target/debug/oxide-bar"]
 exec_always: []
 border_width: 8

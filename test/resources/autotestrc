@@ -1,0 +1,7 @@
+which feh      &>/dev/null && feh -g 511x50 -d -S   ./test/resources/wallpaper.png &>/dev/null
+which nitrogen &>/dev/null && nitrogen --set-scaled ./test/resources/wallpaper.png &>/dev/null
+
+cargo build &>/dev/null
+cargo build -p oxide-msg &>/dev/null
+./target/debug/oxide &>/dev/null &
+./test/resources/automated_tests.sh

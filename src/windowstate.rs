@@ -1,4 +1,5 @@
 use log::error;
+use oxide_common::ipc::state::WindowStateDto;
 use serde::Serialize;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -94,6 +95,22 @@ impl WindowState {
             height,
             border_width,
             gap_size,
+        }
+    }
+
+    pub fn to_dto(&self) -> WindowStateDto {
+        WindowStateDto {
+            frame: self.frame,
+            window: self.window,
+            title: self.title.clone(),
+            visible: self.visible,
+            urgent: self.urgent,
+            x: self.x,
+            y: self.y,
+            width: self.width,
+            height: self.height,
+            border_width: self.border_width,
+            gap_size: self.gap_size,
         }
     }
 

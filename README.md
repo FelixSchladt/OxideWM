@@ -48,6 +48,6 @@ For improving the overall user experience the software is to include visually ap
 
 ## Logging
 
-To change log level, set environment variable `RUST_LOG=[error, info, debug, trace]`.
+To change log level, set environment variable `OXIDE_LOG=[error, info, debug, trace]` changes affect only after restart... .
 Logs will always be written to `/var/log/syslog`.
 When project is built without `--release` flag, the logs are additionally written to `stdout` and to `log/*.log`.

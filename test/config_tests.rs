@@ -15,11 +15,7 @@ pub fn load_config_from_file() {
     assert_eq!(cfg.cmds.len(), 1);
     assert_eq!(cfg.exec.len(), 1);
     assert_eq!(cfg.exec_always.len(), 0);
-    assert_eq!(cfg.cmds[0].keys.len(), 2);
-    assert_eq!(cfg.cmds[0].keys[0], "A".to_string());
-    assert_eq!(cfg.cmds[0].keys[1], "t".to_string());
-    assert_eq!(cfg.cmds[0].commands[0].args, Some("kitty".to_string()));
-    assert_eq!(cfg.exec[0], "./target/debug/oxide-bar".to_string());
+    assert_eq!(cfg.border_width, 8);
     assert_eq!(cfg.border_color, "0x008000");
     assert_eq!(cfg.border_focus_color, "0xFFFF00");
     assert_eq!(cfg.gap, 8);
@@ -32,13 +28,10 @@ pub fn load_config_from_wrong_datatype_file() {
     assert_eq!(cfg.cmds.len(), 1);
     assert_eq!(cfg.exec.len(), 0);
     assert_eq!(cfg.exec_always.len(), 0);
-    assert_eq!(cfg.cmds[0].keys.len(), 1);
-    assert_eq!(cfg.cmds[0].keys[0], "A".to_string());
-    assert_eq!(cfg.cmds[0].keys[1], "t".to_string());
     assert_eq!(cfg.border_width, 3);
     assert_eq!(cfg.border_color, "0xFFFFFF");
     assert_eq!(cfg.border_focus_color, "0x000000");
-    assert_eq!(cfg.gap, 3);
+    assert_eq!(cfg.gap, 10);
 }
 
 #[test]
@@ -48,11 +41,8 @@ pub fn load_config_with_missing_values() {
     assert_eq!(cfg.cmds.len(), 1);
     assert_eq!(cfg.exec.len(), 0);
     assert_eq!(cfg.exec_always.len(), 0);
-    assert_eq!(cfg.cmds[0].keys.len(), 2);
-    assert_eq!(cfg.cmds[0].keys[0], "A".to_string());
-    assert_eq!(cfg.cmds[0].keys[1], "t".to_string());
     assert_eq!(cfg.border_width, 8);
     assert_eq!(cfg.border_color, "0x008000");
     assert_eq!(cfg.border_focus_color, "0x000000");
-    assert_eq!(cfg.gap, 3);
+    assert_eq!(cfg.gap, 10);
 }

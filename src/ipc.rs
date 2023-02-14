@@ -2,10 +2,11 @@ use std::sync::mpsc::{Receiver, Sender};
 use std::sync::{Arc, Condvar, Mutex};
 
 use log::warn;
+use oxide_common::ipc::action_event::WmActionEvent;
 
 use std::error::Error;
 
-use crate::eventhandler::events::{EventType, IpcEvent, WmActionEvent};
+use crate::eventhandler::events::{EventType, IpcEvent};
 
 use lazy_static::lazy_static;
 use zbus::{dbus_interface, ConnectionBuilder, SignalContext};

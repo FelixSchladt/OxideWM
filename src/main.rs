@@ -2,13 +2,11 @@
 
 pub mod atom;
 pub mod auxiliary;
-pub mod common;
 pub mod config;
 pub mod constants;
 pub mod eventhandler;
 pub mod ipc;
 pub mod keybindings;
-pub mod logging;
 pub mod screeninfo;
 pub mod setup;
 pub mod windowmanager;
@@ -25,6 +23,7 @@ use std::thread;
 
 use config::Config;
 use log::info;
+use oxide_common::logging::{get_log_level, init_logger};
 use serde_json::Result;
 use std::{cell::RefCell, rc::Rc};
 use x11rb::rust_connection::RustConnection;
@@ -73,7 +72,16 @@ fn start_x_event_thread(
 }
 
 fn main() -> Result<()> {
-    logging::init_logger();
+    let log_level = match get_log_level() {
+        Ok(level) => level,
+        Err(_) => constants::LOG_LEVEL_DEFAULT,
+    };
+    init_logger(
+        log_level,
+        constants::LOG_FILE_NAME.to_string(),
+        constants::LOG_FILE_LOCATION_DEV.to_string(),
+        constants::PROJECT_NAME.to_string(),
+    );
 
     let mut config = Rc::new(RefCell::new(Config::new(None)));
     let mut keybindings = KeyBindings::new(&config.borrow());
