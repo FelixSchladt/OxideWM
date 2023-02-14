@@ -51,8 +51,8 @@ echo -e "\nTesting..."
 oxidemsg=./target/debug/oxide-msg
 run_test "$oxidemsg -c exec --args xterm" "xterm" "Successfully opened a window" "Failed to open a window" 7
 run_test "$oxidemsg -c exec --args xterm" "(xterm.*){2}" "Successfully opened a second window" "Failed to open a second window" 7
-run_test "$oxidemsg -c layout --args vertical" "VerticalStriped" "Successfully set layout to 'VerticalStriped'" "Failed to set layout to 'VerticalStriped'" 1
-run_test "$oxidemsg -c layout --args horizontal" "HorizontalStriped" "Successfully set layout to 'HorizontalStriped'" "Failed to set layout to 'HorizontalStriped'" 1
+run_test "$oxidemsg -c layout --args vertical" "[vV]ertical" "Successfully set layout to 'VerticalStriped'" "Failed to set layout to 'VerticalStriped'" 1
+run_test "$oxidemsg -c layout --args horizontal" "[hH]orizontal" "Successfully set layout to 'HorizontalStriped'" "Failed to set layout to 'HorizontalStriped'" 1
 
 run_test "$oxidemsg -c kill" "(xterm.*){1}" "Successfully closed a window" "Failed to close a window" 1
 run_test "$oxidemsg -c quit" "MethodError" "Successfully quit oxide" "Failed to quit oxide" 2
