@@ -210,7 +210,7 @@ border_focus_color
 gap
 : gap between windows in pixels
 
-# EXECTUE
+# EXECUTE
 
 exc
 : onetime execution when the window manager starts
