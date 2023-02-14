@@ -9,11 +9,16 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::vec;
 
-const SRC_DIR: &str = "src/";
 const DIAG_TYPE: &str = "png";
 const DIAG_PATH: &str = "planning/diagrams/classdg_generated";
 const DOT_PATH: &str = "target/diagrams/classdg_generated";
 const CLASS_DIAG_PERSISTENCE_FILE: &str = "persistence.yml";
+
+#[derive(Debug, Clone)]
+struct DiagramRoot {
+    root_folder: String,
+    sub_folder_diagram: String,
+}
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialOrd, PartialEq, Eq)]
 struct ClassDiagramPersistence {
@@ -72,8 +77,11 @@ fn converte_to_svg(input_file_path: String, output_file_path: String) {
     }
 }
 
-fn get_class_diag_persistence() -> HashMap<String, String> {
-    let path = &format!("{}/{}", DIAG_PATH, CLASS_DIAG_PERSISTENCE_FILE);
+fn get_class_diag_persistence(root: DiagramRoot) -> HashMap<String, String> {
+    let path = &format!(
+        "{}/{}{}",
+        DIAG_PATH, root.sub_folder_diagram, CLASS_DIAG_PERSISTENCE_FILE
+    );
     let persistence_path = Path::new(path);
     let persistence = if persistence_path.exists() {
         let persistence_file = File::open(persistence_path).unwrap();
@@ -95,7 +103,7 @@ fn get_class_diag_persistence() -> HashMap<String, String> {
     result
 }
 
-fn write_diag_persistence(persistence: HashMap<String, String>) {
+fn write_diag_persistence(root: DiagramRoot, persistence: HashMap<String, String>) {
     let mut value: Vec<ClassDiagramPersistence> = vec![];
     for (src, hash) in persistence {
         value.push(ClassDiagramPersistence {
@@ -105,7 +113,10 @@ fn write_diag_persistence(persistence: HashMap<String, String>) {
     }
     value.sort();
 
-    let path = &format!("{}/{}", DIAG_PATH, CLASS_DIAG_PERSISTENCE_FILE);
+    let path = &format!(
+        "{}/{}{}",
+        DIAG_PATH, root.sub_folder_diagram, CLASS_DIAG_PERSISTENCE_FILE
+    );
     let persistence_path = Path::new(path);
 
     fs::create_dir_all(persistence_path.parent().unwrap()).expect("failed to create dir for diags");
@@ -114,10 +125,10 @@ fn write_diag_persistence(persistence: HashMap<String, String>) {
         .expect("failed to write diag persistence value to file");
 }
 
-fn get_dot_file_path(src: &Path) -> PathBuf {
+fn get_dot_file_path(root: DiagramRoot, src: &Path) -> PathBuf {
     let mut dest_dir_buf = PathBuf::from(src);
     dest_dir_buf.pop();
-    let dest_dir = dest_dir_buf.strip_prefix(SRC_DIR).unwrap();
+    let dest_dir = dest_dir_buf.strip_prefix(root.root_folder).unwrap();
     let mut target_name = PathBuf::new();
     target_name.push(
         Path::new(DOT_PATH)
@@ -128,13 +139,14 @@ fn get_dot_file_path(src: &Path) -> PathBuf {
     target_name
 }
 
-fn get_diag_file_path(src: &Path) -> PathBuf {
+fn get_diag_file_path(root: DiagramRoot, src: &Path) -> PathBuf {
     let mut dest_dir_buf = PathBuf::from(src);
     dest_dir_buf.pop();
-    let dest_dir = dest_dir_buf.strip_prefix(SRC_DIR).unwrap();
+    let dest_dir = dest_dir_buf.strip_prefix(root.root_folder).unwrap();
     let mut target_name = PathBuf::new();
     target_name.push(
         Path::new(DIAG_PATH)
+            .join(root.sub_folder_diagram)
             .join(dest_dir)
             .join(src.file_stem().unwrap()),
     );
@@ -163,14 +175,18 @@ fn format_code() {
     }
 }
 
-fn generate_diagrams() {
-    let mut dirs = vec![PathBuf::from(SRC_DIR)];
+fn generate_diagrams(root: DiagramRoot) {
+    let mut dirs = vec![PathBuf::from(root.root_folder.clone())];
 
-    let diag_persistence = get_class_diag_persistence();
+    let diag_persistence = get_class_diag_persistence(root.clone());
     let mut new_persistence: HashMap<String, String> = HashMap::new();
 
     while !dirs.is_empty() {
         let dir = dirs.pop().unwrap();
+        println!(
+            "reading dir {}",
+            dir.as_os_str().to_str().unwrap().to_string()
+        );
         let dir_entries = fs::read_dir(dir).expect("failed to read content of dir");
 
         for dir_entrie in dir_entries {
@@ -187,8 +203,8 @@ fn generate_diagrams() {
                     continue;
                 }
 
-                let dest_dot = get_dot_file_path(entry.path().as_path());
-                let dest_diag = get_diag_file_path(entry.path().as_path());
+                let dest_dot = get_dot_file_path(root.clone(), entry.path().as_path());
+                let dest_diag = get_diag_file_path(root.clone(), entry.path().as_path());
                 let dest_diag_str = dest_diag.as_os_str().to_str().unwrap().to_string();
 
                 let new_hash = digest(results.clone());
@@ -213,10 +229,32 @@ fn generate_diagrams() {
         }
     }
 
-    write_diag_persistence(new_persistence);
+    write_diag_persistence(root, new_persistence);
 }
 
 fn main() {
     format_code();
-    generate_diagrams();
+
+    let diagram_roots: Vec<DiagramRoot> = vec![
+        DiagramRoot {
+            root_folder: "src/".to_string(),
+            sub_folder_diagram: "windowmanager/".to_string(),
+        },
+        DiagramRoot {
+            root_folder: "extensions/oxide-msg/src/".to_string(),
+            sub_folder_diagram: "extensions/oxide-msg/".to_string(),
+        },
+        DiagramRoot {
+            root_folder: "extensions/oxide-bar/src/".to_string(),
+            sub_folder_diagram: "extensions/oxide-bar/".to_string(),
+        },
+        DiagramRoot {
+            root_folder: "extensions/oxide-ipc/src/".to_string(),
+            sub_folder_diagram: "extensions/oxide-ipc/".to_string(),
+        },
+    ];
+
+    for root in diagram_roots {
+        generate_diagrams(root);
+    }
 }

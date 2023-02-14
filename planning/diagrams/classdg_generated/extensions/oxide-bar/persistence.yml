@@ -1,0 +1,7 @@
+---
+- diag_file: planning/diagrams/classdg_generated/extensions/oxide-bar/config.png
+  dot_hash: d8e91376b422c5084fef233e0609271e0599570fabbf26d95208f6448d5c17f6
+- diag_file: planning/diagrams/classdg_generated/extensions/oxide-bar/main.png
+  dot_hash: 31d40e8e4f2d5c52b909996a1f59bc91c0429c21027761841d72e27e2685a101
+- diag_file: planning/diagrams/classdg_generated/extensions/oxide-bar/xcb_visualtype.png
+  dot_hash: 42a1997a25c66cd784232d12fac9e10c9074877fc1cd657baf5e1a1cac222bc8
