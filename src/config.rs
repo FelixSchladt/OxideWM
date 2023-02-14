@@ -170,7 +170,7 @@ fn default_cmds() -> Vec<WmCommand> {
         keys: vec!["M".to_string(), "t".to_string()],
         commands: vec![WmCommandArgument {
             command: WmCommands::Exec,
-            args: Some("firefox".to_string()),
+            args: Some("dmenu".to_string()),
         }],
     }]
 }
