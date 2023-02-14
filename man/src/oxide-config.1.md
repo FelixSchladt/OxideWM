@@ -118,7 +118,9 @@ Next_free
 Index
 : workspace with the given index
 
-## ITERATIONS
+# ITERATIONS
+
+The interation commands provide the possibillity to change between workspaces when given a iteration number as shown in the example down below.
 
 iter
 : iterates over given number in order to change
