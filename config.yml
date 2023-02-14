@@ -149,7 +149,9 @@ iter_cmds:
         - command: MoveToWorkspaceAndFollow
           args: "$VAR"
 
+# one time execution when the windowmanager starts
 exec: ["./target/debug/oxide-bar"]
+# this will be executed wehen the windowmanager starts and at each restart
 exec_always: []
 border_width: 8
 border_color: "0x008000" # yellow
