@@ -1,42 +1,24 @@
+pub mod commands;
+
+use commands::{IterCmd, WmCommand, WmCommandArgument};
 use log::{error, info};
-use serde::{Deserialize, Deserializer, Serialize};
+use oxide_common::ipc::commands::WmCommands;
+use oxide_common::ipc::state::ConfigDto;
+use serde::{Deserialize, Serialize};
 use serde_yaml::{self};
 use std::fs::File;
 use std::path::Path;
+use std::process::Command;
 
-use crate::eventhandler::commands::WmCommands;
+use crate::workspace::workspace_layout::WorkspaceLayout;
 
-fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let args = Option::<String>::deserialize(deserializer)?;
-    let args = args.unwrap_or("".to_string());
-    if args.is_empty() || args == "None" {
-        Ok(None)
-    } else {
-        Ok(Some(args))
-    }
-}
+const DEFAULT_BORDER_WIDTH: u32 = 3;
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct WmCommandArgument {
-    pub command: WmCommands,
-    #[serde(default, deserialize_with = "deserialize_optional_string")]
-    pub args: Option<String>,
-}
+const DEFAULT_BORDER_COLOR: &str = "0xFFFFFF"; // white
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct WmCommand {
-    pub keys: Vec<String>,
-    pub commands: Vec<WmCommandArgument>,
-}
+const DEFAULT_BORDER_FOCUS_COLOR: &str = "0x000000"; // black
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct IterCmd {
-    pub iter: Vec<String>,
-    pub command: WmCommand,
-}
+const DEFAULT_GAP: u32 = 10;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
@@ -63,8 +45,25 @@ pub struct Config {
 
     #[serde(default = "default_gap")]
     pub gap: u32,
-}
 
+    #[serde(default = "default_default_layout")]
+    pub default_layout: WorkspaceLayout,
+}
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            cmds: default_cmds(),
+            iter_cmds: default_icmds(),
+            exec: default_exec(),
+            exec_always: default_exec_always(),
+            border_width: default_border_width(),
+            border_color: default_border_color(),
+            border_focus_color: default_border_focus_color(),
+            gap: default_gap(),
+            default_layout: default_default_layout(),
+        }
+    }
+}
 impl Config {
     pub fn new(source_file: Option<&str>) -> Config {
         let home_config = &format!(
@@ -114,7 +113,27 @@ impl Config {
                 error!("Error: Could not find any config file. Add config.yml to one of the following paths: {:?}", paths);
             }
         }
-        panic!("Failed to parse config from file.");
+        Command::new("notify-send")
+            .args([
+                "--urgency=critical",
+                "'Failed to load config, using defaults!'",
+            ])
+            .output()
+            .ok();
+        Config::default()
+    }
+
+    pub fn to_dto(&self) -> ConfigDto {
+        let cmds = self.cmds.iter().map(|cmd| cmd.to_dto()).collect();
+        ConfigDto {
+            cmds: cmds,
+            exec: self.exec.clone(),
+            exec_always: self.exec_always.clone(),
+            border_width: self.border_width.clone(),
+            border_color: self.border_color.clone(),
+            border_focus_color: self.border_focus_color.clone(),
+            gap: self.gap.clone(),
+        }
     }
 
     fn parse_iter_cmds(&mut self) {
@@ -135,9 +154,6 @@ impl Config {
     }
 }
 
-// Maybe a function checking the datatype can send notifications to the user
-fn _value_checker() {}
-
 // Defining default values
 fn default_cmds() -> Vec<WmCommand> {
     vec![WmCommand {
@@ -148,28 +164,28 @@ fn default_cmds() -> Vec<WmCommand> {
         }],
     }]
 }
-
 fn default_icmds() -> Vec<IterCmd> {
     vec![]
 }
-
 fn default_exec() -> Vec<String> {
     Vec::<String>::new()
 }
-
 fn default_exec_always() -> Vec<String> {
     Vec::<String>::new()
 }
-
 fn default_border_width() -> u32 {
-    3
+    DEFAULT_BORDER_WIDTH
 }
 fn default_border_color() -> String {
-    "0xFFFFFF".to_string()
-} // white
+    DEFAULT_BORDER_COLOR.to_string()
+}
 fn default_border_focus_color() -> String {
-    "0x000000".to_string()
-} // black
+    DEFAULT_BORDER_FOCUS_COLOR.to_string()
+}
 fn default_gap() -> u32 {
-    3
+    DEFAULT_GAP
+}
+
+fn default_default_layout() -> WorkspaceLayout {
+    WorkspaceLayout::VerticalStriped
 }

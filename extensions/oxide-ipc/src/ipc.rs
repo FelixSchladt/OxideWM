@@ -1,11 +1,10 @@
 use async_std::stream::StreamExt;
+use oxide_common::ipc::action_event::WmActionEvent;
+use oxide_common::ipc::state::OxideStateDto;
 use zbus::{dbus_proxy, Connection, Result};
 
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
-
-use crate::events::*;
-use crate::state::OxideState;
 
 #[dbus_proxy(
     interface = "org.oxide.interface",
@@ -42,7 +41,7 @@ pub async fn state_signal_stream() -> Result<zbus::fdo::ResultStream<'static, St
 }
 */
 
-pub async fn state_signal_channel_async(sender: Arc<Mutex<Sender<OxideState>>>) -> Result<()> {
+pub async fn state_signal_channel_async(sender: Arc<Mutex<Sender<OxideStateDto>>>) -> Result<()> {
     let proxy = get_proxy().await?;
     loop {
         let mut reply = proxy.receive_state_change().await?;

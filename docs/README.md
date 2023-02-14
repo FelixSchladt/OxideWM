@@ -18,7 +18,7 @@ pip install sphinx-rtd-theme
 ```
 
 
-### Building
+### Building in /docs
 
 ```sh
 make html

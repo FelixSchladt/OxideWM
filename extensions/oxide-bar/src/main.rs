@@ -3,6 +3,10 @@ mod config;
 mod xcb_visualtype;
 
 use log::info;
+use oxide_common::{
+    ipc::state::*,
+    logging::{get_log_level, init_logger},
+};
 //use cairo::glib::subclass::shared::RefCounted;
 use x11rb::atom_manager;
 use x11rb::connection::Connection;
@@ -17,20 +21,8 @@ use std::thread;
 
 use crate::xcb_visualtype::{choose_visual, find_xcb_visualtype};
 use oxideipc;
-use oxideipc::state::OxideState;
 
 use crate::config::Config;
-
-#[cfg(debug_assertions)]
-use log4rs::{
-    append::rolling_file::{
-        policy::compound::{
-            roll::fixed_window::FixedWindowRoller, trigger::size::SizeTrigger, CompoundPolicy,
-        },
-        RollingFileAppender,
-    },
-    encode::pattern::PatternEncoder,
-};
 
 // A collection of the atoms we will need.
 atom_manager! {
@@ -46,7 +38,7 @@ atom_manager! {
 
 pub enum EventType {
     X11rbEvent(x11rb::protocol::Event),
-    OxideState(OxideState),
+    OxideState(OxideStateDto),
 }
 
 #[derive(Debug)]
@@ -197,7 +189,7 @@ impl OxideBar {
         );
     }
 
-    fn draw(&mut self, state: OxideState) {
+    fn draw(&mut self, state: OxideStateDto) {
         let cr = cairo::Context::new(self.cairo_surface.as_ref().unwrap())
             .expect("failed to create cairo context");
         if self.composite_mgr {
@@ -233,7 +225,7 @@ impl OxideBar {
         self.cairo_surface.as_ref().unwrap().flush();
     }
 
-    pub fn handle_oxide_state_event(&mut self, state: OxideState) {
+    pub fn handle_oxide_state_event(&mut self, state: OxideStateDto) {
         info!("oxide state event");
         self.draw(state);
     }
@@ -277,7 +269,7 @@ fn get_x11rb_events(
 }
 
 fn get_state(event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
-    let (event_sender, event_receiver) = channel::<OxideState>();
+    let (event_sender, event_receiver) = channel::<OxideStateDto>();
 
     let ipc_event_sender_mutex = Arc::new(Mutex::new(event_sender));
 
@@ -296,60 +288,18 @@ fn get_state(event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
     }
 }
 
-#[cfg(debug_assertions)]
-fn get_log_file_appender() -> RollingFileAppender {
-    let log_file_pattern = format!("{}{}{{}}.{}", "log/bar/", "oxidebar", "log");
-    let log_file = format!("{}{}.{}", "log/bar/", "oxidebar", "log");
-
-    let window_size = 3; // log0, log1, log2
-    let fixed_window_roller = FixedWindowRoller::builder()
-        .build(log_file_pattern.as_str(), window_size)
-        .unwrap();
-
-    let size_limit = 5 * u64::pow(2, 20); // 5MB as max log file size to roll
-    let size_trigger = SizeTrigger::new(size_limit);
-
-    let compound_policy =
-        CompoundPolicy::new(Box::new(size_trigger), Box::new(fixed_window_roller));
-
-    RollingFileAppender::builder()
-        .encoder(Box::new(PatternEncoder::new(
-            "{d(%Y-%m-%d %H:%M:%S)(utc)} - {l}: {m}{n}",
-        )))
-        .build(log_file, Box::new(compound_policy))
-        .unwrap()
-}
-
-#[cfg(debug_assertions)]
-fn init_logger() {
-    use log::LevelFilter;
-    use log4rs::{
-        append::console::ConsoleAppender,
-        config::{Appender, Root},
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let log_level = match get_log_level() {
+        Ok(level) => level,
+        Err(_) => log::LevelFilter::Info,
     };
 
-    let stdout_appender = ConsoleAppender::builder()
-        .encoder(Box::new(PatternEncoder::new(
-            "{d(%Y-%m-%d %H:%M:%S)(utc)} - [{h({l})}]: {m}{n}",
-        )))
-        .build();
-
-    let config = log4rs::Config::builder()
-        .appender(Appender::builder().build("stdout", Box::new(stdout_appender)))
-        .appender(Appender::builder().build("logfile", Box::new(get_log_file_appender())))
-        .build(
-            Root::builder()
-                .appender("stdout")
-                .appender("logfile")
-                .build(LevelFilter::Debug),
-        )
-        .unwrap();
-    log4rs::init_config(config).unwrap();
-}
-
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    #[cfg(debug_assertions)]
-    init_logger();
+    init_logger(
+        log_level,
+        "oxidebar".to_string(),
+        "log/bar/".to_string(),
+        "oxidebar".to_string(),
+    );
 
     let (connection, screen_num) = XCBConnection::connect(None)?;
     let conn = Arc::new(connection);

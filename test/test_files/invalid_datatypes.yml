@@ -4,6 +4,7 @@
 # Otherwise the programm will crash.
 
 cmds: 999
+iter_cmds: 999
 exec: [999,999]
 exec_always: 999
 border_with: "wide"
