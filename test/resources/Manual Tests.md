@@ -5,3 +5,7 @@
 ## Can move to new workspace
 
 ## Workspaces can close
+
+## Application can autostart
+
+## Drun can be used

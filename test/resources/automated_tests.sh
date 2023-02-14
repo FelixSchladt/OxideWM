@@ -5,13 +5,27 @@ function setup_check() {
         echo -e "\x1b[31m\x1b[1mCRITICAL FAILURE\x1b[0m - 'oxide-msg -c state' could not get oxide state - Unable to run tests, aborting..."
         exit
     else
-        echo -e "\x1b[32m\x1b[1mSetup Success (1/2)\x1b[0m - Can grab state from OxideWM"
+        echo -e "\x1b[32m\x1b[1mSetup Success (1/4)\x1b[0m - Can grab state from OxideWM"
     fi
 
     if which xterm 1>/dev/null; then
-        echo -e "\x1b[32m\x1b[1mSetup Success (2/2)\x1b[0m - 'xterm' is installed."
+        echo -e "\x1b[32m\x1b[1mSetup Success (2/4)\x1b[0m - 'xterm' is installed."
     else
         echo -e "\x1b[31m\x1b[1mCRITICAL FAILURE\x1b[0m - 'xterm' not found - Unable to run tests, aborting..."
+        exit
+    fi
+
+    if which kitty 1>/dev/null; then
+        echo -e "\x1b[32m\x1b[1mSetup Success (3/4)\x1b[0m - 'kitty' is installed."
+    else
+        echo -e "\x1b[31m\x1b[1mCRITICAL FAILURE\x1b[0m - 'kitty' not found - Unable to run tests, aborting..."
+        exit
+    fi
+
+    if ps -aux | grep oxide-bar 1>/dev/null; then
+        echo -e "\x1b[32m\x1b[1mSetup Success (4/4)\x1b[0m - 'oxide-bar' is running."
+    else
+        echo -e "\x1b[31m\x1b[1mCRITICAL FAILURE\x1b[0m - 'oxide-bar' is not running - Test can still be run, continuing..."
         exit
     fi
 }
@@ -47,14 +61,16 @@ setup_check
 
 echo -e "\nTesting..."
 
-# Command - Success requirement - Success message - Failure message - Sleep duration
+# Command - Success requirement - Success message - Failure message - Sleep duration before status request
 oxidemsg=./target/debug/oxide-msg
-run_test "$oxidemsg -c exec --args xterm" "xterm" "Successfully opened a window" "Failed to open a window" 7
-run_test "$oxidemsg -c exec --args xterm" "(xterm.*){2}" "Successfully opened a second window" "Failed to open a second window" 7
-run_test "$oxidemsg -c layout --args vertical" "[vV]ertical" "Successfully set layout to 'VerticalStriped'" "Failed to set layout to 'VerticalStriped'" 1
+run_test "$oxidemsg -c exec --args kitty" "(kitty.*){1}" "Successfully opened a window" "Failed to open a window" 4
+run_test "$oxidemsg -c exec --args xterm" "(xterm.*){1}" "Successfully opened a second window" "Failed to open a second window" 7
 run_test "$oxidemsg -c layout --args horizontal" "[hH]orizontal" "Successfully set layout to 'HorizontalStriped'" "Failed to set layout to 'HorizontalStriped'" 1
+run_test "$oxidemsg -c layout --args vertical" "[vV]ertical" "Successfully set layout to 'VerticalStriped'" "Failed to set layout to 'VerticalStriped'" 1
+run_test "$oxidemsg -c move --args left" "xterm.*kitty" "Moved window left" "Failed to move window left" 2
+run_test "$oxidemsg -c move --args right" "kitty.*xterm" "Moved window right" "Failed to move window right" 2
 
-run_test "$oxidemsg -c kill" "(xterm.*){1}" "Successfully closed a window" "Failed to close a window" 1
+run_test "$oxidemsg -c kill" "(xterm.*){0}" "Successfully closed a window" "Failed to close a window" 2
 run_test "$oxidemsg -c quit" "MethodError" "Successfully quit oxide" "Failed to quit oxide" 2
 
 exit
