@@ -5,6 +5,9 @@ Flowcharts
 ==========
 The following flowcharts show the technical structure and sequence of the product.
 
+.. hint::
+    If the diagrams are not shown big enough to read, please click on them.
+
 Main event loop
 ---------------
 

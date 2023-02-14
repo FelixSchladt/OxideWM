@@ -1,8 +1,8 @@
-.. _general:
+.. _about:
 
-===================
-General information
-===================
+=============
+About *Oxide*
+=============
 
 Introduction
 ------------
