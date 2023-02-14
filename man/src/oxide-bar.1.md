@@ -8,7 +8,7 @@ oxide-bar - statusbar for Oxide
 
 # DESCRIPTION
 
-Define the behavior of the statusbar for Oxide. The config file provides the posibillity to customise the text and background color of the oxide statusbar.
+Define the behavior of the statusbar for Oxide. The config file provides the posibillity to customize the text and background color of the oxide statusbar.
 As same as the config file for Oxide, the config for the statusbar is written in YAML.
 
 # FILES
@@ -23,7 +23,7 @@ When starting, Oxide has to paths it searches for the statusbar config file.
 
 # COLORS
 
-You can freely customise the colors of the satus bar. Inside the configuration file, colors have to be entered in hexadecimal.
+You can freely customize the colors of the satus bar. Inside the configuration file, colors have to be entered in hexadecimal.
 If there is no configuration for the colors, the default colors will be used, whereas black is used for the background and white for the text.
 
 # EXAMPLES
