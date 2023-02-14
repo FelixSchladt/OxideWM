@@ -28,16 +28,6 @@ Auxiliary
     auxiliary
 
 
-Config
-------
-
-.. figure:: ../../planning/diagrams/classdg_generated/config.png
-    :align: center
-    :width: 90%
-
-    config
-
-
 Inter process communication (IPC)
 ---------------------------------
 
