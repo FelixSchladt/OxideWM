@@ -10,6 +10,7 @@ use crate::{
 };
 
 use log::{debug, error, info, warn};
+use oxide_common::ipc::state::WorkspaceDto;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
@@ -46,6 +47,7 @@ impl Workspace {
         screen_size: Rc<RefCell<ScreenSize>>,
         config: Rc<RefCell<Config>>,
     ) -> Workspace {
+        let default_layout = config.borrow().default_layout.clone();
         Workspace {
             connection,
             name,
@@ -57,7 +59,24 @@ impl Workspace {
             urgent: false,
             windows: HashMap::new(),
             order: Vec::new(),
-            layout: WorkspaceLayout::HorizontalStriped,
+            layout: default_layout,
+        }
+    }
+
+    pub fn to_dto(&self) -> WorkspaceDto {
+        let windows = self
+            .windows
+            .iter()
+            .map(|(key, state)| (*key, state.to_dto()))
+            .collect();
+
+        WorkspaceDto {
+            name: self.name,
+            focused_window: self.focused_window,
+            fullscreen: self.fullscreen,
+            urgent: self.urgent,
+            windows: windows,
+            order: self.order.clone(),
         }
     }
 

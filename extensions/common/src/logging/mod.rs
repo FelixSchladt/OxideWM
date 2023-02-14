@@ -19,23 +19,29 @@ use log4rs::{
     encode::pattern::PatternEncoder,
     filter::threshold::ThresholdFilter,
 };
-use syslog::{Facility, Formatter3164};
 
-use crate::common;
+use syslog::{Facility, Formatter3164};
 
 use self::teelogger::Teelogger;
 
-pub fn init_logger() {
-    let log_level = get_log_level();
+const LOG_FILE_EXTENSION: &str = "log";
+const LOG_LEVEL_ENV: &str = "OXIDE_LOG";
+
+pub fn init_logger(
+    log_level: LevelFilter,
+    log_file_name: String,
+    log_file_location: String,
+    process_name: String,
+) {
     let mut tee_logger = Teelogger::new();
 
     #[cfg(debug_assertions)]
     {
-        let log4rs_logger = get_log4rs_logger(log_level);
+        let log4rs_logger = get_log4rs_logger(log_level, log_file_name, log_file_location);
         tee_logger.add_logger(log4rs_logger);
     }
 
-    let sys_logger = get_sys_logger();
+    let sys_logger = get_sys_logger(process_name);
     tee_logger.add_logger(sys_logger);
 
     let result =
@@ -48,37 +54,37 @@ pub fn init_logger() {
     };
 }
 
-fn get_log_level() -> LevelFilter {
-    let log_level_env = std::env::var(common::LOG_LEVEL_ENV.to_string());
+pub fn get_log_level() -> Result<LevelFilter, ()> {
+    let log_level_env = std::env::var(LOG_LEVEL_ENV.to_string());
     if let Ok(level_env) = log_level_env {
         let log_level = LevelFilter::from_str(level_env.as_str());
         if let Ok(level) = log_level {
-            level
+            Ok(level)
         } else {
             eprintln!("Could not parse log level from {}", level_env);
-            common::LOG_LEVEL_DEFAULT
+            Err(())
         }
     } else {
-        common::LOG_LEVEL_DEFAULT
+        Err(())
     }
 }
 
 #[cfg(debug_assertions)]
-fn get_log_file_appender() -> RollingFileAppender {
-    let log_path = common::LOG_FILE_LOCATION_DEV;
+fn get_log_file_appender(log_file_name: String, log_file_location: String) -> RollingFileAppender {
+    use std::{fs, path::PathBuf};
 
     let log_file_pattern = format!(
         "{}{}{{}}.{}",
-        log_path,
-        common::LOG_FILE_NAME,
-        common::LOG_FILE_EXTENSION
+        log_file_location, log_file_name, LOG_FILE_EXTENSION
     );
+
     let log_file = format!(
         "{}{}.{}",
-        log_path,
-        common::LOG_FILE_NAME,
-        common::LOG_FILE_EXTENSION
+        log_file_location, log_file_name, LOG_FILE_EXTENSION
     );
+
+    fs::create_dir_all(PathBuf::from(log_file.clone()).parent().unwrap())
+        .expect("failed to create dir for logging");
 
     let window_size = 3; // log0, log1, log2
     let fixed_window_roller = FixedWindowRoller::builder()
@@ -100,19 +106,25 @@ fn get_log_file_appender() -> RollingFileAppender {
 }
 
 #[cfg(debug_assertions)]
-fn get_log4rs_logger(log_level: LevelFilter) -> Box<dyn log::Log> {
+fn get_log4rs_logger(
+    log_level: LevelFilter,
+    log_file_name: String,
+    log_file_location: String,
+) -> Box<dyn log::Log> {
     let stdout_appender = ConsoleAppender::builder()
         .encoder(Box::new(PatternEncoder::new(
             "{d(%Y-%m-%d %H:%M:%S)(utc)} - [{h({l})}]: {m}{n}",
         )))
         .build();
 
+    let log_file_appender = get_log_file_appender(log_file_name, log_file_location);
+
     let config = log4rs::Config::builder()
         .appender(Appender::builder().build("stdout", Box::new(stdout_appender)))
         .appender(
             Appender::builder()
                 .filter(Box::new(ThresholdFilter::new(log_level)))
-                .build("logfile", Box::new(get_log_file_appender())),
+                .build("logfile", Box::new(log_file_appender)),
         )
         .build(
             Root::builder()
@@ -124,11 +136,11 @@ fn get_log4rs_logger(log_level: LevelFilter) -> Box<dyn log::Log> {
     Box::new(log4rs::Logger::new(config))
 }
 
-fn get_sys_logger() -> Box<dyn log::Log> {
+fn get_sys_logger(process_name: String) -> Box<dyn log::Log> {
     let formatter = Formatter3164 {
         facility: Facility::LOG_USER,
         hostname: None,
-        process: common::PROJECT_NAME.into(),
+        process: process_name,
         pid: process::id(),
     };
 

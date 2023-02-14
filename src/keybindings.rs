@@ -2,9 +2,10 @@ use std::collections::HashMap;
 use std::process::Command;
 
 use log::debug;
+use oxide_common::ipc::commands::WmCommands;
 use x11rb::protocol::xproto::{KeyPressEvent, ModMask};
 
-use crate::{config::Config, eventhandler::commands::WmCommands};
+use crate::config::Config;
 
 #[derive(Debug)]
 pub enum ModifierKey {
