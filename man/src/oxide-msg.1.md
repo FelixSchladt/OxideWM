@@ -66,10 +66,10 @@ Right
 : Moves to the right
 
 ## LAYOUT
-VerticalStriped
+Vertical
 : windows vertically next to each other
 
-HorizontalStriped
+Horizontal
 : windows a horizontally underneath each other
 
 None
