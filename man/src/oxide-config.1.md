@@ -26,7 +26,7 @@ When starting, Oxide has two paths it searches for config files.
 
 ## KEYS
 
-The keys need at least one MODIFIER and one normal key such as 't'
+A keybinding has to consist of at least one or more MODIFIERS and exactly one normal key such as 't' for example.
 
 ## MODIFIER
 
@@ -219,8 +219,6 @@ exec_always
 : is executed during start of the window manager and also at each restart
 
 # EXAMPLES
-
-TODO: SAMPLE CONFIG
 
 ## KEYBINDINGS
 
