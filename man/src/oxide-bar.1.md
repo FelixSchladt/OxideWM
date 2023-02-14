@@ -8,7 +8,7 @@ oxide-bar - statusbar for Oxide
 
 # DESCRIPTION
 
-Define the behavior of the statusbar for Oxide. The config file provides the posibillity to customize the text and background color of the oxide statusbar.
+Define the behavior of the statusbar for Oxide. The config file provides the possibility to customize the text and background color of the oxide statusbar.
 As same as the config file for Oxide, the config for the statusbar is written in YAML.
 
 # FILES
