@@ -10,12 +10,12 @@ All shown class diagrams are **automatically generated**.
 .. toctree::
         :maxdepth: 3
 
-        windowmanager/screeninfo/index
-        windowmanager/eventhandler/index
-        windowmanager/workspace/index
-        windowmanager/windowmanager/index
-        windowmanager/config/index
-        windowmanager/setup/index
+        screeninfo/index
+        eventhandler/index
+        workspace/index
+        windowmanager/index
+        config/index
+        setup/index
 
 keybindings.png
 -------------------------------------------------------------------------------------

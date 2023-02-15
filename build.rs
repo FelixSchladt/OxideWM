@@ -52,10 +52,6 @@ pub fn generate_read_the_docs_class_diagrams() {
         for dir_entrie in dir_entries {
             let entry = dir_entrie.expect("Failed to get entry");
             let file_type = entry.file_type().expect("Failed to get file type");
-            let entry_path = entry.path();
-            let relative_file_path = entry_path
-                .strip_prefix(DIAG_PATH)
-                .expect("could not strip prefix");
 
             if file_type.is_file() {
                 let is_diagram = entry
@@ -88,7 +84,8 @@ pub fn generate_read_the_docs_class_diagrams() {
                 println!("figures {}", figures);
             } else {
                 has_subdirs = true;
-                let dir_name = relative_file_path.as_os_str().to_str().unwrap().to_string();
+                let entry_path = entry.path().as_os_str().to_str().unwrap().to_string();
+                let dir_name = entry_path.split("/").last().unwrap();
 
                 subdirs.push_str("        ");
                 subdirs.push_str(format!("{}/index", dir_name).as_str());
