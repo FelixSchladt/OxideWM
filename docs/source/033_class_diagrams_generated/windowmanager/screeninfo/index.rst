@@ -1,28 +1,19 @@
 .. _class_diagrams:
 
-==============
-Class diagrams
-==============
-
-All shown class diagrams are **automatically generated**.
-
-.. toctree::
-        :maxdepth: 3
-
-
 error.png
------------
+-------------------------------------------------------------------------------------
 
-.. figure:: ../../../planning/diagrams/classdg_generated/windowmanager/screeninfo/error.png
+.. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/screeninfo/error.png
     :align: center
-    :width: 1
+    :width: 103%
 
     error.png
 mod.png
------------
+-------------------------------------------------------------------------------------
 
-.. figure:: ../../../planning/diagrams/classdg_generated/windowmanager/screeninfo/mod.png
+.. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/screeninfo/mod.png
     :align: center
-    :width: 0
+    :width: 51%
 
     mod.png
+

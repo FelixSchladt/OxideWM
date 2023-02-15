@@ -10,11 +10,12 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::vec;
 
+const STR_PARENT_DIR: &str = "../";
 const RTD_DEFAULT_IMAGE_WIDTH: f32 = 750.0;
-const RTD_RELATIVE_TO_BASE: &str = "../../../";
 const RTD_BASE_FOLDER: &str = "docs/source/033_class_diagrams_generated";
 const RTD_CLASS_DG_INDEX_TEMPLATE: &str = "docs/templates/class_dg_index.rst";
 const RTD_CLASS_DG_FIGURE_TEMPLATE: &str = "docs/templates/class_dg_figure.rst";
+const RTD_CLASS_DG_BLANK_TEMPLATE: &str = "docs/templates/class_dg_blank.rst";
 const DIAG_TYPE: &str = "png";
 const DIAG_PATH: &str = "planning/diagrams/classdg_generated";
 const DOT_PATH: &str = "target/diagrams/classdg_generated";
@@ -25,6 +26,8 @@ pub fn generate_read_the_docs_class_diagrams() {
         .expect("failed to read index template");
     let figure_template =
         fs::read_to_string(RTD_CLASS_DG_FIGURE_TEMPLATE).expect("failed to read figure template");
+    let blank_template =
+        fs::read_to_string(RTD_CLASS_DG_BLANK_TEMPLATE).expect("failed to read figure template");
 
     let mut dirs = vec![PathBuf::from(DIAG_PATH)];
 
@@ -39,7 +42,10 @@ pub fn generate_read_the_docs_class_diagrams() {
             .to_str()
             .unwrap();
         let outfile_path = format!("{}/{}/index.rst", RTD_BASE_FOLDER, outfile_relative_path);
+        let mut out_dir = PathBuf::from(outfile_path.clone());
+        out_dir.pop();
 
+        let mut has_subdirs = false;
         let mut subdirs = String::new();
         let mut figures = String::new();
 
@@ -52,39 +58,58 @@ pub fn generate_read_the_docs_class_diagrams() {
                 .expect("could not strip prefix");
 
             if file_type.is_file() {
+                let is_diagram = entry
+                    .file_name()
+                    .as_os_str()
+                    .to_str()
+                    .unwrap()
+                    .to_string()
+                    .ends_with(DIAG_TYPE);
+                if !is_diagram {
+                    continue;
+                }
+
                 let mut template = figure_template.clone();
                 template = template.replace("$Label", entry.file_name().to_str().unwrap());
                 let path = entry.path().as_os_str().to_str().unwrap().to_string();
+
+                let levels_up = outfile_path.split("/").count() - 1;
                 template = template.replace(
                     "$Path",
-                    format!("{}{}", RTD_RELATIVE_TO_BASE, path).as_str(),
+                    format!("{}{}", STR_PARENT_DIR.repeat(levels_up), path).as_str(),
                 );
                 let width = match size(path) {
-                    Ok(dim) => (RTD_DEFAULT_IMAGE_WIDTH / (dim.width as f32)),
+                    Ok(dim) => (RTD_DEFAULT_IMAGE_WIDTH / (dim.width as f32)) * 100.0,
                     Err(_) => 100.0,
                 } as i32;
 
                 template = template.replace("$Width_Percentage", width.to_string().as_str());
                 figures.push_str(template.as_str());
+                println!("figures {}", figures);
             } else {
+                has_subdirs = true;
                 let dir_name = relative_file_path.as_os_str().to_str().unwrap().to_string();
 
                 subdirs.push_str("        ");
-                subdirs.push_str(format!("{}/index.rst", dir_name).as_str());
+                subdirs.push_str(format!("{}/index", dir_name).as_str());
                 subdirs.push('\n');
 
                 dirs.push(entry.path());
             }
         }
 
-        let mut index = index_template.replace("$Diagram_Tree", &subdirs);
+        let mut index = if has_subdirs {
+            index_template.replace("$Diagram_Tree", &subdirs)
+        } else {
+            String::new()
+        };
         index.push_str(figures.as_str());
-        let mut out_dir = PathBuf::from(outfile_path.clone());
-        out_dir.pop();
+
+        let content = blank_template.replace("$Content", index.as_str());
 
         fs::create_dir_all(out_dir.as_os_str().to_str().unwrap().to_string())
             .expect("failed to create dir");
-        fs::write(outfile_path, index).expect("failed to write file");
+        fs::write(outfile_path, content).expect("failed to write file");
     }
 }
 
