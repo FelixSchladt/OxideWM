@@ -1,4 +1,8 @@
-.. _class_diagrams_docs_source_033_class_diagrams_generated_windowmanager_eventhandler:
+.. _docs_source_033_class_diagrams_generated_windowmanager_eventhandler:
+
+========================================================
+eventhandler
+========================================================
 
 
 mod.png

@@ -1,7 +1,4 @@
 
-==============
-Class diagrams
-==============
 
 All shown class diagrams are **automatically generated**.
 

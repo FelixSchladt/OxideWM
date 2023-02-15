@@ -1,9 +1,10 @@
-.. _class_diagrams_docs_source_033_class_diagrams_generated_extensions:
+.. _docs_source_033_class_diagrams_generated_extensions:
+
+========================================================
+extensions
+========================================================
 
 
-==============
-Class diagrams
-==============
 
 All shown class diagrams are **automatically generated**.
 

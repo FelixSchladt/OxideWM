@@ -102,13 +102,26 @@ pub fn generate_read_the_docs_class_diagrams() {
         };
         index.push_str(figures.as_str());
 
-        let mut content = blank_template.replace("$Content", index.as_str());
         let label = out_dir.as_os_str().to_str().unwrap().replace("/", "_");
-        content = content.replace("$Label", label.as_str());
+        let content = blank_template
+            .replace("$Content", index.as_str())
+            .replace("$Label", label.as_str())
+            .replace("$Heading", &get_label_heading(out_dir.clone()));
 
         fs::create_dir_all(out_dir.as_os_str().to_str().unwrap().to_string())
             .expect("failed to create dir");
         fs::write(outfile_path, content).expect("failed to write file");
+    }
+}
+
+fn get_label_heading(out_dir: PathBuf) -> String {
+    let entry_path = out_dir.as_os_str().to_str().unwrap().to_string();
+    let dir_name = entry_path.split("/").last().unwrap();
+
+    if dir_name != RTD_BASE_FOLDER.split("/").last().unwrap() {
+        dir_name.to_string()
+    } else {
+        "Class diagrams".to_string()
     }
 }
 

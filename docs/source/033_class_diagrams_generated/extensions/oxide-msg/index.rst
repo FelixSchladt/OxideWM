@@ -1,4 +1,8 @@
-.. _class_diagrams_docs_source_033_class_diagrams_generated_extensions_oxide-msg:
+.. _docs_source_033_class_diagrams_generated_extensions_oxide-msg:
+
+========================================================
+oxide-msg
+========================================================
 
 
 main.png
