@@ -15,6 +15,7 @@ rudg = { git = "https://github.com/janschaible/rudg-fork", branch = "fix_label_e
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 sha256 = "1.1.*"
+imagesize = "0.11.*"
 
 [dependencies]
 oxide-common = { version = "0.1.*", path = "extensions/common" }

@@ -1,3 +1,4 @@
+use imagesize::size;
 use rudg::rs2dot;
 use serde::{Deserialize, Serialize};
 use serde_yaml;
@@ -9,10 +10,83 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::vec;
 
+const RTD_DEFAULT_IMAGE_WIDTH: f32 = 750.0;
+const RTD_RELATIVE_TO_BASE: &str = "../../../";
+const RTD_BASE_FOLDER: &str = "docs/source/033_class_diagrams_generated";
+const RTD_CLASS_DG_INDEX_TEMPLATE: &str = "docs/templates/class_dg_index.rst";
+const RTD_CLASS_DG_FIGURE_TEMPLATE: &str = "docs/templates/class_dg_figure.rst";
 const DIAG_TYPE: &str = "png";
 const DIAG_PATH: &str = "planning/diagrams/classdg_generated";
 const DOT_PATH: &str = "target/diagrams/classdg_generated";
 const CLASS_DIAG_PERSISTENCE_FILE: &str = "persistence.yml";
+
+pub fn generate_read_the_docs_class_diagrams() {
+    let index_template = fs::read_to_string(Path::new(RTD_CLASS_DG_INDEX_TEMPLATE))
+        .expect("failed to read index template");
+    let figure_template =
+        fs::read_to_string(RTD_CLASS_DG_FIGURE_TEMPLATE).expect("failed to read figure template");
+
+    let mut dirs = vec![PathBuf::from(DIAG_PATH)];
+
+    while !dirs.is_empty() {
+        let dir = dirs.pop().unwrap();
+        let dir_entries = fs::read_dir(dir.clone()).expect("failed to read content of dir");
+        let outfile_relative_path = dir
+            .as_path()
+            .strip_prefix(DIAG_PATH)
+            .unwrap()
+            .as_os_str()
+            .to_str()
+            .unwrap();
+        let outfile_path = format!("{}/{}/index.rst", RTD_BASE_FOLDER, outfile_relative_path);
+
+        let mut subdirs = String::new();
+        let mut figures = String::new();
+
+        for dir_entrie in dir_entries {
+            let entry = dir_entrie.expect("Failed to get entry");
+            let file_type = entry.file_type().expect("Failed to get file type");
+            let entry_path = entry.path();
+            let relative_file_path = entry_path
+                .strip_prefix(DIAG_PATH)
+                .expect("could not strip prefix");
+
+            if file_type.is_file() {
+                let mut template = figure_template.clone();
+                template = template.replace("$Label", entry.file_name().to_str().unwrap());
+                let path = entry.path().as_os_str().to_str().unwrap().to_string();
+                template = template.replace(
+                    "$Path",
+                    format!("{}{}", RTD_RELATIVE_TO_BASE, path).as_str(),
+                );
+                let width = match size(path) {
+                    Ok(dim) => (RTD_DEFAULT_IMAGE_WIDTH / (dim.width as f32)),
+                    Err(_) => 100.0,
+                } as i32;
+
+                template = template.replace("$Width_Percentage", width.to_string().as_str());
+                figures.push_str(template.as_str());
+            } else {
+                let dir_name = relative_file_path.as_os_str().to_str().unwrap().to_string();
+
+                subdirs.push_str("        ");
+                subdirs.push_str(format!("{}/index.rst", dir_name).as_str());
+                subdirs.push('\n');
+
+                dirs.push(entry.path());
+            }
+        }
+
+        let mut index = index_template.replace("$Diagram_Tree", &subdirs);
+        index.push_str(figures.as_str());
+        let mut out_dir = PathBuf::from(outfile_path.clone());
+        out_dir.pop();
+
+        fs::create_dir_all(out_dir.as_os_str().to_str().unwrap().to_string())
+            .expect("failed to create dir");
+        fs::write(outfile_path, index).expect("failed to write file");
+    }
+}
 
 #[derive(Debug, Clone)]
 struct DiagramRoot {
@@ -187,7 +261,7 @@ fn generate_diagrams(root: DiagramRoot) {
             "reading dir {}",
             dir.as_os_str().to_str().unwrap().to_string()
         );
-        let dir_entries = fs::read_dir(dir).expect("failed to read content of dir");
+        let dir_entries = fs::read_dir(dir.clone()).expect("failed to read content of dir");
 
         for dir_entrie in dir_entries {
             let entry = dir_entrie.expect("Failed to get entry");
@@ -257,4 +331,8 @@ fn main() {
     for root in diagram_roots {
         generate_diagrams(root);
     }
+
+    fs::remove_dir_all(RTD_BASE_FOLDER).expect("failed to clean read the docs dir");
+    fs::create_dir(RTD_BASE_FOLDER).expect("failed to create read the docs dir");
+    generate_read_the_docs_class_diagrams();
 }
