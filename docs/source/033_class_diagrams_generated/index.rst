@@ -1,4 +1,4 @@
-.. _class_diagrams:
+.. _class_diagrams_docs_source_033_class_diagrams_generated:
 
 
 ==============

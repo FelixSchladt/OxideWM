@@ -1,4 +1,5 @@
-.. _class_diagrams:
+.. _class_diagrams_docs_source_033_class_diagrams_generated_extensions_oxide-ipc:
+
 
 ipc.png
 -------------------------------------------------------------------------------------
@@ -8,6 +9,7 @@ ipc.png
     :width: 70%
 
     ipc.png
+
 lib.png
 -------------------------------------------------------------------------------------
 

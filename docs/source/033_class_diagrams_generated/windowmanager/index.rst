@@ -1,4 +1,4 @@
-.. _class_diagrams:
+.. _class_diagrams_docs_source_033_class_diagrams_generated_windowmanager:
 
 
 ==============
@@ -17,6 +17,7 @@ All shown class diagrams are **automatically generated**.
         config/index
         setup/index
 
+
 keybindings.png
 -------------------------------------------------------------------------------------
 
@@ -25,6 +26,7 @@ keybindings.png
     :width: 63%
 
     keybindings.png
+
 windowstate.png
 -------------------------------------------------------------------------------------
 
@@ -33,6 +35,7 @@ windowstate.png
     :width: 52%
 
     windowstate.png
+
 ipc.png
 -------------------------------------------------------------------------------------
 
@@ -41,6 +44,7 @@ ipc.png
     :width: 59%
 
     ipc.png
+
 main.png
 -------------------------------------------------------------------------------------
 
@@ -49,6 +53,7 @@ main.png
     :width: 65%
 
     main.png
+
 auxiliary.png
 -------------------------------------------------------------------------------------
 

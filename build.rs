@@ -102,7 +102,9 @@ pub fn generate_read_the_docs_class_diagrams() {
         };
         index.push_str(figures.as_str());
 
-        let content = blank_template.replace("$Content", index.as_str());
+        let mut content = blank_template.replace("$Content", index.as_str());
+        let label = out_dir.as_os_str().to_str().unwrap().replace("/", "_");
+        content = content.replace("$Label", label.as_str());
 
         fs::create_dir_all(out_dir.as_os_str().to_str().unwrap().to_string())
             .expect("failed to create dir");

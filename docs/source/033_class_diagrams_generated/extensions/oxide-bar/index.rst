@@ -1,4 +1,5 @@
-.. _class_diagrams:
+.. _class_diagrams_docs_source_033_class_diagrams_generated_extensions_oxide-bar:
+
 
 config.png
 -------------------------------------------------------------------------------------
@@ -8,6 +9,7 @@ config.png
     :width: 66%
 
     config.png
+
 main.png
 -------------------------------------------------------------------------------------
 
@@ -16,6 +18,7 @@ main.png
     :width: 70%
 
     main.png
+
 xcb_visualtype.png
 -------------------------------------------------------------------------------------
 

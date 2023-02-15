@@ -1,4 +1,5 @@
-.. _class_diagrams:
+.. _class_diagrams_docs_source_033_class_diagrams_generated_windowmanager_workspace:
+
 
 parse_error.png
 -------------------------------------------------------------------------------------
@@ -8,6 +9,7 @@ parse_error.png
     :width: 207%
 
     parse_error.png
+
 workspace_navigation.png
 -------------------------------------------------------------------------------------
 
@@ -16,6 +18,7 @@ workspace_navigation.png
     :width: 70%
 
     workspace_navigation.png
+
 mod.png
 -------------------------------------------------------------------------------------
 

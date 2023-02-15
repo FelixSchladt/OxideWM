@@ -1,4 +1,5 @@
-.. _class_diagrams:
+.. _class_diagrams_docs_source_033_class_diagrams_generated_windowmanager_config:
+
 
 commands.png
 -------------------------------------------------------------------------------------
@@ -8,6 +9,7 @@ commands.png
     :width: 81%
 
     commands.png
+
 mod.png
 -------------------------------------------------------------------------------------
 

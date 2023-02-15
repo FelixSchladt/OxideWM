@@ -1,3 +1,3 @@
-.. _class_diagrams:
+.. _class_diagrams_$Label:
 
 $Content
