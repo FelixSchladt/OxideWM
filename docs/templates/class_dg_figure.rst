@@ -4,6 +4,6 @@ $Label
 
 .. figure:: $Path
     :align: center
-    :width: $Width_Percentage%
+    :width: $Width_Percentagepx
 
     $Label

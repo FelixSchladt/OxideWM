@@ -25,7 +25,7 @@ keybindings.png
 
 .. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/keybindings.png
     :align: center
-    :width: 63%
+    :width: 750px
 
     keybindings.png
 
@@ -34,7 +34,7 @@ windowstate.png
 
 .. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/windowstate.png
     :align: center
-    :width: 52%
+    :width: 750px
 
     windowstate.png
 
@@ -43,7 +43,7 @@ ipc.png
 
 .. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/ipc.png
     :align: center
-    :width: 59%
+    :width: 750px
 
     ipc.png
 
@@ -52,7 +52,7 @@ main.png
 
 .. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/main.png
     :align: center
-    :width: 65%
+    :width: 750px
 
     main.png
 
@@ -61,7 +61,7 @@ auxiliary.png
 
 .. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/auxiliary.png
     :align: center
-    :width: 255%
+    :width: 750px
 
     auxiliary.png
 

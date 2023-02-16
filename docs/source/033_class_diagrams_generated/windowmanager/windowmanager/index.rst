@@ -11,7 +11,7 @@ mod.png
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/windowmanager/mod.png
     :align: center
-    :width: 76%
+    :width: 750px
 
     mod.png
 

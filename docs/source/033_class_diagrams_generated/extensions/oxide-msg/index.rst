@@ -11,7 +11,7 @@ main.png
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/extensions/oxide-msg/main.png
     :align: center
-    :width: 98%
+    :width: 750px
 
     main.png
 

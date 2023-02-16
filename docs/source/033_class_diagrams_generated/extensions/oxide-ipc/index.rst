@@ -11,7 +11,7 @@ ipc.png
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/extensions/oxide-ipc/ipc.png
     :align: center
-    :width: 70%
+    :width: 750px
 
     ipc.png
 
@@ -20,7 +20,7 @@ lib.png
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/extensions/oxide-ipc/lib.png
     :align: center
-    :width: 56%
+    :width: 750px
 
     lib.png
 

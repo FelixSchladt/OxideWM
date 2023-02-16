@@ -11,7 +11,7 @@ commands.png
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/config/commands.png
     :align: center
-    :width: 81%
+    :width: 750px
 
     commands.png
 
@@ -20,7 +20,7 @@ mod.png
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/config/mod.png
     :align: center
-    :width: 30%
+    :width: 750px
 
     mod.png
 

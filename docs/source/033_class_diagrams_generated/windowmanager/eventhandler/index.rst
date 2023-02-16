@@ -11,7 +11,7 @@ mod.png
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/eventhandler/mod.png
     :align: center
-    :width: 53%
+    :width: 750px
 
     mod.png
 
@@ -20,7 +20,7 @@ events.png
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/eventhandler/events.png
     :align: center
-    :width: 192%
+    :width: 750px
 
     events.png
 

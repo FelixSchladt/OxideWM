@@ -1,4 +1,3 @@
-use imagesize::size;
 use rudg::rs2dot;
 use serde::{Deserialize, Serialize};
 use serde_yaml;
@@ -78,12 +77,11 @@ pub fn generate_read_the_docs_class_diagrams() {
                     "$Path",
                     format!("{}{}", STR_PARENT_DIR.repeat(levels_up), path).as_str(),
                 );
-                let width = match size(path) {
-                    Ok(dim) => (RTD_DEFAULT_IMAGE_WIDTH / (dim.width as f32)) * 100.0,
-                    Err(_) => 100.0,
-                } as i32;
 
-                template = template.replace("$Width_Percentage", width.to_string().as_str());
+                template = template.replace(
+                    "$Width_Percentage",
+                    RTD_DEFAULT_IMAGE_WIDTH.to_string().as_str(),
+                );
                 figures.push_str(template.as_str());
                 println!("figures {}", figures);
             } else {
@@ -105,7 +103,7 @@ pub fn generate_read_the_docs_class_diagrams() {
             String::new()
         };
         if has_figures {
-            index.push_str(RTD_FIGURE_HINT)
+            index.push_str(RTD_FIGURE_HINT);
             index.push_str(figures.as_str());
         }
 

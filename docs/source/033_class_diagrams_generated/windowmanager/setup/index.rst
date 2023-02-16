@@ -11,7 +11,7 @@ connection.png
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/setup/connection.png
     :align: center
-    :width: 116%
+    :width: 750px
 
     connection.png
 

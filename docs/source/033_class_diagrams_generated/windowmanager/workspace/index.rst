@@ -11,7 +11,7 @@ parse_error.png
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/workspace/parse_error.png
     :align: center
-    :width: 207%
+    :width: 750px
 
     parse_error.png
 
@@ -20,7 +20,7 @@ workspace_navigation.png
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/workspace/workspace_navigation.png
     :align: center
-    :width: 70%
+    :width: 750px
 
     workspace_navigation.png
 
@@ -29,7 +29,7 @@ mod.png
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/workspace/mod.png
     :align: center
-    :width: 43%
+    :width: 750px
 
     mod.png
 
