@@ -18,6 +18,7 @@ All shown class diagrams are **automatically generated**.
         config/index
         setup/index
 
+.. hint:: If the diagrams are not shown big enough to read, please click on them.
 
 keybindings.png
 -------------------------------------------------------------------------------------

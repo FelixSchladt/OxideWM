@@ -12,6 +12,8 @@ use std::vec;
 
 const STR_PARENT_DIR: &str = "../";
 const RTD_DEFAULT_IMAGE_WIDTH: f32 = 750.0;
+const RTD_FIGURE_HINT: &str =
+    ".. hint:: If the diagrams are not shown big enough to read, please click on them.\n";
 const RTD_BASE_FOLDER: &str = "docs/source/033_class_diagrams_generated";
 const RTD_CLASS_DG_INDEX_TEMPLATE: &str = "docs/templates/class_dg_index.rst";
 const RTD_CLASS_DG_FIGURE_TEMPLATE: &str = "docs/templates/class_dg_figure.rst";
@@ -46,6 +48,7 @@ pub fn generate_read_the_docs_class_diagrams() {
         out_dir.pop();
 
         let mut has_subdirs = false;
+        let mut has_figures = false;
         let mut subdirs = String::new();
         let mut figures = String::new();
 
@@ -54,6 +57,7 @@ pub fn generate_read_the_docs_class_diagrams() {
             let file_type = entry.file_type().expect("Failed to get file type");
 
             if file_type.is_file() {
+                has_figures = true;
                 let is_diagram = entry
                     .file_name()
                     .as_os_str()
@@ -100,7 +104,10 @@ pub fn generate_read_the_docs_class_diagrams() {
         } else {
             String::new()
         };
-        index.push_str(figures.as_str());
+        if has_figures {
+            index.push_str(RTD_FIGURE_HINT)
+            index.push_str(figures.as_str());
+        }
 
         let label = out_dir.as_os_str().to_str().unwrap().replace("/", "_");
         let content = blank_template

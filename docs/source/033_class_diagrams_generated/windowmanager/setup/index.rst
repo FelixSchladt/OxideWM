@@ -4,6 +4,7 @@
 setup
 ========================================================
 
+.. hint:: If the diagrams are not shown big enough to read, please click on them.
 
 connection.png
 -------------------------------------------------------------------------------------
