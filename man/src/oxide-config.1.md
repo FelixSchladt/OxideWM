@@ -8,7 +8,7 @@ oxide-config - config
 
 # DESCRIPTION
 
-Define the behaviour of oxidewm. You can change style, layout, keybindings and more.
+Define the behaviour of Oxidewm. You can change style, layout, keybindings and more.
 The config file is written using YAML syntax.
 If the home config file is not existing, default values will be used but commands like `exec` and `exec_always` will not be working.
 
@@ -49,49 +49,49 @@ Commands consist of a command and optional arguments.
 ## COMMAND
 
 Move **args** [MOVEMENT]
-: Move window
+: move window
 
 Focus **args** [MOVEMENT]
-: Move Focus
+: move Focus
 
 Quit
-: Quit the window manager
+: quit the window manager
 
 Kill
-: Kill the currently focused window
+: kill the currently focused window
 
 Restart
-: Reloads the config and restarts components
+: reloads the config and restarts components
 
 Layout **args** [LAYOUT]
-: Change the current layout
+: change the current layout
 
 GoToWorkspace **args** [WORKSPACE_ARGS]
-: Change the current workspace
+: change the current workspace
 
 MoveToWorkspace **args** [WORKSPACE_ARGS]
-: Move the used window to a different workspace
+: move the used window to a different workspace
 
 MoveToWorkspaceAndFollow **args** [WORKSPACE_ARGS]
-: Move the focused window to and select a different workspace
+: move the focused window to and select a different workspace
 
 Exec **args** <COMMAND>
-: Execute a given command
+: execute a given command
 
 Fullscreen
-: Toggle fullscreen mode for the focused window
+: toggle fullscreen mode for the focused window
 
 ## ARGS
 
-Command arguments are necessary for the movement, the layout or to controll workspaces
+Command arguments are necessary for the movement, the layout or to control workspaces
 
 ## MOVEMENT
 
 Left
-: Moves to the left
+: moves to the left
 
 right
-: Moves to the right
+: moves to the right
 
 ## LAYOUT
 
@@ -120,14 +120,14 @@ Index
 
 # ITERATIONS
 
-The interation commands provide the possibillity to change between workspaces when given a iteration number as shown in the example down below.
+The iteration commands provide the possibility to change between workspaces when given an iteration number as shown in the example down below.
 
 iter
 : iterates over given number in order to change
 
 # DEFAULT KEYBINDINGS
 
-Here is a short overview of the default keybindings
+Here is a short overview of the default keybindings.
 
 Meta+Shift+e
 : quits the window manager
@@ -207,15 +207,15 @@ border_color
 : sets the border color and has to be entered in hexadecimal
 
 border_focus_color
-: sets the border color for focused nbdows and has to be entered in hexadecimal
+: sets the border color for focused windows and has to be entered in hexadecimal
 
 gap
 : gap between windows in pixels
 
 # EXECUTE
 
-exc
-: onetime execution when the window manager starts
+exec
+: one time execution when the window manager starts
 
 exec_always
 : is executed during start of the window manager and also at each restart
@@ -246,7 +246,7 @@ iter_cmds:
           args: "$VAR"
 ```
 
-In this example using the ALT and CONTROLL key paired with a number from one to nine, the user can go to the desired workspace.
+In this example using the ALT and CONTROL key paired with a number from one to nine, the user can go to the desired workspace.
 `$VAR` is a reference for the entered iterator.
 
 # Bugs
