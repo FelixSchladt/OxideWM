@@ -1,0 +1,5 @@
+---
+- diag_file: planning/diagrams/classdg_generated/extensions/oxide-ipc/ipc.png
+  dot_hash: 58305ee57ad8bf63d377da8c4d48fa1d33c95076e292ee1575f50a70ec7fa68a
+- diag_file: planning/diagrams/classdg_generated/extensions/oxide-ipc/lib.png
+  dot_hash: 5cdda8270b0bf8acc4560d131d070d84533e71e0342c85f5310c1346475bc0de
