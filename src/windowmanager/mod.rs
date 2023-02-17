@@ -2,13 +2,13 @@ pub mod movement;
 
 use self::movement::Movement;
 
-use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
 use std::{cell::RefCell, rc::Rc};
 
 use log::{debug, error, info, warn};
+use oxide_common::ipc::state::OxideStateDto;
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::ConnectionExt;
 use x11rb::{protocol::xproto::*, rust_connection::RustConnection};
@@ -24,13 +24,6 @@ use crate::{
         workspace_layout::WorkspaceLayout, workspace_navigation::WorkspaceNavigation, Workspace,
     },
 };
-
-#[derive(Debug, Serialize)]
-pub struct WindowManagerState {
-    pub screeninfo: HashMap<u32, ScreenInfo>,
-    pub config: Config,
-    pub focused_screen: u32,
-}
 
 #[derive(Debug, Clone)]
 pub struct WindowManager {
@@ -92,10 +85,15 @@ impl WindowManager {
         }
     }
 
-    pub fn get_state(&self) -> WindowManagerState {
-        WindowManagerState {
-            screeninfo: self.screeninfo.clone(),
-            config: self.config.borrow().clone(),
+    pub fn get_state(&self) -> OxideStateDto {
+        let screen_info = self
+            .screeninfo
+            .iter()
+            .map(|(key, info)| (*key, info.to_dto()))
+            .collect();
+        OxideStateDto {
+            screeninfo: screen_info,
+            config: self.config.borrow().to_dto(),
             focused_screen: self.focused_screen.clone(),
         }
     }

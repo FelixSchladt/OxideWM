@@ -16,5 +16,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build
+    - name: Build oxide wm
       run: cargo build
+    - name: Build examples
+      run: cargo build --examples
+    - name: Build oxide bar
+      run: cargo build -p oxide-bar
+    - name: Build ipc lib
+      run: cargo build -p oxideipc
+    - name: Build oxide msg
+      run: cargo build -p oxide-msg

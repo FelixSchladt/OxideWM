@@ -3,17 +3,157 @@ use serde::{Deserialize, Serialize};
 use serde_yaml;
 use sha256::digest;
 use std::collections::HashMap;
-use std::fs::{self, File};
+use std::fs::{self, DirEntry, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::vec;
 
-const SRC_DIR: &str = "src/";
+const STR_PARENT_DIR: &str = "../";
+const RTD_DEFAULT_IMAGE_WIDTH: f32 = 750.0;
+const RTD_FIGURE_HINT: &str =
+    ".. hint:: If the diagrams are not shown big enough to read, please click on them.\n";
+const RTD_BASE_FOLDER: &str = "docs/source/033_class_diagrams_generated";
+const RTD_CLASS_DG_INDEX_TEMPLATE: &str = "docs/templates/class_dg_index.rst";
+const RTD_CLASS_DG_FIGURE_TEMPLATE: &str = "docs/templates/class_dg_figure.rst";
+const RTD_CLASS_DG_BLANK_TEMPLATE: &str = "docs/templates/class_dg_blank.rst";
 const DIAG_TYPE: &str = "png";
 const DIAG_PATH: &str = "planning/diagrams/classdg_generated";
 const DOT_PATH: &str = "target/diagrams/classdg_generated";
 const CLASS_DIAG_PERSISTENCE_FILE: &str = "persistence.yml";
+
+pub fn generate_read_the_docs_class_diagrams() {
+    let index_template = fs::read_to_string(Path::new(RTD_CLASS_DG_INDEX_TEMPLATE))
+        .expect("failed to read index template");
+    let figure_template =
+        fs::read_to_string(RTD_CLASS_DG_FIGURE_TEMPLATE).expect("failed to read figure template");
+    let blank_template =
+        fs::read_to_string(RTD_CLASS_DG_BLANK_TEMPLATE).expect("failed to read figure template");
+
+    let mut dirs = vec![PathBuf::from(DIAG_PATH)];
+
+    while !dirs.is_empty() {
+        let dir = dirs.pop().unwrap();
+        let dir_entries = fs::read_dir(dir.clone()).expect("failed to read content of dir");
+        let outfile_relative_path = dir
+            .as_path()
+            .strip_prefix(DIAG_PATH)
+            .unwrap()
+            .as_os_str()
+            .to_str()
+            .unwrap();
+        let outfile_path = format!("{}/{}/index.rst", RTD_BASE_FOLDER, outfile_relative_path);
+        let mut out_dir = PathBuf::from(outfile_path.clone());
+        out_dir.pop();
+
+        let mut has_subdirs = false;
+        let mut has_figures = false;
+        let mut subdirs = String::new();
+        let mut figures = String::new();
+
+        for dir_entrie in dir_entries {
+            let entry = dir_entrie.expect("Failed to get entry");
+            let file_type = entry.file_type().expect("Failed to get file type");
+
+            if file_type.is_file() {
+                has_figures = true;
+                let is_diagram = entry
+                    .file_name()
+                    .as_os_str()
+                    .to_str()
+                    .unwrap()
+                    .to_string()
+                    .ends_with(DIAG_TYPE);
+                if !is_diagram {
+                    continue;
+                }
+
+                let path = entry.path().as_os_str().to_str().unwrap().to_string();
+                let mut template = figure_template.clone();
+                template = template
+                    .replace("$ImgName", entry.file_name().to_str().unwrap())
+                    .replace("$Label", &get_rtd_figure_label(entry));
+
+                let levels_up = outfile_path.split("/").count() - 1;
+                template = template.replace(
+                    "$Path",
+                    format!("{}{}", STR_PARENT_DIR.repeat(levels_up), path).as_str(),
+                );
+
+                template = template.replace(
+                    "$Width_Percentage",
+                    RTD_DEFAULT_IMAGE_WIDTH.to_string().as_str(),
+                );
+                figures.push_str(template.as_str());
+                println!("figures {}", figures);
+            } else {
+                has_subdirs = true;
+                let entry_path = entry.path().as_os_str().to_str().unwrap().to_string();
+                let dir_name = entry_path.split("/").last().unwrap();
+
+                subdirs.push_str("        ");
+                subdirs.push_str(format!("{}/index", dir_name).as_str());
+                subdirs.push('\n');
+
+                dirs.push(entry.path());
+            }
+        }
+
+        let mut index = if has_subdirs {
+            index_template.replace("$Diagram_Tree", &subdirs)
+        } else {
+            String::new()
+        };
+        if has_figures {
+            index.push_str(RTD_FIGURE_HINT);
+            index.push_str(figures.as_str());
+        }
+
+        let label = out_dir.as_os_str().to_str().unwrap().replace("/", "_");
+        let content = blank_template
+            .replace("$Content", index.as_str())
+            .replace("$Label", label.as_str())
+            .replace("$Heading", &get_label_heading(out_dir.clone()));
+
+        fs::create_dir_all(out_dir.as_os_str().to_str().unwrap().to_string())
+            .expect("failed to create dir");
+        fs::write(outfile_path, content).expect("failed to write file");
+    }
+}
+
+fn get_label_heading(out_dir: PathBuf) -> String {
+    let entry_path = out_dir.as_os_str().to_str().unwrap().to_string();
+    let dir_name = entry_path.split("/").last().unwrap();
+
+    if dir_name != RTD_BASE_FOLDER.split("/").last().unwrap() {
+        dir_name.to_string()
+    } else {
+        "Class diagrams".to_string()
+    }
+}
+
+fn get_rtd_figure_label(entry: DirEntry) -> String {
+    let file_name = entry
+        .file_name()
+        .to_str()
+        .unwrap()
+        .to_string()
+        .replace(&format!(".{}", DIAG_TYPE), "");
+    let label = if file_name == "mod" {
+        let entry_path = entry.path().as_os_str().to_str().unwrap().to_string();
+        let path_split: Vec<&str> = entry_path.split("/").collect();
+        path_split[path_split.len() - 2].to_string()
+    } else {
+        file_name
+    };
+    label.replace("_", " ")
+}
+
+#[derive(Debug, Clone)]
+struct DiagramRoot {
+    root_folder: String,
+    sub_folder_diagram: String,
+}
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialOrd, PartialEq, Eq)]
 struct ClassDiagramPersistence {
@@ -72,8 +212,11 @@ fn converte_to_svg(input_file_path: String, output_file_path: String) {
     }
 }
 
-fn get_class_diag_persistence() -> HashMap<String, String> {
-    let path = &format!("{}/{}", DIAG_PATH, CLASS_DIAG_PERSISTENCE_FILE);
+fn get_class_diag_persistence(root: DiagramRoot) -> HashMap<String, String> {
+    let path = &format!(
+        "{}/{}{}",
+        DIAG_PATH, root.sub_folder_diagram, CLASS_DIAG_PERSISTENCE_FILE
+    );
     let persistence_path = Path::new(path);
     let persistence = if persistence_path.exists() {
         let persistence_file = File::open(persistence_path).unwrap();
@@ -95,7 +238,7 @@ fn get_class_diag_persistence() -> HashMap<String, String> {
     result
 }
 
-fn write_diag_persistence(persistence: HashMap<String, String>) {
+fn write_diag_persistence(root: DiagramRoot, persistence: HashMap<String, String>) {
     let mut value: Vec<ClassDiagramPersistence> = vec![];
     for (src, hash) in persistence {
         value.push(ClassDiagramPersistence {
@@ -105,7 +248,10 @@ fn write_diag_persistence(persistence: HashMap<String, String>) {
     }
     value.sort();
 
-    let path = &format!("{}/{}", DIAG_PATH, CLASS_DIAG_PERSISTENCE_FILE);
+    let path = &format!(
+        "{}/{}{}",
+        DIAG_PATH, root.sub_folder_diagram, CLASS_DIAG_PERSISTENCE_FILE
+    );
     let persistence_path = Path::new(path);
 
     fs::create_dir_all(persistence_path.parent().unwrap()).expect("failed to create dir for diags");
@@ -114,10 +260,10 @@ fn write_diag_persistence(persistence: HashMap<String, String>) {
         .expect("failed to write diag persistence value to file");
 }
 
-fn get_dot_file_path(src: &Path) -> PathBuf {
+fn get_dot_file_path(root: DiagramRoot, src: &Path) -> PathBuf {
     let mut dest_dir_buf = PathBuf::from(src);
     dest_dir_buf.pop();
-    let dest_dir = dest_dir_buf.strip_prefix(SRC_DIR).unwrap();
+    let dest_dir = dest_dir_buf.strip_prefix(root.root_folder).unwrap();
     let mut target_name = PathBuf::new();
     target_name.push(
         Path::new(DOT_PATH)
@@ -128,13 +274,14 @@ fn get_dot_file_path(src: &Path) -> PathBuf {
     target_name
 }
 
-fn get_diag_file_path(src: &Path) -> PathBuf {
+fn get_diag_file_path(root: DiagramRoot, src: &Path) -> PathBuf {
     let mut dest_dir_buf = PathBuf::from(src);
     dest_dir_buf.pop();
-    let dest_dir = dest_dir_buf.strip_prefix(SRC_DIR).unwrap();
+    let dest_dir = dest_dir_buf.strip_prefix(root.root_folder).unwrap();
     let mut target_name = PathBuf::new();
     target_name.push(
         Path::new(DIAG_PATH)
+            .join(root.sub_folder_diagram)
             .join(dest_dir)
             .join(src.file_stem().unwrap()),
     );
@@ -163,15 +310,19 @@ fn format_code() {
     }
 }
 
-fn generate_diagrams() {
-    let mut dirs = vec![PathBuf::from(SRC_DIR)];
+fn generate_diagrams(root: DiagramRoot) {
+    let mut dirs = vec![PathBuf::from(root.root_folder.clone())];
 
-    let diag_persistence = get_class_diag_persistence();
+    let diag_persistence = get_class_diag_persistence(root.clone());
     let mut new_persistence: HashMap<String, String> = HashMap::new();
 
     while !dirs.is_empty() {
         let dir = dirs.pop().unwrap();
-        let dir_entries = fs::read_dir(dir).expect("failed to read content of dir");
+        println!(
+            "reading dir {}",
+            dir.as_os_str().to_str().unwrap().to_string()
+        );
+        let dir_entries = fs::read_dir(dir.clone()).expect("failed to read content of dir");
 
         for dir_entrie in dir_entries {
             let entry = dir_entrie.expect("Failed to get entry");
@@ -187,8 +338,8 @@ fn generate_diagrams() {
                     continue;
                 }
 
-                let dest_dot = get_dot_file_path(entry.path().as_path());
-                let dest_diag = get_diag_file_path(entry.path().as_path());
+                let dest_dot = get_dot_file_path(root.clone(), entry.path().as_path());
+                let dest_diag = get_diag_file_path(root.clone(), entry.path().as_path());
                 let dest_diag_str = dest_diag.as_os_str().to_str().unwrap().to_string();
 
                 let new_hash = digest(results.clone());
@@ -213,10 +364,36 @@ fn generate_diagrams() {
         }
     }
 
-    write_diag_persistence(new_persistence);
+    write_diag_persistence(root, new_persistence);
 }
 
 fn main() {
     format_code();
-    generate_diagrams();
+
+    let diagram_roots: Vec<DiagramRoot> = vec![
+        DiagramRoot {
+            root_folder: "src/".to_string(),
+            sub_folder_diagram: "windowmanager/".to_string(),
+        },
+        DiagramRoot {
+            root_folder: "extensions/oxide-msg/src/".to_string(),
+            sub_folder_diagram: "extensions/oxide-msg/".to_string(),
+        },
+        DiagramRoot {
+            root_folder: "extensions/oxide-bar/src/".to_string(),
+            sub_folder_diagram: "extensions/oxide-bar/".to_string(),
+        },
+        DiagramRoot {
+            root_folder: "extensions/oxide-ipc/src/".to_string(),
+            sub_folder_diagram: "extensions/oxide-ipc/".to_string(),
+        },
+    ];
+
+    for root in diagram_roots {
+        generate_diagrams(root);
+    }
+
+    fs::remove_dir_all(RTD_BASE_FOLDER).expect("failed to clean read the docs dir");
+    fs::create_dir(RTD_BASE_FOLDER).expect("failed to create read the docs dir");
+    generate_read_the_docs_class_diagrams();
 }

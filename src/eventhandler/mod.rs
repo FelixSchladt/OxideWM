@@ -1,10 +1,11 @@
-pub mod commands;
 pub mod events;
 
-use self::events::{EventType, IpcEvent, WmActionEvent};
+use self::events::{EventType, IpcEvent};
 
 use log::error;
 use log::{debug, info, trace};
+use oxide_common::ipc::action_event::WmActionEvent;
+use oxide_common::ipc::commands::WmCommands;
 use std::{
     process,
     sync::{
@@ -17,10 +18,7 @@ use x11rb::protocol::{
     Event,
 };
 
-use crate::{
-    auxiliary::exec_user_command, eventhandler::commands::WmCommands, keybindings::KeyBindings,
-    windowmanager::WindowManager,
-};
+use crate::{auxiliary::exec_user_command, keybindings::KeyBindings, windowmanager::WindowManager};
 
 pub struct EventHandler<'a> {
     pub window_manager: &'a mut WindowManager,

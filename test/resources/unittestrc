@@ -1,3 +1,3 @@
-which feh && feh -g 511x50 -d -S ./test/resources/wallpaper.png
-which nitrogen && nitrogen --set-scaled ./test/resources/wallpaper.png
+which feh &>/dev/null && feh -g 511x50 -d -S ./test/resources/wallpaper.png
+which nitrogen &>/dev/null && nitrogen --set-scaled ./test/resources/wallpaper.png
 cargo test

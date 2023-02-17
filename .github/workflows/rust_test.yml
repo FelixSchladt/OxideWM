@@ -13,8 +13,10 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    env:
+      GITHUB_PIPELINE: 1
     steps:
     - uses: actions/checkout@v3
     - name: Build
-      run: cargo test --verbose
+      run: cargo test -- --test-threads=1
+
