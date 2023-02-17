@@ -17,23 +17,18 @@ impl Color {
         let red = u8::from_str_radix(&hex[1..3], 16).unwrap() as f64 / 255.0;
         let green = u8::from_str_radix(&hex[3..5], 16).unwrap() as f64 / 255.0;
         let blue = u8::from_str_radix(&hex[5..7], 16).unwrap() as f64 / 255.0;
-        if hex.len() == 9 {
-            let alpha = u8::from_str_radix(&hex[7..9], 16).unwrap() as f64 / 255.0 as f64;
-            Color {
-                red,
-                green,
-                blue,
-                alpha,
-                is_alpha: true,
-            }
+        let is_alpha = hex.len() == 9;
+        let alpha = if is_alpha {
+            u8::from_str_radix(&hex[7..9], 16).unwrap() as f64 / 255.0
         } else {
-            Color {
-                red,
-                green,
-                blue,
-                alpha: 1.0,
-                is_alpha: false,
-            }
+            1.0
+        };
+        Color {
+            red,
+            green,
+            blue,
+            alpha,
+            is_alpha,
         }
     }
 

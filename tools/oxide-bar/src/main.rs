@@ -233,6 +233,7 @@ impl OxideBar {
             cr.set_operator(cairo::Operator::Over);
         }
 
+        //NOTE: Leave this here for now, I will late come back to this
         //let (r, g, b) = self.config.color_txt.rgb();
         //cr.set_source_rgb(r, g, b);
         //let layout = create_layout(&cr).unwrap();
