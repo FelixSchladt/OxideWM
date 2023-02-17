@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_yaml;
 use sha256::digest;
 use std::collections::HashMap;
-use std::fs::{self, File};
+use std::fs::{self, DirEntry, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -68,9 +68,11 @@ pub fn generate_read_the_docs_class_diagrams() {
                     continue;
                 }
 
-                let mut template = figure_template.clone();
-                template = template.replace("$Label", entry.file_name().to_str().unwrap());
                 let path = entry.path().as_os_str().to_str().unwrap().to_string();
+                let mut template = figure_template.clone();
+                template = template
+                    .replace("$ImgName", entry.file_name().to_str().unwrap())
+                    .replace("$Label", &get_rtd_figure_label(entry));
 
                 let levels_up = outfile_path.split("/").count() - 1;
                 template = template.replace(
@@ -128,6 +130,23 @@ fn get_label_heading(out_dir: PathBuf) -> String {
     } else {
         "Class diagrams".to_string()
     }
+}
+
+fn get_rtd_figure_label(entry: DirEntry) -> String {
+    let file_name = entry
+        .file_name()
+        .to_str()
+        .unwrap()
+        .to_string()
+        .replace(&format!(".{}", DIAG_TYPE), "");
+    let label = if file_name == "mod" {
+        let entry_path = entry.path().as_os_str().to_str().unwrap().to_string();
+        let path_split: Vec<&str> = entry_path.split("/").collect();
+        path_split[path_split.len() - 2].to_string()
+    } else {
+        file_name
+    };
+    label.replace("_", " ")
 }
 
 #[derive(Debug, Clone)]

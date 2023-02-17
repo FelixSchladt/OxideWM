@@ -6,7 +6,7 @@ screeninfo
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
-error.png
+error
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/screeninfo/error.png
@@ -15,7 +15,7 @@ error.png
 
     error.png
 
-mod.png
+screeninfo
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/screeninfo/mod.png

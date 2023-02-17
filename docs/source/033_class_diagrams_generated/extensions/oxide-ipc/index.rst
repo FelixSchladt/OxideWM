@@ -6,7 +6,7 @@ oxide-ipc
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
-ipc.png
+ipc
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/extensions/oxide-ipc/ipc.png
@@ -15,7 +15,7 @@ ipc.png
 
     ipc.png
 
-lib.png
+lib
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/extensions/oxide-ipc/lib.png

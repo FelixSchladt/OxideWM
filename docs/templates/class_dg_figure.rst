@@ -6,4 +6,4 @@ $Label
     :align: center
     :width: $Width_Percentagepx
 
-    $Label
+    $ImgName

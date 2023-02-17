@@ -6,7 +6,7 @@ windowmanager
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
-mod.png
+windowmanager
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/windowmanager/mod.png

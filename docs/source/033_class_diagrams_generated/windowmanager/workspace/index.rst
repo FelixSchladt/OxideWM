@@ -6,7 +6,7 @@ workspace
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
-parse_error.png
+parse error
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/workspace/parse_error.png
@@ -15,7 +15,7 @@ parse_error.png
 
     parse_error.png
 
-workspace_navigation.png
+workspace navigation
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/workspace/workspace_navigation.png
@@ -24,7 +24,7 @@ workspace_navigation.png
 
     workspace_navigation.png
 
-mod.png
+workspace
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/workspace/mod.png

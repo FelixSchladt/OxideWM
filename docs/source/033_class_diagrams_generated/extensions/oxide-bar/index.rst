@@ -6,7 +6,7 @@ oxide-bar
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
-config.png
+config
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/extensions/oxide-bar/config.png
@@ -15,7 +15,7 @@ config.png
 
     config.png
 
-main.png
+main
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/extensions/oxide-bar/main.png
@@ -24,7 +24,7 @@ main.png
 
     main.png
 
-xcb_visualtype.png
+xcb visualtype
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/extensions/oxide-bar/xcb_visualtype.png

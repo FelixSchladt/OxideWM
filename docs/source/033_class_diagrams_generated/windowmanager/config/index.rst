@@ -6,7 +6,7 @@ config
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
-commands.png
+commands
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/config/commands.png
@@ -15,7 +15,7 @@ commands.png
 
     commands.png
 
-mod.png
+config
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/config/mod.png

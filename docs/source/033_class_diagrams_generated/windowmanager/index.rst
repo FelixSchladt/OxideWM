@@ -20,7 +20,7 @@ All shown class diagrams are **automatically generated**.
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
-keybindings.png
+keybindings
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/keybindings.png
@@ -29,7 +29,7 @@ keybindings.png
 
     keybindings.png
 
-windowstate.png
+windowstate
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/windowstate.png
@@ -38,7 +38,7 @@ windowstate.png
 
     windowstate.png
 
-ipc.png
+ipc
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/ipc.png
@@ -47,7 +47,7 @@ ipc.png
 
     ipc.png
 
-main.png
+main
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/main.png
@@ -56,7 +56,7 @@ main.png
 
     main.png
 
-auxiliary.png
+auxiliary
 -------------------------------------------------------------------------------------
 
 .. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/auxiliary.png
