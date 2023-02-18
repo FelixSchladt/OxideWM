@@ -4,8 +4,6 @@
 windowmanager
 ========================================================
 
-
-
 All shown class diagrams are **automatically generated**.
 
 .. toctree::
@@ -61,7 +59,7 @@ auxiliary
 
 .. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/auxiliary.png
     :align: center
-    :width: 750px
+    :width: 450px
 
     auxiliary.png
 
