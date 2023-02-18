@@ -23,7 +23,6 @@ install:
 	$(ROOT_DIR)/resources/install_required_apps.sh
 	cargo build --release
 	cargo build -p oxide-bar --release
-	cargo build -p oxide-config --release
 	cargo build -p oxide-msg --release
 	sudo mkdir -p $(CONFIG_DIR)/oxide
 	sudo install -Dm755 \
