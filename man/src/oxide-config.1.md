@@ -4,23 +4,24 @@
 
 # NAME
 
-oxide-config - config
+oxide-config - config of Oxide
 
 # DESCRIPTION
 
-Define the behaviour of Oxidewm. You can change style, layout, keybindings and more.
-The config file is written using YAML syntax.
+Define the behavior of Oxide.
+The config file provides the possibility to customize e. g. keybindings, layout, style.
 If the home config file is not existing, default values will be used but commands like `exec` and `exec_always` will not be working.
+The config file is written in YAML.
 
 # FILES
 
-When starting, Oxide has two paths it searches for config files.
+During launch, Oxide searches for a config file in the following locations:
 
 **~/.config/oxide/config.yml**
-: Home config file
+: home config file
 
 **/etc/oxide/config.yml**
-: System config file
+: system config file
 
 # KEYBINDING
 
@@ -52,7 +53,7 @@ Move **args** [MOVEMENT]
 : move window
 
 Focus **args** [MOVEMENT]
-: move Focus
+: move focus
 
 Quit
 : quit the window manager
@@ -75,7 +76,7 @@ MoveToWorkspace **args** [WORKSPACE_ARGS]
 MoveToWorkspaceAndFollow **args** [WORKSPACE_ARGS]
 : move the focused window to and select a different workspace
 
-Exec **args** <COMMAND>
+Exec **args** COMMAND
 : execute a given command
 
 Fullscreen
@@ -83,14 +84,14 @@ Fullscreen
 
 ## ARGS
 
-Command arguments are necessary for the movement, the layout or to control workspaces
+Command arguments are necessary for the movement, the layout or to control workspaces.
 
 ## MOVEMENT
 
 Left
 : moves to the left
 
-right
+Right
 : moves to the right
 
 ## LAYOUT
@@ -141,11 +142,11 @@ Meta+Shift+q
 h/l
 : direction keys (left/right)
 
-Meta+<direction>
-: changes the focus to the <direction> window
+Meta+[DIRECTION]
+: changes the focus to the direction window
 
-Meta+Shift+<direction>
-: moves the window to the <direction>
+Meta+Shift+[DIRECTION]
+: moves the window to the direction
 
 Meta+f
 : changes the current window to fullscreen
@@ -159,23 +160,23 @@ Meta+i
 Meta+Shift+i
 : changes to layout to horizontal
 
-Right/Left;
+Right/Left
 : workspace navigation keys (next/previous)
 
-Meta+<workspace direction>
-: changes to the <workspace direction> workspace
+Meta+[WORKSPACE_DIRECTION]
+: changes to the workspace direction
 
 Meta+n
 : opens a new workspace
 
-Control+Meta+<workspace direction>
-: moves a window to the <workspace direction> workspace
+Control+Meta+[WORKSPACE_DIRECTION]
+: moves a window to the workspace direction
 
 Control+Meta+n
 : opens a new workspace and moves the window to it
 
-Meta+Shift+<workspace direction>
-: moves the window to the <workspace direction> workspace and follows it
+Meta+Shift+[WORKSPACE_DIRECTION]
+: moves the window to the workspace direction and follows it
 
 Meta+Shift+n
 : creates a new workspace, moves the window to it and follows
@@ -184,24 +185,24 @@ Control+Meta+Down
 : quits the workspace
 
 Meta+t
-: opens a new firefox window
+: opens dmenu
 
-1/2/3/4/5/6/7/8/9;
+1/2/3/4/5/6/7/8/9
 : workspace numbers
 
-Meta+<workspace number>
-: switches to workspace <workspace number>
+Meta+[WORKSPACE_NUMBER]
+: switches to workspace number
 
-Control+Meta+<workspace number>
-: moves window to workspace <workspace number>
+Control+Meta+[WORKSPACE_NUMBER]
+: moves window to workspace number
 
-Meta+Shift+<workspace number>
-: moves window to workspace <workspace number> and follows it
+Meta+Shift+[WORKSPACE_NUMBER]
+: moves window to workspace number and follows it
 
 # BORDERS
 
-border_witdh
-: sets the border witdh of windows in pixels
+border_width
+: sets the border width of windows in pixels
 
 border_color
 : sets the border color and has to be entered in hexadecimal
@@ -229,10 +230,10 @@ cmds:
   - keys: ["M", "t"]
     commands:
       - command: Exec
-        args: "firefox"
+        args: "dmenu"
 ```
 
-In this example pressing the meta key and 't', a new firefox window is opened.
+In this example pressing the meta key and 't', a new dmenu window is opened.
 
 ## ITERATIONS
 
@@ -249,7 +250,7 @@ iter_cmds:
 In this example using the ALT and CONTROL key paired with a number from one to nine, the user can go to the desired workspace.
 `$VAR` is a reference for the entered iterator.
 
-# Bugs
+# BUGS
 
 Please open an issue <https://github.com/DHBW-FN/OxideWM/issues> .
 

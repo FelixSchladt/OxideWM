@@ -8,7 +8,7 @@ oxide-bar - statusbar for Oxide
 
 # DESCRIPTION
 
-Define the behavior of the statusbar for Oxide. The config file provides the possibility to customize the text and background color of the oxide statusbar.
+Define the behavior of the statusbar for Oxide. The config file provides the possibility to customize the text and background color of the Oxide statusbar.
 The config file is written in YAML.
 
 # FILES
@@ -32,7 +32,7 @@ color_bg: "0x008000" # green
 color_txt: "0xFFFF00" # black
 ```
 
-# Bugs
+# BUGS
 
 Please open an issue <https://github.com/DHBW-FN/OxideWM/issues> .
 
