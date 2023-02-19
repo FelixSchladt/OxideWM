@@ -106,15 +106,14 @@ None
 : if no argument is provided, the next layout is chosen
 
 ## WORKSPACE_ARGS
-
 Next
-: next initialized workspace with a higher index than the current workspace
+: Next initialized workspace with a higher index than the current workspace. If the workspace with the highest index is selected, the index with the lowest index will be selected.
 
 Previous
-: next initialized workspace with a lower index than the current workspace
+: Next initialized workspace with a lower index than the current workspace. If the workspace with the lowest index is selected, the index with the highest index will be selected.
 
 Next_free
-: next available workspace with a higher index than the current workspace which is not initialized
+: Next available workspace with which is not initialized. Gaps in the workspace indices are filled first.
 
 Index
 : workspace with the given index

@@ -77,20 +77,20 @@ None
 
 ## WORKSPACE_ARGS
 Next
-: next initialized workspace with a higher index than the current workspace
+: Next initialized workspace with a higher index than the current workspace. If the workspace with the highest index is selected, the index with the lowest index will be selected.
 
 Previous
-: next initialized workspace with a lower index than the current workspace
+: Next initialized workspace with a lower index than the current workspace. If the workspace with the lowest index is selected, the index with the highest index will be selected.
 
-New
-: newly initialized workspace
+Next_free
+: Next available workspace with which is not initialized. Gaps in the workspace indices are filled first.
 
 Index
 : workspace with the given index
 
 # EXAMPLES
 ```sh
-cargo run -p oxide-msg -- -c "exec" -a "firefox"
+cargo run -p oxide-msg -- -c "exec" -a "kitty"
 cargo run -p oxide-msg -- --command "kill"
 ```
 
