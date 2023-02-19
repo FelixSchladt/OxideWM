@@ -1,17 +1,22 @@
-% OXIDE-MSG(1) oxide-msg 0.1.0
-% Felix Schladt <schladt.felix-it21@it.dhbw-ravensburg.de>
-% February 2023
+.. _msg:
 
-# NAME
-oxide-msg - send messages to Oxide
+============================
+Configuration of *Oxide* msg
+============================
 
-# SYNOPSIS
-**oxide-msg** \[**-h**]| \[**-v**] | \[**-c** command] \[**-a** argument] 
+Synopsis
+--------
 
-# DESCRIPTION
+**oxide-msg** \[**-h**] | \[**-v**] | \[**-c** command] \[**-a** argument] 
+
+Description
+-----------
+
 The `oxide-msg` is an ipc command tool allowing querying and messaging to Oxide via the commandline.
 
-# OPTIONS
+Options
+-------
+
 **-a**, **--argument** [ARGUMENT]
 : arguments to specify command behavior
 
@@ -24,7 +29,9 @@ The `oxide-msg` is an ipc command tool allowing querying and messaging to Oxide 
 **-v**, **--version**
 : output version information and exit
 
-## WM_COMMAND
+WM commands (WM_COMMAND)
+------------------------
+
 Move **-a** [MOVEMENT]
 : move window
 
@@ -58,14 +65,18 @@ Exec **-a** [COMMAND]
 Fullscreen
 : toggle fullscreen mode for the focused window
 
-## MOVEMENT
+Movement (MOVEMENT)
+-------------------
+
 Left
 : moves to the left
 
 Right
 : moves to the right
 
-## LAYOUT
+Layout (LAYOUT)
+---------------
+
 Vertical
 : windows vertically next to each other
 
@@ -75,7 +86,9 @@ Horizontal
 None
 : if no argument is provided, the next layout is chosen
 
-## WORKSPACE_ARGS
+Workspace arguments (WORKSPACE_ARGS)
+------------------------------------
+
 Next
 : Next initialized workspace with a higher index than the current workspace. If the workspace with the highest index is selected, the index with the lowest index will be selected.
 
@@ -88,18 +101,15 @@ Next_free
 Index
 : workspace with the given index
 
-# EXAMPLES
-```sh
-cargo run -p oxide-msg -- -c "exec" -a "kitty"
-cargo run -p oxide-msg -- --command "kill"
-```
+Examples
+--------
 
-# BUGS
-Please open an issue <https://github.com/DHBW-FN/OxideWM/issues>
+.. code-block:: bash
 
-# COPYRIGHT
-Copyright © 2023 Felix Schladt GPLv3+\: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
-This is free software: you are free to change and redistribute it. There is NO WARRANTY, to the extent permitted by law.
+    cargo run -p oxide-msg -- -c "exec" -a "kitty"
+    cargo run -p oxide-msg -- --command "kill"
 
-# SEE ALSO
-**oxide(1)**, **oxide-config(1)**, **oxide-bar(1)**
+Bugs
+----
+
+Please open an issue https://github.com/DHBW-FN/OxideWM/issues .

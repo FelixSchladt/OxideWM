@@ -11,7 +11,7 @@ The following flowcharts show the technical structure and sequence of the produc
 Main event loop
 ---------------
 
-.. figure:: ../../planning/diagrams/maineventloop.png
+.. figure:: ../../../planning/diagrams/maineventloop.png
     :align: center
     :width: 60%
 
@@ -21,7 +21,7 @@ Main event loop
 Instantiation
 -------------
 
-.. figure:: ../../planning/diagrams/flowchart_instantiation.png
+.. figure:: ../../../planning/diagrams/flowchart_instantiation.png
     :align: center
     :width: 80%
 
@@ -30,7 +30,7 @@ Instantiation
 
 Eventhandling
 -------------
-.. figure:: ../../planning/diagrams/flowchart_eventhandling.png
+.. figure:: ../../../planning/diagrams/flowchart_eventhandling.png
     :align: center
     :width: 80%
     
@@ -40,7 +40,7 @@ Eventhandling
 Communication window manager and statusbar
 ------------------------------------------
 
-.. figure:: ../../planning/diagrams/flowchart_ipc_com_statusbar.png
+.. figure:: ../../../planning/diagrams/flowchart_ipc_com_statusbar.png
     :align: center
     :width: 80%
 
@@ -50,7 +50,7 @@ Communication window manager and statusbar
 Register keybinds
 -----------------
 
-.. figure:: ../../planning/diagrams/flowchart_register_keybinds.png
+.. figure:: ../../../planning/diagrams/flowchart_register_keybinds.png
     :align: center
     :width: 80%
 
@@ -60,7 +60,7 @@ Register keybinds
 Getting associated keybind when key pressed
 -------------------------------------------
 
-.. figure:: ../../planning/diagrams/flowchart_keybinding_pressed.png
+.. figure:: ../../../planning/diagrams/flowchart_keybinding_pressed.png
     :align: center
     :width: 80%
 
