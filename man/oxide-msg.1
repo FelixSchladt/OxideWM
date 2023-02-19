@@ -18,21 +18,21 @@
 .hy
 .SH NAME
 .PP
-oxide-msg - send messages to oxidewm
+oxide-msg - send messages to Oxide
 .SH SYNOPSIS
 .PP
 \f[B]oxide-msg\f[R] [\f[B]-h\f[R]]| [\f[B]-v\f[R]] | [\f[B]-c\f[R]
 command] [\f[B]-a\f[R] argument]
 .SH DESCRIPTION
 .PP
-The \f[V]oxide-msg\f[R] is an ipc command tool allowing queriying and
-messaging to oxidewm via the commandline
+The \f[V]oxide-msg\f[R] is an ipc command tool allowing querying and
+messaging to Oxide via the commandline.
 .SH OPTIONS
 .TP
-\f[B]-a\f[R], \f[B]\[en]argument\f[R] 
-arguments to specify command behvior
+\f[B]-a\f[R], \f[B]\[en]argument\f[R] [ARGUMENT]
+arguments to specify command behavior
 .TP
-\f[B]-c\f[R], \f[B]\[en]command\f[R] 
+\f[B]-c\f[R], \f[B]\[en]command\f[R] WM_COMMAND
 window manager commands
 .TP
 \f[B]-h\f[R], \f[B]\[en]help\f[R]
@@ -43,65 +43,71 @@ output version information and exit
 .SS WM_COMMAND
 .TP
 Move \f[B]-a\f[R] MOVEMENT
-Move Window
+move window
 .TP
 Focus \f[B]-a\f[R] MOVEMENT
-Move Focus
+move focus
 .TP
 Quit
-Quit the window manager
+quit the window manager
 .TP
 Kill
-Kill the currently focused window
+kill the currently focused window
 .TP
 Restart
-Reloads the config and restarts components
+reloads the config and restarts components
 .TP
 Layout \f[B]-a\f[R] LAYOUT
-Change the current layout
+change the current layout
 .TP
 GoToWorkspace \f[B]-a\f[R] WORKSPACE_ARGS
-Change the current workspace
+change the current workspace
 .TP
 MoveToWorkspace \f[B]-a\f[R] WORKSPACE_ARGS
-Move the focused window to a different workspace
+move the focused window to a different workspace
 .TP
 MoveToWorkspaceAndFollow \f[B]-a\f[R] WORKSPACE_ARGS
-Move the focused window to and select a different workspace
+move the focused window to and select a different workspace
 .TP
 Exec \f[B]-a\f[R] 
-Execute a given command
+execute a given command
 .TP
 Fullscreen
-Toggle fullscreen mode for the focused window
+toggle fullscreen mode for the focused window
 .SS MOVEMENT
 .TP
 Left
-Moves to the left
+moves to the left
 .TP
 Right
-Moves to the right
+moves to the right
 .SS LAYOUT
 .TP
 Vertical
 windows vertically next to each other
 .TP
 Horizontal
-windows a horizontally underneath each other
+windows horizontally underneath each other
 .TP
 None
 if no argument is provided, the next layout is chosen
 .SS WORKSPACE_ARGS
 .TP
 Next
-next initialized workspace with a higher index than the current
-workspace
+Next initialized workspace with a higher index than the current
+workspace.
+If the workspace with the highest index is selected, the index with the
+lowest index will be selected.
 .TP
 Previous
-next initialized workspace with a lower index than the current workspace
+Next initialized workspace with a lower index than the current
+workspace.
+If the workspace with the lowest index is selected, the index with the
+highest index will be selected.
 .TP
-New
-newly initialized workspace
+Next_free
+Next available workspace with which is not initialized.
+Gaps in the workspace indices are filled first.
 .TP
 Index
 workspace with the given index
@@ -109,7 +115,7 @@ workspace with the given index
 .IP
 .nf
 \f[C]
-cargo run -p oxide-msg -- -c \[dq]exec\[dq] -a \[dq]firefox\[dq]
+cargo run -p oxide-msg -- -c \[dq]exec\[dq] -a \[dq]kitty\[dq]
 cargo run -p oxide-msg -- --command \[dq]kill\[dq]
 \f[R]
 .fi

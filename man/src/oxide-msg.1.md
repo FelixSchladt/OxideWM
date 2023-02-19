@@ -3,19 +3,19 @@
 % February 2023
 
 # NAME
-oxide-msg - send messages to oxidewm
+oxide-msg - send messages to Oxide
 
 # SYNOPSIS
 **oxide-msg** \[**-h**]| \[**-v**] | \[**-c** command] \[**-a** argument] 
 
 # DESCRIPTION
-The `oxide-msg` is an ipc command tool allowing queriying and messaging to oxidewm via the commandline.
+The `oxide-msg` is an ipc command tool allowing querying and messaging to Oxide via the commandline.
 
 # OPTIONS
-**-a**, **--argument** <ARGUMENT>
-: arguments to specify command behvior
+**-a**, **--argument** [ARGUMENT]
+: arguments to specify command behavior
 
-**-c**, **--command** <WM_COMMAND>
+**-c**, **--command** [WM_COMMAND]
 : window manager commands
 
 **-h**, **--help**
@@ -26,71 +26,71 @@ The `oxide-msg` is an ipc command tool allowing queriying and messaging to oxide
 
 ## WM_COMMAND
 Move **-a** [MOVEMENT]
-: Move Window
+: move window
 
 Focus **-a** [MOVEMENT]
-: Move Focus
+: move focus
 
 Quit
-: Quit the window manager
+: quit the window manager
 
 Kill
-: Kill the currently focused window
+: kill the currently focused window
 
 Restart
-: Reloads the config and restarts components
+: reloads the config and restarts components
 
 Layout **-a** [LAYOUT]
-: Change the current layout
+: change the current layout
 
 GoToWorkspace **-a** [WORKSPACE_ARGS]
-: Change the current workspace
+: change the current workspace
 
 MoveToWorkspace **-a** [WORKSPACE_ARGS]
-: Move the focused window to a different workspace
+: move the focused window to a different workspace
 
 MoveToWorkspaceAndFollow **-a** [WORKSPACE_ARGS]
-: Move the focused window to and select a different workspace
+: move the focused window to and select a different workspace
 
 Exec **-a** <COMMAND>
-: Execute a given command
+: execute a given command
 
 Fullscreen
-: Toggle fullscreen mode for the focused window
+: toggle fullscreen mode for the focused window
 
 ## MOVEMENT
 Left
-: Moves to the left
+: moves to the left
 
 Right
-: Moves to the right
+: moves to the right
 
 ## LAYOUT
 Vertical
 : windows vertically next to each other
 
 Horizontal
-: windows a horizontally underneath each other
+: windows horizontally underneath each other
 
 None
 : if no argument is provided, the next layout is chosen
 
 ## WORKSPACE_ARGS
 Next
-: next initialized workspace with a higher index than the current workspace
+: Next initialized workspace with a higher index than the current workspace. If the workspace with the highest index is selected, the index with the lowest index will be selected.
 
 Previous
-: next initialized workspace with a lower index than the current workspace
+: Next initialized workspace with a lower index than the current workspace. If the workspace with the lowest index is selected, the index with the highest index will be selected.
 
-New
-: newly initialized workspace
+Next_free
+: Next available workspace with which is not initialized. Gaps in the workspace indices are filled first.
 
 Index
 : workspace with the given index
 
 # EXAMPLES
 ```sh
-cargo run -p oxide-msg -- -c "exec" -a "firefox"
+cargo run -p oxide-msg -- -c "exec" -a "kitty"
 cargo run -p oxide-msg -- --command "kill"
 ```
 
