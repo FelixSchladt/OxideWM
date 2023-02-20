@@ -12,11 +12,11 @@ All shown class diagrams are **automatically generated**.
         :maxdepth: 3
 
         screeninfo/index
-        setup/index
         eventhandler/index
-        config/index
-        windowmanager/index
         workspace/index
+        windowmanager/index
+        config/index
+        setup/index
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
@@ -29,14 +29,14 @@ keybindings
 
     keybindings.png
 
-main
+windowstate
 -------------------------------------------------------------------------------------
 
-.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/main.png
+.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/windowstate.png
     :align: center
     :width: 750px
 
-    main.png
+    windowstate.png
 
 ipc
 -------------------------------------------------------------------------------------
@@ -47,6 +47,15 @@ ipc
 
     ipc.png
 
+main
+-------------------------------------------------------------------------------------
+
+.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/main.png
+    :align: center
+    :width: 750px
+
+    main.png
+
 auxiliary
 -------------------------------------------------------------------------------------
 
@@ -55,13 +64,4 @@ auxiliary
     :width: 750px
 
     auxiliary.png
-
-windowstate
--------------------------------------------------------------------------------------
-
-.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/windowstate.png
-    :align: center
-    :width: 750px
-
-    windowstate.png
 

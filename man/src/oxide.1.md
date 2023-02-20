@@ -3,10 +3,10 @@
 % February 2023
 
 # NAME
-oxide - a dynamic tiling window manager written in rust
+Oxide - a dynamic tiling window manager written in rust
 
 # SYNOPSIS
-**oxide** 
+**Oxide** 
 
 # DESCRIPTION
 ## INTRODUCTION
@@ -41,13 +41,13 @@ Access the full Oxide documentation under **https://oxide.readthedocs.io/**.
 
 # FILES
 *~/.config/oxide/config.yml*
-:   Per-user config file.
+:   per-user config file
 
 */etc/oxide/config.yml*
-:   Global config file.
+:   global config file
 
 */usr/share/xsessions/oxide.desktop*
-: 	Oxide desktop file.
+: 	Oxide desktop file
 
 # BUGS
 Please open an issue <https://github.com/DHBW-FN/OxideWM/issues> .

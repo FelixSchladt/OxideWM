@@ -6,15 +6,6 @@ config
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
-config
--------------------------------------------------------------------------------------
-
-.. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/config/mod.png
-    :align: center
-    :width: 750px
-
-    mod.png
-
 commands
 -------------------------------------------------------------------------------------
 
@@ -23,4 +14,13 @@ commands
     :width: 750px
 
     commands.png
+
+config
+-------------------------------------------------------------------------------------
+
+.. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/config/mod.png
+    :align: center
+    :width: 750px
+
+    mod.png
 

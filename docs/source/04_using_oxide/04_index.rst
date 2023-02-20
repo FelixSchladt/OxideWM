@@ -5,7 +5,9 @@ Using *Oxide*
 =============
 
 .. toctree::
-        :maxdepth: 2
+        :maxdepth: 1
 
         041_installation
         042_config
+        043_statusbar
+        044_msg

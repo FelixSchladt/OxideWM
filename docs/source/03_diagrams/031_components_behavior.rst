@@ -11,7 +11,7 @@ The individual components and their behavior in certain situations are shown bel
 Components
 ----------
 
-.. figure:: ../../planning/diagrams/components.png
+.. figure:: ../../../planning/diagrams/components.png
     :align: center
     :width: 80%
 
@@ -20,7 +20,7 @@ Components
 Change request
 --------------
 
-.. figure:: ../../planning/diagrams/behaviour_change_request.png
+.. figure:: ../../../planning/diagrams/behaviour_change_request.png
     :align: center
     :width: 80%
 
@@ -29,7 +29,7 @@ Change request
 New application
 ---------------
 
-.. figure:: ../../planning/diagrams/behaviour_new_application.png
+.. figure:: ../../../planning/diagrams/behaviour_new_application.png
     :align: center
     :width: 80%
 

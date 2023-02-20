@@ -6,14 +6,14 @@ workspace
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
-workspace
+parse error
 -------------------------------------------------------------------------------------
 
-.. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/workspace/mod.png
+.. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/workspace/parse_error.png
     :align: center
     :width: 750px
 
-    mod.png
+    parse_error.png
 
 workspace navigation
 -------------------------------------------------------------------------------------
@@ -24,12 +24,12 @@ workspace navigation
 
     workspace_navigation.png
 
-parse error
+workspace
 -------------------------------------------------------------------------------------
 
-.. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/workspace/parse_error.png
+.. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/workspace/mod.png
     :align: center
     :width: 750px
 
-    parse_error.png
+    mod.png
 

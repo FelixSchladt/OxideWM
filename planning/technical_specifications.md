@@ -74,12 +74,12 @@ The windowmanager must empower the user to use multiple screens connected to his
 To take full advantage of the multiple screens, the windowmanager must allow workspaces on every stream.
 
 ##### 3.1.1 multiple screens moving windows
-The windowmanager must provide a way, to move windows between workspaces accross screens.
+The windowmanager must provide a way, to move windows between workspaces across screens.
 
-#### 3.3 screen locking
+#### 3.2 screen locking
 Also power management features should be included, such as screen locking after a specified timeout to help conserve energy and improve security.
 
-#### 3.4 statusbar
+#### 3.3 statusbar
 The windowmanager should provide a statusbar of some sort, to keep track of which workspaces exist, and on which workspace the user currently operates.
 
 ## 4. Documentation
@@ -95,8 +95,6 @@ Files needed for configuration will be stored locally.
 
 Claim is having no delay between key inputs and the following action.<br>
 If possible, visible tasks should be performed in under a 24th of a second. This is not possible for opening application windows.
-
-TODO: more input!
 
 ## 7. Quality requirements
 
@@ -141,11 +139,7 @@ Program actions will be stored in log files located under TODO .
 - buildin crate `log` for logging
 - Zbus for ipc
 
-### 11.4 Development interfaces
+### 11.2 Development interfaces
 
 - X11 API19
 - Debus
-
-## 12. Breakdown into sub-products
-
-
