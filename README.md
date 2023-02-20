@@ -5,6 +5,8 @@
 [![Rust-Tests](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust_test.yml/badge.svg)](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust_test.yml)
 <!--![release](/github/v/release/DHBW-FN/OxideWM?display_name=tag) -->
 
+![Alt text](docs/oxide-rice/img.png "Oxide")
+
 ## Project status
 
 ### [Zenhub Board](https://app.zenhub.com/workspaces/oxidewm-635665ffcecdb867786ebd04/board)
