@@ -11,41 +11,23 @@ All shown class diagrams are **automatically generated**.
 .. toctree::
         :maxdepth: 3
 
+        workspace/index
         screeninfo/index
         eventhandler/index
-        workspace/index
         windowmanager/index
-        config/index
         setup/index
+        config/index
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
-keybindings
+auxiliary
 -------------------------------------------------------------------------------------
 
-.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/keybindings.png
+.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/auxiliary.png
     :align: center
     :width: 750px
 
-    keybindings.png
-
-windowstate
--------------------------------------------------------------------------------------
-
-.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/windowstate.png
-    :align: center
-    :width: 750px
-
-    windowstate.png
-
-ipc
--------------------------------------------------------------------------------------
-
-.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/ipc.png
-    :align: center
-    :width: 750px
-
-    ipc.png
+    auxiliary.png
 
 main
 -------------------------------------------------------------------------------------
@@ -56,12 +38,30 @@ main
 
     main.png
 
-auxiliary
+ipc
 -------------------------------------------------------------------------------------
 
-.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/auxiliary.png
+.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/ipc.png
     :align: center
     :width: 750px
 
-    auxiliary.png
+    ipc.png
+
+windowstate
+-------------------------------------------------------------------------------------
+
+.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/windowstate.png
+    :align: center
+    :width: 750px
+
+    windowstate.png
+
+keybindings
+-------------------------------------------------------------------------------------
+
+.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/keybindings.png
+    :align: center
+    :width: 750px
+
+    keybindings.png
 

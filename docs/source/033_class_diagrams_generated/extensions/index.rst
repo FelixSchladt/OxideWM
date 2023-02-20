@@ -11,8 +11,8 @@ All shown class diagrams are **automatically generated**.
 .. toctree::
         :maxdepth: 3
 
-        oxide-msg/index
         oxide-bar/index
+        oxide-msg/index
         oxide-ipc/index
 
 
