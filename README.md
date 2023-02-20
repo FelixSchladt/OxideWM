@@ -1,9 +1,11 @@
-# *Software Engineering* project
+# *Software Engineering* project - OxideWM
 
 
 ![workflow](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust.yml/badge.svg)
 [![Rust-Tests](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust_test.yml/badge.svg)](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust_test.yml)
 <!--![release](/github/v/release/DHBW-FN/OxideWM?display_name=tag) -->
+
+![Plot](docs/oxide-rice.png)
 
 ## Project status
 

@@ -1,8 +1,8 @@
 .. _about:
 
-=============
-About *Oxide*
-=============
+==================================
+General informations about *Oxide*
+==================================
 
 Introduction
 ------------
@@ -47,7 +47,7 @@ should be copied into the users home directory under
 
     ~/.config/oxide/config.yml
 
-For a more detailed description of the config see :doc:`configuration of Oxide <04_using_oxide/042_config>`.
+For a more detailed description of the config see :doc:`configuration of Oxide <../04_using_oxide/042_config>`.
 
 Logging
 -------
