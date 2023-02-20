@@ -1,10 +1,10 @@
 .. _dbus:
 
-===============
-DBUS technology
-===============
+=====================================
+DBUS interprocess communication (IPC)
+=====================================
 
-DBUS-Interface description
+DBUS-interface description
 --------------------------
 
 OxideWM has a DBUS interface for IPC communication. This is primarily used in the ``Oxide-ipc`` library.
