@@ -10,10 +10,11 @@ Contents
 --------
 
 .. toctree::
+        :maxdepth: 2
 
         Home <self>
         01_about
-        02_project_procedure
-        03_diagrams
-        04_using_oxide
+        02_project_procedure/02_index
+        03_diagrams/03_index
+        04_using_oxide/04_index
 
