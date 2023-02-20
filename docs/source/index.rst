@@ -8,7 +8,10 @@ This project idea is inspired by 10DWM, leftWM and i3WM.
 
 .. figure:: ../oxide-rice.png
    :align: center
-   :alt: Oxide screenshot
+   :width: 100%
+   
+   *Oxide* screenshot
+
 
 Contents
 --------
