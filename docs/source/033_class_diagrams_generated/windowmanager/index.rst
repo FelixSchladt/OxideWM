@@ -11,32 +11,14 @@ All shown class diagrams are **automatically generated**.
 .. toctree::
         :maxdepth: 3
 
-        config/index
-        eventhandler/index
         screeninfo/index
-        setup/index
-        windowmanager/index
+        eventhandler/index
         workspace/index
+        windowmanager/index
+        config/index
+        setup/index
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
-
-auxiliary
--------------------------------------------------------------------------------------
-
-.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/auxiliary.png
-    :align: center
-    :width: 750px
-
-    auxiliary.png
-
-ipc
--------------------------------------------------------------------------------------
-
-.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/ipc.png
-    :align: center
-    :width: 750px
-
-    ipc.png
 
 keybindings
 -------------------------------------------------------------------------------------
@@ -47,6 +29,24 @@ keybindings
 
     keybindings.png
 
+windowstate
+-------------------------------------------------------------------------------------
+
+.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/windowstate.png
+    :align: center
+    :width: 750px
+
+    windowstate.png
+
+ipc
+-------------------------------------------------------------------------------------
+
+.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/ipc.png
+    :align: center
+    :width: 750px
+
+    ipc.png
+
 main
 -------------------------------------------------------------------------------------
 
@@ -56,12 +56,12 @@ main
 
     main.png
 
-windowstate
+auxiliary
 -------------------------------------------------------------------------------------
 
-.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/windowstate.png
+.. figure:: ../../../../planning/diagrams/classdg_generated/windowmanager/auxiliary.png
     :align: center
     :width: 750px
 
-    windowstate.png
+    auxiliary.png
 

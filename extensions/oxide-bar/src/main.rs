@@ -7,7 +7,6 @@ use oxide_common::{
     ipc::state::*,
     logging::{get_log_level, init_logger},
 };
-//use cairo::glib::subclass::shared::RefCounted;
 use x11rb::atom_manager;
 use x11rb::connection::Connection;
 use x11rb::errors::ReplyOrIdError;
@@ -18,6 +17,13 @@ use x11rb::xcb_ffi::XCBConnection;
 use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::time::Duration;
+
+//NOTE: Leave this here for now, I will late come back to this
+//use pango::{EllipsizeMode, FontDescription, SCALE};
+//use pangocairo::functions::{create_layout, show_layout};
+
+use chrono;
 
 use crate::xcb_visualtype::{choose_visual, find_xcb_visualtype};
 use oxideipc;
@@ -39,6 +45,12 @@ atom_manager! {
 pub enum EventType {
     X11rbEvent(x11rb::protocol::Event),
     OxideState(OxideStateDto),
+    Timer,
+}
+
+fn get_time_fomat(time_format: &str) -> String {
+    let date = chrono::Local::now();
+    date.format(time_format).to_string()
 }
 
 #[derive(Debug)]
@@ -52,6 +64,7 @@ struct OxideBar {
     depth: u8,
     cairo_surface: Option<cairo::XCBSurface>,
     composite_mgr: bool,
+    state: OxideStateDto,
 }
 
 impl OxideBar {
@@ -63,6 +76,7 @@ impl OxideBar {
         let atoms = AtomCollection::new(conn.as_ref()).unwrap().reply().unwrap();
         let cairo_surface = None;
         let composite_mgr = false;
+        let state = oxideipc::get_state_struct();
 
         let mut bar = OxideBar {
             conn,
@@ -74,11 +88,12 @@ impl OxideBar {
             depth,
             cairo_surface,
             composite_mgr,
+            state,
         };
         bar.composite_manager_running(screen_num);
         bar.create_window(screen_num).unwrap();
         bar.create_cairo_surface();
-        bar.draw(oxideipc::get_state_struct());
+        bar.draw();
 
         return bar;
     }
@@ -189,45 +204,68 @@ impl OxideBar {
         );
     }
 
-    fn draw(&mut self, state: OxideStateDto) {
+    fn draw(&mut self) {
         let cr = cairo::Context::new(self.cairo_surface.as_ref().unwrap())
             .expect("failed to create cairo context");
-        if self.composite_mgr {
+
+        if self.composite_mgr && self.config.color_bg.is_alpha {
             cr.set_operator(cairo::Operator::Source);
-            cr.set_source_rgba(0.9, 1.0, 0.9, 0.5);
+            info!("Using composite manager, disabling background color");
+            let (r, g, b, a) = self.config.color_bg.rgba();
+            cr.set_source_rgba(r, g, b, a);
         } else {
-            cr.set_source_rgb(0.9, 1.0, 0.9);
+            let (r, g, b) = self.config.color_bg.rgb();
+            cr.set_source_rgb(r, g, b);
         }
+
+        println!("Drawing background {:?}", self.config.color_bg);
         cr.paint().unwrap();
+
         if self.composite_mgr {
             cr.set_operator(cairo::Operator::Over);
         }
-        cr.show_text("Hi there").unwrap();
 
-        let ws_vec = state.get_workspace_list(self.screen);
+        //NOTE: Leave this here for now, I will late come back to this
+        //let (r, g, b) = self.config.color_txt.rgb();
+        //cr.set_source_rgb(r, g, b);
+        //let layout = create_layout(&cr).unwrap();
+        //println!("pixel size: {:?}", layout.pixel_size());
+        //layout.set_ellipsize(EllipsizeMode::End);
+        //layout.set_text("T");
+        //show_layout(&cr, &layout);
+
+        let ws_vec = self.state.get_workspace_list(self.screen);
         info!("ws_vec: {:?}", ws_vec);
 
-        let active_ws = state.get_active_workspace(self.screen);
+        let active_ws = self.state.get_active_workspace(self.screen);
         info!("active workspace: {}", active_ws);
 
+        cr.set_font_size(15.0);
+
         let mut x = 10.0;
+        let (r, g, b) = self.config.color_txt.rgb();
+        let (ri, gi, bi) = self.config.color_txt_inactive.rgb();
         for ws in ws_vec {
             if ws == active_ws {
-                cr.set_source_rgb(0.0, 0.0, 0.0);
+                cr.set_source_rgb(r, g, b);
             } else {
-                cr.set_source_rgb(0.5, 0.5, 0.5);
+                cr.set_source_rgb(ri, gi, bi);
             }
             cr.move_to(x, 20.0);
-            cr.set_font_size(15.0);
             cr.show_text(&ws.to_string()).unwrap();
             x += 20.0;
         }
+
+        cr.set_source_rgb(r, g, b);
+        cr.move_to((self.config.width - 140) as f64, 20.0);
+        cr.show_text(&get_time_fomat("%d %b %H:%M:%S")).unwrap();
         self.cairo_surface.as_ref().unwrap().flush();
     }
 
     pub fn handle_oxide_state_event(&mut self, state: OxideStateDto) {
         info!("oxide state event");
-        self.draw(state);
+        self.state = state;
+        self.draw();
     }
 
     pub fn handle_x_event(&mut self, event: x11rb::protocol::Event) {
@@ -250,7 +288,7 @@ impl OxideBar {
     }
 }
 
-fn get_x11rb_events(
+fn thread_x11rb_events(
     connection: Arc<XCBConnection>,
     event_sender_mutex: Arc<Mutex<Sender<EventType>>>,
 ) {
@@ -268,7 +306,7 @@ fn get_x11rb_events(
     }
 }
 
-fn get_state(event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
+fn thread_state(event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
     let (event_sender, event_receiver) = channel::<OxideStateDto>();
 
     let ipc_event_sender_mutex = Arc::new(Mutex::new(event_sender));
@@ -285,6 +323,17 @@ fn get_state(event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
                 .send(EventType::OxideState(event))
                 .unwrap();
         }
+    }
+}
+
+fn thread_timer(event_sender_mutex: Arc<Mutex<Sender<EventType>>>) {
+    loop {
+        thread::sleep(Duration::from_secs(1));
+        event_sender_mutex
+            .lock()
+            .unwrap()
+            .send(EventType::Timer)
+            .unwrap();
     }
 }
 
@@ -316,9 +365,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let event_receiver_mutex = Arc::new(Mutex::new(event_receiver));
 
     let event_sender_clone = event_sender_mutex.clone();
-    thread::spawn(move || get_state(event_sender_clone));
+    thread::spawn(move || thread_state(event_sender_clone));
+    let event_sender_clone = event_sender_mutex.clone();
+    thread::spawn(move || thread_timer(event_sender_clone));
     let conn_clone = conn.clone();
-    thread::spawn(move || get_x11rb_events(conn_clone, event_sender_mutex));
+    thread::spawn(move || thread_x11rb_events(conn_clone, event_sender_mutex));
 
     loop {
         conn.flush().ok();
@@ -326,6 +377,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             match event_type {
                 EventType::X11rbEvent(event) => bar.handle_x_event(event),
                 EventType::OxideState(event) => bar.handle_oxide_state_event(event),
+                EventType::Timer => bar.draw(),
             }
         }
     }

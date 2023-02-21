@@ -6,15 +6,6 @@ workspace
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
-workspace
--------------------------------------------------------------------------------------
-
-.. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/workspace/mod.png
-    :align: center
-    :width: 750px
-
-    mod.png
-
 parse error
 -------------------------------------------------------------------------------------
 
@@ -32,4 +23,13 @@ workspace navigation
     :width: 750px
 
     workspace_navigation.png
+
+workspace
+-------------------------------------------------------------------------------------
+
+.. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/workspace/mod.png
+    :align: center
+    :width: 750px
+
+    mod.png
 

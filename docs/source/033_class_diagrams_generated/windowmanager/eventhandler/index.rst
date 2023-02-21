@@ -6,15 +6,6 @@ eventhandler
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
-events
--------------------------------------------------------------------------------------
-
-.. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/eventhandler/events.png
-    :align: center
-    :width: 750px
-
-    events.png
-
 eventhandler
 -------------------------------------------------------------------------------------
 
@@ -23,4 +14,13 @@ eventhandler
     :width: 750px
 
     mod.png
+
+events
+-------------------------------------------------------------------------------------
+
+.. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/eventhandler/events.png
+    :align: center
+    :width: 750px
+
+    events.png
 

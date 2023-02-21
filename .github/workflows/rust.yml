@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: install pango
+      run: sudo apt install libpango1.0-dev -y 
     - name: Build oxide wm
       run: cargo build
     - name: Build examples
