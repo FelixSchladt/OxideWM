@@ -6,6 +6,15 @@ oxide-bar
 
 .. hint:: If the diagrams are not shown big enough to read, please click on them.
 
+xcb visualtype
+-------------------------------------------------------------------------------------
+
+.. figure:: ../../../../../planning/diagrams/classdg_generated/extensions/oxide-bar/xcb_visualtype.png
+    :align: center
+    :width: 750px
+
+    xcb_visualtype.png
+
 config
 -------------------------------------------------------------------------------------
 
@@ -23,13 +32,4 @@ main
     :width: 750px
 
     main.png
-
-xcb visualtype
--------------------------------------------------------------------------------------
-
-.. figure:: ../../../../../planning/diagrams/classdg_generated/extensions/oxide-bar/xcb_visualtype.png
-    :align: center
-    :width: 750px
-
-    xcb_visualtype.png
 

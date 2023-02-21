@@ -308,7 +308,7 @@ impl Workspace {
             let window = self.windows.get_mut(&fs_win).unwrap();
             window
                 .set_bounds(0, 0, screen_size.width as u32, screen_size.height as u32)
-                .draw();
+                .draw_frameless();
             self.connection.flush().unwrap();
         } else {
             match self.layout {
