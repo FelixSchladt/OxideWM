@@ -122,6 +122,28 @@ impl WindowState {
         return self;
     }
 
+    pub fn draw_frameless(&self) {
+        self.connection.grab_server().unwrap();
+        self.connection.unmap_window(self.frame).unwrap();
+        self.connection.unmap_window(self.window).unwrap();
+
+        let window_aux = ConfigureWindowAux::new()
+            .x(self.x)
+            .y(self.y)
+            .width(self.width)
+            .height(self.height);
+
+        self.connection
+            .configure_window(self.window, &window_aux)
+            .unwrap();
+
+        self.connection.map_window(self.frame).unwrap();
+        self.connection.map_window(self.window).unwrap();
+
+        self.connection.ungrab_server().unwrap();
+        self.connection.flush().unwrap();
+    }
+
     pub fn draw(&self) {
         self.connection.grab_server().unwrap();
         self.connection.unmap_window(self.frame).unwrap();
