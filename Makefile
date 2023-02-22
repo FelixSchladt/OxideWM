@@ -28,7 +28,6 @@ install:
 	sudo install -Dm755 \
 		$(ROOT_DIR)/target/release/oxide \
 		$(ROOT_DIR)/target/release/oxide-bar \
-		$(ROOT_DIR)/target/release/oxide-config \
 		$(ROOT_DIR)/target/release/oxide-msg \
 		-t $(TARGET_DIR)
 	sudo cp -t $(CONFIG_DIR)/oxide/ \
@@ -52,7 +51,6 @@ uninstall:
 	sudo rm -f\
 		$(TARGET_DIR)/oxide\
 		$(TARGET_DIR)/oxide-bar\
-		$(TARGET_DIR)/oxide-config\
 		$(TARGET_DIR)/oxide-msg\
 		$(SHARE_DIR)/xsessions/oxide.desktop\
 		$(CONFIG_DIR)/oxide/config.yml \

@@ -14,5 +14,6 @@ All shown class diagrams are **automatically generated**.
         oxide-bar/index
         oxide-msg/index
         oxide-ipc/index
+        oxide-msg/index
 
 

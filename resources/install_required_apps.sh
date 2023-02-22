@@ -13,7 +13,7 @@ function install_xephyr () {
 function install_cargo () {
     echo -e "[\x1b[36m~\x1b[0m] Installing Rust..."
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-    which cargo || export PATH=$PATH:~/.cargo/bin
+    which cargo || . export PATH=$PATH:~/.cargo/bin
 
     echo -e "[\x1b[32m+\x1b[0m] Installation complete"
 }
