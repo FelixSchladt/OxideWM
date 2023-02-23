@@ -12,7 +12,6 @@ All shown class diagrams are **automatically generated**.
         :maxdepth: 3
 
         oxide-bar/index
-        oxide-msg/index
         oxide-ipc/index
         oxide-msg/index
 
