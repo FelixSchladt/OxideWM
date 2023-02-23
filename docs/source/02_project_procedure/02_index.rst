@@ -11,4 +11,4 @@ Project procedure
         023_technical_specification
         024_work_package_plan
         021_critical
-        025_tests
+        025_testing
