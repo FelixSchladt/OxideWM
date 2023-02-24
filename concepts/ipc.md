@@ -1,6 +1,6 @@
 # IPC
 
-During a first discussion it was decided that oxide should be controllable via an ipc mechanism.
+During a first discussion it was decided that *Oxide* should be controllable via an ipc mechanism.
 This functionality will be inspired by i3-msg.
 
 ## Description
@@ -11,20 +11,20 @@ This is neccessary for:
 * External libraries
 * Command line utility
 
-## Feature List
+## Feature list
 The following list includes currently proposed features
 
-* Everything that is achievable via the keyboard (kill, move, launch...)
-* Current state of the window manager including layout, windows...
+* everything that is achievable via the keyboard (kill, move, launch...)
+* current state of the window manager including e.g. layout or windows
 
 
-## IPC Integration Solution
+## IPC integration solution
 
-Since there are two types of events that have to be handeled, there
-needs to be some separation bewteen them.
+Since there are two types of events that have to be handled, there
+needs to be some separation between them.
 
 One type are `xevents`, received from the `X11` instance, and the other one
-is custom events create by the user, recieved over `zbus`.
+is custom events created by the user, received over `zbus`.
 
 For this reason, each type of event will get its own loop on its own thread,
 which will await them and push them into a list shared between them.
@@ -33,7 +33,7 @@ who will execute the correct action based on event type and content.
 
 ![IPC-QUEUE](ipc-queue.png)
 
-## Technical Solution
+## Technical solution
 The following sections describe the argument for the different ipc-mechanisms and libraries.
 
 ### Requirements
@@ -41,7 +41,7 @@ As for the aforementioned use cases it will not be required to send large amount
 Only short messages will be exchanged between the clients. Also it is not expected that the ipc performance will have a significant impact on the usability of the system.
 Therefore some ipc options such as shared memory and semaphores will not be regarded as these options are not as easy to use and do not offer any significant advantages.
 
-### Possible IPC Mechanisms
+### Possible IPC mechanisms
 There are multiple different ways of implementing ipc on posix systems.
 
 #### FIFO
@@ -88,7 +88,7 @@ The **performance is deemed non critical** in our use case and the ease of use w
 None the less, the ipc interface should be **created in an abstract manner** allowing for a possible replacement of the underlying ipc mechanism.  
 
 ### Implementation
-#### Available Libraries
+#### Available libraries
 There seem to be two main projects striving to provide dbus support for rust.
 
 [Zbus project repository](https://gitlab.freedesktop.org/dbus/zbus/-/tree/main)
@@ -106,8 +106,8 @@ There seem to be two main projects striving to provide dbus support for rust.
 
 #### Conclusion
 Zbus seems to have some advantages over dbus-rs, mainly:
-* Official freedesktop.org library
-* Pure rust -> no ibdbus dependency
+* official freedesktop.org library
+* pure rust -> no ibdbus dependency
 * Extensive documentation
 * Due to being an official library, maintenance is most likely certain
 
