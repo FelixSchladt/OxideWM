@@ -22,6 +22,18 @@ const DIAG_PATH: &str = "planning/diagrams/classdg_generated";
 const DOT_PATH: &str = "target/diagrams/classdg_generated";
 const CLASS_DIAG_PERSISTENCE_FILE: &str = "persistence.yml";
 
+#[derive(Debug, Deserialize, Serialize, Clone, PartialOrd, PartialEq, Eq)]
+struct RtdFigure {
+    figure_path: String,
+    figure: String,
+}
+
+impl Ord for RtdFigure {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.figure_path.cmp(&other.figure_path)
+    }
+}
+
 pub fn generate_read_the_docs_class_diagrams() {
     let index_template = fs::read_to_string(Path::new(RTD_CLASS_DG_INDEX_TEMPLATE))
         .expect("failed to read index template");
@@ -46,17 +58,14 @@ pub fn generate_read_the_docs_class_diagrams() {
         let mut out_dir = PathBuf::from(outfile_path.clone());
         out_dir.pop();
 
-        let mut has_subdirs = false;
-        let mut has_figures = false;
-        let mut subdirs = String::new();
-        let mut figures = String::new();
+        let mut subdirs: Vec<String> = vec![];
+        let mut figures: Vec<RtdFigure> = vec![];
 
         for dir_entrie in dir_entries {
             let entry = dir_entrie.expect("Failed to get entry");
             let file_type = entry.file_type().expect("Failed to get file type");
 
             if file_type.is_file() {
-                has_figures = true;
                 let is_diagram = entry
                     .file_name()
                     .as_os_str()
@@ -75,38 +84,43 @@ pub fn generate_read_the_docs_class_diagrams() {
                     .replace("$Label", &get_rtd_figure_label(entry));
 
                 let levels_up = outfile_path.split("/").count() - 1;
-                template = template.replace(
-                    "$Path",
-                    format!("{}{}", STR_PARENT_DIR.repeat(levels_up), path).as_str(),
-                );
+                let figure_path = format!("{}{}", STR_PARENT_DIR.repeat(levels_up), path);
+                template = template.replace("$Path", figure_path.as_str());
 
                 template = template.replace(
                     "$Width_Percentage",
                     RTD_DEFAULT_IMAGE_WIDTH.to_string().as_str(),
                 );
-                figures.push_str(template.as_str());
-                println!("figures {}", figures);
+                figures.push(RtdFigure {
+                    figure_path: figure_path.to_string(),
+                    figure: template.clone(),
+                });
             } else {
-                has_subdirs = true;
                 let entry_path = entry.path().as_os_str().to_str().unwrap().to_string();
                 let dir_name = entry_path.split("/").last().unwrap();
 
-                subdirs.push_str("        ");
-                subdirs.push_str(format!("{}/index", dir_name).as_str());
-                subdirs.push('\n');
+                let mut subdir = "        ".to_string();
+                subdir.push_str(format!("{}/index", dir_name).as_str());
+                subdir.push('\n');
+                subdirs.push(subdir);
 
                 dirs.push(entry.path());
             }
         }
 
-        let mut index = if has_subdirs {
-            index_template.replace("$Diagram_Tree", &subdirs)
+        let mut index = if !subdirs.is_empty() {
+            subdirs.sort();
+            let subdir_str = subdirs.join("");
+            index_template.replace("$Diagram_Tree", &subdir_str)
         } else {
             String::new()
         };
-        if has_figures {
+        if !figures.is_empty() {
+            figures.sort();
+            let figure_str: String = figures.iter().map(|figure| figure.figure.clone()).collect();
+
             index.push_str(RTD_FIGURE_HINT);
-            index.push_str(figures.as_str());
+            index.push_str(&figure_str);
         }
 
         let label = out_dir.as_os_str().to_str().unwrap().replace("/", "_");
