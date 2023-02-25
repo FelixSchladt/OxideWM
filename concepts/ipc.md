@@ -107,7 +107,7 @@ There seem to be two main projects striving to provide dbus support for rust.
 #### Conclusion
 Zbus seems to have some advantages over dbus-rs, mainly:
 * official freedesktop.org library
-* pure rust -> no ibdbus dependency
+* pure rust -> no libdbus dependency
 * Extensive documentation
 * Due to being an official library, maintenance is most likely certain
 
