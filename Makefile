@@ -6,7 +6,7 @@ CONFIG_DIR := /etc
 
 define gen_manpages
 	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide.1.md -o $(ROOT_DIR)/man/oxide.1
-	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide-bar.1.md -o $(ROOT_DIR)/man/oxide-bar.1	
+	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide-bar.1.md -o $(ROOT_DIR)/man/oxide-bar.1
 	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide-config.1.md -o $(ROOT_DIR)/man/oxide-config.1
 	pandoc --standalone --to man $(ROOT_DIR)/man/src/oxide-msg.1.md -o $(ROOT_DIR)/man/oxide-msg.1
 endef
@@ -57,7 +57,7 @@ uninstall:
 		$(SHARE_DIR)/man/man1/oxide.1 \
 		$(SHARE_DIR)/man/man1/oxide-bar.1 \
 		$(SHARE_DIR)/man/man1/oxide-config.1 \
-		$(SHARE_DIR)/man/man1/oxide-msg.1 
+		$(SHARE_DIR)/man/man1/oxide-msg.1
 	@echo -e  "\x1b[1m\x1b[36m#- Oxide has been successfully uninstalled -#\x1b[0m"
 
 .PHONY: test
