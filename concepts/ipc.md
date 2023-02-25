@@ -78,7 +78,7 @@ There are multiple different ways of implementing ipc on posix systems.
 * Sockets allow for two way communication
 * Sockets are more widely supported
 * IPC interface should be abstracted, so that the ipc mechanism can be changed in a later stage
-* D-Bus should offer a high level, easy to use ipc mechanism
+* D-Bus should offer a high level, simple to use ipc mechanism
 
 
 ### Conclusion
