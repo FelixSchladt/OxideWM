@@ -1,8 +1,8 @@
 .. _ipc:
 
-===========================
-Inter Process Communication 
-===========================
+=================================
+Inter Process Communication (IPC)
+=================================
 
 During a first discussion it was decided that *Oxide* should be
 controllable via an IPC mechanism. This functionality will be inspired

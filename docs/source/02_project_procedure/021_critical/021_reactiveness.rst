@@ -23,8 +23,9 @@ solutions are available:
 
 1. Polling of both event-sources
 
-–>–\| \| V \| poll for X-Event \| \| \| V \| poll for IPC-event \| \| \|
-V \| execute received event –<—
+| poll for X-Event
+| poll for IPC-event
+| execute received event
 
 This layout allows for a very simple single threaded implementation of
 the window manager but requires a frequent polling loop in order to
