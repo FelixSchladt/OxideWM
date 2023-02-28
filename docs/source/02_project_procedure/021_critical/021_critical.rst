@@ -12,7 +12,7 @@ Critical technologies
         021_ipc
         021_reactiveness
         021_xcb
-
+        021_configfiles
 
 
 Programming paradigms
