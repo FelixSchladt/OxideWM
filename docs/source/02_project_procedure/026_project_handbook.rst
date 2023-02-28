@@ -56,7 +56,7 @@ Testing
 
 All test logs are to be stored in the subdirectory ``test_logs``. Those
 will not be published on GitHub. Upcoming issues should be documented
-with Git-issues with the following format:
+with Git issues with the following format:
 
 ::
 

@@ -71,14 +71,14 @@ The total time is
 Conclusion
 ~~~~~~~~~~
 
-XCB offers considerably faster event handling The tutorial linked at the
+XCB offers considerably faster event handling. The tutorial linked at the
 top of this document also proiveds the source code and results of a
-benchmarking which lead to the same results.
+benchmarking which leads to the same results.
 
 Why to not use Xlib
 -------------------
 
-**Xlib is quite big:** Xlib is bigger then XCB and can therefor not be
+**Xlib is quite big:** Xlib is bigger then XCB and can therefore not be
 used with minimalistic systems. However, the target groups of this
 project are (semi-)well equiped computers, which makes this not as much
 of an advantage.

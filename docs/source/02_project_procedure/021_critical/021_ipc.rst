@@ -99,7 +99,7 @@ D-Bus
 - high level IPC mechanism 
 - based on unix sockets 
 - widely used in projects such as Gnome and KDE 
-- offers message queing, tow way communication and is supposed to offer a easy to use interface 
+- offers message queuing, tow way communication and is supposed to offer a easy to use interface 
 - comparetively slow compared to FIFO or UNIX sockets
 
 Key Takeaways
