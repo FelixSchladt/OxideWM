@@ -397,13 +397,15 @@ impl Workspace {
 
             x = screen_size.ws_pos_x as u32 + (window_width * col);
             y = if even_amount {
-                    if index % 2 == 0 {
+                    let is_upper_row = index % 2 == 0;
+                    if is_upper_row {
                         screen_size.ws_pos_y as u32
                     } else {
                         screen_size.ws_pos_y  as u32 + window_height
                     }
                 } else {
-                    if index % 2 == 0 {
+                    let is_lower_row = index % 2 == 0;
+                    if is_lower_row {
                         screen_size.ws_pos_y  as u32 + window_height
                     } else {
                         screen_size.ws_pos_y as u32
