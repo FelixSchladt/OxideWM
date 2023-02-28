@@ -1,0 +1,34 @@
+# Findings
+
+This file describes found issues while testing.
+Not all issues listed here might translate into bug reports.
+
+## Config parser error message during integration tests
+
+This error message is wanted behavior and has been implemented to let a user know that they have an issue in their config file.
+The windowmanager will automatically load a default configuration in this case to avoid a crash.
+
+## Automated Validation Failure
+
+These warnings during automated testing occur because of variations in the duration the application requires to update it's status.
+This is dependant on not easily controllable, project unrelated properties.
+Due to this, it may be necessary to validate some functionality manually.
+Steps have been taken to minimize manually required testing by running tests prone to failing multiple times.
+Should a majority of these tests succeed, the tests can be regarded as passed.
+
+## Automated tests fail when mouse hovers over a window during testing
+
+Since the mouse cursor will set focus, it will move focus to the window that is being hovered over.
+Since the tests depend on the correct window being focused, it is advised to move the mouse outside of the testing frame.
+This will not crash tests, but only lead to more automatic test validation failures it might be difficult to notice when such a mistakes occurs.
+
+## Automated tests are not possible while mouse is positioned over oxide-bar
+
+Since the window focus follows the mouse cursor, attempting to change focus while the it is positioned above the task-bar will result in a `oxide-ipc` crash.
+
+## Last automated tests may throw "thread main panicked" error
+
+This is wanted behavior, the tests checks whether the windowmanager closed as planned with this very error message.
+Due to timing differences outside of the scope of this project, the error can occur at different points in the test method and might be printed.
+This has no further effect on any tests.
+It is noteworthy that if this error occurs during *any other* test then the very last one, it should be considered a critical failure.
