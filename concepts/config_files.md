@@ -15,7 +15,7 @@ Therfore it was decided to use `YAML` as the proper file format for Oxide config
 
 The following sections describe the technical solutions to enable the use of config files for Oxide.
 
-### Serialization
+### Parsing the config file
 
 In order to be able to parse the values of the config file, it has to be serialized and deserialized.
 To achive this, `serde_yaml` can be used. The `serde_yaml` crate is a rust library and therfore an optimal solution for the parser.
@@ -30,3 +30,7 @@ function.
 ```
 
 Using this it is possible to use default values for not present or wrongly assigned variables.
+
+## Conclusion
+
+After evaluating all aspects the team came to the conclusion to use `YAML` for the config file formar and `serde_yaml` to parse it.
