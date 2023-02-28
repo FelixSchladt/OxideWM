@@ -1,13 +1,13 @@
 .. _dbus:
 
-=====================================
-DBUS interprocess communication (IPC)
-=====================================
+======================================
+D-Bus interprocess communication (IPC)
+======================================
 
-DBUS-interface description
---------------------------
+D-Bus interface description
+---------------------------
 
-OxideWM has a DBUS interface for IPC communication. This is primarily used in the ``Oxide-ipc`` library.
+OxideWM has a D-Bus interface for IPC communication. This is primarily used in the ``Oxide-IPC`` library.
 This interface mainly gives access to the current state of *Oxide*. This state includes the loaded config, current windows, layouts, workspaces...
 It also allows to execute oxide commands.
 
@@ -19,8 +19,8 @@ Interface
     org.oxide.interface
 
 
-DBUS Method Calls
-^^^^^^^^^^^^^^^^^
+D-Bus Method Calls
+^^^^^^^^^^^^^^^^^^
 
 Returns the current `OxideState` as a JSON object:
 
@@ -36,8 +36,8 @@ Executes the given command:
     sent_event(WmActionEvent) -> void
 
 
-DBUS Signal
-^^^^^^^^^^^
+D-Bus Signal
+^^^^^^^^^^^^
 
 Returns the current oxide state when change occurs to the subscribers:
 

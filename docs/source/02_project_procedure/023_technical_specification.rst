@@ -1,8 +1,8 @@
 .. _technical_specification:
 
-=======================
-Technical specification
-=======================
+=======================================
+Technical specification (Pflichtenheft)
+=======================================
 
 Product functions
 -----------------
@@ -27,9 +27,9 @@ Therefore applications are expected to be moved around the screen by the user to
 ''''''''''''''''''''''''''''''
 The user must be able to control all aspects of the applications by using keyboard shortcuts.
 
-1.5 controllable via ipc
+1.5 controllable via IPC
 ''''''''''''''''''''''''
-The user must be able to control all aspects of the applications by using the ipc interface.
+The user must be able to control all aspects of the applications by using the IPC interface.
 
 1.6 focusing windows
 ''''''''''''''''''''
@@ -168,7 +168,7 @@ Program actions will be stored in log files located under TODO .
 '''''''''''''
 - [x11rb](https://github.com/psychon/x11rb)
 - buildin crate `log` for logging
-- Zbus for ipc
+- Zbus for IPC
 
 11.2 Development interfaces
 ''''''''''''''''''''''''''''
