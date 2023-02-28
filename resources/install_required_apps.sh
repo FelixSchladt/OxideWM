@@ -38,7 +38,7 @@ function install_graphviz () {
 }
 
 function install_pandoc () {
-    echo -e "[\x1b[36m~\x1b[0m] Installing Graphviz renderer..."
+    echo -e "[\x1b[36m~\x1b[0m] Installing Pandoc..."
 
     which apt    && sudo apt install pandoc
     which pacman && sudo pacman -S pandoc
@@ -64,4 +64,4 @@ which dot || install_graphviz
 
 echo -e  "[\x1b[36m~\x1b[0m] Checking whether Pandoc is installed..."
 echo -ne "[\x1b[32m+\x1b[0m] "
-which dot || install_pandoc
+which pandoc || install_pandoc
