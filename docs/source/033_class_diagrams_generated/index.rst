@@ -9,7 +9,7 @@ Class diagrams
 All shown class diagrams are **automatically generated**.
 
 .. toctree::
-        :maxdepth: 3
+        :maxdepth: 2
 
         extensions/index
         windowmanager/index

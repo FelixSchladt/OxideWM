@@ -1,0 +1,50 @@
+.. _hmi:
+
+============
+HMI behavior
+============
+
+The individual components and their behavior in certain situations are shown below.
+
+.. hint::
+    If the diagrams are not shown big enough to read, please click on them.
+
+Horizontal layout
+-----------------
+
+.. figure:: ../../../../planning/hmi_mocks/layout_horizontal.png
+    :align: center
+    :width: 80%
+
+    horizontal layout
+
+
+Vertical layout
+---------------
+
+.. figure:: ../../../../planning/hmi_mocks/layout_vertical.png
+    :align: center
+    :width: 80%
+
+    vertical layout
+
+
+Tiled layout
+------------
+
+.. figure:: ../../../../planning/hmi_mocks/layout_tiled.png
+    :align: center
+    :width: 80%
+
+    tiled layout
+
+
+
+Workspaces in statusbar
+-----------------------
+
+.. figure:: ../../../../planning/hmi_mocks/mock_statusbar.png
+    :align: center
+    :width: 80%
+
+    workspace 3 is active
