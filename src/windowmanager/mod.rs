@@ -118,14 +118,13 @@ impl WindowManager {
         }
     }
 
-    fn get_active_workspace(&mut self) -> &mut Workspace {
+    fn get_active_workspace(&mut self) -> Rc<RefCell<Workspace>> {
         let screen_info = self.screeninfo.get_mut(&self.focused_screen).unwrap();
-        screen_info.get_active_workspace().unwrap()
+        screen_info.get_active_workspace()
     }
 
     fn get_focused_window(&mut self) -> Option<u32> {
-        let workspace = self.get_active_workspace();
-        workspace.get_focused_window()
+        self.get_active_workspace().borrow().get_focused_window()
     }
 
     pub fn handle_keypress_focus(&mut self, args_option: Option<String>) {
@@ -133,7 +132,7 @@ impl WindowManager {
             match Movement::try_from(args.as_str()) {
                 Ok(movement) => {
                     let workspace = self.get_active_workspace();
-                    workspace.move_focus(movement);
+                    workspace.borrow_mut().move_focus(movement);
                 }
                 Err(_) => warn!("could not parse movement from argument {}", args),
             }
@@ -147,7 +146,7 @@ impl WindowManager {
             match Movement::try_from(args.as_str()) {
                 Ok(movement) => {
                     let workspace = self.get_active_workspace();
-                    workspace.move_window(movement);
+                    workspace.borrow_mut().move_window(movement);
                 }
                 Err(_) => warn!("could not parse movement from argument {}", args),
             }
@@ -160,7 +159,7 @@ impl WindowManager {
         let focused_window = self.get_focused_window();
         debug!("focused window: {:?}", focused_window);
         if let Some(winid) = focused_window {
-            self.get_active_workspace().kill_window(&winid);
+            self.get_active_workspace().borrow_mut().kill_window(&winid);
         } else {
             error!("ERROR: no window to kill \nshould only happen on an empty screen");
         }
@@ -176,9 +175,9 @@ impl WindowManager {
                     warn!("layout could not be parsed from argument {}", args);
                     return;
                 }
-                active_workspace.set_layout(layout.unwrap());
+                active_workspace.borrow_mut().set_layout(layout.unwrap());
             }
-            None => active_workspace.next_layout(),
+            None => active_workspace.borrow_mut().next_layout(),
         }
     }
 
@@ -240,11 +239,9 @@ impl WindowManager {
 
     pub fn handle_quit_workspace(&mut self) {
         debug!("handeling keypress quit workspace");
-        let active_workspace_name = self.get_active_workspace().name;
 
         if let Some(screen) = self.screeninfo.get_mut(&self.focused_screen) {
-            info!("quitting workspace {}", active_workspace_name);
-            if let Err(error) = screen.quit_workspace_select_new(active_workspace_name) {
+            if let Err(error) = screen.quit_workspace_select_new() {
                 warn!("could not quit workspace {error}");
             }
             signal_state_change();
@@ -254,7 +251,7 @@ impl WindowManager {
     }
 
     pub fn handle_keypress_fullscreen(&mut self) {
-        self.get_active_workspace().toggle_fullscreen();
+        self.get_active_workspace().borrow_mut().toggle_fullscreen();
     }
 
     fn setup_screens(&mut self) {
@@ -284,17 +281,17 @@ impl WindowManager {
         }
 
         let active_workspace = self.get_active_workspace();
-        active_workspace.focus_window(winid);
+        active_workspace.borrow_mut().focus_window(winid);
     }
 
     pub fn handle_event_leave_notify(&mut self, _event: &LeaveNotifyEvent) {
         let active_workspace = self.get_active_workspace();
-        active_workspace.unfocus_window();
+        active_workspace.borrow_mut().unfocus_window();
     }
 
     pub fn handle_event_destroy_notify(&mut self, event: &DestroyNotifyEvent) {
         let active_workspace = self.get_active_workspace();
-        active_workspace.remove_window(&event.window);
+        active_workspace.borrow_mut().remove_window(&event.window);
     }
 
     pub fn atom_name(&self, id: u32) -> String {

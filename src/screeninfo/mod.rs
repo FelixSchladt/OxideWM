@@ -8,9 +8,8 @@ use crate::{
     workspace::{workspace_navigation::WorkspaceNavigation, Workspace},
 };
 
-use log::{debug, info, warn};
+use log::{debug, error, info, warn};
 use oxide_common::ipc::state::{ScreenInfoDto, WorkspaceDto};
-use serde::Serialize;
 use std::sync::Arc;
 use std::{cell::RefCell, collections::HashMap};
 use std::{collections::HashSet, rc::Rc};
@@ -43,17 +42,13 @@ impl ScreenSize {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
 pub struct ScreenInfo {
-    #[serde(skip_serializing)]
     connection: Arc<RustConnection>,
-    #[serde(skip_serializing)]
     screen_ref: Rc<RefCell<Screen>>,
-    workspaces: HashMap<u16, Workspace>,
-    pub active_workspace: u16,
-    #[serde(skip_serializing)]
+    workspaces: HashMap<u16, Rc<RefCell<Workspace>>>,
+    pub active_workspace: Rc<RefCell<Workspace>>,
     config: Rc<RefCell<Config>>,
-    #[serde(skip_serializing)]
     pub screen_size: Rc<RefCell<ScreenSize>>,
     pub status_bar: Option<WindowState>,
 }
@@ -66,10 +61,17 @@ impl ScreenInfo {
         width: u32,
         height: u32,
     ) -> ScreenInfo {
-        let active_workspace = LOWEST_WORKSPACE_NR;
-        let workspaces = HashMap::new();
         let screen_size = Rc::new(RefCell::new(ScreenSize::default(width, height)));
-        let mut screen_info = ScreenInfo {
+        let active_workspace = Rc::new(RefCell::new(Workspace::new(
+            LOWEST_WORKSPACE_NR,
+            connection.clone(),
+            screen_ref.clone(),
+            screen_size.clone(),
+            config.clone(),
+        )));
+        let mut workspaces = HashMap::new();
+        workspaces.insert(LOWEST_WORKSPACE_NR, active_workspace.clone());
+        let screen_info = ScreenInfo {
             connection,
             screen_ref,
             workspaces,
@@ -78,7 +80,6 @@ impl ScreenInfo {
             screen_size,
             status_bar: None,
         };
-        screen_info.create_workspace(LOWEST_WORKSPACE_NR);
         screen_info
     }
 
@@ -86,12 +87,21 @@ impl ScreenInfo {
         let workspaces: HashMap<u16, WorkspaceDto> = self
             .workspaces
             .iter()
-            .map(|(key, workspace)| (*key, workspace.to_dto()))
+            .map(|(key, workspace)| (*key, workspace.borrow().to_dto()))
             .collect();
+
+        info!(
+            "fdsakjfadslkfjadsfldskjfdsafkljadsfadskjf dto with number{}",
+            self.active_workspace.borrow().name
+        );
         ScreenInfoDto {
             workspaces: workspaces,
-            active_workspace: self.active_workspace,
+            active_workspace: self.active_workspace.borrow().name,
         }
+    }
+
+    pub fn get_active_workspace(&self) -> Rc<RefCell<Workspace>> {
+        self.active_workspace.clone()
     }
 
     fn create_status_bar_window(&mut self, event: &CreateNotifyEvent) {
@@ -157,11 +167,11 @@ impl ScreenInfo {
 
         //update the workspaces
         for (_, workspace) in self.workspaces.iter_mut() {
-            workspace.remap_windows();
+            workspace.borrow_mut().remap_windows();
         }
     }
 
-    fn create_workspace(&mut self, workspace_nr: u16) -> &mut Workspace {
+    fn create_workspace(&mut self, workspace_nr: u16) -> Rc<RefCell<Workspace>> {
         debug!("creating new workspace {}", workspace_nr);
         let new_workspace = Workspace::new(
             workspace_nr,
@@ -171,24 +181,15 @@ impl ScreenInfo {
             self.config.clone(),
         );
 
-        self.workspaces.entry(workspace_nr).or_insert(new_workspace)
-    }
-
-    pub fn get_workspace(&mut self, workspace_nr: u16) -> Option<&mut Workspace> {
-        self.workspaces.get_mut(&workspace_nr)
-    }
-
-    pub fn get_active_workspace(&mut self) -> Option<&mut Workspace> {
-        self.get_workspace(self.active_workspace)
+        let workspace_rc = Rc::new(RefCell::new(new_workspace));
+        self.workspaces
+            .entry(workspace_nr)
+            .or_insert(workspace_rc.clone())
+            .clone()
     }
 
     pub fn is_window_on_active_workspace_selected(&mut self) -> bool {
-        let active_workspace = match self.get_active_workspace() {
-            Some(workspace) => workspace,
-            None => return false,
-        };
-
-        match active_workspace.get_focused_window() {
+        match self.active_workspace.borrow().get_focused_window() {
             Some(_) => true,
             None => false,
         }
@@ -196,56 +197,60 @@ impl ScreenInfo {
 
     pub fn on_map_request(&mut self, event: &MapRequestEvent) {
         info!("WINMAN: MapRequestEvent: {:?}", event);
-        let workspace_option = self.get_active_workspace();
-        match workspace_option {
-            Some(workspace) => {
-                workspace.new_window(event.window);
-                workspace.remap_windows();
-            }
-            None => warn!("could not handle map request, no active workspace"),
-        }
+        self.active_workspace.borrow_mut().new_window(event.window);
+        self.active_workspace.borrow_mut().remap_windows();
     }
 
-    pub fn quit_workspace_select_new(&mut self, workspace_name: u16) -> Result<(), QuitError> {
-        match self.quit_workspace(workspace_name) {
-            Ok(_) => {
-                let new_workspace = match self.find_next_lowest_workspace_nr() {
-                    Some(number) => {
-                        debug!("using next lowest workspace {}", number);
-                        number
-                    }
-                    None => match self.find_next_highest_workspace_nr() {
-                        Some(number) => {
-                            debug!("using next highest workspace {}", number);
-                            number
-                        }
-                        None => {
-                            // removed last workspace
-                            debug!("quit last workspace, creating {}", LOWEST_WORKSPACE_NR);
-                            self.create_workspace(LOWEST_WORKSPACE_NR).name
-                        }
-                    },
-                };
-                info!(
-                    "quit workspace {}, switching to {}",
-                    self.active_workspace, new_workspace
-                );
-                if self.set_workspace(new_workspace).is_err() {
-                    return Err(QuitError::new(format!(
-                        "failed to set new workspace, after no workspace was present"
-                    )));
-                }
-                Ok(())
+    pub fn quit_workspace_select_new(&mut self) -> Result<(), QuitError> {
+        let new_workspace = match self.find_next_lowest_workspace_nr() {
+            Some(number) => {
+                debug!("using next lowest workspace {}", number);
+                number
             }
-            Err(err) => Err(err),
+            None => match self.find_next_highest_workspace_nr() {
+                Some(number) => {
+                    debug!("using next highest workspace {}", number);
+                    number
+                }
+                None => {
+                    // removed last workspace
+                    debug!("quit last workspace, creating {}", LOWEST_WORKSPACE_NR);
+                    self.create_workspace(LOWEST_WORKSPACE_NR).borrow().name
+                }
+            },
+        };
+
+        info!(
+            "quit workspace {}, switching to {}",
+            self.active_workspace.borrow().name,
+            new_workspace
+        );
+
+        let quit_workspace = self.active_workspace.borrow().name;
+
+        if self.set_workspace(new_workspace).is_err() {
+            return Err(QuitError::new(format!(
+                "failed to set new workspace, after no workspace was present"
+            )));
+        }
+
+        // the workspace number did not change
+        if quit_workspace == self.active_workspace.borrow().name {
+            self.active_workspace.borrow_mut().kill_all_windows();
+            Ok(())
+        } else {
+            match self.quit_workspace(quit_workspace) {
+                Ok(_) => Ok(()),
+                Err(err) => Err(err),
+            }
         }
     }
 
     fn quit_workspace(&mut self, workspace_name: u16) -> Result<(), QuitError> {
         info!("quitting workspace {}", workspace_name);
         match self.workspaces.remove(&workspace_name) {
-            Some(mut workspace) => {
-                workspace.kill_all_windows();
+            Some(workspace) => {
+                workspace.borrow_mut().kill_all_windows();
                 Ok(())
             }
             None => Err(QuitError::new(format!(
@@ -335,7 +340,7 @@ impl ScreenInfo {
                 new_workspace_nr
             )));
         }
-        if self.active_workspace == new_workspace_nr {
+        if self.active_workspace.borrow().name == new_workspace_nr {
             info!(
                 "window is already on desired workspace {}",
                 new_workspace_nr
@@ -343,17 +348,14 @@ impl ScreenInfo {
             return Ok(());
         }
 
-        let active_workspace = match self.get_active_workspace() {
-            Some(workspace) => workspace,
-            None => return Err(MoveError::new("No active workspace".to_string())),
-        };
-
-        let active_window = match active_workspace.get_focused_window() {
+        let active_window = match self.active_workspace.borrow().get_focused_window() {
             Some(window) => window,
             None => return Err(MoveError::new("No active window".to_string())),
         };
 
-        active_workspace.remove_window(&active_window);
+        self.active_workspace
+            .borrow_mut()
+            .remove_window(&active_window);
 
         let windowsate = WindowState::new(
             self.connection.clone(),
@@ -362,12 +364,12 @@ impl ScreenInfo {
             active_window,
         );
 
-        let new_workspace = match self.get_workspace(new_workspace_nr) {
-            Some(workspace) => workspace,
+        let new_workspace = match self.workspaces.get(&new_workspace_nr) {
+            Some(workspace) => workspace.clone(),
             None => self.create_workspace(new_workspace_nr),
         };
 
-        new_workspace.add_window(windowsate);
+        new_workspace.borrow_mut().add_window(windowsate);
         Ok(())
     }
 
@@ -387,7 +389,7 @@ impl ScreenInfo {
                 new_workspace_nr
             )));
         }
-        if self.active_workspace == new_workspace_nr {
+        if self.active_workspace.borrow().name == new_workspace_nr {
             info!("already on desired workspace {}", new_workspace_nr);
             return Ok(());
         }
@@ -459,7 +461,7 @@ impl ScreenInfo {
         self.workspaces
             .iter()
             .map(|(workspace_nr, _)| *workspace_nr)
-            .filter(|workspace_nr| *workspace_nr > self.active_workspace)
+            .filter(|workspace_nr| *workspace_nr > self.active_workspace.borrow().name)
             .min()
     }
 
@@ -467,7 +469,7 @@ impl ScreenInfo {
         self.workspaces
             .iter()
             .map(|(workspace_nr, _)| *workspace_nr)
-            .filter(|workspace_nr| *workspace_nr < self.active_workspace)
+            .filter(|workspace_nr| *workspace_nr < self.active_workspace.borrow().name)
             .max()
     }
 
@@ -475,30 +477,38 @@ impl ScreenInfo {
     pub fn set_workspace(&mut self, workspace_nr: u16) -> Result<(), ()> {
         debug!(
             "Changing workspace from {} to {}",
-            self.active_workspace, workspace_nr
+            self.active_workspace.borrow().name,
+            workspace_nr
         );
 
         let mut quit_ws: Option<u16> = None;
-        if let Some(active_workspace) = self.workspaces.get_mut(&self.active_workspace) {
-            active_workspace.unmap_windows();
-            if active_workspace.windows.is_empty() {
-                quit_ws = Some(active_workspace.name);
-            }
-        };
+        self.active_workspace.borrow_mut().unmap_windows();
+        if self.active_workspace.borrow().windows.is_empty() {
+            quit_ws = Some(self.active_workspace.borrow().name);
+        }
 
         if let Some(name) = quit_ws {
-            if let Err(error) = self.quit_workspace(name) {
-                warn!("failed to quit empty workspace {}", error)
+            if name != workspace_nr {
+                info!(
+                    "closing empty workspace {} since switching to {}",
+                    name, workspace_nr
+                );
+                if let Err(error) = self.quit_workspace(name) {
+                    warn!("failed to quit empty workspace {}", error)
+                }
             }
         }
 
         let new_workspace = match self.workspaces.get_mut(&workspace_nr) {
             Some(workspace) => workspace,
-            None => return Err(()),
+            None => {
+                error!("could not switch to new Workspace {}", workspace_nr);
+                return Err(());
+            }
         };
 
-        self.active_workspace = workspace_nr;
-        new_workspace.remap_windows();
+        self.active_workspace = new_workspace.clone();
+        new_workspace.borrow_mut().remap_windows();
         Ok(())
     }
 
@@ -513,15 +523,15 @@ impl ScreenInfo {
         self.workspaces.clear();
         let mut first = true;
         for ws in workspaces {
-            self.create_workspace(ws);
+            let ws_rc = self.create_workspace(ws);
             if first {
-                self.active_workspace = ws;
+                self.active_workspace = ws_rc;
                 first = false;
             }
         }
     }
 
     pub fn set_test_active_workspace(&mut self, workspace: u16) {
-        self.active_workspace = workspace;
+        self.active_workspace = self.workspaces.get(&workspace).unwrap().clone();
     }
 }
