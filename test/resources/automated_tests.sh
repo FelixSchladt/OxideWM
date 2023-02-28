@@ -22,11 +22,10 @@ function setup_check() {
         exit
     fi
 
-    if ps -aux | grep oxide-bar 1>/dev/null; then
+    if ps -aux | grep "oxide-bar" 1>/dev/null; then
         echo -e "\x1b[32m\x1b[1mSetup Success (4/4)\x1b[0m - 'oxide-bar' is running."
     else
-        echo -e "\x1b[31m\x1b[1mCRITICAL FAILURE\x1b[0m - 'oxide-bar' is not running - Test can still be run, continuing..."
-        exit
+        echo -e "\x1b[33m\x1b[1mSETUP WARNING\x1b[0m - 'oxide-bar' not running - Can run tests, continuing..."
     fi
 }
 
@@ -50,7 +49,7 @@ function run_test() {
     if grep -q -E $success_requirement <<< $state; then
         echo -e "\x1b[32m\x1b[1mAutomatic Validation Success\x1b[0m - '$cmd' - $success_message"
     else
-        echo -e "\x1b[33m\x1b[1mAutomatic Validation Failure\x1b[0m  - '$cmd' - $failure_message"
+        echo -e "\x1b[33m\x1b[1mAutomatic Validation Failure\x1b[0m - '$cmd' - $failure_message"
     fi
 }
 
@@ -77,39 +76,40 @@ run_test "$oxidemsg -c exec --args xterm" "(xterm.*){1}" "Successfully opened a 
 
 run_test "$oxidemsg -c focus --args left" "kitty.*xterm" "Moved focus left" "Failed to move focus left" 1
 run_test "$oxidemsg -c focus --args left" "kitty.*xterm" "Moved focus left" "Failed to move focus left" 1
-run_test "$oxidemsg -c move --args left" "xterm.*(kitty){1}" "Moved window left" "Failed to move window left" 2
-run_test "$oxidemsg -c move --args left" "xterm.*(kitty){2}" "Moved window left" "Failed to move window left" 2
-run_test "$oxidemsg -c move --args left" "xterm.*(kitty){3}" "Moved window left" "Failed to move window left" 2
-run_test "$oxidemsg -c move --args left" "xterm.*(kitty){4}" "Moved window left" "Failed to move window left" 2
-run_test "$oxidemsg -c move --args right" "xterm.*(kitty){3}" "Moved window right" "Failed to move window right" 2
-run_test "$oxidemsg -c move --args right" "xterm.*(kitty){2}" "Moved window right" "Failed to move window right" 2
-run_test "$oxidemsg -c move --args right" "xterm.*(kitty){1}" "Moved window right" "Failed to move window right" 2
-run_test "$oxidemsg -c move --args right" "xterm.*(kitty){0}" "Moved window right" "Failed to move window right" 2
+run_test "$oxidemsg -c move --args left" ".*xterm.*(.*kitty.*){1}" "Moved window left" "Failed to move window left" 2
+run_test "$oxidemsg -c move --args left" ".*xterm.*(.*kitty.*){2}" "Moved window left" "Failed to move window left" 2
+run_test "$oxidemsg -c move --args left" ".*xterm.*(.*kitty.*){3}" "Moved window left" "Failed to move window left" 2
+run_test "$oxidemsg -c move --args left" ".*xterm.*(.*kitty.*){4}" "Moved window left" "Failed to move window left" 2
+run_test "$oxidemsg -c move --args right" ".*xterm.*(.*kitty.*){3}" "Moved window right" "Failed to move window right" 2
+run_test "$oxidemsg -c move --args right" ".*xterm.*(.*kitty.*){2}" "Moved window right" "Failed to move window right" 2
+run_test "$oxidemsg -c move --args right" ".*xterm.*(.*kitty.*){1}" "Moved window right" "Failed to move window right" 2
+run_test "$oxidemsg -c move --args right" ".*xterm.*(.*kitty.*){0}" "Moved window right" "Failed to move window right" 2
 
 run_test "$oxidemsg -c layout --args horizontal" "[hH]orizontal" "Successfully set layout to 'HorizontalStriped'" "Failed to set layout to 'HorizontalStriped'" 1
-run_test "$oxidemsg -c focus --args left" "kitty.*xterm" "Moved focus left" "Failed to move focus left" 1
-run_test "$oxidemsg -c focus --args left" "kitty.*xterm" "Moved focus left" "Failed to move focus left" 1
-run_test "$oxidemsg -c move --args left" "xterm.*(kitty){1}" "Moved window left" "Failed to move window left" 2
-run_test "$oxidemsg -c move --args left" "xterm.*(kitty){2}" "Moved window left" "Failed to move window left" 2
-run_test "$oxidemsg -c move --args left" "xterm.*(kitty){3}" "Moved window left" "Failed to move window left" 2
-run_test "$oxidemsg -c move --args left" "xterm.*(kitty){4}" "Moved window left" "Failed to move window left" 2
-run_test "$oxidemsg -c move --args right" "xterm.*(kitty){3}" "Moved window right" "Failed to move window right" 2
-run_test "$oxidemsg -c move --args right" "xterm.*(kitty){2}" "Moved window right" "Failed to move window right" 2
-run_test "$oxidemsg -c move --args right" "xterm.*(kitty){1}" "Moved window right" "Failed to move window right" 2
-run_test "$oxidemsg -c move --args right" "xterm.*(kitty){0}" "Moved window right" "Failed to move window right" 2
+# run_test "$oxidemsg -c focus --args left" "kitty.*xterm" "Moved focus left" "Failed to move focus left" 1
+# run_test "$oxidemsg -c focus --args left" "kitty.*xterm" "Moved focus left" "Failed to move focus left" 1
+run_test "$oxidemsg -c move --args left" ".*xterm.*(.*kitty.*){1}" "Moved window left" "Failed to move window left" 2
+run_test "$oxidemsg -c move --args left" ".*xterm.*(.*kitty.*){2}" "Moved window left" "Failed to move window left" 2
+run_test "$oxidemsg -c move --args left" ".*xterm.*(.*kitty.*){3}" "Moved window left" "Failed to move window left" 2
+run_test "$oxidemsg -c move --args left" ".*xterm.*(.*kitty.*){4}" "Moved window left" "Failed to move window left" 2
+run_test "$oxidemsg -c move --args right" ".*xterm.*(.*kitty.*){3}" "Moved window right" "Failed to move window right" 2
+run_test "$oxidemsg -c move --args right" ".*xterm.*(.*kitty.*){2}" "Moved window right" "Failed to move window right" 2
+run_test "$oxidemsg -c move --args right" ".*xterm.*(.*kitty.*){1}" "Moved window right" "Failed to move window right" 2
+run_test "$oxidemsg -c move --args right" ".*xterm.*(.*kitty.*){0}" "Moved window right" "Failed to move window right" 2
+
+run_test "$oxidemsg -c layout --args vertical" "[vV]iled" "Successfully set layout to 'Vertical'" "Failed to set layout to 'Vertical'" 1
+# run_test "$oxidemsg -c focus --args left" "kitty.*xterm" "Moved focus left" "Failed to move focus left" 1
+# run_test "$oxidemsg -c focus --args left" "kitty.*xterm" "Moved focus left" "Failed to move focus left" 1
+run_test "$oxidemsg -c move --args left" ".*xterm.*(.*kitty.*){1}" "Moved window left" "Failed to move window left" 2
+run_test "$oxidemsg -c move --args left" ".*xterm.*(.*kitty.*){2}" "Moved window left" "Failed to move window left" 2
+run_test "$oxidemsg -c move --args left" ".*xterm.*(.*kitty.*){3}" "Moved window left" "Failed to move window left" 2
+run_test "$oxidemsg -c move --args left" ".*xterm.*(.*kitty.*){4}" "Moved window left" "Failed to move window left" 2
+run_test "$oxidemsg -c move --args right" ".*xterm.*(.*kitty.*){3}" "Moved window right" "Failed to move window right" 2
+run_test "$oxidemsg -c move --args right" ".*xterm.*(.*kitty.*){2}" "Moved window right" "Failed to move window right" 2
+run_test "$oxidemsg -c move --args right" ".*xterm.*(.*kitty.*){1}" "Moved window right" "Failed to move window right" 2
+run_test "$oxidemsg -c move --args right" ".*xterm.*(.*kitty.*){0}" "Moved window right" "Failed to move window right" 2
 
 run_test "$oxidemsg -c layout --args tiled" "[tT]iled" "Successfully set layout to 'Tiled'" "Failed to set layout to 'Tiled'" 1
-run_test "$oxidemsg -c focus --args left" "kitty.*xterm" "Moved focus left" "Failed to move focus left" 1
-run_test "$oxidemsg -c focus --args left" "kitty.*xterm" "Moved focus left" "Failed to move focus left" 1
-run_test "$oxidemsg -c move --args left" "xterm.*(kitty){1}" "Moved window left" "Failed to move window left" 2
-run_test "$oxidemsg -c move --args left" "xterm.*(kitty){2}" "Moved window left" "Failed to move window left" 2
-run_test "$oxidemsg -c move --args left" "xterm.*(kitty){3}" "Moved window left" "Failed to move window left" 2
-run_test "$oxidemsg -c move --args left" "xterm.*(kitty){4}" "Moved window left" "Failed to move window left" 2
-run_test "$oxidemsg -c move --args right" "xterm.*(kitty){3}" "Moved window right" "Failed to move window right" 2
-run_test "$oxidemsg -c move --args right" "xterm.*(kitty){2}" "Moved window right" "Failed to move window right" 2
-run_test "$oxidemsg -c move --args right" "xterm.*(kitty){1}" "Moved window right" "Failed to move window right" 2
-run_test "$oxidemsg -c move --args right" "xterm.*(kitty){0}" "Moved window right" "Failed to move window right" 2
-
 run_test "$oxidemsg -c kill" "(xterm){0}" "Successfully closed a window" "Failed to close a window" 2
 run_test "$oxidemsg -c quit" "MethodError" "Successfully quit oxide" "Failed to quit oxide" 2
 

@@ -1,0 +1,180 @@
+/home/b1tc0r3/Git/OxideWM/test/resources/run_tests.sh
+┏━━━━━━━━━━━━━━━━━━━┓
+┃ [32m[1mINTEGRATION TESTS[0m ┃
+┗━━━━━━━━━━━━━━━━━━━┛
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 6 tests
+test test::config_tests::load_config_from_file ... ok
+test test::config_tests::load_config_with_missing_values ... ok
+test test::screeninfo_tests::move_to_workspace_max_value ... ok
+test test::config_tests::load_config_from_wrong_datatype_file ... ok
+test test::screeninfo_tests::move_to_workspace_zero ... ok
+test test::screeninfo_tests::test_get_next_free_workspace_nr ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+[A[K[A[K[A[K			[A
+┏━━━━━━━━━━━━━━━━━┓
+┃ [32m[1mAUTOMATED TESTS[0m ┃
+┗━━━━━━━━━━━━━━━━━┛
+[A[KAutomatic Validation failure might occur due to the system the tests are run on.
+Please verify all failures manually before submitting a bug report!
+
+Setting up tests...
+[32m[1mSetup Success (1/4)[0m - Can grab state from OxideWM
+[32m[1mSetup Success (2/4)[0m - 'xterm' is installed.
+[32m[1mSetup Success (3/4)[0m - 'kitty' is installed.
+[32m[1mSetup Success (4/4)[0m - 'oxide-bar' is running.
+
+Testing...
+(1 s) Testing: './target/debug/oxide-msg -c exec --args kitty'
+[A(0 s) Testing: './target/debug/oxide-msg -c exec --args kitty'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c exec --args kitty' - Successfully opened a window
+(1 s) Testing: './target/debug/oxide-msg -c exec --args kitty'
+[A(0 s) Testing: './target/debug/oxide-msg -c exec --args kitty'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c exec --args kitty' - Successfully opened a window
+(1 s) Testing: './target/debug/oxide-msg -c exec --args kitty'
+[A(0 s) Testing: './target/debug/oxide-msg -c exec --args kitty'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c exec --args kitty' - Successfully opened a window
+(1 s) Testing: './target/debug/oxide-msg -c exec --args kitty'
+[A(0 s) Testing: './target/debug/oxide-msg -c exec --args kitty'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c exec --args kitty' - Successfully opened a window
+(7 s) Testing: './target/debug/oxide-msg -c exec --args xterm'
+[A(6 s) Testing: './target/debug/oxide-msg -c exec --args xterm'
+[A(5 s) Testing: './target/debug/oxide-msg -c exec --args xterm'
+[A(4 s) Testing: './target/debug/oxide-msg -c exec --args xterm'
+[A(3 s) Testing: './target/debug/oxide-msg -c exec --args xterm'
+[A(2 s) Testing: './target/debug/oxide-msg -c exec --args xterm'
+[A(1 s) Testing: './target/debug/oxide-msg -c exec --args xterm'
+[A(0 s) Testing: './target/debug/oxide-msg -c exec --args xterm'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c exec --args xterm' - Successfully opened a window
+(1 s) Testing: './target/debug/oxide-msg -c focus --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c focus --args left'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c focus --args left' - Moved focus left
+(1 s) Testing: './target/debug/oxide-msg -c focus --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c focus --args left'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c focus --args left' - Moved focus left
+(2 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args left' - Moved window left
+(2 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args left' - Moved window left
+(2 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args left' - Moved window left
+(2 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A[33m[1mAutomatic Validation Failure[0m - './target/debug/oxide-msg -c move --args left' - Failed to move window left
+(2 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A[33m[1mAutomatic Validation Failure[0m - './target/debug/oxide-msg -c move --args right' - Failed to move window right
+(2 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args right' - Moved window right
+(2 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args right' - Moved window right
+(2 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args right' - Moved window right
+(1 s) Testing: './target/debug/oxide-msg -c layout --args horizontal'
+[A(0 s) Testing: './target/debug/oxide-msg -c layout --args horizontal'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c layout --args horizontal' - Successfully set layout to 'HorizontalStriped'
+(2 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args left' - Moved window left
+(2 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args left' - Moved window left
+(2 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A[33m[1mAutomatic Validation Failure[0m - './target/debug/oxide-msg -c move --args left' - Failed to move window left
+(2 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args left' - Moved window left
+(2 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A[33m[1mAutomatic Validation Failure[0m - './target/debug/oxide-msg -c move --args right' - Failed to move window right
+(2 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args right' - Moved window right
+(2 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args right' - Moved window right
+(2 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args right' - Moved window right
+(1 s) Testing: './target/debug/oxide-msg -c layout --args vertical'
+[A(0 s) Testing: './target/debug/oxide-msg -c layout --args vertical'
+[A[33m[1mAutomatic Validation Failure[0m - './target/debug/oxide-msg -c layout --args vertical' - Failed to set layout to 'Vertical'
+(2 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args left' - Moved window left
+(2 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args left' - Moved window left
+(2 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A[33m[1mAutomatic Validation Failure[0m - './target/debug/oxide-msg -c move --args left' - Failed to move window left
+(2 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args left'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args left' - Moved window left
+(2 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args right' - Moved window right
+(2 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A[33m[1mAutomatic Validation Failure[0m - './target/debug/oxide-msg -c move --args right' - Failed to move window right
+(2 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args right' - Moved window right
+(2 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(1 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A(0 s) Testing: './target/debug/oxide-msg -c move --args right'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c move --args right' - Moved window right
+(1 s) Testing: './target/debug/oxide-msg -c layout --args tiled'
+[A(0 s) Testing: './target/debug/oxide-msg -c layout --args tiled'
+[A[33m[1mAutomatic Validation Failure[0m - './target/debug/oxide-msg -c layout --args tiled' - Failed to set layout to 'Tiled'
+(2 s) Testing: './target/debug/oxide-msg -c kill'
+[A(1 s) Testing: './target/debug/oxide-msg -c kill'
+[A(0 s) Testing: './target/debug/oxide-msg -c kill'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c kill' - Successfully closed a window
+(2 s) Testing: './target/debug/oxide-msg -c quit'
+[A(1 s) Testing: './target/debug/oxide-msg -c quit'
+[A(0 s) Testing: './target/debug/oxide-msg -c quit'
+[A[32m[1mAutomatic Validation Success[0m - './target/debug/oxide-msg -c quit' - Successfully quit oxide
+[A[K[A[K[A[K			[A
