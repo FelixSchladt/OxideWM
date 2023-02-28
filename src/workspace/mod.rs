@@ -421,9 +421,10 @@ impl Workspace {
                 )
                 .draw();
 
-            if even_amount && index % 2 == 1 {
-                col += 1;
-            } else if !even_amount && index % 2 == 0 {
+            let is_lower_row_even = even_amount && index % 2 == 1;
+            let is_lower_row_odd = !even_amount && index % 2 == 0;
+            let is_lower_row = is_lower_row_even == is_lower_row_odd;
+            if is_lower_row {
                 col += 1;
             }
 
