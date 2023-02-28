@@ -360,8 +360,9 @@ impl Workspace {
     fn map_tiled(&mut self) {
         let amount = self.order.len();
 
-        if amount == 0 { return; }
-        if amount == 2 {
+        if amount == 0 {
+            return;
+        } else if amount == 2 {
             self.map_vertical_striped();
             return;
         }
@@ -392,25 +393,22 @@ impl Workspace {
 
         let mut x: u32;
         let mut y: u32;
+        let mut is_upper_row: bool;
         while index < amount {
             let window = self.windows.get_mut(&self.order[index]).unwrap();
 
+            is_upper_row = if even_amount {
+                index % 2 == 0
+            } else {
+                index % 2 == 1
+            };
+
             x = screen_size.ws_pos_x as u32 + (window_width * col);
-            y = if even_amount {
-                    let is_upper_row = index % 2 == 0;
-                    if is_upper_row {
-                        screen_size.ws_pos_y as u32
-                    } else {
-                        screen_size.ws_pos_y  as u32 + window_height
-                    }
-                } else {
-                    let is_lower_row = index % 2 == 0;
-                    if is_lower_row {
-                        screen_size.ws_pos_y  as u32 + window_height
-                    } else {
-                        screen_size.ws_pos_y as u32
-                    }
-                };
+            y = if is_upper_row {
+                screen_size.ws_pos_y as u32
+            } else {
+                screen_size.ws_pos_y  as u32 + window_height
+            };
 
             window
                 .set_bounds(
@@ -421,10 +419,7 @@ impl Workspace {
                 )
                 .draw();
 
-            let is_lower_row_even = even_amount && index % 2 == 1;
-            let is_lower_row_odd = !even_amount && index % 2 == 0;
-            let is_lower_row = is_lower_row_even == is_lower_row_odd;
-            if is_lower_row {
+            if !is_upper_row {
                 col += 1;
             }
 
