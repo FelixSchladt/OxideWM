@@ -79,7 +79,7 @@ impl Workspace {
             focused_window: self.focused_window,
             fullscreen: self.fullscreen,
             urgent: self.urgent,
-            windows: windows,
+            windows,
             order: self.order.clone(),
         }
     }
@@ -340,7 +340,8 @@ impl Workspace {
     pub fn next_layout(&mut self) {
         match self.layout {
             WorkspaceLayout::HorizontalStriped => self.set_layout(WorkspaceLayout::VerticalStriped),
-            WorkspaceLayout::VerticalStriped => self.set_layout(WorkspaceLayout::HorizontalStriped),
+            WorkspaceLayout::VerticalStriped => self.set_layout(WorkspaceLayout::Tiled),
+            WorkspaceLayout::Tiled => self.set_layout(WorkspaceLayout::HorizontalStriped),
         }
         self.remap_windows();
     }
@@ -376,6 +377,7 @@ impl Workspace {
                 //Layout::Tiled => {},
                 WorkspaceLayout::VerticalStriped => self.map_vertical_striped(),
                 WorkspaceLayout::HorizontalStriped => self.map_horizontal_striped(),
+                WorkspaceLayout::Tiled => self.map_tiled(),
             }
         }
     }
@@ -413,6 +415,76 @@ impl Workspace {
                     (screen_size.ws_height as usize / amount) as u32,
                 )
                 .draw();
+        }
+    }
+
+    fn map_tiled(&mut self) {
+        let amount = self.order.len();
+
+        if amount == 0 {
+            return;
+        } else if amount == 2 {
+            self.map_vertical_striped();
+            return;
+        }
+
+        let mut col = 0;
+        let mut index = 0;
+        let screen_size = self.screen_size.borrow();
+        let even_amount = amount % 2 == 0;
+        let window_height = screen_size.ws_height / 2;
+        let window_width = match even_amount {
+            true => screen_size.ws_width / (amount / 2) as u32,
+            false => screen_size.ws_width / ((amount + 1) / 2) as u32,
+        };
+
+        if !even_amount {
+            let window = self.windows.get_mut(&self.order[index]).unwrap();
+            window
+                .set_bounds(
+                    screen_size.ws_pos_x,
+                    screen_size.ws_pos_y,
+                    window_width,
+                    screen_size.ws_height,
+                )
+                .draw();
+            index += 1;
+            col += 1;
+        }
+
+        let mut x: u32;
+        let mut y: u32;
+        let mut is_upper_row: bool;
+        while index < amount {
+            let window = self.windows.get_mut(&self.order[index]).unwrap();
+
+            is_upper_row = if even_amount {
+                index % 2 == 0
+            } else {
+                index % 2 == 1
+            };
+
+            x = screen_size.ws_pos_x as u32 + (window_width * col);
+            y = if is_upper_row {
+                screen_size.ws_pos_y as u32
+            } else {
+                screen_size.ws_pos_y  as u32 + window_height
+            };
+
+            window
+                .set_bounds(
+                    x as i32,
+                    y as i32,
+                    window_width,
+                    window_height
+                )
+                .draw();
+
+            if !is_upper_row {
+                col += 1;
+            }
+
+            index += 1;
         }
     }
 }

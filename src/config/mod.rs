@@ -187,5 +187,5 @@ fn default_gap() -> u32 {
 }
 
 fn default_default_layout() -> WorkspaceLayout {
-    WorkspaceLayout::VerticalStriped
+    WorkspaceLayout::Tiled
 }

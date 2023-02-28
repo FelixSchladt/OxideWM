@@ -1,8 +1,8 @@
 .. _customer_specification:
 
-======================
-Customer specification
-======================
+===================================
+Customer specification (Lastenheft)
+===================================
 
 Product goal
 ------------
@@ -21,9 +21,9 @@ Product functions
 Fundamental
 ^^^^^^^^^^^
 
-| The *Oxide* window manager should give the user the ability to start and quit applications easily through its interface. The software itself is supposed to support dynamic tiling, allowing the user to arrange multiple applications in a grid-like arrangement optimizing screen space utilization. Along with this it should support both floating and static applications, giving the user flexibility in his window management.
+| The *Oxide* window manager should give the user the ability to start and quit applications through its interface. The software itself is supposed to support dynamic tiling, allowing the user to arrange multiple applications in a grid-like arrangement optimizing screen space utilization. Along with this it should support both floating and static applications, giving the user flexibility in his window management.
 | Therefore applications are expected to be moved around the screen by the user to different tiled positions or to float as a separate window.
-| Keyboard inputs are to be handled effectively, allowing the user to control all aspects of the applications by using keyboard shortcuts. The software should support focusing on different windows, allowing the user to easily switch between applications.
+| Keyboard inputs are to be handled effectively, allowing the user to control all aspects of the applications by using keyboard shortcuts. The software should support focusing on different windows, allowing the user to switch between applications.
 
 Basic
 ^^^^^
@@ -36,7 +36,7 @@ Desired
 ^^^^^^^
 
 | Inter process communication (IPC) should be used for interacting between different applications and services, allowing for a seamless integration with the users workflow.
-| The window manager is supposed to use a config file in which the user can easily manage his preferences and settings. Also power management features should be included, such as screen locking after a specified timeout to help conserve energy and improve security. 
+| The window manager is supposed to use a config file in which the user can manage his preferences and settings. Also power management features should be included, such as screen locking after a specified timeout to help conserve energy and improve security. 
 | For improving the overall user experience the software is to include visually appealing animations.
 
 Documentation

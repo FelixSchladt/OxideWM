@@ -13,7 +13,7 @@ function install_xephyr () {
 function install_cargo () {
     echo -e "[\x1b[36m~\x1b[0m] Installing Rust..."
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-    which cargo || . export PATH=$PATH:~/.cargo/bin
+    which cargo || . export PATH=$PATH:~/.cargo/bin:~/.cargo/env
 
     echo -e "[\x1b[32m+\x1b[0m] Installation complete"
 }
@@ -37,6 +37,15 @@ function install_graphviz () {
     echo -e "[\x1b[32m+\x1b[0m] Installation complete"
 }
 
+function install_pandoc () {
+    echo -e "[\x1b[36m~\x1b[0m] Installing Pandoc..."
+
+    which apt    && sudo apt install pandoc
+    which pacman && sudo pacman -S pandoc
+
+    echo -e "[\x1b[32m+\x1b[0m] Installation complete"
+}
+
 echo -e  "[\x1b[36m~\x1b[0m] Checking whether Xephyr is installed..."
 echo -ne "[\x1b[32m+\x1b[0m] "
 which Xephyr || install_xephyr
@@ -52,3 +61,7 @@ which dmenu || install_dmenu
 echo -e  "[\x1b[36m~\x1b[0m] Checking whether Graphviz is installed..."
 echo -ne "[\x1b[32m+\x1b[0m] "
 which dot || install_graphviz
+
+echo -e  "[\x1b[36m~\x1b[0m] Checking whether Pandoc is installed..."
+echo -ne "[\x1b[32m+\x1b[0m] "
+which pandoc || install_pandoc
