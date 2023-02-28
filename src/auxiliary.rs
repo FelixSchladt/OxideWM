@@ -2,7 +2,7 @@ use log::error;
 use std::process::{Command, Stdio};
 use std::sync::Arc;
 use x11rb::{
-    connection::Connection, protocol::xproto::ConnectionExt, rust_connection::RustConnection,
+ protocol::xproto::ConnectionExt, rust_connection::RustConnection,
 };
 
 pub fn exec_user_command(args: &Option<String>) {
@@ -33,7 +33,6 @@ pub fn exec_user_command(args: &Option<String>) {
 
 pub fn atom_name(connection: &Arc<RustConnection>, id: u32) -> String {
     let reply = connection.get_atom_name(id).unwrap().reply().unwrap();
-    connection.flush().unwrap();
     String::from_utf8(reply.name).unwrap()
 }
 
