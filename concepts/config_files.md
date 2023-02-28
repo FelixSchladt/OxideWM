@@ -9,7 +9,7 @@ Typical file formats used for config files are `JSON`, `YAML` or `XML`.
 `XML` was decided against because of readability.
 Compared to `JSON`, comments can be used in `YAML`, so the user can be guided trough the config file and does not need to study all variables and their function
 by hard.
-Therfore it was decided to use `YAML` as the proper file format for Oxide config files.
+Therefore it was decided to use `YAML` as the proper file format for _Oxide_ config files.
 
 ## Technical implementation
 
@@ -22,7 +22,7 @@ To achive this, `serde_yaml` can be used. The `serde_yaml` crate is a rust libra
 
 ### Default values
 
-If the user does not create his own config file, it was necessary to have some default values in order for Oxide to work. `serde_yaml` implements the following
+If the user does not create his own config file, it was necessary to have some default values in order for _Oxide_ to work. `serde_yaml` implements the following
 function.
 
 ```rust
@@ -33,4 +33,4 @@ Using this it is possible to use default values for not present or wrongly assig
 
 ## Conclusion
 
-After evaluating all aspects the team came to the conclusion to use `YAML` for the config file formar and `serde_yaml` to parse it.
+After evaluating all aspects the team came to the conclusion to use `YAML` for the config file format and `serde_yaml` to parse it.
