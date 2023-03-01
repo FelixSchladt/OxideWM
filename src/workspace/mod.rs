@@ -213,7 +213,7 @@ impl Workspace {
         }
     }
 
-    fn supports_soft_kill(&self, winid: u32) -> bool {
+    fn is_softkill_supported(&self, winid: u32) -> bool {
         let atom_id = get_internal_atom(&self.connection, Atom::WmProtocols.as_ref());
 
         self.connection.flush().unwrap();
@@ -245,13 +245,13 @@ impl Workspace {
     }
 
     pub fn kill_window(&mut self, winid: &u32) {
-        if self.supports_soft_kill(*winid) {
+        if self.is_softkill_supported(*winid) {
             self.execute_softkill(*winid);
         } else {
-            self.remove_window(winid);
             self.connection
                 .kill_client(*winid)
                 .expect("Could not kill client");
+            self.remove_window(winid);
         }
         self.connection.flush().unwrap();
     }
