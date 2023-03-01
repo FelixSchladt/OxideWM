@@ -166,11 +166,12 @@ Program actions will be stored in log files located under TODO .
 
 11.1 Software
 '''''''''''''
-- [x11rb](https://github.com/psychon/x11rb)
-- buildin crate `log` for logging
-- Zbus for IPC
+- `x11rb <https://github.com/psychon/x11rb>`__ 
+- buildin crate **log** for logging
+- **Zbus** for IPC
+- **Serde** for parsing 
 
 11.2 Development interfaces
 ''''''''''''''''''''''''''''
-- X11 API19
-- Debus
+- X11 API
+- D-Bus
