@@ -5,7 +5,11 @@ pub mod workspace_navigation;
 use self::workspace_layout::WorkspaceLayout;
 
 use crate::{
-    config::Config, screeninfo::ScreenSize, windowmanager::movement::Movement,
+    atom::Atom,
+    auxiliary::{atom_name, get_internal_atom},
+    config::Config,
+    screeninfo::ScreenSize,
+    windowmanager::movement::Movement,
     windowstate::WindowState,
 };
 
@@ -75,7 +79,7 @@ impl Workspace {
             focused_window: self.focused_window,
             fullscreen: self.fullscreen,
             urgent: self.urgent,
-            windows: windows,
+            windows,
             order: self.order.clone(),
         }
     }
@@ -209,15 +213,72 @@ impl Workspace {
         }
     }
 
-    pub fn kill_window(&mut self, winid: &u32) {
-        //TODO implement soft kill via client message over x
-        //(Tell window to close itself)
-        //https://github.com/DHBW-FN/OxideWM/issues/46
-        self.remove_window(winid);
-        self.connection
-            .kill_client(*winid)
-            .expect("Could not kill client");
+    fn is_softkill_supported(&self, winid: u32) -> bool {
+        let atom_id = get_internal_atom(&self.connection, Atom::WmProtocols.as_ref());
+
         self.connection.flush().unwrap();
+        let atom_reply = self
+            .connection
+            .get_property(false, winid, atom_id, AtomEnum::ANY, 0, 1024)
+            .unwrap()
+            .reply();
+
+        if let Ok(atom_reply) = atom_reply {
+            self.connection.flush().unwrap();
+
+            let prop_type = match atom_reply.type_ {
+                0 => return false, // Null response
+                atomid => atom_name(&self.connection, atomid),
+            };
+
+            if prop_type == "ATOM" {
+                let atoms = atom_reply
+                    .value32()
+                    .unwrap()
+                    .map(|a| atom_name(&self.connection, a))
+                    .collect::<Vec<String>>();
+
+                return atoms.iter().any(|p| p == "WM_DELETE_WINDOW");
+            }
+        }
+        false
+    }
+
+    pub fn kill_window(&mut self, winid: &u32) {
+        if self.is_softkill_supported(*winid) {
+            self.execute_softkill(*winid);
+        } else {
+            self.connection
+                .kill_client(*winid)
+                .expect("Could not kill client");
+            self.remove_window(winid);
+        }
+        self.connection.flush().unwrap();
+    }
+
+    fn execute_softkill(&mut self, winid: u32) {
+        let type_ = get_internal_atom(&self.connection, Atom::WmProtocols.as_ref());
+
+        let data = ClientMessageData::from([
+            get_internal_atom(&self.connection, Atom::WmDeleteWindow.as_ref()),
+            0,
+            0,
+            0,
+            0,
+        ]);
+
+        let clnt_msg_vnt = ClientMessageEvent {
+            response_type: CLIENT_MESSAGE_EVENT,
+            format: 32,
+            sequence: 0,
+            window: winid,
+            type_,
+            data,
+        };
+
+        self.connection
+            .send_event(false, winid, EventMask::NO_EVENT, clnt_msg_vnt)
+            .unwrap();
     }
 
     pub fn remove_window(&mut self, win_id: &u32) {
@@ -279,7 +340,8 @@ impl Workspace {
     pub fn next_layout(&mut self) {
         match self.layout {
             WorkspaceLayout::HorizontalStriped => self.set_layout(WorkspaceLayout::VerticalStriped),
-            WorkspaceLayout::VerticalStriped => self.set_layout(WorkspaceLayout::HorizontalStriped),
+            WorkspaceLayout::VerticalStriped => self.set_layout(WorkspaceLayout::Tiled),
+            WorkspaceLayout::Tiled => self.set_layout(WorkspaceLayout::HorizontalStriped),
         }
         self.remap_windows();
     }
@@ -315,6 +377,7 @@ impl Workspace {
                 //Layout::Tiled => {},
                 WorkspaceLayout::VerticalStriped => self.map_vertical_striped(),
                 WorkspaceLayout::HorizontalStriped => self.map_horizontal_striped(),
+                WorkspaceLayout::Tiled => self.map_tiled(),
             }
         }
     }
@@ -352,6 +415,76 @@ impl Workspace {
                     (screen_size.ws_height as usize / amount) as u32,
                 )
                 .draw();
+        }
+    }
+
+    fn map_tiled(&mut self) {
+        let amount = self.order.len();
+
+        if amount == 0 {
+            return;
+        } else if amount == 2 {
+            self.map_vertical_striped();
+            return;
+        }
+
+        let mut col = 0;
+        let mut index = 0;
+        let screen_size = self.screen_size.borrow();
+        let even_amount = amount % 2 == 0;
+        let window_height = screen_size.ws_height / 2;
+        let window_width = match even_amount {
+            true => screen_size.ws_width / (amount / 2) as u32,
+            false => screen_size.ws_width / ((amount + 1) / 2) as u32,
+        };
+
+        if !even_amount {
+            let window = self.windows.get_mut(&self.order[index]).unwrap();
+            window
+                .set_bounds(
+                    screen_size.ws_pos_x,
+                    screen_size.ws_pos_y,
+                    window_width,
+                    screen_size.ws_height,
+                )
+                .draw();
+            index += 1;
+            col += 1;
+        }
+
+        let mut x: u32;
+        let mut y: u32;
+        let mut is_upper_row: bool;
+        while index < amount {
+            let window = self.windows.get_mut(&self.order[index]).unwrap();
+
+            is_upper_row = if even_amount {
+                index % 2 == 0
+            } else {
+                index % 2 == 1
+            };
+
+            x = screen_size.ws_pos_x as u32 + (window_width * col);
+            y = if is_upper_row {
+                screen_size.ws_pos_y as u32
+            } else {
+                screen_size.ws_pos_y  as u32 + window_height
+            };
+
+            window
+                .set_bounds(
+                    x as i32,
+                    y as i32,
+                    window_width,
+                    window_height
+                )
+                .draw();
+
+            if !is_upper_row {
+                col += 1;
+            }
+
+            index += 1;
         }
     }
 }

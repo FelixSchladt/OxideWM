@@ -1,25 +1,30 @@
-.. _about:
+.. _about_index:
 
-==================================
-General informations about *Oxide*
-==================================
+===================
+Introducing *Oxide*
+===================
 
 Introduction
 ------------
-| *Oxide*  windowmanager is a dynamic tiling windowmanager for X11. 
+| *Oxide*  is a dynamic tiling windowmanager for X11. 
 | Windows are automatically arranged in a grid-like fashion. The user can then move and resize windows by using keyboard shortcuts. Custom defining of those shortcuts to launch applications is also possible. 
 | *Oxide*  tries to maximize the screensize by removing unnecessary borders and decorations as well as to be as keyboard friendly as possible. Everything can be done via the keyboard.
 | *Oxide* is done via a configuration file. The configuration file is written in YAML and can be reloaded at runtime. This makes the user able to change the behavior of *Oxide* without having to restart it.
 
 Terminology
 -----------
-| **Window**: An X11 application window such as a browser or terminal.
-| **Workspace**: A workspace contains multiple windows. The user can switch between several workspaces.
-| **Layout**: Layouts are different algorithms placing windows.
+| **Window**
+|  An X11 application window such as a browser or terminal.
+
+| **Workspace**
+|  A workspace contains multiple windows. The user can switch between several workspaces.
+
+| **Layout**
+|  Layouts are different algorithms placing windows.
 
 Target group
 ------------
-Target group contains power users with advanced Linux knowledge.
+The target group contains power users with advanced Linux knowledge.
 
 Product functions
 -----------------

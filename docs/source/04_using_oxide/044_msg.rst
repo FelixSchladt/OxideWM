@@ -12,94 +12,94 @@ Synopsis
 Description
 -----------
 
-The `oxide-msg` is an ipc command tool allowing querying and messaging to Oxide via the commandline.
+The `oxide-msg` is an IPC command tool allowing querying and messaging to Oxide via the commandline.
 
 Options
 -------
 
-**-a**, **--argument** [ARGUMENT]
-: arguments to specify command behavior
+| **-a**, **--argument** [ARGUMENT]
+|  arguments to specify command behavior
 
-**-c**, **--command** [WM_COMMAND]
-: window manager commands
+| **-c**, **--command** [WM_COMMAND]
+|  window manager commands
 
-**-h**, **--help**
-: output help message and exit
+| **-h**, **--help**
+|  output help message and exit
 
-**-v**, **--version**
-: output version information and exit
+| **-v**, **--version**
+|  output version information and exit
 
 WM commands (WM_COMMAND)
 ------------------------
 
-Move **-a** [MOVEMENT]
-: move window
+| **Move -a [MOVEMENT]**
+|  move window
 
-Focus **-a** [MOVEMENT]
-: move focus
+| **Focus -a [MOVEMENT]**
+|  move focus
 
-Quit
-: quit the window manager
+| **Quit**
+|  quit the window manager
 
-Kill
-: kill the currently focused window
+| **Kill**
+|  kill the currently focused window
 
-Restart
-: reloads the config and restarts components
+| **Restart**
+|  reloads the config and restarts components
 
-Layout **-a** [LAYOUT]
-: change the current layout
+| **Layout -a [LAYOUT]**
+|  change the current layout
 
-GoToWorkspace **-a** [WORKSPACE_ARGS]
-: change the current workspace
+| **GoToWorkspace -a [WORKSPACE_ARGS]**
+|  change the current workspace
 
-MoveToWorkspace **-a** [WORKSPACE_ARGS]
-: move the focused window to a different workspace
+| **MoveToWorkspace -a [WORKSPACE_ARGS]**
+|  move the focused window to a different workspace
 
-MoveToWorkspaceAndFollow **-a** [WORKSPACE_ARGS]
-: move the focused window to and select a different workspace
+| **MoveToWorkspaceAndFollow -a [WORKSPACE_ARGS]**
+|  move the focused window to and select a different workspace
 
-Exec **-a** [COMMAND]
-: execute a given command
+| **Exec -a [COMMAND]**
+|  execute a given command
 
-Fullscreen
-: toggle fullscreen mode for the focused window
+| **Fullscreen**
+|  toggle fullscreen mode for the focused window
 
 Movement (MOVEMENT)
 -------------------
 
-Left
-: moves to the left
+| **Left**
+|  moves to the left
 
-Right
-: moves to the right
+| **Right**
+|  moves to the right
 
 Layout (LAYOUT)
 ---------------
 
-Vertical
-: windows vertically next to each other
+| **Vertical**
+|  windows vertically next to each other
 
-Horizontal
-: windows horizontally underneath each other
+| **Horizontal**
+|  windows horizontally underneath each other
 
-None
-: if no argument is provided, the next layout is chosen
+| **None**  
+|  if no argument is provided, the next layout is chosen
 
 Workspace arguments (WORKSPACE_ARGS)
 ------------------------------------
 
-Next
-: Next initialized workspace with a higher index than the current workspace. If the workspace with the highest index is selected, the index with the lowest index will be selected.
+| **Next**  
+|  Next initialized workspace with a higher index than the current workspace. If the workspace with the highest index is selected, the index with the lowest index will be selected.
 
-Previous
-: Next initialized workspace with a lower index than the current workspace. If the workspace with the lowest index is selected, the index with the highest index will be selected.
+| **Previous**  
+|  Next initialized workspace with a lower index than the current workspace. If the workspace with the lowest index is selected, the index with the highest index will be selected.
 
-Next_free
-: Next available workspace with which is not initialized. Gaps in the workspace indices are filled first.
+| **Next_free**  
+|  Next available workspace with which is not initialized. Gaps in the workspace indices are filled first.
 
-Index
-: workspace with the given index
+| **Index**  
+|  workspace with the given index
 
 Examples
 --------
