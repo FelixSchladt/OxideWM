@@ -1,9 +1,7 @@
 use log::error;
 use std::process::{Command, Stdio};
 use std::sync::Arc;
-use x11rb::{
- protocol::xproto::ConnectionExt, rust_connection::RustConnection,
-};
+use x11rb::{protocol::xproto::ConnectionExt, rust_connection::RustConnection};
 
 pub fn exec_user_command(args: &Option<String>) {
     match args {
