@@ -90,10 +90,6 @@ impl ScreenInfo {
             .map(|(key, workspace)| (*key, workspace.borrow().to_dto()))
             .collect();
 
-        info!(
-            "fdsakjfadslkfjadsfldskjfdsafkljadsfadskjf dto with number{}",
-            self.active_workspace.borrow().name
-        );
         ScreenInfoDto {
             workspaces: workspaces,
             active_workspace: self.active_workspace.borrow().name,
