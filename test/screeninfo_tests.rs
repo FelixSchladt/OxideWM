@@ -61,7 +61,7 @@ fn move_to_workspace_zero() {
     screeninfo
         .go_to_workspace(WorkspaceNavigation::Number(target_workspace))
         .unwrap();
-    let active_workspace_nr = screeninfo.get_active_workspace().unwrap().name;
+    let active_workspace_nr = screeninfo.get_active_workspace().borrow().name;
 
     assert_eq!(target_workspace, active_workspace_nr);
 }
@@ -79,7 +79,7 @@ fn move_to_workspace_max_value() {
     screeninfo
         .go_to_workspace(WorkspaceNavigation::Number(target_workspace))
         .unwrap();
-    let active_workspace_nr = screeninfo.get_active_workspace().unwrap().name;
+    let active_workspace_nr = screeninfo.get_active_workspace().borrow().name;
 
     assert_eq!(target_workspace, active_workspace_nr);
 }
