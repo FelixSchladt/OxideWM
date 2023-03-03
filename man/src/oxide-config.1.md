@@ -49,10 +49,10 @@ Commands consist of a command and optional arguments.
 
 ## COMMAND
 
-Move **args** [MOVEMENT]
+Move [MOVEMENT]
 : move window
 
-Focus **args** [MOVEMENT]
+Focus [MOVEMENT]
 : move focus
 
 Quit
@@ -64,19 +64,19 @@ Kill
 Restart
 : reloads the config and restarts components
 
-Layout **args** [LAYOUT]
+Layout [LAYOUT]
 : change the current layout
 
-GoToWorkspace **args** [WORKSPACE_ARGS]
+GoToWorkspace [WORKSPACE_ARGS]
 : change the current workspace
 
-MoveToWorkspace **args** [WORKSPACE_ARGS]
+MoveToWorkspace [WORKSPACE_ARGS]
 : move the used window to a different workspace
 
-MoveToWorkspaceAndFollow **args** [WORKSPACE_ARGS]
+MoveToWorkspaceAndFollow [WORKSPACE_ARGS]
 : move the focused window to and select a different workspace
 
-Exec **args** COMMAND
+Exec [COMMAND]
 : execute a given command
 
 Fullscreen

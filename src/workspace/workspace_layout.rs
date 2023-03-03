@@ -5,7 +5,7 @@ pub enum WorkspaceLayout {
     //Tiled, //blocked by https://github.com/DHBW-FN/OxideWM/issues/70
     VerticalStriped, //  |
     HorizontalStriped, // ---
-                     //Different layout modes and better names wanted C:
+    Tiled,
 }
 
 impl TryFrom<&str> for WorkspaceLayout {
@@ -14,6 +14,7 @@ impl TryFrom<&str> for WorkspaceLayout {
         match value.to_lowercase().as_str() {
             "vertical" => Ok(WorkspaceLayout::VerticalStriped),
             "horizontal" => Ok(WorkspaceLayout::HorizontalStriped),
+            "tiled" => Ok(WorkspaceLayout::Tiled),
             _ => Err(format!("{} is not a valid layout", value)),
         }
     }

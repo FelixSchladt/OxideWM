@@ -6,7 +6,7 @@
 
 ## Developer
 
-This Position includes the testing and documentiung of software.
+This position includes the testing and documentiung of software.
 
 2. [Thomas Gingele](https://github.com/B1TC0R3)
 3. [Jan Schaible](https://github.com/janschaible)

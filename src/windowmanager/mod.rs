@@ -15,7 +15,7 @@ use x11rb::{protocol::xproto::*, rust_connection::RustConnection};
 
 use crate::{
     atom::Atom,
-    auxiliary::exec_user_command,
+    auxiliary::{atom_name, exec_user_command, get_internal_atom},
     config::Config,
     eventhandler::events::EventType,
     ipc::signal_state_change,
@@ -294,27 +294,15 @@ impl WindowManager {
         active_workspace.borrow_mut().remove_window(&event.window);
     }
 
-    pub fn atom_name(&self, id: u32) -> String {
-        let reply = self.connection.get_atom_name(id).unwrap().reply().unwrap();
-        self.connection.flush().unwrap();
-        String::from_utf8(reply.name).unwrap()
-    }
-
     //Note to get general atoms look at
     //https://github.com/sminez/penrose/blob/develop/src/x11rb/mod.rs lines 404-500
     pub fn atom_window_type_dock(&self, winid: u32) -> bool {
-        let atom_intern = self
-            .connection
-            .intern_atom(false, Atom::NetWmWindowType.as_ref().as_bytes())
-            .unwrap()
-            .reply()
-            .unwrap()
-            .atom;
+        let atom_id = get_internal_atom(&self.connection, Atom::NetWmWindowType.as_ref());
 
         self.connection.flush().unwrap();
         let atom_reply = self
             .connection
-            .get_property(false, winid, atom_intern, AtomEnum::ANY, 0, 1024)
+            .get_property(false, winid, atom_id, AtomEnum::ANY, 0, 1024)
             .unwrap()
             .reply();
         if let Ok(atom_reply) = atom_reply {
@@ -322,7 +310,7 @@ impl WindowManager {
 
             let prop_type = match atom_reply.type_ {
                 0 => return false, // Null response
-                atomid => self.atom_name(atomid),
+                atomid => atom_name(&self.connection, atomid),
             };
 
             let wm_type = Atom::NetWindowTypeDock.as_ref();
@@ -330,7 +318,7 @@ impl WindowManager {
                 let atoms = atom_reply
                     .value32()
                     .unwrap()
-                    .map(|a| self.atom_name(a))
+                    .map(|a| atom_name(&self.connection, a))
                     .collect::<Vec<String>>();
                 if atoms.contains(&wm_type.to_string()) {
                     info!("spawned window is of type _NET_WM_WINDOW_TYPE_DOCK");
