@@ -17,6 +17,8 @@ pub struct WindowState {
     pub connection: Arc<RustConnection>,
     #[serde(skip_serializing)]
     pub config: Rc<RefCell<Config>>,
+    #[serde(skip_serializing)]
+    pub root_screen: Rc<RefCell<Screen>>,
     pub frame: Window,
     pub window: Window,
     pub title: String,
@@ -86,6 +88,7 @@ impl WindowState {
         WindowState {
             connection,
             config,
+            root_screen,
             frame,
             window,
             title,
@@ -126,15 +129,51 @@ impl WindowState {
 
     pub fn draw_frameless(&self) {
         self.connection.grab_server().unwrap();
-        self.connection.unmap_window(self.frame).unwrap();
-        self.connection.unmap_window(self.window).unwrap();
 
-        let window_aux = ConfigureWindowAux::new()
+        let frame_aux = ConfigureWindowAux::new()
             .x(self.x)
             .y(self.y)
             .width(self.width)
             .height(self.height);
 
+        let window_aux = ConfigureWindowAux::new()
+            .x(0)
+            .y(0)
+            .width(self.width)
+            .height(self.height);
+
+        self.connection
+            .configure_window(self.frame, &frame_aux)
+            .unwrap();
+        self.connection
+            .configure_window(self.window, &window_aux)
+            .unwrap();
+
+        self.connection.map_window(self.frame).unwrap();
+        self.connection.map_window(self.window).unwrap();
+
+        self.connection.ungrab_server().unwrap();
+        self.connection.flush().unwrap();
+    }
+
+    pub fn draw_without_border(&self){
+        self.connection.grab_server().unwrap();
+
+        let frame_aux = ConfigureWindowAux::new()
+            .x(self.x + self.gap_size as i32)
+            .y(self.y + self.gap_size as i32)
+            .width(self.width - (self.gap_size * 2))
+            .height(self.height - (self.gap_size * 2));
+
+        let window_aux = ConfigureWindowAux::new()
+            .x(0)
+            .y(0)
+            .width(self.width - (self.gap_size * 2))
+            .height(self.height - (self.gap_size * 2));
+
+        self.connection
+            .configure_window(self.frame, &frame_aux)
+            .unwrap();
         self.connection
             .configure_window(self.window, &window_aux)
             .unwrap();
@@ -148,8 +187,6 @@ impl WindowState {
 
     pub fn draw(&self) {
         self.connection.grab_server().unwrap();
-        self.connection.unmap_window(self.frame).unwrap();
-        self.connection.unmap_window(self.window).unwrap();
 
         let frame_aux = ConfigureWindowAux::new()
             .x(self.x + self.gap_size as i32)

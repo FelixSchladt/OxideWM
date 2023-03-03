@@ -153,7 +153,7 @@ impl ScreenInfo {
         }
 
         self.create_status_bar_window(event);
-        self.status_bar.as_mut().unwrap().draw();
+        self.status_bar.as_mut().unwrap().draw_without_border();
 
         //update the workspaces
         for (_, workspace) in self.workspaces.iter_mut() {

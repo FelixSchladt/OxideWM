@@ -24,9 +24,9 @@
 - diag_file: planning/diagrams/classdg_generated/windowmanager/windowmanager/mod.png
   dot_hash: be4404b2ab2ed45ee46e056d6194ca82331b88e9ee7b6fd6541448854aa54da0
 - diag_file: planning/diagrams/classdg_generated/windowmanager/windowstate.png
-  dot_hash: 99a2cb15ce4a40469d870d1f3a3240bcfef162245a00dc466de482f27ee57476
+  dot_hash: ac79f2459cef35bb13d2e3de0210fc2433052f90eefc842a8717b98efe3af558
 - diag_file: planning/diagrams/classdg_generated/windowmanager/workspace/mod.png
-  dot_hash: 4e6ce7311066d73c9c57f21f5f52c837122f557407e4d7433ad65ddda9cfa322
+  dot_hash: c444e89628bbae44c6405e588a2778a0841a55fc10bc0bad8ba35d790a82ab28
 - diag_file: planning/diagrams/classdg_generated/windowmanager/workspace/parse_error.png
   dot_hash: 12b63b69b92ae8afc2921404f684fc66f3b627b62954a500932c725908ece24d
 - diag_file: planning/diagrams/classdg_generated/windowmanager/workspace/workspace_navigation.png

@@ -282,10 +282,16 @@ impl Workspace {
     }
 
     pub fn remove_window(&mut self, win_id: &u32) {
-        self.windows.remove(&win_id);
+        let win_state_opt = self.windows.remove(&win_id);
         self.order.retain(|&x| x != *win_id);
         self.remap_windows();
         self.connection.grab_server().unwrap();
+        if let Some(win_state) = win_state_opt {
+            let resp = &self.connection.unmap_window(win_state.frame);
+            if resp.is_err() {
+                error!("An error occured while trying to unmap window");
+            }
+        }
         let resp = &self.connection.unmap_window(*win_id as Window);
         if resp.is_err() {
             error!("An error occured while trying to unmap window");
@@ -312,24 +318,43 @@ impl Workspace {
     }
 
     pub fn focus_window(&mut self, winid: u32) {
+        let new_focused_window = match self.windows.get(&winid){
+            Some(win)=>win,
+            None => {
+                warn!("failed to set focused window {}, not present on this workspace", winid);
+                return
+            }
+        };
+
         debug!("focus_window");
-        self.focused_window = Some(winid);
         if let Ok(result) = self
             .connection
             .set_input_focus(InputFocus::PARENT, winid, CURRENT_TIME)
         {
             if let Err(_) = result.check() {
                 warn!("Failed to focus window");
+            }else{
+                if let Some(focused_window) = self.focused_window {
+                    if let Some(window) = self.windows.get(&focused_window){
+                        window.draw_without_border();
+                    }
+                }
+                self.focused_window = Some(winid);
+                new_focused_window.draw();
             }
         } else {
             warn!("Failed to focus window");
         }
-        //TODO: Change color of border to focus color
+        self.remap_windows();
     }
 
     pub fn unfocus_window(&mut self) {
+        if let Some(focused_window) = self.focused_window {
+            if let Some(window) = self.windows.get(&focused_window){
+                window.draw_without_border();
+            }
+        }
         self.focused_window = None;
-        //TODO: Change color of border to unfocus color
     }
 
     pub fn set_layout(&mut self, layout: WorkspaceLayout) {
@@ -374,7 +399,6 @@ impl Workspace {
             self.connection.flush().unwrap();
         } else {
             match self.layout {
-                //Layout::Tiled => {},
                 WorkspaceLayout::VerticalStriped => self.map_vertical_striped(),
                 WorkspaceLayout::HorizontalStriped => self.map_horizontal_striped(),
                 WorkspaceLayout::Tiled => self.map_tiled(),
@@ -395,8 +419,8 @@ impl Workspace {
                     screen_size.ws_pos_y,
                     (screen_size.ws_width as usize / amount) as u32,
                     screen_size.ws_height,
-                )
-                .draw();
+                );
+            draw_window(&current_window, self.focused_window)
         }
     }
 
@@ -413,8 +437,8 @@ impl Workspace {
                     (i * screen_size.ws_height as usize / amount) as i32 + screen_size.ws_pos_y,
                     screen_size.ws_width,
                     (screen_size.ws_height as usize / amount) as u32,
-                )
-                .draw();
+                );
+            draw_window(current_window, self.focused_window);
         }
     }
 
@@ -446,8 +470,9 @@ impl Workspace {
                     screen_size.ws_pos_y,
                     window_width,
                     screen_size.ws_height,
-                )
-                .draw();
+                );
+            draw_window(window, self.focused_window);
+
             index += 1;
             col += 1;
         }
@@ -472,8 +497,8 @@ impl Workspace {
             };
 
             window
-                .set_bounds(x as i32, y as i32, window_width, window_height)
-                .draw();
+                .set_bounds(x as i32, y as i32, window_width, window_height);
+            draw_window(window, self.focused_window);
 
             if !is_upper_row {
                 col += 1;
@@ -481,5 +506,13 @@ impl Workspace {
 
             index += 1;
         }
+    }
+}
+
+fn draw_window(window:&WindowState, focused_window: Option<u32>){
+    if Some(window.window) == focused_window {
+        window.draw();
+    }else{
+        window.draw_without_border();
     }
 }
