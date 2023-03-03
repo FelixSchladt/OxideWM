@@ -18,11 +18,11 @@
 - diag_file: planning/diagrams/classdg_generated/windowmanager/screeninfo/error.png
   dot_hash: 53eba971eabb50987207e13753db3b784b89cd366c3dec453ce7393c14e49e20
 - diag_file: planning/diagrams/classdg_generated/windowmanager/screeninfo/mod.png
-  dot_hash: d9ed0acdb2cc889d484395c78c1ee579a002bc536e650af5c6528c7a2e748669
+  dot_hash: d8c60c3afbba17453097e6b1a83dcd3a23c52aeb347e6a7b8a788b61b1655ac9
 - diag_file: planning/diagrams/classdg_generated/windowmanager/setup/connection.png
   dot_hash: 897e50e517631357d8ca934a8aeb2b91b75db3c0213cad81d4a43d2e856d9b0b
 - diag_file: planning/diagrams/classdg_generated/windowmanager/windowmanager/mod.png
-  dot_hash: be4404b2ab2ed45ee46e056d6194ca82331b88e9ee7b6fd6541448854aa54da0
+  dot_hash: 3f3bb09b61018507846bb7379caaa5dfdfa1a9bf6803b9c0b347143dc966ef5b
 - diag_file: planning/diagrams/classdg_generated/windowmanager/windowstate.png
   dot_hash: 99a2cb15ce4a40469d870d1f3a3240bcfef162245a00dc466de482f27ee57476
 - diag_file: planning/diagrams/classdg_generated/windowmanager/workspace/mod.png
