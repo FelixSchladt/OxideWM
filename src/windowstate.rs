@@ -59,16 +59,18 @@ impl WindowState {
                 COPY_DEPTH_FROM_PARENT,
                 frame,
                 root_screen.borrow().root,
-                x as i16,
-                y as i16,
-                width as u16,
-                height as u16,
+                0,
+                0,
+                1,
+                1,
                 0,
                 WindowClass::INPUT_OUTPUT,
                 0,
                 &CreateWindowAux::new().background_pixel(root_screen.borrow().white_pixel),
             )
             .unwrap();
+
+        connection.reparent_window(window, frame, 0, 0).unwrap();
 
         let mask = ChangeWindowAttributesAux::default()
             .event_mask(EventMask::ENTER_WINDOW | EventMask::LEAVE_WINDOW);
@@ -156,8 +158,8 @@ impl WindowState {
             .height(self.height - (self.gap_size * 2));
 
         let window_aux = ConfigureWindowAux::new()
-            .x(self.x + (self.border_width + self.gap_size) as i32)
-            .y(self.y + (self.border_width + self.gap_size) as i32)
+            .x(self.border_width as i32)
+            .y(self.border_width as i32)
             .width(self.width - (self.border_width * 2) - (self.gap_size * 2))
             .height(self.height - (self.border_width * 2) - (self.gap_size * 2));
 

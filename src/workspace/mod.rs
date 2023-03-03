@@ -468,16 +468,11 @@ impl Workspace {
             y = if is_upper_row {
                 screen_size.ws_pos_y as u32
             } else {
-                screen_size.ws_pos_y  as u32 + window_height
+                screen_size.ws_pos_y as u32 + window_height
             };
 
             window
-                .set_bounds(
-                    x as i32,
-                    y as i32,
-                    window_width,
-                    window_height
-                )
+                .set_bounds(x as i32, y as i32, window_width, window_height)
                 .draw();
 
             if !is_upper_row {
