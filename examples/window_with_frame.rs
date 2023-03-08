@@ -27,6 +27,8 @@ fn on_map_request<C: Connection>(
     )
 }
 
+macro_rules! _f2u { { $f:expr, $s:expr } => { (($f * 255.0) as u32) << $s } }
+
 fn draw_window<C: Connection>(
     manager: &C,
     screen: &Screen,
@@ -39,16 +41,31 @@ fn draw_window<C: Connection>(
     titlebar_height: u16,
 ) -> Result<(), Box<dyn Error>> {
     let window_width: u32 = (width - 2 * border_width) as u32;
-    let window_height: u32 = (height - 2 * border_width - titlebar_height) as u32;
+    let window_height: u32 = (height - 2 * border_width ) as u32;
 
     let frame_id = manager.generate_id()?;
+    let colormap = manager.generate_id()?;
     let titlebar_id = manager.generate_id()?;
+    
+    manager.create_colormap(
+                    ColormapAlloc::NONE,
+                    colormap,
+                    screen.root,
+                    screen.root_visual,
+                )?;
+
+
 
     let window_aux = ConfigureWindowAux::default()
         .width(window_width)
         .height(window_height)
         .x(border_width as i32)
-        .y((border_width + titlebar_height) as i32);
+        .y(border_width as i32);
+
+    println!("color: {}", screen.white_pixel);
+
+    let rgb_u32 = (  _f2u!(255.0, 16) + _f2u! (100.0, 8) + _f2u!(100.0, 0));
+
 
     manager.create_window(
         COPY_DEPTH_FROM_PARENT,
@@ -58,12 +75,13 @@ fn draw_window<C: Connection>(
         y,
         width,
         height,
-        0,
+        2,
         WindowClass::INPUT_OUTPUT,
         0,
-        &CreateWindowAux::new().background_pixel(screen.white_pixel),
+        &CreateWindowAux::new().background_pixel(x11rb::NONE).border_pixel(rgb_u32).colormap(colormap),
     )?;
 
+    /*
     manager.create_window(
         COPY_DEPTH_FROM_PARENT,
         titlebar_id,
@@ -76,7 +94,7 @@ fn draw_window<C: Connection>(
         WindowClass::INPUT_OUTPUT,
         0,
         &CreateWindowAux::new().background_pixel(screen.white_pixel),
-    )?;
+    )?;*/
 
     manager.reparent_window(window, frame_id, 0, 0)?;
     manager.configure_window(window, &window_aux)?;
@@ -84,7 +102,7 @@ fn draw_window<C: Connection>(
     manager.grab_server()?;
 
     manager.map_window(frame_id)?;
-    manager.map_window(titlebar_id)?;
+    //manager.map_window(titlebar_id)?;
     manager.map_window(window)?;
     manager.flush()?;
 
