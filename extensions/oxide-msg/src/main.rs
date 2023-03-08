@@ -4,10 +4,7 @@ use oxideipc;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(short, long)]
     command: String,
-
-    #[arg(short, long, default_value = None)]
     args: Option<String>,
 }
 
