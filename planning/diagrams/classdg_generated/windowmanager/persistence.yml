@@ -1,6 +1,6 @@
 ---
 - diag_file: planning/diagrams/classdg_generated/windowmanager/auxiliary.png
-  dot_hash: 69a1b43e9600b9692e50cdf8556e5a31f118c3144509e5acc295c656dc1307b7
+  dot_hash: 2bbf94a8d598ea4c2dfd749226424db903af693714e8c8c53d2c46c62fa2412c
 - diag_file: planning/diagrams/classdg_generated/windowmanager/config/commands.png
   dot_hash: 2f1d8e31f3b7e364fc23793096e0d97e640832de3674ce2105ae5f0a15ec88eb
 - diag_file: planning/diagrams/classdg_generated/windowmanager/config/mod.png
@@ -18,15 +18,15 @@
 - diag_file: planning/diagrams/classdg_generated/windowmanager/screeninfo/error.png
   dot_hash: 53eba971eabb50987207e13753db3b784b89cd366c3dec453ce7393c14e49e20
 - diag_file: planning/diagrams/classdg_generated/windowmanager/screeninfo/mod.png
-  dot_hash: d9ed0acdb2cc889d484395c78c1ee579a002bc536e650af5c6528c7a2e748669
+  dot_hash: d8c60c3afbba17453097e6b1a83dcd3a23c52aeb347e6a7b8a788b61b1655ac9
 - diag_file: planning/diagrams/classdg_generated/windowmanager/setup/connection.png
   dot_hash: 897e50e517631357d8ca934a8aeb2b91b75db3c0213cad81d4a43d2e856d9b0b
 - diag_file: planning/diagrams/classdg_generated/windowmanager/windowmanager/mod.png
-  dot_hash: 2fc6ab9e7efac6f8185caa3a8421aeca6c6622d9988846764368a0decbc2e023
+  dot_hash: 3f3bb09b61018507846bb7379caaa5dfdfa1a9bf6803b9c0b347143dc966ef5b
 - diag_file: planning/diagrams/classdg_generated/windowmanager/windowstate.png
   dot_hash: 99a2cb15ce4a40469d870d1f3a3240bcfef162245a00dc466de482f27ee57476
 - diag_file: planning/diagrams/classdg_generated/windowmanager/workspace/mod.png
-  dot_hash: 6bcd1b8845c022c79c3b5d7ce82eeab0b3973517ed23db3fbcdcf28541034dfe
+  dot_hash: 4e6ce7311066d73c9c57f21f5f52c837122f557407e4d7433ad65ddda9cfa322
 - diag_file: planning/diagrams/classdg_generated/windowmanager/workspace/parse_error.png
   dot_hash: 12b63b69b92ae8afc2921404f684fc66f3b627b62954a500932c725908ece24d
 - diag_file: planning/diagrams/classdg_generated/windowmanager/workspace/workspace_navigation.png

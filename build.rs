@@ -382,7 +382,7 @@ fn generate_diagrams(root: DiagramRoot) {
 }
 
 fn main() {
-//    format_code();
+    //    format_code();
 
     let diagram_roots: Vec<DiagramRoot> = vec![
         DiagramRoot {

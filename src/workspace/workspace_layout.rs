@@ -2,8 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum WorkspaceLayout {
-    //Tiled, //blocked by https://github.com/DHBW-FN/OxideWM/issues/70
-    VerticalStriped, //  |
+    VerticalStriped,   //  |
     HorizontalStriped, // ---
     Tiled,
 }
