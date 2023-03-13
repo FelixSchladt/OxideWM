@@ -29,5 +29,7 @@
   dot_hash: 4e6ce7311066d73c9c57f21f5f52c837122f557407e4d7433ad65ddda9cfa322
 - diag_file: planning/diagrams/classdg_generated/windowmanager/workspace/parse_error.png
   dot_hash: 12b63b69b92ae8afc2921404f684fc66f3b627b62954a500932c725908ece24d
+- diag_file: planning/diagrams/classdg_generated/windowmanager/workspace/workspace_layout.png
+  dot_hash: a4d5ee3aa4165f0c2b60611a93f6636a59cd25a3e396c63acd24e5e9b4af1b85
 - diag_file: planning/diagrams/classdg_generated/windowmanager/workspace/workspace_navigation.png
   dot_hash: ea73e10c96b36c5d91fb03894926820ed78dca35f857b62b985184382b83ee2b

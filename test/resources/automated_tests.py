@@ -110,7 +110,51 @@ def move_focus():
     return original_state != states[0] != states[1]
 
 def move_window():
-    pass
+    get_window_order = lambda payload : payload['screeninfo']\
+                                               ['1361']\
+                                               ['workspaces']\
+                                               ['1']\
+                                               ['order']
+
+    original_state = json.loads(bash(get_state))
+    original_order = get_window_order(original_state)
+
+    success = True
+    states  = [
+        get_window_order(json.loads(oxide('move left'))),
+        get_window_order(json.loads(oxide('move left'))),
+        get_window_order(json.loads(oxide('move left'))),
+        get_window_order(json.loads(oxide('move left'))),
+        get_window_order(json.loads(oxide('move right'))),
+        get_window_order(json.loads(oxide('move right'))),
+        get_window_order(json.loads(oxide('move right'))),
+        get_window_order(json.loads(oxide('move right'))),
+    ]
+
+    for index, state in enumerate(states):
+        if index == 0 or index == len(states)-1:
+            continue
+
+        if state == states[index-1]:
+            return False
+
+    return success and original_order == states[len(states)-1]
+
+def switch_to_verical_layout():
+    state = oxide('layout vertical')
+    print(state)
+    print("")
+    return len(re.findall('Vertical', state)) == 2
+
+
+def switch_to_horizontal_layout():
+    state = oxide('layout horizontal')
+    return 'Horizontal' in state
+
+
+def switch_to_tiled_layout():
+    state = oxide('layout tiled')
+    return 'Tiled' in state
 
 
 def main():
@@ -122,6 +166,13 @@ def main():
     test(open_kitty_windows)
     test(open_xterm_window)
     test(move_focus)
+    test(move_window)
+    test(switch_to_verical_layout)
+    test(move_window)
+    test(switch_to_horizontal_layout)
+    test(move_window)
+    test(switch_to_tiled_layout)
+    test(move_window)
 
 
 if __name__ == "__main__":
