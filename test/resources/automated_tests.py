@@ -119,16 +119,15 @@ def move_window():
     original_state = json.loads(bash(get_state))
     original_order = get_window_order(original_state)
 
-    success = True
     states  = [
-        get_window_order(json.loads(oxide('move left'))),
-        get_window_order(json.loads(oxide('move left'))),
-        get_window_order(json.loads(oxide('move left'))),
-        get_window_order(json.loads(oxide('move left'))),
-        get_window_order(json.loads(oxide('move right'))),
-        get_window_order(json.loads(oxide('move right'))),
-        get_window_order(json.loads(oxide('move right'))),
-        get_window_order(json.loads(oxide('move right'))),
+        get_window_order(json.loads(oxide('move left', 2))),
+        get_window_order(json.loads(oxide('move left', 2))),
+        get_window_order(json.loads(oxide('move left', 2))),
+        get_window_order(json.loads(oxide('move left', 2))),
+        get_window_order(json.loads(oxide('move right', 2))),
+        get_window_order(json.loads(oxide('move right', 2))),
+        get_window_order(json.loads(oxide('move right', 2))),
+        get_window_order(json.loads(oxide('move right', 2))),
     ]
 
     for index, state in enumerate(states):
@@ -138,23 +137,28 @@ def move_window():
         if state == states[index-1]:
             return False
 
-    return success and original_order == states[len(states)-1]
+    return original_order == states[len(states)-1]
 
 def switch_to_verical_layout():
     state = oxide('layout vertical')
-    print(state)
-    print("")
-    return len(re.findall('Vertical', state)) == 2
+    return 'vertical_striped' in state
 
 
 def switch_to_horizontal_layout():
     state = oxide('layout horizontal')
-    return 'Horizontal' in state
+    return 'horizontal_striped' in state
 
 
 def switch_to_tiled_layout():
     state = oxide('layout tiled')
-    return 'Tiled' in state
+    return 'tiled' in state
+
+def close_window():
+    return 'xterm' not in oxide('kill')
+
+
+def quit_oxide():
+    return 'MethodError' in oxide('quit')
 
 
 def main():
@@ -172,7 +176,8 @@ def main():
     test(switch_to_horizontal_layout)
     test(move_window)
     test(switch_to_tiled_layout)
-    test(move_window)
+    test(close_window)
+    test(quit_oxide)
 
 
 if __name__ == "__main__":
