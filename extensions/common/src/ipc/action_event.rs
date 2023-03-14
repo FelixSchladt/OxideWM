@@ -9,11 +9,18 @@ pub struct WmActionEvent {
 }
 
 impl WmActionEvent {
-    pub fn new(command: &str, args: Option<String>) -> Self {
-        WmActionEvent {
-            command: WmCommands::try_from(command).unwrap(),
+    pub fn new(command: &str, args: Option<String>) -> Result<Self, String> {
+        let parsed_command = match WmCommands::try_from(command) {
+            Ok(parsed_command) => parsed_command,
+            Err(msg) => {
+                return Err(msg);
+            }
+        };
+
+        Ok(WmActionEvent {
+            command: parsed_command,
             args,
-        }
+        })
     }
 }
 
