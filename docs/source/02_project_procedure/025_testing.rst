@@ -54,12 +54,12 @@ automated testing are located here:
 
    test/resources
 
-| Functionality being tested automatically: 
-| - opening windows 
-| - closing windows 
-| - moving focus between windows 
-| - moving windows / switching window position 
-| - switching layout 
+| Functionality being tested automatically:
+| - opening windows (xterm and kitty, both are terminals)
+| - closing windows (xterm)
+| - moving focus between windows (xterm and kitty, 5 windows total)
+| - moving windows / switching window position (10 movements per layout)
+| - switching layout (vertical stripes, horizontal stripes, tiled layout)
 | - closing the windowmanager
 
 Manual tests
@@ -68,10 +68,12 @@ Manual tests
 Manual tests are used to cover all other areas ignored by the previous
 testing methods.
 
-| Manually tested features are: 
-| - running the fully installed version of the project as a real windowmanager 
-| - keyboard inputs 
-| - mouse inputs 
+| Manually tested features are:
+| - installation of the windowmanager
+| - running the fully installed version of the project as a real windowmanager
+| - keyboard inputs
+| - mouse inputs
+| - autostarting applications
 | - interaction with ``dmenu``
 
 In addition, this type of test is used to narrow down issues after they
