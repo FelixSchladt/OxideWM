@@ -3,8 +3,10 @@ import time
 import json
 import re
 
-oxide_msg = ''
-get_state = ''
+STARTUP_WAIT_TIME = 3
+
+oxide_msg = '/target/debug/oxide-msg'
+get_state = ' state'
 
 def bash(command) -> str:
     command = command.split(' ')
@@ -25,12 +27,11 @@ def setup():
            get_state
 
     print("Running Setup...")
-
-    time.sleep(3)
+    time.sleep(STARTUP_WAIT_TIME)
 
     cwd       = bash('pwd')
-    oxide_msg = cwd       + '/target/debug/oxide-msg'
-    get_state = oxide_msg + ' state'
+    oxide_msg = cwd       + oxide_msg
+    get_state = oxide_msg + get_state
 
     print(f"\x1b[32m\x1b[1mSetup Success (1/4)\x1b[0m - Mapped \'oxide-msg\' to {oxide_msg}")
 
