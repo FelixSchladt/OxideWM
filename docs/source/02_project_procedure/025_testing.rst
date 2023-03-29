@@ -13,6 +13,16 @@ Automated and integration tests can be run using the main makefile:
 
    make test
 
+Where to find test results
+--------------------------
+
+Automated test logs are exluded from version control to avoid cluttering.
+Manual test results and findings can be found in:
+
+::
+
+    test/results
+
 Unittests
 ---------
 
