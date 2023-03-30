@@ -22,6 +22,9 @@ Build tools need to be install:
 ```bash
 # Ubuntu
 sudo apt install build-essential
+sudo apt install libglib2.0-dev
+sudo apt install libcairo2-dev
+sudo apt install libpango1.0-dev
 # Arch
 sudo pacman -S base-devel
 ```
