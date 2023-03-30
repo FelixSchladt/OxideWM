@@ -24,20 +24,20 @@ use syslog::{Facility, Formatter3164};
 
 use self::teelogger::Teelogger;
 
-const LOG_FILE_EXTENSION: &str = "log";
+const _LOG_FILE_EXTENSION: &str = "log";
 const LOG_LEVEL_ENV: &str = "OXIDE_LOG";
 
 pub fn init_logger(
     log_level: LevelFilter,
-    log_file_name: String,
-    log_file_location: String,
+    _log_file_name: String,
+    _log_file_location: String,
     process_name: String,
 ) {
     let mut tee_logger = Teelogger::new();
 
     #[cfg(debug_assertions)]
     {
-        let log4rs_logger = get_log4rs_logger(log_level, log_file_name, log_file_location);
+        let log4rs_logger = get_log4rs_logger(log_level, _log_file_name, _log_file_location);
         tee_logger.add_logger(log4rs_logger);
     }
 
@@ -75,12 +75,12 @@ fn get_log_file_appender(log_file_name: String, log_file_location: String) -> Ro
 
     let log_file_pattern = format!(
         "{}{}{{}}.{}",
-        log_file_location, log_file_name, LOG_FILE_EXTENSION
+        log_file_location, log_file_name, _LOG_FILE_EXTENSION
     );
 
     let log_file = format!(
         "{}{}.{}",
-        log_file_location, log_file_name, LOG_FILE_EXTENSION
+        log_file_location, log_file_name, _LOG_FILE_EXTENSION
     );
 
     fs::create_dir_all(PathBuf::from(log_file.clone()).parent().unwrap())
