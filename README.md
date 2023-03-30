@@ -13,7 +13,7 @@ Oxide supports a dynamic config, IPC and multiple tiling modes.
 Take a look at our [readthedocs](oxide.readthedocs.org) to see the full documentation.
 
 ## Prerequisits
-Rust needs to be installed. After it has been installed, restart the terminal session, that the new environment variables are loaded.
+Rust needs to be installed. After it has been installed, restart the terminal session, so that any new environment variables are loaded.
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
@@ -43,10 +43,10 @@ After installation you can quit your current X session and log out. Subsequently
 
 ## Run Oxide locally (Debug)
 
-To run oxide locally, xephyr is used to emulate a seperate X-server.
+To run oxide locally, Xephyr is used to emulate a seperate X-server.
 ```bash
 make run
-```After installation restart the terminal session, that the new environment variables are loaded.
+```
 
 ## Documentation
 
