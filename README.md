@@ -60,4 +60,4 @@ When project is built without `--release` flag, the logs are additionally writte
 
 ## Credits
 
-Special thanks to Sascha Kegreiß for the continues support and great lecture.
+Special thanks to Sascha Kegreiß for the continuous support and great lecture.
