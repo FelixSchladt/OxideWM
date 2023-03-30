@@ -95,7 +95,7 @@ def open_xterm_window():
 
 def move_focus():
     get_focused_window = lambda payload : payload['screeninfo']\
-                                                 ['1361']\
+                                                 ['1310']\
                                                  ['workspaces']\
                                                  ['1']\
                                                  ['focused_window']
@@ -112,7 +112,7 @@ def move_focus():
 
 def move_window():
     get_window_order = lambda payload : payload['screeninfo']\
-                                               ['1361']\
+                                               ['1310']\
                                                ['workspaces']\
                                                ['1']\
                                                ['order']
