@@ -21,23 +21,23 @@ cmds:
         args: None
 
   # Move Focus
-  - keys: ["M", "l"]
+  - keys: ["M", "Right"]
     commands:
       - command: Focus
         args: "right"
 
-  - keys: ["M", "h"]
+  - keys: ["M", "Left"]
     commands:
       - command: Focus
         args: "left"
 
   # Move Windows
-  - keys: ["M", "S", "l"]
+  - keys: ["M", "S", "Right"]
     commands:
       - command: Move
         args: "right"
 
-  - keys: ["M", "S", "h"]
+  - keys: ["M", "S", "Left"]
     commands:
       - command: Move
         args: "left"
