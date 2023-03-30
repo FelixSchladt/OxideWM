@@ -7,11 +7,10 @@
 ![Plot](docs/source/oxide-rice.png)
 
 ## What is Oxide?
-OxideWm is a X11 dynamic tiling window manager written in Rust.
+OxideWM is a X11 dynamic tiling window manager written in Rust.
 This project idea is inspired by the DWM, leftWM and i3WM.
 Oxide supports a dynamic config, IPC and multiple tiling modes.
 Take a look at our [readthedocs](oxide.readthedocs.org) to see the full documentation.
-
 
 ## Installation
 
@@ -30,6 +29,13 @@ make install
 
 Sudo privileges are required to install Oxide.
 After installation you can quit your current X session and log out. Subsequently Oxide should be selectable as window manager in your login screen.
+
+## Run Oxide locally (Debug)
+
+To run oxide locally, xephyr is used to emulate a seperate X-server.
+```bash
+make run
+```
 
 ## Documentation
 
