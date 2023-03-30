@@ -12,6 +12,20 @@ This project idea is inspired by the DWM, leftWM and i3WM.
 Oxide supports a dynamic config, IPC and multiple tiling modes.
 Take a look at our [readthedocs](oxide.readthedocs.org) to see the full documentation.
 
+## Prerequisits
+Rust needs to be installed. After installation restart the terminal session, that the new environment variables are loaded.
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+Build tools need to be install:
+```bash
+# Ubuntu
+sudo apt install build-essential
+# Arch
+sudo pacman -S base-devel
+```
+
 ## Installation
 
 1. Clone the Oxide git repository:
