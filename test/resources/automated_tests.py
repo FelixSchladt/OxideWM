@@ -162,7 +162,7 @@ def close_window():
 
 
 def send_invalid_command():
-    return "Error: Invalid command! Run 'oxide-msg --help' to view usage." in oxide('invalid command')
+    return "Error: Invalid command! Run 'oxide-msg --help' to view usage." in bash(oxide_msg + ' invalid command')
 
 
 def quit_oxide():
