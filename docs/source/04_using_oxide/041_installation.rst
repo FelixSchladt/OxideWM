@@ -4,6 +4,25 @@
 Installation
 ============
 
+Prerequisits
+------------
+Rust needs to be installed. After it has been installed, restart the terminal session, so that any new environment variables are loaded.
+
+.. code-block:: bash
+
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+
+Build tools need to be install:
+
+.. code-block:: bash
+
+        sudo apt install git make build-essential libglib2.0-dev libcairo2-dev libpango1.0-dev kitty xterm
+
+
+Installation
+------------
+
 1. Clone the *Oxide* git repository:
 
 .. code-block:: bash
