@@ -57,3 +57,7 @@ make run
 To change log level, set environment variable `OXIDE_LOG=[error, info, debug, trace]` changes affect only after restart... .
 Logs will always be written to `/var/log/syslog`.
 When project is built without `--release` flag, the logs are additionally written to `stdout` and to `log/*.log`.
+
+## Credits
+
+Special thanks to Sascha Kegreiß for the continues support and great lecture.
