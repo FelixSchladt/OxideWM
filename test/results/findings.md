@@ -25,6 +25,11 @@ When using the windowmanager with more then one screen, undefined behavior will 
 It has been observed during manual testing that the manager may treat multiple screens as one combined screen, also it likely depends on
 what applications are used to configure and manager the individual screens themselves (e.g. drivers).
 
+### Focus issues
+While moving windows or changing focus via the keyboard sometimes unecpected behavior occurs.
+This is mostly caused by the mouse not being moved and stays in its position.
+Therefore the mouse may be hovering above a not focused window and in the moment a position update (eg slight movement of the mouse etc.) the window under the mouse is focused.
+
 ## Testing issues
 
 Errors and findings described in this section refer to issues in the testing framework and not the application itself.
