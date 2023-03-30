@@ -15,7 +15,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let state = oxideipc::get_state();
         println!("{}", state);
     } else {
-        oxideipc::sent_event(args.command.as_str(), args.args);
+        match oxideipc::sent_event(args.command.as_str(), args.args) {
+            Ok(())   => {},
+            Err(_) => {
+                println!("Error: Invalid command! Run 'oxide-msg --help' to view usage.");
+            }
+        };
     }
     Ok(())
 }

@@ -110,6 +110,7 @@ def move_focus():
 
     return original_state != states[0] != states[1]
 
+
 def move_window():
     get_window_order = lambda payload : payload['screeninfo']\
                                                [f'{payload["focused_screen"]}']\
@@ -140,6 +141,7 @@ def move_window():
 
     return original_order == states[len(states)-1]
 
+
 def switch_to_verical_layout():
     state = oxide('layout vertical')
     return 'vertical_striped' in state
@@ -154,12 +156,13 @@ def switch_to_tiled_layout():
     state = oxide('layout tiled')
     return 'tiled' in state
 
+
 def close_window():
     return 'xterm' not in oxide('kill')
 
 
 def send_invalid_command():
-    return "Error: Invalid command! Run 'oxide-msg --help' to view usage." in bash(oxide_msg + ' invalid command')
+    return "Error: Invalid command! Run 'oxide-msg --help' to view usage." in oxide('invalid command')
 
 
 def quit_oxide():
@@ -172,7 +175,10 @@ def main():
     print("#=======================================================================#")
     print("Running Tests...")
 
+    # Stress testing
     test(send_invalid_command)
+
+    # Validate functionality
     test(open_kitty_windows)
     test(open_xterm_window)
     test(move_focus)
@@ -182,6 +188,8 @@ def main():
     test(switch_to_horizontal_layout)
     test(move_window)
     test(switch_to_tiled_layout)
+
+    # Test quitting functionality
     test(close_window)
     test(quit_oxide)
 
