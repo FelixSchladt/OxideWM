@@ -7,6 +7,12 @@ Not all issues listed here might translate into bug reports.
 
 Errors and findings described in this section refer to issues in the application.
 
+### Some applications lead to performance issues
+
+Applications like `gnome-terminal` can perform poorly with the window manager.
+Should this happen it is recommended to switch to another program.
+The recommended terminal is called `kitty`.
+
 ### Keycombinations perform different actions depending on the order they are pressed in
 
 When pressing multiple keys (e.g.: `Alt+T`) the order of the keypresses will influence the performed action.
