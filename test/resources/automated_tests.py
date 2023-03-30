@@ -95,7 +95,7 @@ def open_xterm_window():
 
 def move_focus():
     get_focused_window = lambda payload : payload['screeninfo']\
-                                                 ['1310']\
+                                                 [f'{payload["focused_screen"]}']\
                                                  ['workspaces']\
                                                  ['1']\
                                                  ['focused_window']
@@ -112,7 +112,7 @@ def move_focus():
 
 def move_window():
     get_window_order = lambda payload : payload['screeninfo']\
-                                               ['1310']\
+                                               [f'{payload["focused_screen"]}']\
                                                ['workspaces']\
                                                ['1']\
                                                ['order']
@@ -158,6 +158,10 @@ def close_window():
     return 'xterm' not in oxide('kill')
 
 
+def send_invalid_command():
+    return "Error: Invalid command! Run 'oxide-msg --help' to view usage." in bash(oxide_msg + ' invalid command')
+
+
 def quit_oxide():
     return 'MethodError' in oxide('quit')
 
@@ -168,6 +172,7 @@ def main():
     print("#=======================================================================#")
     print("Running Tests...")
 
+    test(send_invalid_command)
     test(open_kitty_windows)
     test(open_xterm_window)
     test(move_focus)
