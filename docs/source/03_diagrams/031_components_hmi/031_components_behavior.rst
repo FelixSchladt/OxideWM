@@ -53,3 +53,11 @@ Switch workspace user perspective
 
     behaviour when a new workspace is selected from the user perspective
 
+Switch workspace user perspective
+---------------------------------
+
+.. figure:: ../../../../planning/diagrams/behaviour_config_change.png
+    :align: center
+    :width: 80%
+
+    behaviour what happens during a config change from the user perspective
