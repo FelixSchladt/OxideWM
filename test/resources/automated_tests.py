@@ -158,6 +158,9 @@ def close_window():
     return 'xterm' not in oxide('kill')
 
 
+def send_invalid_command():
+    return "Error: Invalid command! Run 'oxide-msg --help' to view usage." in oxide('invalid command')
+
 def quit_oxide():
     return 'MethodError' in oxide('quit')
 
@@ -168,6 +171,10 @@ def main():
     print("#=======================================================================#")
     print("Running Tests...")
 
+    # Stress testing
+    test(send_invalid_command)
+
+    # Validate functionality
     test(open_kitty_windows)
     test(open_xterm_window)
     test(move_focus)
@@ -177,6 +184,8 @@ def main():
     test(switch_to_horizontal_layout)
     test(move_window)
     test(switch_to_tiled_layout)
+
+    # Test quitting functionality
     test(close_window)
     test(quit_oxide)
 
