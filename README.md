@@ -12,6 +12,17 @@ This project idea is inspired by the DWM, leftWM and i3WM.
 Oxide supports a dynamic config, IPC and multiple tiling modes.
 Take a look at our [readthedocs](oxide.readthedocs.org) to see the full documentation.
 
+## Prerequisits
+Rust needs to be installed. After it has been installed, restart the terminal session, so that any new environment variables are loaded.
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+Build tools need to be install:
+```bash
+sudo apt install git make build-essential libglib2.0-dev libcairo2-dev libpango1.0-dev kitty xterm
+```
+
 ## Installation
 
 1. Clone the Oxide git repository:
@@ -32,7 +43,7 @@ After installation you can quit your current X session and log out. Subsequently
 
 ## Run Oxide locally (Debug)
 
-To run oxide locally, xephyr is used to emulate a seperate X-server.
+To run oxide locally, Xephyr is used to emulate a seperate X-server.
 ```bash
 make run
 ```
@@ -46,3 +57,7 @@ make run
 To change log level, set environment variable `OXIDE_LOG=[error, info, debug, trace]` changes affect only after restart... .
 Logs will always be written to `/var/log/syslog`.
 When project is built without `--release` flag, the logs are additionally written to `stdout` and to `log/*.log`.
+
+## Credits
+
+Special thanks to Sascha Kegreiß for the continuous support and great lecture.
