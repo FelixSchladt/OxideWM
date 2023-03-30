@@ -21,10 +21,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 Build tools need to be install:
 ```bash
 # Ubuntu
-sudo apt install build-essential
-sudo apt install libglib2.0-dev
-sudo apt install libcairo2-dev
-sudo apt install libpango1.0-dev
+sudo apt install build-essential libglib2.0-dev libcairo2-dev libpango1.0-dev kitty
 # Arch
 sudo pacman -S base-devel
 ```
