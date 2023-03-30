@@ -282,6 +282,9 @@ impl Workspace {
     }
 
     pub fn remove_window(&mut self, win_id: &u32) {
+        if self.fullscreen == Some(*win_id) {
+            self.fullscreen = None
+        }
         self.windows.remove(&win_id);
         self.order.retain(|&x| x != *win_id);
         self.remap_windows();
