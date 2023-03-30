@@ -317,13 +317,6 @@ fn is_dot_string_empty(dot_str: String) -> bool {
     true
 }
 
-fn format_code() {
-    let result = Command::new("cargo").arg("fmt").spawn();
-    if let Err(error) = result {
-        panic!("failed ro run cargo fmt {error}");
-    }
-}
-
 fn generate_diagrams(root: DiagramRoot) {
     let mut dirs = vec![PathBuf::from(root.root_folder.clone())];
 
@@ -382,7 +375,6 @@ fn generate_diagrams(root: DiagramRoot) {
 }
 
 fn main() {
-    //    format_code();
 
     let diagram_roots: Vec<DiagramRoot> = vec![
         DiagramRoot {
