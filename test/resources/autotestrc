@@ -7,7 +7,4 @@ cargo build -p oxide-bar &>/dev/null
 ./target/debug/oxide     &>/dev/null &
 ./target/debug/oxide-bar &>/dev/null &
 
-echo "Test results are stored in '$CWD/test/resources/automated_test_log'."
-echo "Please be patient while the tests are running."
-# python3 ./test/resources/automated_tests.py | tee ./test/resources/automated_test_log
 python3 ./test/resources/automated_tests.py

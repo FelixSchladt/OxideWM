@@ -95,7 +95,7 @@ def open_xterm_window():
 
 def move_focus():
     get_focused_window = lambda payload : payload['screeninfo']\
-                                                 ['1310']\
+                                                 [f'{payload["focused_screen"]}']\
                                                  ['workspaces']\
                                                  ['1']\
                                                  ['focused_window']
@@ -110,9 +110,10 @@ def move_focus():
 
     return original_state != states[0] != states[1]
 
+
 def move_window():
     get_window_order = lambda payload : payload['screeninfo']\
-                                               ['1310']\
+                                               [f'{payload["focused_screen"]}']\
                                                ['workspaces']\
                                                ['1']\
                                                ['order']
@@ -140,6 +141,7 @@ def move_window():
 
     return original_order == states[len(states)-1]
 
+
 def switch_to_verical_layout():
     state = oxide('layout vertical')
     return 'vertical_striped' in state
@@ -154,12 +156,14 @@ def switch_to_tiled_layout():
     state = oxide('layout tiled')
     return 'tiled' in state
 
+
 def close_window():
     return 'xterm' not in oxide('kill')
 
 
 def send_invalid_command():
-    return "Error: Invalid command! Run 'oxide-msg --help' to view usage." in oxide('invalid command')
+    return "Error: Invalid command! Run 'oxide-msg --help' to view usage." in bash(oxide_msg + ' invalid command')
+
 
 def quit_oxide():
     return 'MethodError' in oxide('quit')
