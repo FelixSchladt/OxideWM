@@ -35,5 +35,29 @@ New application
 
     behaviour when new application is demanded
 
+New application user perspective
+--------------------------------
 
+.. figure:: ../../../../planning/diagrams/behaviour_application_preparation.png
+    :align: center
+    :width: 80%
 
+    behaviour when new application is demanded from the user perspective
+
+Switch workspace user perspective
+---------------------------------
+
+.. figure:: ../../../../planning/diagrams/behaviour_switch_workspace.png
+    :align: center
+    :width: 80%
+
+    behaviour when a new workspace is selected from the user perspective
+
+Switch workspace user perspective
+---------------------------------
+
+.. figure:: ../../../../planning/diagrams/behaviour_config_change.png
+    :align: center
+    :width: 80%
+
+    behaviour what happens during a config change from the user perspective
