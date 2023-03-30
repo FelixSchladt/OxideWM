@@ -18,6 +18,13 @@ function install_cargo () {
     echo -e "[\x1b[32m+\x1b[0m] Installation complete"
 }
 
+function install_curl () {
+    echo -e  "[\x1b[36m~\x1b[0m] Installing Curl..."
+    which apt    && sudo apt install curl
+    which pacman && sudo pacman -S curl
+    echo -e "[\x1b[32m+\x1b[0m] Installation complete"
+}
+
 function install_dmenu () {
     echo -e  "[\x1b[36m~\x1b[0m] Installing DMenu..."
     echo -e  "[\x1b[36m~\x1b[0m] Detecting package manager..."
@@ -57,6 +64,10 @@ which cargo || install_cargo
 echo -e  "[\x1b[36m~\x1b[0m] Checking whether DMenu is installed..."
 echo -ne "[\x1b[32m+\x1b[0m] "
 which dmenu || install_dmenu
+
+echo -e  "[\x1b[36m~\x1b[0m] Checking whether Curl is installed..."
+echo -ne "[\x1b[32m+\x1b[0m] "
+which curl || install_curl
 
 echo -e  "[\x1b[36m~\x1b[0m] Checking whether Graphviz is installed..."
 echo -ne "[\x1b[32m+\x1b[0m] "
