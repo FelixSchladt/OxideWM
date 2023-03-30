@@ -24,6 +24,15 @@ parse error
 
     parse_error.png
 
+workspace layout
+-------------------------------------------------------------------------------------
+
+.. figure:: ../../../../../planning/diagrams/classdg_generated/windowmanager/workspace/workspace_layout.png
+    :align: center
+    :width: 750px
+
+    workspace_layout.png
+
 workspace navigation
 -------------------------------------------------------------------------------------
 

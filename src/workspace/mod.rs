@@ -76,6 +76,7 @@ impl Workspace {
 
         WorkspaceDto {
             name: self.name,
+            layout: self.layout.to_string(),
             focused_window: self.focused_window,
             fullscreen: self.fullscreen,
             urgent: self.urgent,

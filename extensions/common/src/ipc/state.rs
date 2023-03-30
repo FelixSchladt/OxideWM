@@ -28,11 +28,12 @@ pub struct WindowStateDto {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WorkspaceDto {
     pub name: u16,
+    pub layout: String,
     pub focused_window: Option<u32>,
     pub fullscreen: Option<u32>,
     pub urgent: bool,
-    pub windows: HashMap<u32, WindowStateDto>,
     pub order: Vec<u32>,
+    pub windows: HashMap<u32, WindowStateDto>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

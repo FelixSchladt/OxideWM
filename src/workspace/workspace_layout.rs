@@ -7,6 +7,16 @@ pub enum WorkspaceLayout {
     Tiled,
 }
 
+impl WorkspaceLayout {
+    pub fn to_string(&self) -> String {
+        match self {
+            WorkspaceLayout::VerticalStriped => "vertical_striped".into(),
+            WorkspaceLayout::HorizontalStriped => "horizontal_striped".into(),
+            WorkspaceLayout::Tiled => "tiled".into(),
+        }
+    }
+}
+
 impl TryFrom<&str> for WorkspaceLayout {
     type Error = String;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
