@@ -1,11 +1,17 @@
-# *Software Engineering* project - OxideWM
-
+# OxideWM
 
 ![workflow](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust.yml/badge.svg)
 [![Rust-Tests](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust_test.yml/badge.svg)](https://github.com/DHBW-FN/OxideWM/actions/workflows/rust_test.yml)
 <!--![release](/github/v/release/DHBW-FN/OxideWM?display_name=tag) -->
 
 ![Plot](docs/source/oxide-rice.png)
+
+## What is Oxide?
+OxideWm is a X11 dynamic tiling window manager written in rust.
+This project idea is inspired by the DWM, leftWM and i3WM.
+Oxide supports a dynamic config, IPC and multiple tiling modes.
+Take a look at our [readthedocs](oxide.readthedocs.org) to see the full documentation.
+
 
 ## Installation
 
