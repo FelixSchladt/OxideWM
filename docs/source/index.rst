@@ -4,7 +4,7 @@
 =====================
 
 *Oxide* is a tiling window manager for X11. It is written in Rust and uses X11rb.
-This project idea is inspired by 10DWM, leftWM and i3WM.
+This project idea is inspired by DWM, leftWM and i3WM.
 
 .. figure:: oxide-rice.png
    :align: center
